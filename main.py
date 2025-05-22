@@ -202,7 +202,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
             description=f"-# Your email has been set to: `{email}`",
             color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # Custom info form
 class CustomInfoForm(ui.Modal, title="Set up your Information"):
@@ -232,7 +232,7 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
             description="-# Your custom information has been saved.",
             color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # Dropdown for brand selection
 class BrandSelectDropdown(ui.Select):
@@ -461,7 +461,7 @@ class CredentialsDropdownView(ui.View):
                             f"Country: {country}",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         
         elif selected == "Clear Info":
             # Clear user data
@@ -477,7 +477,7 @@ class CredentialsDropdownView(ui.View):
                 description="-# Your saved info has been cleared.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         
         elif selected == "Email":
             # Show email form
@@ -532,7 +532,7 @@ class MenuView(ui.View):
                 description="Please click \"Credentials\" and set up your credentials first",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         # Create generator panel
@@ -587,7 +587,7 @@ class MenuView(ui.View):
             color=discord.Color.from_str("#c2ccf8")
         )
         
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
     async def brands(self, interaction: discord.Interaction, button: ui.Button):
@@ -610,7 +610,7 @@ class MenuView(ui.View):
             color=discord.Color.from_str("#c2ccf8")
         )
         
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.event
 async def on_ready():
