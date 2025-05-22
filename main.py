@@ -344,7 +344,7 @@ class BrandSelectDropdown(ui.Select):
                             f"**Email**: {'True' if has_email else 'False'}",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # Simulate receipt generation process
