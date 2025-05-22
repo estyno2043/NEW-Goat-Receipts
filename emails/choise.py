@@ -1,4 +1,3 @@
-
 import discord
 from emails.normal import SendNormal
 from emails.spoofed import send_email_spoofed
@@ -70,9 +69,9 @@ class choiseView(discord.ui.View):
                 )
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
-                
+
                 await interaction.edit_original_response(embed=embed, view=None)
-                
+
                 # Send additional plain text warning message for spoofed emails (ephemeral)
                 warning_message = "Important: **Spoofed emails often go to spam folders**. Please check your Spam/Junk folder. If you still don't see the email, please try the **Normal Email** option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely."
                 await interaction.followup.send(warning_message, ephemeral=True)
@@ -81,7 +80,7 @@ class choiseView(discord.ui.View):
         except Exception as e:
             await interaction.followup.send(embed=discord.Embed(title="Error", description=f"An error occurred: {str(e)}", color=0xe74c3c), ephemeral=True)
 
-    @discord.ui.button(label="Normal Email", style=discord.ButtonStyle.secondary, custom_id="normal")
+    @discord.ui.button(label="Normal Email", style=discord.ButtonStyle.gray, custom_id="normal")
     async def normal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("This is not your button.", ephemeral=True)
@@ -136,7 +135,7 @@ class choiseView(discord.ui.View):
                 )
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
-                
+
                 await interaction.edit_original_response(embed=embed, view=None)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
