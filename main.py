@@ -339,7 +339,9 @@ class BrandSelectDropdown(ui.Select):
         if not has_credentials or not has_email:
             embed = discord.Embed(
                 title="Setup Required",
-                description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
+                description="Please complete your setup before generating receipts.\n\n" +
+                            f"**Info**: {'True' if has_credentials else 'False'}\n" +
+                            f"**Email**: {'True' if has_email else 'False'}",
                 color=discord.Color.from_str("#c2ccf8")
             )
             await interaction.response.send_message(embed=embed, ephemeral=False)
