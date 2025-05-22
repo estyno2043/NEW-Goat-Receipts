@@ -655,7 +655,8 @@ class MenuView(ui.View):
         if not has_credentials or not has_email:
             embed = discord.Embed(
                 title="Setup Required",
-                description="Please click \"Credentials\" and set up your credentials first",
+                description="Please click \"Credentials\" and set up your credentials first\n\n" +
+                            "-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
                 color=discord.Color.from_str("#c2ccf8")
             )
 
@@ -689,7 +690,7 @@ class MenuView(ui.View):
             view.add_item(help_button)
             view.add_item(brands_button)
 
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 
             return
 
@@ -703,7 +704,7 @@ class MenuView(ui.View):
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        await interaction.response.send_message(embed=embed, view=BrandSelectView(self.user_id), ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=BrandSelectView(self.user_id), ephemeral=False)
 
     @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
     async def credentials(self, interaction: discord.Interaction, button: ui.Button):
@@ -733,19 +734,8 @@ class MenuView(ui.View):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
 
-        embed = discord.Embed(
-            title="Help",
-            description="**How to use GOAT Receipts:**\n\n" +
-                        "1. Click **Credentials** to set up your information and email\n" +
-                        "2. Click **Generate** to create receipts\n" +
-                        "3. Choose a brand from the dropdown menu\n" +
-                        "4. Fill in any required information\n" +
-                        "5. Receive your receipt via email\n\n" +
-                        "For more help, contact support.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        # Redirect to Help channel
+        await interaction.response.send_message("Check out our Help channel for assistance.", ephemeral=True)
 
     @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
     async def brands(self, interaction: discord.Interaction, button: ui.Button):
@@ -753,22 +743,8 @@ class MenuView(ui.View):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
 
-        # For demo purposes, just show a list of some brands
-        brands = [
-            "Apple", "StockX", "Vinted", "Amazon", "Nike", 
-            "Adidas", "eBay", "Walmart", "Target", "Best Buy"
-        ]
-
-        brand_list = "\n".join([f"- {brand}" for brand in brands])
-
-        embed = discord.Embed(
-            title="Available Brands",
-            description=f"Here are some of our available brands:\n\n{brand_list}\n\n" +
-                        "And many more! Use the dropdown menu in the Generator to see all brands.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        # Redirect to Brands channel
+        await interaction.response.send_message("Check out our Brands channel to see all available brands.", ephemeral=True)
 
 @bot.event
 async def on_ready():
@@ -802,7 +778,8 @@ async def generate_command(interaction: discord.Interaction):
             description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`",
+                        f"`{subscription_type}`\n\n" +
+                        "-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
             color=discord.Color.from_str("#c2ccf8")
         )
 
@@ -836,7 +813,7 @@ async def generate_command(interaction: discord.Interaction):
         view.add_item(help_button)
         view.add_item(brands_button)
 
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
     else:
         # Show generator panel for returning users
         username = interaction.user.display_name
@@ -854,7 +831,7 @@ async def generate_command(interaction: discord.Interaction):
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id), ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id), ephemeral=False)
 
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
@@ -873,7 +850,7 @@ async def menu_command(interaction: discord.Interaction):
         color=discord.Color.from_str("#c2ccf8")
     )
 
-    await interaction.response.send_message(embed=embed, view=MenuView(user_id))
+    await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
 
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
