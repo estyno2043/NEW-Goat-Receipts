@@ -1,8 +1,10 @@
+
 import os
 import discord
 import random
 import sqlite3
 import datetime
+from datetime import datetime, timedelta
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from discord import app_commands, ui
@@ -23,10 +25,12 @@ except:
     print("Warning: Message content intent not available. Some features may not work.")
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Create a database to store user emails
+# Create a database to store user data
 def setup_database():
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
+    
+    # Table for user emails
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_emails (
         user_id TEXT PRIMARY KEY,
@@ -34,167 +38,256 @@ def setup_database():
     )
     ''')
 
+    # Table for user custom credentials
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS licenses (
-        owner_id TEXT PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS user_credentials (
+        user_id TEXT PRIMARY KEY,
         name TEXT,
         street TEXT,
         city TEXT,
-        zipp TEXT,
-        country TEXT
+        zip TEXT,
+        country TEXT,
+        is_random BOOLEAN DEFAULT 0
     )
     ''')
-
+    
+    # Table for user subscriptions
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS vouches (
+    CREATE TABLE IF NOT EXISTS user_subscriptions (
         user_id TEXT PRIMARY KEY,
-        vouch_content TEXT
+        subscription_type TEXT DEFAULT '1 (Email Access Only)',
+        start_date TEXT,
+        end_date TEXT,
+        is_active BOOLEAN DEFAULT 1
     )
     ''')
-
+    
+    # Table to store total number of brands available
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_credits (
-        user_id TEXT PRIMARY KEY,
-        credits INTEGER DEFAULT 3
+    CREATE TABLE IF NOT EXISTS system_config (
+        key TEXT PRIMARY KEY,
+        value TEXT
     )
     ''')
+    
+    # Insert default value for total brands if not exists
+    cursor.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES (?, ?)", 
+                  ("total_brands", "100"))
+    
     conn.commit()
     conn.close()
 
-# Generate random details for non-premium users
+# Generate random details for users
 def generate_random_details():
-    first_names = ["John", "Jane", "Michael", "Emma", "David", "Sarah", "Robert", "Lisa"]
-    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson"]
-    streets = ["Oak Street", "Maple Avenue", "Pine Road", "Cedar Lane", "Elm Boulevard", "Willow Drive", "Birch Court", "Cypress Way"]
-    cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego"]
-    zips = ["10001", "90001", "60601", "77001", "85001", "19101", "78201", "92101"]
-    countries = ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy"]
+    first_names = ["John", "Jane", "Michael", "Emma", "David", "Sarah", "Robert", "Lisa", "Kevin", "Amanda"]
+    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson", "Taylor", "Clark"]
+    streets = ["Oak Street", "Maple Avenue", "Pine Road", "Cedar Lane", "Elm Boulevard", "Willow Drive", "Birch Court", "Cypress Way", "Park Avenue", "Main Street"]
+    cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "Boston"]
+    zips = ["10001", "90001", "60601", "77001", "85001", "19101", "78201", "92101", "75201", "02108"]
+    countries = ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Japan", "Sweden"]
 
     name = f"{random.choice(first_names)} {random.choice(last_names)}"
-    street = f"{random.randint(1, 999)} {random.choice(streets)}"
+    street = f"{random.randint(100, 9999)} {random.choice(streets)}"
     city = random.choice(cities)
-    zipp = random.choice(zips)
+    zip_code = random.choice(zips)
     country = random.choice(countries)
 
-    return name, street, city, zipp, country
+    return name, street, city, zip_code, country
 
-# Dropdown for receipt brand selection
-class BrandSelectDropdown(ui.Select):
-    def __init__(self, user_id, panel_interaction=None, panel_message=None):
-        self.user_id = user_id
-        self.panel_interaction = panel_interaction
-        self.panel_message = panel_message
+# Check if user has credentials and email set
+def check_user_setup(user_id):
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    
+    # Check credentials
+    cursor.execute("SELECT * FROM user_credentials WHERE user_id = ?", (user_id,))
+    has_credentials = cursor.fetchone() is not None
+    
+    # Check email
+    cursor.execute("SELECT * FROM user_emails WHERE user_id = ?", (user_id,))
+    has_email = cursor.fetchone() is not None
+    
+    conn.close()
+    
+    return has_credentials, has_email
 
-        # Get user's current credits
-        remaining_credits = 0
-        if user_id != "1339295766828552365":  # Skip for owner
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            # Check if user exists in credits table
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
+# Add or update user subscription
+def update_subscription(user_id, subscription_type="1 (Email Access Only)", days=30):
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    
+    start_date = datetime.now()
+    end_date = start_date + timedelta(days=days)
+    
+    # Format dates as strings
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+    
+    # Insert or update subscription
+    cursor.execute('''
+    INSERT OR REPLACE INTO user_subscriptions
+    (user_id, subscription_type, start_date, end_date, is_active)
+    VALUES (?, ?, ?, ?, 1)
+    ''', (user_id, subscription_type, start_str, end_str))
+    
+    conn.commit()
+    conn.close()
 
-            if not result:
-                # Add user with default 3 credits
-                cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-                conn.commit()
-                remaining_credits = 3
-            else:
-                remaining_credits = result[0]
-            conn.close()
+# Get user subscription info
+def get_subscription(user_id):
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    
+    conn.close()
+    
+    if result:
+        return result[0], result[1]
+    else:
+        # Create default subscription if none exists
+        update_subscription(user_id)
+        return "1 (Email Access Only)", (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
 
-        options = [
-            discord.SelectOption(label="Apple", value="apple", emoji="<:applelogo:1371071241351462922>"),
-            discord.SelectOption(label="StockX", value="stockx", emoji="<:stockx:1371099893963423934>"),
-            discord.SelectOption(label="Vinted", value="vinted", emoji="<:vinted:1371112668441743390>")
-        ]
+# Get total brands count
+def get_total_brands():
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT value FROM system_config WHERE key = 'total_brands'")
+    result = cursor.fetchone()
+    
+    conn.close()
+    
+    if result:
+        return result[0]
+    else:
+        return "100"  # Default value
 
-        # Show credits in the placeholder if not owner
-        if user_id == "1339295766828552365":
-            placeholder = "Choose a brand..."
-        else:
-            placeholder = f"Choose a brand... ({remaining_credits} credits remaining)"
-
-        super().__init__(placeholder=placeholder, min_values=1, max_values=1, options=options)
-
-    async def has_client_role(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return False
-
-        # Client role ID
-        client_role_id = 1339305923545403442
-
-        # Check if user has the client role
-        user = interaction.user
-        if not isinstance(user, discord.Member):
-            # If interaction.user is not a Member object (DM context), fetch the member
-            try:
-                user = await interaction.guild.fetch_member(user.id)
-            except:
-                # If we can't fetch member info, assume they don't have the role
-                return False
-
-        # Check if user has the client role
-        return any(role.id == client_role_id for role in user.roles)
-
-    async def has_left_vouch(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return True
-
-        # Check database for vouch from this user
+# Custom email form
+class EmailForm(ui.Modal, title="Email Settings"):
+    email = ui.TextInput(label="Email", placeholder="example@gmail.com", required=True)
+    
+    def is_icloud_email(self, email):
+        """Check if the email is an iCloud email address"""
+        return "@icloud" in email.lower()
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        email = self.email.value
+        
+        # Check if the email is an iCloud email address
+        if self.is_icloud_email(email):
+            embed = discord.Embed(
+                title="Email Not Saved",
+                description="Your iCloud email was not saved since receipt delivery to iCloud mail won't function. Please change it to **Gmail, Outlook or Yahoo** for successful delivery.\n\n-# This way you won't waste your credits",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            return
+        
+        # Save email to database
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT vouch_content FROM vouches WHERE user_id = ?", (str(interaction.user.id),))
-        result = cursor.fetchone()
+        cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", (user_id, email))
+        conn.commit()
         conn.close()
+        
+        # Update the credentials panel
+        has_credentials, has_email = check_user_setup(user_id)
+        
+        embed = discord.Embed(
+            title="Success",
+            description=f"-# Your email has been set to: `{email}`",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 
-        return result is not None
+# Custom info form
+class CustomInfoForm(ui.Modal, title="Set up your Information"):
+    name = ui.TextInput(label="Name", placeholder="John Doe", required=True)
+    street = ui.TextInput(label="Street", placeholder="123 Main St", required=True)
+    city = ui.TextInput(label="City", placeholder="New York", required=True)
+    zip_code = ui.TextInput(label="Zip", placeholder="10001", required=True)
+    country = ui.TextInput(label="Country", placeholder="United States", required=True)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        
+        # Save custom info to database
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+        INSERT OR REPLACE INTO user_credentials 
+        (user_id, name, street, city, zip, country, is_random) 
+        VALUES (?, ?, ?, ?, ?, ?, 0)
+        ''', (user_id, self.name.value, self.street.value, self.city.value, 
+              self.zip_code.value, self.country.value))
+        conn.commit()
+        conn.close()
+        
+        embed = discord.Embed(
+            title="Success",
+            description="-# Your custom information has been saved.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+
+# Dropdown for brand selection
+class BrandSelectDropdown(ui.Select):
+    def __init__(self, page=1):
+        self.page = page
+        
+        # This is just a placeholder for demo
+        brands = [
+            "Apple", "StockX", "Vinted", "Amazon", "Nike", 
+            "Adidas", "eBay", "Walmart", "Target", "Best Buy",
+            "Newegg", "Microsoft", "Sony", "Samsung", "Google",
+            "Etsy", "Shopify", "ASOS", "Zara", "H&M",
+            "IKEA", "Home Depot", "Lowes", "Wayfair", "Costco"
+        ]
+        
+        # Show only 10 brands per page
+        start_idx = (page - 1) * 10
+        end_idx = min(start_idx + 10, len(brands))
+        current_brands = brands[start_idx:end_idx]
+        
+        options = [discord.SelectOption(label=brand, value=brand.lower()) for brand in current_brands]
+        
+        super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
 
     async def callback(self, interaction: discord.Interaction):
-        # Check if user has client role
-        if await self.has_client_role(interaction):
-            embed = discord.Embed(
-                title="Premium Plan Detected",
-                description="You are already a <@&1339305923545403442> with a plan. Head over to <#1369426783153160304>",
-                color=discord.Color.gold()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        if not await self.has_left_vouch(interaction):
-            embed = discord.Embed(
-                title="⚠️ Vouch To Continue",
-                description="- Leave a **Vouch** message in <#1371111858114658314> To continue",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
         brand = self.values[0]
-
-        # Store panel information for later closing
-        try:
-            # Always create a fresh _panel_data dictionary
-            interaction._panel_data = {}
-
-            # Store the original panel interaction if available
-            if self.panel_interaction:
-                interaction._panel_data['panel_interaction'] = self.panel_interaction
-
-            # Store the panel message if available (from constructor)
-            if self.panel_message:
-                interaction._panel_data['panel_message'] = self.panel_message
-
-            # If we have the current interaction message, store it too
-            if hasattr(interaction, 'message') and interaction.message:
-                interaction._panel_data['panel_message'] = interaction.message
-
-            print(f"Successfully stored panel data for user {interaction.user.id}")
-        except Exception as e:
-            print(f"Failed to store panel message: {e}")
-
+        
+        user_id = str(interaction.user.id)
+        
+        # Check if user has both credentials and email set up
+        has_credentials, has_email = check_user_setup(user_id)
+        
+        if not has_credentials or not has_email:
+            embed = discord.Embed(
+                title="Setup Required",
+                description="Please complete your setup before generating receipts.\n\n" +
+                            f"**Info**: {'True' if has_credentials else 'False'}\n" +
+                            f"**Email**: {'True' if has_email else 'False'}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            return
+        
+        # Simulate receipt generation process
+        embed = discord.Embed(
+            title="Generating Receipt",
+            description=f"Generating a receipt for **{brand.capitalize()}**. Please wait...",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+        
+        # Here you would add your actual receipt generation logic
+        # For specific brands like Apple, StockX, Vinted, etc.
+        
+        # Example placeholder for receipt generation:
         if brand == "apple":
             from modals.apple import applemodal
             modal = applemodal()
@@ -207,368 +300,317 @@ class BrandSelectDropdown(ui.Select):
             from modals.vinted import vintedmodal
             modal = vintedmodal()
             await interaction.response.send_modal(modal)
+        else:
+            # Generic success message for demo purposes
+            await asyncio.sleep(2)  # Simulate processing time
+            success_embed = discord.Embed(
+                title="Receipt Generated",
+                description=f"Your {brand.capitalize()} receipt has been sent to your email.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.edit_original_response(embed=success_embed)
 
-        # Reset the select menu to show placeholder again
-        self.placeholder = "Choose a brand..."
-        # We can't directly reset values as it's a read-only property
-
-# View for brand selection dropdown
+# View for the brand selection
 class BrandSelectView(ui.View):
-    def __init__(self, user_id, panel_interaction=None, panel_message=None):
+    def __init__(self, user_id, page=1):
         super().__init__(timeout=300)
-        # Store the panel message/interaction for closing later
-        self.panel_interaction = panel_interaction
-        self.panel_message = panel_message
-        dropdown = BrandSelectDropdown(user_id, panel_interaction, panel_message)
-        self.add_item(dropdown)
-
-# Email setting modal
-class SetEmailModal(ui.Modal, title="Set Your Email"):
-    email = ui.TextInput(label="Email Address", placeholder="example@email.com", required=True)
-
-    def is_icloud_email(self, email):
-        """Check if the email is an iCloud email address"""
-        return "@icloud" in email.lower()
-
-    async def has_client_role(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return False
-
-        # Client role ID
-        client_role_id = 1339305923545403442
-
-        # Check if user has the client role
-        user = interaction.user
-        if not isinstance(user, discord.Member):
-            # If interaction.user is not a Member object (DM context), fetch the member
-            try:
-                user = await interaction.guild.fetch_member(user.id)
-            except:
-                # If we can't fetch member info, assume they don't have the role
-                return False
-
-        # Check if user has the client role
-        return any(role.id == client_role_id for role in user.roles)
-
-    async def has_left_vouch(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return True
-
-        # Check database for vouch from this user
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT vouch_content FROM vouches WHERE user_id = ?", (str(interaction.user.id),))
-        result = cursor.fetchone()
-        conn.close()
-
-        return result is not None
-
-    async def on_submit(self, interaction: discord.Interaction):
-        # Check if user has client role
-        if await self.has_client_role(interaction):
+        self.user_id = user_id
+        self.page = page
+        self.add_item(BrandSelectDropdown(page))
+    
+    @ui.button(label="Previous", style=discord.ButtonStyle.blurple, custom_id="previous")
+    async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
+        if self.page > 1:
+            self.page -= 1
+            
+            # Get user info
+            username = interaction.user.display_name
+            total_brands = get_total_brands()
+            
+            # Create new embed and view
             embed = discord.Embed(
-                title="Premium Plan Detected",
-                description="You are already a <@&1339305923545403442> with a plan. Head over to <#1369426783153160304>",
-                color=discord.Color.gold()
+                title=f"{username}'s Panel",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+                color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        if not await self.has_left_vouch(interaction):
-            embed = discord.Embed(
-                title="⚠️ Vouch To Continue",
-                description="- Leave a **Vouch** message in <#1371111858114658314> To continue",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        user_id = str(interaction.user.id)
-        email = self.email.value
-
-        # Check if the email is an iCloud email address
-        if self.is_icloud_email(email):
-            embed = discord.Embed(
-                title="Email not saved",
-                description="Your icloud email was not saved since receipt delivery to icloud mail won't function. Please change it to **gmail, outlook or yahoo** for successfull delivery.\n\n-# this way you won't waste your credits <:okay:1371142412755402912>",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", (user_id, email))
-        conn.commit()
-        conn.close()
-
-        class ChangeEmailView(ui.View):
-            def __init__(self):
-                super().__init__(timeout=300)
-
-            @ui.button(label="Change Email", style=discord.ButtonStyle.gray)
-            async def change_email(self, interaction: discord.Interaction, button: ui.Button):
-                await interaction.response.send_modal(SetEmailModal())
-
+            
+            new_view = BrandSelectView(self.user_id, self.page)
+            await interaction.response.edit_message(embed=embed, view=new_view)
+        else:
+            await interaction.response.send_message("You're already on the first page!", ephemeral=True)
+    
+    @ui.button(label="Next Brands", style=discord.ButtonStyle.blurple, custom_id="next")
+    async def next_page(self, interaction: discord.Interaction, button: ui.Button):
+        self.page += 1
+        
+        # Get user info
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+        
+        # Create new embed and view
         embed = discord.Embed(
-            title="Email Set Successfully",
-            description=f"Your email is set to: `{email}`",
-            color=discord.Color.green()
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+            color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, view=ChangeEmailView(), ephemeral=True)
+        
+        new_view = BrandSelectView(self.user_id, self.page)
+        await interaction.response.edit_message(embed=embed, view=new_view)
+    
+    @ui.button(label="Close", style=discord.ButtonStyle.danger, custom_id="close")
+    async def close_menu(self, interaction: discord.Interaction, button: ui.Button):
+        embed = discord.Embed(
+            title="Menu Closed",
+            description="The panel is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.edit_message(embed=embed, view=None)
 
-# Button view for the panel
-class ReceiptPanelView(ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    # Helper method to check if user has client role
-    async def has_client_role(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return False
-
-        # Client role ID
-        client_role_id = 1339305923545403442
-
-        # Check if user has the client role
-        user = interaction.user
-        if not isinstance(user, discord.Member):
-            # If interaction.user is not a Member object (DM context), fetch the member
-            try:
-                user = await interaction.guild.fetch_member(user.id)
-            except:
-                # If we can't fetch member info, assume they don't have the role
-                return False
-
-        # Check if user has the client role
-        return any(role.id == client_role_id for role in user.roles)
-
-    async def has_left_vouch(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return True
-
-        # Check database for vouch from this user
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT vouch_content FROM vouches WHERE user_id = ?", (str(interaction.user.id),))
-        result = cursor.fetchone()
-        conn.close()
-
-        return result is not None
-
-    @ui.button(label="Generate Receipt", style=discord.ButtonStyle.gray, custom_id="generate_receipt")
-    async def generate_receipt(self, interaction: discord.Interaction, button: ui.Button):
-        user_id = str(interaction.user.id)
-
-        # Check if user has client role
-        if await self.has_client_role(interaction):
-            embed = discord.Embed(
-                title="Premium Plan Detected",
-                description="You are already a <@&1339305923545403442> with a plan. Head over to <#1369426783153160304>",
-                color=discord.Color.gold()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        if not await self.has_left_vouch(interaction):
-            embed = discord.Embed(
-                title="⚠️ Vouch To Continue",
-                description="- Leave a **Vouch** message in <#1371111858114658314> To continue",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Check if user has credits (skip for owner)
-        if interaction.user.id != 1339295766828552365:  # Owner ID exemption
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-
-            # Check if user exists in credits table
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-
-            if not result:
-                # Add user with default 3 credits
-                cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-                conn.commit()
-                credits = 3
-            else:
-                credits = result[0]
-
-            conn.close()
-
-            # Check if user has enough credits
-            if credits <= 0:
-                embed = discord.Embed(
-                    title="Limit Reached",
-                    description="Oops... you have used all of your remaining **credits**. You will need to buy a **[premium plan](https://goatreceipts.xyz)** to continue generating receipts for over **80** available brands.",
-                    color=discord.Color.red()
+# View for the credentials dropdown menu
+class CredentialsDropdownView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        
+        # Create dropdown menu
+        self.dropdown = ui.Select(
+            placeholder="Select an option to proceed...",
+            options=[
+                discord.SelectOption(
+                    label="Custom Info", 
+                    description="Enter your details manually",
+                    emoji="📝"
+                ),
+                discord.SelectOption(
+                    label="Random Info", 
+                    description="Generate random details",
+                    emoji="🌐"
+                ),
+                discord.SelectOption(
+                    label="Clear Info", 
+                    description="Remove all saved data",
+                    emoji="🗑️"
+                ),
+                discord.SelectOption(
+                    label="Email", 
+                    description="Update your email address",
+                    emoji="📧"
                 )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-        # Check if user has set an email
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (user_id,))
-        result = cursor.fetchone()
-        conn.close()
-
-        if not result:
-            # User hasn't set an email
-            embed = discord.Embed(
-                title="No Email",
-                description="```Click button \"Set Email\" and configure your email where you would like to receive this receipt```",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            ]
+        )
+        
+        self.dropdown.callback = self.dropdown_callback
+        self.add_item(self.dropdown)
+    
+    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
+    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
-
-        # Generate random details for the user if they don't have custom credentials
-        name, street, city, zipp, country = generate_random_details()
-
-        # Store these details in the database for the apple.py modal to use
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO licenses (owner_id, name, street, city, zipp, country) VALUES (?, ?, ?, ?, ?, ?)",
-                      (user_id, name, street, city, zipp, country))
-        conn.commit()
-        conn.close()
-
-        # Show brand selection dropdown with remaining credits information
-        # Get user's remaining credits (skip for owner)
-        if interaction.user.id != 1339295766828552365:
+            
+        # Create menu panel
+        subscription_type, end_date = get_subscription(self.user_id)
+        
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=f"Hello <@{self.user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{subscription_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
+        
+    async def dropdown_callback(self, interaction: discord.Interaction):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        selected = self.dropdown.values[0]
+        
+        if selected == "Custom Info":
+            # Show custom info form
+            await interaction.response.send_modal(CustomInfoForm())
+        
+        elif selected == "Random Info":
+            # Generate random info
+            name, street, city, zip_code, country = generate_random_details()
+            
+            # Save to database
             conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-            credits_info = f"You have **{result[0]}** credits remaining."
+            cursor.execute('''
+            INSERT OR REPLACE INTO user_credentials 
+            (user_id, name, street, city, zip, country, is_random) 
+            VALUES (?, ?, ?, ?, ?, ?, 1)
+            ''', (self.user_id, name, street, city, zip_code, country))
+            conn.commit()
             conn.close()
-
+            
+            # Display random info
             embed = discord.Embed(
-                title="Choose from free available receipts",
-                description=f"Please choose a brand to continue\n\n{credits_info}",
-                color=discord.Color.blue()
+                title="Success",
+                description=f"Randomized Information for <@{self.user_id}>.\n\n" +
+                            f"Name: {name}\n" +
+                            f"Street: {street}\n" +
+                            f"City: {city}\n" +
+                            f"ZIP: {zip_code}\n" +
+                            f"Country: {country}",
+                color=discord.Color.from_str("#c2ccf8")
             )
-        else:
-            embed = discord.Embed(
-                title="Choose from free available receipts",
-                description="Please choose a brand to continue",
-                color=discord.Color.blue()
-            )
-
-        # Send message with the view and store it for later reference
-        response = await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id, interaction), ephemeral=True)
-
-        # Try to get the message for future reference
-        try:
-            message = await interaction.original_response()
-            if message:
-                print(f"Successfully captured original message in generate_receipt for user {interaction.user.id}")
-        except Exception as e:
-            print(f"Could not get original message: {e}")
-
-        # Create an attribute dictionary on the interaction to store panel data
-        try:
-            # Initialize panel data dictionary
-            interaction._panel_data = {}
-
-            # Store the interaction object itself
-            interaction._panel_data['original_interaction'] = interaction
-
-            # Store the panel message if we can get it
-            if hasattr(interaction, 'message') and interaction.message:
-                interaction._panel_data['panel_message'] = interaction.message
-
-            print(f"Successfully stored panel data in generate_receipt for user {interaction.user.id}")
-        except Exception as e:
-            print(f"Failed to store panel message: {e}")
-
-    @ui.button(label="Set Email", style=discord.ButtonStyle.blurple, custom_id="set_email")
-    async def set_email(self, interaction: discord.Interaction, button: ui.Button):
-        user_id = str(interaction.user.id)
-
-        # Check if user has client role
-        if await self.has_client_role(interaction):
-            embed = discord.Embed(
-                title="Premium Plan Detected",
-                description="You are already a <@&1339305923545403442> with a plan. Head over to <#1369426783153160304>",
-                color=discord.Color.gold()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        if not await self.has_left_vouch(interaction):
-            embed = discord.Embed(
-                title="⚠️ Vouch To Continue",
-                description="- Leave a **Vouch** message in <#1371111858114658314> To continue",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Check if user has credits (skip for owner)
-        if interaction.user.id != 1339295766828552365:  # Owner ID exemption
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+        
+        elif selected == "Clear Info":
+            # Clear user data
             conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
-
-            # Check if user exists in credits table
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-
-            if not result:
-                # Add user with default 3 credits
-                cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-                conn.commit()
-                credits = 3
-            else:
-                credits = result[0]
-
+            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (self.user_id,))
+            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (self.user_id,))
+            conn.commit()
             conn.close()
-
-            # Check if user has enough credits
-            if credits <= 0:
-                embed = discord.Embed(
-                    title="Limit Reached",
-                    description="Oops... you have used all of your remaining **credits**. You will need to buy a **[premium plan](https://goatreceipts.xyz)** to continue generating receipts for over **80** available brands.",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-        # Check if user already has an email set
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (user_id,))
-        result = cursor.fetchone()
-        conn.close()
-
-        if result:
-            # User already has an email set, show it with option to change
-            email = result[0]
-
-            class ChangeEmailView(ui.View):
-                def __init__(self):
-                    super().__init__(timeout=300)
-
-                @ui.button(label="Change Email", style=discord.ButtonStyle.gray)
-                async def change_email(self, interaction: discord.Interaction, button: ui.Button):
-                    await interaction.response.send_modal(SetEmailModal())
-
+            
             embed = discord.Embed(
-                title="Email Settings",
-                description=f"Your email is set to: `{email}`",
-                color=discord.Color.blue()
+                title="Success",
+                description="-# Your saved info has been cleared.",
+                color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, view=ChangeEmailView(), ephemeral=True)
-        else:
-            # User doesn't have an email set, show the modal
-            await interaction.response.send_modal(SetEmailModal())
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+        
+        elif selected == "Email":
+            # Show email form
+            await interaction.response.send_modal(EmailForm())
+
+# View for the credentials panel
+class CredentialsView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        
+    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
+    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        # Create menu panel
+        subscription_type, end_date = get_subscription(self.user_id)
+        
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=f"Hello <@{self.user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{subscription_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
+
+# View for the main menu
+class MenuView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+    
+    @ui.button(label="Generate", style=discord.ButtonStyle.gray, custom_id="generate")
+    async def generate(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        # Check if user has credentials and email
+        has_credentials, has_email = check_user_setup(self.user_id)
+        
+        if not has_credentials or not has_email:
+            embed = discord.Embed(
+                title="Setup Required",
+                description="Please click \"Credentials\" and set up your credentials first",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            return
+        
+        # Create generator panel
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+        
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=BrandSelectView(self.user_id))
+    
+    @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
+    async def credentials(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        # Get user setup status
+        has_credentials, has_email = check_user_setup(self.user_id)
+        
+        # Create credentials panel
+        embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.edit_message(embed=embed, view=CredentialsDropdownView(self.user_id))
+    
+    @ui.button(label="Help", style=discord.ButtonStyle.gray, custom_id="help")
+    async def help(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        embed = discord.Embed(
+            title="Help",
+            description="**How to use GOAT Receipts:**\n\n" +
+                        "1. Click **Credentials** to set up your information and email\n" +
+                        "2. Click **Generate** to create receipts\n" +
+                        "3. Choose a brand from the dropdown menu\n" +
+                        "4. Fill in any required information\n" +
+                        "5. Receive your receipt via email\n\n" +
+                        "For more help, contact support.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    
+    @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
+    async def brands(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+            
+        # For demo purposes, just show a list of some brands
+        brands = [
+            "Apple", "StockX", "Vinted", "Amazon", "Nike", 
+            "Adidas", "eBay", "Walmart", "Target", "Best Buy"
+        ]
+        
+        brand_list = "\n".join([f"- {brand}" for brand in brands])
+        
+        embed = discord.Embed(
+            title="Available Brands",
+            description=f"Here are some of our available brands:\n\n{brand_list}\n\n" +
+                        "And many more! Use the dropdown menu in the Generator to see all brands.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 
 @bot.event
 async def on_ready():
@@ -585,149 +627,42 @@ async def on_ready():
     except Exception as e:
         print(f"Failed to sync commands: {e}")
 
-@bot.event
-async def on_message(message: discord.Message):
-    # Skip if the message is from the bot itself
-    if message.author.bot:
-        return
-
-    # Check if the message is in the vouch channel
-    if message.channel.id == 1371111858114658314:
-        # If message starts with +vouch, save it
-        if message.content.startswith("+vouch"):
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("INSERT OR REPLACE INTO vouches (user_id, vouch_content) VALUES (?, ?)", (str(message.author.id), message.content))
-            conn.commit()
-            conn.close()
-        # If message doesn't start with +, delete it
-        elif not message.content.startswith("+"):
-            try:
-                await message.delete()
-                # Optional: Send a temporary notification to the user
-                warning = await message.channel.send(f"{message.author.mention} Please use the format `+vouch [your message]` in this channel.")
-                await asyncio.sleep(5)  # Wait 5 seconds
-                await warning.delete()  # Delete the warning message
-            except discord.errors.NotFound:
-                pass  # Message was already deleted
-            except discord.errors.Forbidden:
-                pass  # Bot doesn't have permission to delete
-
-    # Process commands after message handling
-    await bot.process_commands(message)
-
-@bot.event
-async def on_message_delete(message: discord.Message):
-    # Skip message deletions from the bot itself
-    if message.author.bot:
-        return
-
-    # Only track deletions in the vouch channel for user messages that start with +vouch
-    if message.channel.id == 1371111858114658314 and message.content.startswith("+vouch"):
-        await message.channel.send(f"{message.author.mention} Deleted a Vouch: {message.content}")
-
-@bot.tree.command(name="stick", description="Display vouch format information")
-async def stick(interaction: discord.Interaction):
-    # Check if command user is the owner
-    if interaction.user.id != 1339295766828552365:  # Owner ID
-        embed = discord.Embed(
-            title="Nice Try",
-            description="HaHa... Nice try",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    # Create embed
-    embed = discord.Embed(
-        title="Vouch Format",
-        description="Vouch Format `+vouch VouchMessageHere`\nExample `+vouch 100% legit and works`",
-        color=discord.Color.blue()
-    )
-
-    # Send the message to the channel (not ephemeral)
-    await interaction.response.send_message("Creating vouch format message...", ephemeral=True)
-    await interaction.channel.send(embed=embed)
-
-@bot.tree.command(name="resetcredits", description="Reset a user's credits to the default value (3)")
-@app_commands.describe(user="The user whose credits you want to reset")
-async def resetcredits(interaction: discord.Interaction, user: discord.Member):
-    # Check if command user is the owner
-    if interaction.user.id != 1339295766828552365:  # Owner ID
-        embed = discord.Embed(
-            title="Nice Try",
-            description="HaHa... Nice try",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    # Reset the selected user's credits
-    target_user_id = str(user.id)
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    # Insert or replace the user's credits with the default value (3)
-    cursor.execute("INSERT OR REPLACE INTO user_credits (user_id, credits) VALUES (?, 3)", (target_user_id,))
-    conn.commit()
-    conn.close()
-
-    # Send confirmation
-    embed = discord.Embed(
-        title="Credits Reset",
-        description=f"Reset {user.mention}'s credits to 3.",
-        color=discord.Color.green()
-    )
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-@bot.tree.command(name="freepanel", description="Create a free receipt generator panel")
-async def freepanel(interaction: discord.Interaction):
-    # Check if command user is the owner
-    if interaction.user.id != 1339295766828552365:  # Owner ID
-        embed = discord.Embed(
-            title="Nice Try",
-            description="HaHa... Nice try",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    # Get user credits
+@bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
+async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    # Check if user exists in credits table, if not add them with default 3 credits
-    cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-
-    if not result:
-        cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-        conn.commit()
-        credits = 3
+    
+    # Check if user has a subscription or create default one
+    subscription_type, end_date = get_subscription(user_id)
+    
+    # Check if user has credentials and email
+    has_credentials, has_email = check_user_setup(user_id)
+    
+    if not has_credentials or not has_email:
+        # Show menu panel for new users
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{subscription_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.send_message(embed=embed, view=MenuView(user_id))
     else:
-        credits = result[0]
-
-    conn.close()
-
-    # Create embed
-    embed = discord.Embed(
-        title="Free Receipt Generator",
-        description=f"```Interact with the buttons below to get started```\n**Note:**\n- To Fully customize your own **credentials** & get access to over **80 Brands** you need to purchase a **[premium access](https://goatreceipts.cc)**",
-        color=discord.Color.blue()
-    )
-
-    # Set images
-    embed.set_image(url="https://media.discordapp.net/attachments/1339298010169086075/1371061598000775258/Untitled_design_20.png?ex=6821c41e&is=6820729e&hm=4c39ba7ba3612a13bd86e5cc31847106a2e98d7ccd343f42ffcd0f415b6aa4b3&=&format=webp&quality=lossless")
-
-    # Set footer with the icon (moved from author to footer)
-    embed.set_footer(text="GOAT Receipts", icon_url="https://media.discordapp.net/attachments/1339298010169086075/1371061649884057642/GOAT.png?ex=6821c42a&is=682072aa&hm=e4ecaaf1b15fb6ff567c9c631a69010f0706425c0df3f197cf917e394b350f9c&=&format=webp&quality=lossless")
-
-    # Send an ephemeral acknowledgment to the user 
-    await interaction.response.send_message("Creating panel...", ephemeral=True)
-
-    # Send the panel to the channel directly (not as a reply)
-    await interaction.channel.send(embed=embed, view=ReceiptPanelView())
+        # Show generator panel for returning users
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+        
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id))
 
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):

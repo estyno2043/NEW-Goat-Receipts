@@ -29,30 +29,48 @@ productname = ""
 currency = ""
 shippingcost = ""
 
-class vintedmodal(ui.Modal, title="discord.gg/goatreceipts"):
+class vintedmodal(ui.Modal, title="Vinted Receipt Generator"):
     yourvintedname = ui.TextInput(label="Your Vinted Name", placeholder="Enter your Vinted username", required=True)
     sellername = ui.TextInput(label="Seller Name", placeholder="Enter seller's username", required=True)
     productname = ui.TextInput(label="Product Name", placeholder="Enter product name", required=True)
     currency = ui.TextInput(label="Currency", placeholder="€", required=True, min_length=1, max_length=1)
     shippingcost = ui.TextInput(label="Shipping Cost", placeholder="1.45", required=True)
 
-    async def has_left_vouch(self, interaction: discord.Interaction):
-        # Owner ID exemption
-        if interaction.user.id == 1339295766828552365:
-            return True
-
-        # Check database for vouch from this user
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT vouch_content FROM vouches WHERE user_id = ?", (str(interaction.user.id),))
-        result = cursor.fetchone()
-        conn.close()
-
-        return result is not None
-
     async def on_submit(self, interaction: discord.Interaction):
         global yourvintedname, sellername, productname, currency, shippingcost
-        owner_id = interaction.user.id 
+        owner_id = str(interaction.user.id)
+        
+        # Get user's email from database
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (owner_id,))
+        email_result = cursor.fetchone()
+        
+        # Get user's credentials from database
+        cursor.execute("SELECT name, street, city, zip, country FROM user_credentials WHERE user_id = ?", (owner_id,))
+        credentials_result = cursor.fetchone()
+        conn.close()
+        
+        if not email_result:
+            embed = discord.Embed(
+                title="Error",
+                description="Email not found. Please set your email first.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            return
+            
+        if not credentials_result:
+            embed = discord.Embed(
+                title="Error",
+                description="Credentials not found. Please set up your information first.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            return
+            
+        recipient_email = email_result[0]
+        name, street, city, zip_code, country = credentials_resultid 
 
         # Check for vouch
         if not await self.has_left_vouch(interaction):

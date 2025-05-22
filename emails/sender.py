@@ -44,20 +44,6 @@ async def send_email(interaction, recipient_email, html_content, sender_email, s
         server.sendmail(gmail_user, recipient_email, message.as_string())
         server.quit()
 
-        # Deduct credit from user if not owner
-        if interaction.user.id != 1339295766828552365:  # Skip for owner
-            user_id = str(interaction.user.id)
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            # Get current credits
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-            if result and result[0] > 0:
-                new_credits = result[0] - 1
-                cursor.execute("UPDATE user_credits SET credits = ? WHERE user_id = ?", (new_credits, user_id))
-                conn.commit()
-            conn.close()
-
         # Create success embed
         embed = discord.Embed(
             title="Email was sent successfully",
