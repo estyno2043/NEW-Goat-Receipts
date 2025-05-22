@@ -194,15 +194,41 @@ class EmailForm(ui.Modal, title="Email Settings"):
         conn.commit()
         conn.close()
         
-        # Update the credentials panel
-        has_credentials, has_email = check_user_setup(user_id)
-        
-        embed = discord.Embed(
+        # Send success message to user
+        success_embed = discord.Embed(
             title="Success",
             description=f"-# Your email has been set to: `{email}`",
             color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
+        
+        # Update the credentials panel in real-time
+        has_credentials, has_email = check_user_setup(user_id)
+        
+        # Create updated credentials panel
+        updated_embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Get the original message that showed the credentials panel
+        try:
+            # Try to find the original message in the interaction's message history
+            original_message = None
+            for message in interaction.channel.history(limit=10):
+                if message.author == interaction.client.user and message.embeds and message.embeds[0].title == "Credentials":
+                    original_message = message
+                    break
+                    
+            if original_message:
+                await original_message.edit(embed=updated_embed)
+        except Exception as e:
+            print(f"Failed to update credentials panel in real-time: {e}")
 
 # Custom info form
 class CustomInfoForm(ui.Modal, title="Set up your Information"):
@@ -227,12 +253,41 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
         conn.commit()
         conn.close()
         
-        embed = discord.Embed(
+        # Send success message to the user
+        success_embed = discord.Embed(
             title="Success",
             description="-# Your custom information has been saved.",
             color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
+        
+        # Update the credentials panel in real-time
+        has_credentials, has_email = check_user_setup(user_id)
+        
+        # Create updated credentials panel
+        updated_embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Get the original message that showed the credentials panel
+        try:
+            # Try to find the original message in the interaction's message history
+            original_message = None
+            for message in interaction.channel.history(limit=10):
+                if message.author == interaction.client.user and message.embeds and message.embeds[0].title == "Credentials":
+                    original_message = message
+                    break
+                    
+            if original_message:
+                await original_message.edit(embed=updated_embed)
+        except Exception as e:
+            print(f"Failed to update credentials panel in real-time: {e}")
 
 # Dropdown for brand selection
 class BrandSelectDropdown(ui.Select):
@@ -450,8 +505,8 @@ class CredentialsDropdownView(ui.View):
             conn.commit()
             conn.close()
             
-            # Display random info
-            embed = discord.Embed(
+            # Display random info to the user
+            success_embed = discord.Embed(
                 title="Success",
                 description=f"Randomized Information for <@{self.user_id}>.\n\n" +
                             f"Name: {name}\n" +
@@ -461,7 +516,24 @@ class CredentialsDropdownView(ui.View):
                             f"Country: {country}",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=success_embed, ephemeral=True)
+            
+            # Update the credentials panel in real-time
+            has_credentials, has_email = check_user_setup(self.user_id)
+            
+            # Create updated credentials panel
+            updated_embed = discord.Embed(
+                title="Credentials",
+                description="Please make sure both options below are 'True'\n\n" +
+                            "**Info**\n" +
+                            f"{'True' if has_credentials else 'False'}\n\n" +
+                            "**Email**\n" +
+                            f"{'True' if has_email else 'False'}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            
+            # Update the original message
+            await interaction.message.edit(embed=updated_embed)
         
         elif selected == "Clear Info":
             # Clear user data
@@ -472,12 +544,30 @@ class CredentialsDropdownView(ui.View):
             conn.commit()
             conn.close()
             
-            embed = discord.Embed(
+            # Send success message to the user
+            success_embed = discord.Embed(
                 title="Success",
                 description="-# Your saved info has been cleared.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=success_embed, ephemeral=True)
+            
+            # Update the credentials panel in real-time
+            has_credentials, has_email = check_user_setup(self.user_id)
+            
+            # Create updated credentials panel with current status
+            updated_embed = discord.Embed(
+                title="Credentials",
+                description="Please make sure both options below are 'True'\n\n" +
+                            "**Info**\n" +
+                            f"{'True' if has_credentials else 'False'}\n\n" +
+                            "**Email**\n" +
+                            f"{'True' if has_email else 'False'}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            
+            # Update the original message
+            await interaction.message.edit(embed=updated_embed)
         
         elif selected == "Email":
             # Show email form

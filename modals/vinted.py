@@ -39,36 +39,36 @@ class vintedmodal(ui.Modal, title="Vinted Receipt Generator"):
     async def on_submit(self, interaction: discord.Interaction):
         global yourvintedname, sellername, productname, currency, shippingcost
         owner_id = str(interaction.user.id)
-        
+
         # Get user's email from database
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (owner_id,))
         email_result = cursor.fetchone()
-        
+
         # Get user's credentials from database
         cursor.execute("SELECT name, street, city, zip, country FROM user_credentials WHERE user_id = ?", (owner_id,))
         credentials_result = cursor.fetchone()
         conn.close()
-        
+
         if not email_result:
             embed = discord.Embed(
                 title="Error",
                 description="Email not found. Please set your email first.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-            
+
         if not credentials_result:
             embed = discord.Embed(
                 title="Error",
                 description="Credentials not found. Please set up your information first.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-            
+
         recipient_email = email_result[0]
         name, street, city, zip_code, country = credentials_resultid 
 
