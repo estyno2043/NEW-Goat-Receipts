@@ -4,13 +4,15 @@ from emails.spoofed import send_email_spoofed
 import sqlite3
 
 class choiseView(discord.ui.View):
-    def __init__(self, owner_id, receipt_html, spoofed, item_desc, order_id):
+    def __init__(self, owner_id, receipt_html, sender_email, subject, item_desc, image_url, link):
         super().__init__()
         self.owner_id = owner_id
         self.receipt_html = receipt_html
-        self.spoofed = spoofed
+        self.spoofed = sender_email
         self.item_desc = item_desc
-        self.order_id = order_id
+        self.order_id = subject
+        self.image_url = image_url
+        self.link = link
 
     @discord.ui.button(label="Normal Email", style=discord.ButtonStyle.blurple, custom_id="normal")
     async def normal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
