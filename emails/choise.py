@@ -1,5 +1,5 @@
 import discord
-from emails.normal import send_email
+from emails.normal import SendNormal
 from emails.spoofed import send_email_spoofed
 import sqlite3
 
@@ -57,7 +57,7 @@ class choiseView(discord.ui.View):
 
             if user_email:
                 # Send normal email
-                send_email(user_email, self.receipt_html, self.item_desc, self.order_id)
+                await SendNormal.send_email(user_email, self.receipt_html, self.item_desc, self.order_id)
 
                 await interaction.edit_original_response(embed=discord.Embed(title="Success", description="Email sent successfully to your email address.", color=0x2ecc71), view=None)
             else:
