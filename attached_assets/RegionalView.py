@@ -269,11 +269,18 @@ class PaginatedDropdown(discord.ui.Select):
 
 class DropdownView(discord.ui.View):
     def __init__(self, owner_id, brand_options):
-        super().__init__(timeout=180)
+        super().__init__(timeout=300)  # Increased timeout to 5 minutes
         self.owner_id = owner_id
         self.dropdown = PaginatedDropdown(owner_id, brand_options, per_page=13)
         self.add_item(self.dropdown)
         self.region = "US"  # Default region
+        self.last_interaction = datetime.now()
+        
+    async def interaction_check(self, interaction):
+        # Update last interaction time
+        self.last_interaction = datetime.now()
+        # Only allow the owner to use this view
+        return interaction.user.id == self.owner_id
 
         if brand_options == brands_de:
             self.region = "DE"
@@ -586,10 +593,17 @@ class DropdownView(discord.ui.View):
 
 class RegionSelectionView(discord.ui.View):
     def __init__(self, owner_id, user_roles):
-        super().__init__(timeout=180)  # 3 minute timeout
+        super().__init__(timeout=300)  # 5 minute timeout
         self.owner_id = owner_id
         self.user_roles = user_roles
         self.value = None
+        self.last_interaction = datetime.now()
+        
+    async def interaction_check(self, interaction):
+        # Update last interaction time
+        self.last_interaction = datetime.now()
+        # Only allow the owner to use this view
+        return interaction.user.id == self.owner_id
 
         # Add region selection dropdown
         self.add_item(self.RegionSelect(self))
