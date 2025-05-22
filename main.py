@@ -778,42 +778,13 @@ async def generate_command(interaction: discord.Interaction):
             description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`\n\n" +
-                        "-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
+                        f"`{subscription_type}`",
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        view = ui.View()
-        credentials_button = ui.Button(label="Credentials", style=discord.ButtonStyle.gray)
-        help_button = ui.Button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
-        brands_button = ui.Button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
-
-        async def credentials_callback(interaction: discord.Interaction):
-            if interaction.user.id != int(user_id):
-                await interaction.response.send_message("This is not your menu!", ephemeral=True)
-                return
-
-            has_credentials, has_email = check_user_setup(user_id)
-
-            embed = discord.Embed(
-                title="Credentials",
-                description="Please make sure both options below are 'True'\n\n" +
-                            "**Info**\n" +
-                            f"{'True' if has_credentials else 'False'}\n\n" +
-                            "**Email**\n" +
-                            f"{'True' if has_email else 'False'}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            await interaction.response.send_message(embed=embed, view=CredentialsDropdownView(user_id), ephemeral=True)
-
-        credentials_button.callback = credentials_callback
-
-        view.add_item(credentials_button)
-        view.add_item(help_button)
-        view.add_item(brands_button)
-
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+        # Use MenuView with generate button functionality
+        menu_view = MenuView(user_id)
+        await interaction.response.send_message(embed=embed, view=menu_view, ephemeral=False)
     else:
         # Show generator panel for returning users
         username = interaction.user.display_name
