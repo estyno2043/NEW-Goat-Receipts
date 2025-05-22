@@ -22,15 +22,40 @@ class choiseView(discord.ui.View):
 
         try:
             # Get user email from database
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
-            result = cursor.fetchone()
-            conn.close()
+            try:
+                from utils.db_utils import get_user_details
+                user_details = get_user_details(self.owner_id)
 
-            if result:
-                user_email = result[0]
+                if user_details and len(user_details) >= 6:  # Ensure we have at least 6 elements including email
+                    user_email = user_details[5]  # Email is the 6th element (index 5)
+                else:
+                    # Fallback to old method if needed
+                    conn = sqlite3.connect('data.db')
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
+                    result = cursor.fetchone()
+                    conn.close()
 
+                    if result:
+                        user_email = result[0]
+                    else:
+                        user_email = None
+            except Exception as e:
+                print(f"Error getting user details: {str(e)}")
+
+                # Fallback method
+                conn = sqlite3.connect('data.db')
+                cursor = conn.cursor()
+                cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
+                result = cursor.fetchone()
+                conn.close()
+
+                if result:
+                    user_email = result[0]
+                else:
+                    user_email = None
+
+            if user_email:
                 # Send normal email
                 send_email(user_email, self.receipt_html, self.item_desc, self.order_id)
 
@@ -50,15 +75,40 @@ class choiseView(discord.ui.View):
 
         try:
             # Get user email from database
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
-            result = cursor.fetchone()
-            conn.close()
+            try:
+                from utils.db_utils import get_user_details
+                user_details = get_user_details(self.owner_id)
 
-            if result:
-                user_email = result[0]
+                if user_details and len(user_details) >= 6:  # Ensure we have at least 6 elements including email
+                    user_email = user_details[5]  # Email is the 6th element (index 5)
+                else:
+                    # Fallback to old method if needed
+                    conn = sqlite3.connect('data.db')
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
+                    result = cursor.fetchone()
+                    conn.close()
 
+                    if result:
+                        user_email = result[0]
+                    else:
+                        user_email = None
+            except Exception as e:
+                print(f"Error getting user details: {str(e)}")
+
+                # Fallback method
+                conn = sqlite3.connect('data.db')
+                cursor = conn.cursor()
+                cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(self.owner_id),))
+                result = cursor.fetchone()
+                conn.close()
+
+                if result:
+                    user_email = result[0]
+                else:
+                    user_email = None
+
+            if user_email:
                 # Send spoofed email
                 send_email_spoofed(user_email, self.receipt_html, self.spoofed, self.item_desc, self.order_id)
 
