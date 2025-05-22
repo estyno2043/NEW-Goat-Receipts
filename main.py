@@ -695,13 +695,15 @@ class MenuView(ui.View):
 
         await interaction.response.edit_message(embed=embed, view=CredentialsDropdownView(self.user_id))
 
-    @ui.button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
+    @ui.button(label="Help", style=discord.ButtonStyle.gray, custom_id="help")
     async def help(self, interaction: discord.Interaction, button: ui.Button):
-        pass
+        # Redirect to help channel
+        await interaction.response.send_message("Redirecting to help channel: https://discord.com/channels/1339298010169086072/1339520924596043878", ephemeral=True)
 
-    @ui.button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
+    @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
     async def brands(self, interaction: discord.Interaction, button: ui.Button):
-        pass
+        # Redirect to brands channel
+        await interaction.response.send_message("Redirecting to brands channel: https://discord.com/channels/1339298010169086072/1339306570634236038", ephemeral=True)
 
 @bot.event
 async def on_ready():
