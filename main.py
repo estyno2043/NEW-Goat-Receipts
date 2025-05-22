@@ -676,7 +676,7 @@ class MenuView(ui.View):
                 description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # Create generator panel
