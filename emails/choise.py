@@ -21,7 +21,7 @@ class choiseView(discord.ui.View):
             return
 
         await interaction.response.defer(ephemeral=False)
-        
+
         # Immediately show sending status
         sending_embed = discord.Embed(
             title="**Sending...**",
@@ -30,7 +30,7 @@ class choiseView(discord.ui.View):
         )
         if self.image_url:
             sending_embed.set_thumbnail(url=self.image_url)
-        
+
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
@@ -98,7 +98,7 @@ class choiseView(discord.ui.View):
             return
 
         await interaction.response.defer(ephemeral=False)
-        
+
         # Immediately show sending status
         sending_embed = discord.Embed(
             title="**Sending...**",
@@ -107,7 +107,7 @@ class choiseView(discord.ui.View):
         )
         if self.image_url:
             sending_embed.set_thumbnail(url=self.image_url)
-        
+
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
