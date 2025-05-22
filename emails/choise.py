@@ -17,7 +17,7 @@ class choiseView(discord.ui.View):
     @discord.ui.button(label="Spoofed Email", style=discord.ButtonStyle.blurple, custom_id="spoofed")
     async def spoofed_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your button.", ephemeral=True)
+            await interaction.response.send_message("This is not your button.")
             return
 
         await interaction.response.defer(ephemeral=False)
@@ -94,7 +94,7 @@ class choiseView(discord.ui.View):
     @discord.ui.button(label="Normal Email", style=discord.ButtonStyle.gray, custom_id="normal")
     async def normal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your button.", ephemeral=True)
+            await interaction.response.send_message("This is not your button.")
             return
 
         await interaction.response.defer(ephemeral=False)
