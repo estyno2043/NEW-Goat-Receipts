@@ -500,7 +500,7 @@ class CredentialsDropdownView(ui.View):
 
         embed = discord.Embed(
             title="GOAT Menu",
-            description=f""Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+            description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
                         f"`{subscription_type}`\n\n" +
@@ -630,7 +630,7 @@ class CredentialsView(ui.View):
 
         embed = discord.Embed(
             title="GOAT Menu",
-            description=f""Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+            description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
                         f"`{subscription_type}`\n\n" +
@@ -646,7 +646,7 @@ class MenuView(ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=300)
         self.user_id = user_id
-        
+
         # Add URL buttons for Help and Brands
         help_button = ui.Button(
             label="Help", 
@@ -716,7 +716,7 @@ class MenuView(ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=300)
         self.user_id = user_id
-        
+
         # Add URL buttons for Help and Brands
         help_button = ui.Button(
             label="Help", 
@@ -724,7 +724,7 @@ class MenuView(ui.View):
             url="https://discord.com/channels/1339298010169086072/1339520924596043878"
         )
         self.add_item(help_button)
-        
+
         brands_button = ui.Button(
             label="Brands", 
             style=discord.ButtonStyle.gray, 
