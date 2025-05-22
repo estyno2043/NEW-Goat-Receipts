@@ -85,11 +85,3 @@ class choiseView(discord.ui.View):
                 await interaction.edit_original_response(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), view=None)
         except Exception as e:
             await interaction.edit_original_response(embed=discord.Embed(title="Error", description=f"An error occurred: {str(e)}", color=0xe74c3c), view=None)
-
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary, custom_id="cancel")
-    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your button.", ephemeral=True)
-            return
-            
-        await interaction.response.edit_message(embed=discord.Embed(title="Cancelled", description="Email sending cancelled", color=0xe74c3c), view=None)
