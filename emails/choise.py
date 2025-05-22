@@ -85,11 +85,11 @@ class choiseView(discord.ui.View):
 
                 # Send additional plain text warning message for spoofed emails (non-ephemeral)
                 warning_message = "Important: **Spoofed emails often go to spam folders**. Please check your Spam/Junk folder. If you still don't see the email, please try the **Normal Email** option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely."
-                await interaction.followup.send(warning_message, ephemeral=False)
+                await interaction.followup.send(warning_message, ephemeral=True)
             else:
-                await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=False)
+                await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
         except Exception as e:
-            await interaction.followup.send(embed=discord.Embed(title="Error", description=f"An error occurred: {str(e)}", color=0xe74c3c), ephemeral=False)
+            await interaction.followup.send(embed=discord.Embed(title="Error", description=f"An error occurred: {str(e)}", color=0xe74c3c), ephemeral=True)
 
     @discord.ui.button(label="Normal Email", style=discord.ButtonStyle.gray, custom_id="normal")
     async def normal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
