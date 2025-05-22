@@ -11,8 +11,16 @@ class NextstepHarrods(discord.ui.View):
             await interaction.response.send_message(content="That is not your panel", ephemeral=False)
             return
 
-        from modals.harrods import harrodsmodal2
-        await interaction.response.send_modal(harrodsmodal2())
+        # Send a visible message to everyone before showing the modal
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title="You are almost done...",
+                description="Complete the next modal to receive the receipt.",
+                color=0x1e1f22
+            ),
+            view=NextModal(self.owner_id),
+            ephemeral=False
+        )
 
 import discord
 from modals.acnestudios import acnemodal2
@@ -547,3 +555,21 @@ class NextstepHouseOfFraser(discord.ui.View):
             await interaction.response.send_modal(houseofffrasersmodal2())
         else:
             await interaction.response.send_message(content="This button is not for you.", ephemeral=False)
+
+# New class for the "Next Modal" button that appears after step 1
+class NextModal(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=None)
+        self.owner_id = owner_id
+
+    @discord.ui.button(label="Next Modal", style=discord.ButtonStyle.secondary)
+    async def next_modal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message(content="That is not your form", ephemeral=False)
+            return
+
+        # Get the appropriate modal based on the brand context
+        # This is a simplified example - you'll need to determine which modal to show
+        # based on the current flow
+        from modals.harrods import harrodsmodal2
+        await interaction.response.send_modal(harrodsmodal2())

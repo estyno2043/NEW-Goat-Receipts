@@ -163,3 +163,7 @@ class choiseView(discord.ui.View):
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=False)
         except Exception as e:
             await interaction.followup.send(embed=discord.Embed(title="Error", description=f"An error occurred: {str(e)}", color=0xe74c3c), ephemeral=False)
+```
+
+```
+The provided change snippet does not apply to this file. There is no code related to form submission in this file. I will skip this.
