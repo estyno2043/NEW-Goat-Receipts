@@ -25,15 +25,17 @@ class choiseView(discord.ui.View):
         await interaction.response.edit_message(embed=discord.Embed(title="Sending Email...", description="The email is being sent through spoofed domain. Please wait...", color=0x1e1f22), view=None)
         
         try:
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT email FROM licenses WHERE owner_id = ?", (str(self.owner_id),))
-            user_email = cursor.fetchone()
-            conn.close()
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(self.owner_id)
             
-            if user_email:
-                recipient_email = user_email[0]
+            if user_details and user_details[5]:  # Check if user_details exists and email is present
+                recipient_email = user_details[5]
+            else:
+                # Fallback to replit_db if not found in SQLite
+                from utils.replit_db import get_user_email
+                recipient_email = get_user_email(self.owner_id)
+            
+            if recipient_email:
                 result = await send_email_spoofed(recipient_email, self.html_content, self.sender_email, self.subject, self.link)
                 
                 if result == "Email sent successfully":
@@ -60,15 +62,17 @@ class choiseView(discord.ui.View):
         await interaction.response.edit_message(embed=discord.Embed(title="Sending Email...", description="The email is being sent through normal domain. Please wait...", color=0x1e1f22), view=None)
         
         try:
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT email FROM licenses WHERE owner_id = ?", (str(self.owner_id),))
-            user_email = cursor.fetchone()
-            conn.close()
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(self.owner_id)
             
-            if user_email:
-                recipient_email = user_email[0]
+            if user_details and user_details[5]:  # Check if user_details exists and email is present
+                recipient_email = user_details[5]
+            else:
+                # Fallback to replit_db if not found in SQLite
+                from utils.replit_db import get_user_email
+                recipient_email = get_user_email(self.owner_id)
+            
+            if recipient_email:
                 result = await send_email_normal(recipient_email, self.html_content, self.sender_email, self.subject)
                 
                 if result == "Email sent successfully":
