@@ -233,7 +233,7 @@ brands_de = load_brands('DE')
 
 
 class PaginatedDropdown(discord.ui.Select):
-    def __init__(self, owner_id, options, per_page=25):
+    def __init__(self, owner_id, options, per_page=15):
         super().__init__(placeholder='Select a brand to proceed', min_values=1, max_values=1)
         self.owner_id = owner_id
         self.all_options = sorted(options, key=lambda x: x[0])  # Sort alphabetically

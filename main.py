@@ -313,14 +313,14 @@ class BrandSelectDropdown(ui.Select):
         available_brands.sort()
 
         # Show only 10 brands per page
-        start_idx = (page - 1) * 10
-        end_idx = min(start_idx + 10, len(available_brands))
+        start_idx = (page - 1) * 15
+        end_idx = min(start_idx + 15, len(available_brands))
 
         # If page is out of bounds, reset to page 1
         if start_idx >= len(available_brands):
             self.page = 1
             start_idx = 0
-            end_idx = min(10, len(available_brands))
+            end_idx = min(15, len(available_brands))
 
         current_brands = available_brands[start_idx:end_idx]
 
@@ -410,7 +410,7 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
 
         if self.page > 1:
             self.page -= 1
@@ -437,7 +437,7 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
 
         # Only increment page if not at last page
         if self.page < max_pages or max_pages == 0:
@@ -782,6 +782,7 @@ class MenuView(ui.View):
             label="Help", 
             style=discord.ButtonStyle.gray, 
             url="https://discord.com/channels/1339298010169086072/1339520924596043878"
+```python
         )
         self.add_item(help_button)
 
@@ -842,7 +843,7 @@ async def generate_command(interaction: discord.Interaction):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
 
         embed = discord.Embed(
             title=f"{username}'s Panel",
