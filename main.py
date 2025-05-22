@@ -653,43 +653,7 @@ class MenuView(ui.View):
         has_credentials, has_email = check_user_setup(self.user_id)
 
         if not has_credentials or not has_email:
-            embed = discord.Embed(
-                title="Setup Required",
-                description="-# Click on \"Credentials\" button and set up your credentials before you try to **generate**",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            view = ui.View()
-            credentials_button = ui.Button(label="Credentials", style=discord.ButtonStyle.gray)
-            help_button = ui.Button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
-            brands_button = ui.Button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
-
-            async def credentials_callback(interaction: discord.Interaction):
-                if interaction.user.id != int(self.user_id):
-                    await interaction.response.send_message("This is not your menu!", ephemeral=True)
-                    return
-
-                has_credentials, has_email = check_user_setup(self.user_id)
-
-                embed = discord.Embed(
-                    title="Credentials",
-                    description="Please make sure both options below are 'True'\n\n" +
-                                "**Info**\n" +
-                                f"{'True' if has_credentials else 'False'}\n\n" +
-                                "**Email**\n" +
-                                f"{'True' if has_email else 'False'}",
-                    color=discord.Color.from_str("#c2ccf8")
-                )
-
-                await interaction.response.send_message(embed=embed, view=CredentialsDropdownView(self.user_id), ephemeral=True)
-
-            credentials_button.callback = credentials_callback
-
-            view.add_item(credentials_button)
-            view.add_item(help_button)
-            view.add_item(brands_button)
-
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            await interaction.response.send_message("-# Click on \"Credentials\" button and set up your credentials before you try to **generate**", ephemeral=False)
 
             return
 
