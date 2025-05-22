@@ -642,6 +642,20 @@ class MenuView(ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=300)
         self.user_id = user_id
+        
+        # Add URL buttons for Help and Brands
+        help_button = ui.Button(
+            label="Help", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
+        )
+        brands_button = ui.Button(
+            label="Brands", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
+        )
+        self.add_item(help_button)
+        self.add_item(brands_button)
 
     @ui.button(label="Generate", style=discord.ButtonStyle.gray, custom_id="generate")
     async def generate(self, interaction: discord.Interaction, button: ui.Button):
@@ -695,15 +709,24 @@ class MenuView(ui.View):
 
         await interaction.response.edit_message(embed=embed, view=CredentialsDropdownView(self.user_id))
 
-    @ui.button(label="Help", style=discord.ButtonStyle.gray, custom_id="help")
-    async def help(self, interaction: discord.Interaction, button: ui.Button):
-        # Redirect to help channel
-        await interaction.response.send_message("Redirecting to help channel: https://discord.com/channels/1339298010169086072/1339520924596043878", ephemeral=True)
-
-    @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
-    async def brands(self, interaction: discord.Interaction, button: ui.Button):
-        # Redirect to brands channel
-        await interaction.response.send_message("Redirecting to brands channel: https://discord.com/channels/1339298010169086072/1339306570634236038", ephemeral=True)
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        
+        # Add URL buttons for Help and Brands
+        help_button = ui.Button(
+            label="Help", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
+        )
+        self.add_item(help_button)
+        
+        brands_button = ui.Button(
+            label="Brands", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
+        )
+        self.add_item(brands_button)
 
 @bot.event
 async def on_ready():
