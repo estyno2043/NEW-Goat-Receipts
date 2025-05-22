@@ -653,7 +653,7 @@ class MenuView(ui.View):
         has_credentials, has_email = check_user_setup(self.user_id)
 
         if not has_credentials or not has_email:
-            await interaction.response.send_message("-# Click on \"Credentials\" button and set up your credentials before you try to **generate**", ephemeral=False)
+            await interaction.response.send_message("Click on \"Credentials\" button and set up your credentials before you try to **generate**", ephemeral=True)
 
             return
 
