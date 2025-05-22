@@ -152,18 +152,21 @@ def get_subscription(user_id):
 
 # Get total brands count
 def get_total_brands():
+    # Count actual available modal files
+    import os
+    modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+    count = len(modal_files)
+    
+    # Update the count in the database
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
     
-    cursor.execute("SELECT value FROM system_config WHERE key = 'total_brands'")
-    result = cursor.fetchone()
-    
+    cursor.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES (?, ?)", 
+                  ("total_brands", str(count)))
+    conn.commit()
     conn.close()
     
-    if result:
-        return result[0]
-    else:
-        return "100"  # Default value
+    return str(count)
 
 # Custom email form
 class EmailForm(ui.Modal, title="Email Settings"):
@@ -294,19 +297,33 @@ class BrandSelectDropdown(ui.Select):
     def __init__(self, page=1):
         self.page = page
         
-        # This is just a placeholder for demo
-        brands = [
-            "Apple", "StockX", "Vinted", "Amazon", "Nike", 
-            "Adidas", "eBay", "Walmart", "Target", "Best Buy",
-            "Newegg", "Microsoft", "Sony", "Samsung", "Google",
-            "Etsy", "Shopify", "ASOS", "Zara", "H&M",
-            "IKEA", "Home Depot", "Lowes", "Wayfair", "Costco"
-        ]
+        # List only the brands that have actual modal implementations
+        # This automatically detects brands from the modals folder
+        import os
+        available_brands = []
+        
+        # Get modal files from the modals directory
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        
+        # Extract brand names from the filenames
+        for modal_file in modal_files:
+            brand_name = modal_file.split('.')[0].capitalize()
+            available_brands.append(brand_name)
+        
+        # Sort alphabetically
+        available_brands.sort()
         
         # Show only 10 brands per page
         start_idx = (page - 1) * 10
-        end_idx = min(start_idx + 10, len(brands))
-        current_brands = brands[start_idx:end_idx]
+        end_idx = min(start_idx + 10, len(available_brands))
+        
+        # If page is out of bounds, reset to page 1
+        if start_idx >= len(available_brands):
+            self.page = 1
+            start_idx = 0
+            end_idx = min(10, len(available_brands))
+            
+        current_brands = available_brands[start_idx:end_idx]
         
         options = [discord.SelectOption(label=brand, value=brand.lower()) for brand in current_brands]
         
@@ -375,6 +392,12 @@ class BrandSelectView(ui.View):
     
     @ui.button(label="Previous", style=discord.ButtonStyle.blurple, custom_id="previous")
     async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
+        # Get total number of brands to calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
+        
         if self.page > 1:
             self.page -= 1
             
@@ -385,7 +408,7 @@ class BrandSelectView(ui.View):
             # Create new embed and view
             embed = discord.Embed(
                 title=f"{username}'s Panel",
-                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages if max_pages > 0 else 1}",
                 color=discord.Color.from_str("#c2ccf8")
             )
             
@@ -396,21 +419,31 @@ class BrandSelectView(ui.View):
     
     @ui.button(label="Next Brands", style=discord.ButtonStyle.blurple, custom_id="next")
     async def next_page(self, interaction: discord.Interaction, button: ui.Button):
-        self.page += 1
+        # Get total number of brands to calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
         
-        # Get user info
-        username = interaction.user.display_name
-        total_brands = get_total_brands()
-        
-        # Create new embed and view
-        embed = discord.Embed(
-            title=f"{username}'s Panel",
-            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-        
-        new_view = BrandSelectView(self.user_id, self.page)
-        await interaction.response.edit_message(embed=embed, view=new_view)
+        # Only increment page if not at last page
+        if self.page < max_pages or max_pages == 0:
+            self.page += 1
+            
+            # Get user info
+            username = interaction.user.display_name
+            total_brands = get_total_brands()
+            
+            # Create new embed and view
+            embed = discord.Embed(
+                title=f"{username}'s Panel",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages if max_pages > 0 else 1}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            
+            new_view = BrandSelectView(self.user_id, self.page)
+            await interaction.response.edit_message(embed=embed, view=new_view)
+        else:
+            await interaction.response.send_message("You're already on the last page!", ephemeral=True)
     
     @ui.button(label="Close", style=discord.ButtonStyle.danger, custom_id="close")
     async def close_menu(self, interaction: discord.Interaction, button: ui.Button):
@@ -746,9 +779,15 @@ async def generate_command(interaction: discord.Interaction):
         username = interaction.user.display_name
         total_brands = get_total_brands()
         
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 9) // 10  # Ceiling division to get number of pages
+        
         embed = discord.Embed(
             title=f"{username}'s Panel",
-            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
             color=discord.Color.from_str("#c2ccf8")
         )
         
