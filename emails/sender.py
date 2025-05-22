@@ -57,21 +57,21 @@ async def send_email(interaction, recipient_email, html_content, sender_email, s
 
         # Update interaction message to show closed panel
         await interaction.edit_original_response(embed=embed, view=None)
-
+        
         # Send confirmation message to the confirmation channel
         confirmation_channel_id = 1371073235969638461
         confirmation_channel = interaction.client.get_channel(confirmation_channel_id)
-
+        
         if confirmation_channel:
             confirmation_embed = discord.Embed(
                 title=f"<a:Confirmation:1366854650401128528> {brand} Receipt Generated",
                 description=f"Receipt for {product_name or 'your purchase'} sent successfully",
                 color=discord.Color.green()
             )
-
+            
             if image_url:
                 confirmation_embed.set_thumbnail(url=image_url)
-
+                
             # Send message with user mention and embed
             await confirmation_channel.send(
                 content=f"<@{interaction.user.id}> has generated free **{brand}** receipt",

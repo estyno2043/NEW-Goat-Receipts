@@ -8,19 +8,11 @@ class NextstepHarrods(discord.ui.View):
     @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
     async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
             return
 
-        # Send a visible message to everyone before showing the modal
-        await interaction.response.send_message(
-            embed=discord.Embed(
-                title="You are almost done...",
-                description="Complete the next modal to receive the receipt.",
-                color=0x1e1f22
-            ),
-            view=NextModal(self.owner_id),
-            ephemeral=False
-        )
+        from modals.harrods import harrodsmodal2
+        await interaction.response.send_modal(harrodsmodal2())
 
 import discord
 from modals.acnestudios import acnemodal2
@@ -57,7 +49,7 @@ class NextstepStockX(discord.ui.View):
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("You cannot use this button.", ephemeral=False)
+            await interaction.response.send_message("You cannot use this button.", ephemeral=True)
             return False
         return True
 
@@ -78,7 +70,7 @@ class NextstepSynaworld(discord.ui.View):
             from modals.synaworld import synaworldmodal2
             await interaction.response.send_modal(synaworldmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 
@@ -93,7 +85,7 @@ class Nextstepbape(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(bapemodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class NextstepApple(discord.ui.View):
     def __init__(self, owner_id):
@@ -106,7 +98,7 @@ class NextstepApple(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(applemodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class Nextsteptnf(discord.ui.View):
@@ -120,7 +112,7 @@ class Nextsteptnf(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(tnfmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class Nextstepcg(discord.ui.View):
     def __init__(self, owner_id):
@@ -133,7 +125,7 @@ class Nextstepcg(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(canadagoose2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
 
 
 class NextstepArgos(discord.ui.View):
@@ -148,7 +140,7 @@ class NextstepArgos(discord.ui.View):
             from modals.argos import argosmodal2
             await interaction.response.send_modal(argosmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class Nextstepsephora(discord.ui.View):
@@ -162,7 +154,7 @@ class Nextstepsephora(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(sephoramodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class Nextstepzara(discord.ui.View):
@@ -173,7 +165,7 @@ class Nextstepzara(discord.ui.View):
     @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
     async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
             return
 
         from modals.zara import zaramodal2
@@ -187,7 +179,7 @@ class NextstepUgg(discord.ui.View):
     @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
     async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
             return
 
         from modals.ugg import uggmodal2
@@ -204,7 +196,7 @@ class NextstepAcne(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(acnemodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class NextstepAdidas(discord.ui.View):
@@ -218,7 +210,7 @@ class NextstepAdidas(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(adidasmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class Nextstepbroken(discord.ui.View):
@@ -232,7 +224,7 @@ class Nextstepbroken(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(brokenmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class Nextstepcartier(discord.ui.View):
@@ -246,7 +238,7 @@ class Nextstepcartier(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(cartiermodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class NextstepChrome(discord.ui.View):
@@ -260,7 +252,7 @@ class NextstepChrome(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(chromemodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class NextstepFlannels(discord.ui.View):
@@ -274,7 +266,7 @@ class NextstepFlannels(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(flannelsmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class NextstepGallerydept(discord.ui.View):
@@ -288,7 +280,7 @@ class NextstepGallerydept(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(gallerydeptmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 
 class NextstepLoro(discord.ui.View):
@@ -302,7 +294,7 @@ class NextstepLoro(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(loromodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class NextstepMaison(discord.ui.View):
     def __init__(self, owner_id):
@@ -315,7 +307,7 @@ class NextstepMaison(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(maisonmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class NextstepPandora(discord.ui.View):
     def __init__(self, owner_id):
@@ -328,7 +320,7 @@ class NextstepPandora(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(pandoramodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
 
 class Nextstepbijenkorf(discord.ui.View):
     def __init__(self, owner_id):
@@ -341,7 +333,7 @@ class Nextstepbijenkorf(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(bijenkorfmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class NextstepGrailed(discord.ui.View):
     def __init__(self, owner_id):
@@ -354,7 +346,7 @@ class NextstepGrailed(discord.ui.View):
         if interaction.user.id == self.owner_id: 
             await interaction.response.send_modal(grailedmodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False) 
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 
 class NextstepTrapstar(discord.ui.View):
     def __init__(self, owner_id):
@@ -364,7 +356,7 @@ class NextstepTrapstar(discord.ui.View):
     @discord.ui.button(label="Next Page", style=discord.ButtonStyle.primary)
     async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("That is not your button.", ephemeral=False)
+            await interaction.response.send_message("That is not your button.", ephemeral=True)
             return
 
         from modals.trapstar import trapstarmodal2
@@ -378,7 +370,7 @@ class NextstepAdwysd(discord.ui.View):
     @discord.ui.button(label="Next Page", style=discord.ButtonStyle.primary)
     async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("That is not your button.", ephemeral=False)
+            await interaction.response.send_message("That is not your button.", ephemeral=True)
             return
 
         from modals.adwysd import adwysdmodal2
@@ -392,7 +384,7 @@ class NextstepCernucci(discord.ui.View):
     @discord.ui.button(label='Next Page', style=discord.ButtonStyle.primary, custom_id='nextpage_cernucci')
     async def button_callback(self, interaction, button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="This is not your panel!", ephemeral=False)
+            await interaction.response.send_message(content="This is not your panel!", ephemeral=True)
             return
 
         from modals.cernucci import cernuccimodal2
@@ -427,7 +419,7 @@ class NextstepGucci(discord.ui.View):
             from modals.gucci import guccimodal2
             await interaction.response.send_modal(guccimodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
 class NextstepKickgame(discord.ui.View):
     def __init__(self, owner_id):
         super().__init__(timeout=None)
@@ -461,7 +453,7 @@ class NextstepKickgame(discord.ui.View):
             from modals.kickgame import kickgamemodal2
             await interaction.response.send_modal(kickgamemodal2())
         else:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
 
 from discord.ext import commands, tasks
 import discord
@@ -482,7 +474,7 @@ class NextstepApplepickup(discord.ui.View):
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your menu!", ephemeral=False)
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return False
         return True
 
@@ -502,7 +494,7 @@ class NextstepSupreme(discord.ui.View):
             from modals.supreme import suprememodal2
             await interaction.response.send_modal(suprememodal2())
         else:
-            await interaction.response.send_message("This is not for you!", ephemeral=False)
+            await interaction.response.send_message("This is not for you!", ephemeral=True)
 
 class NextstepVinted(discord.ui.View):
     def __init__(self, owner_id):
@@ -515,7 +507,7 @@ class NextstepVinted(discord.ui.View):
             from modals.vinted import vintedmodal2
             await interaction.response.send_modal(vintedmodal2())
         else:
-            await interaction.response.send_message("This is not for you!", ephemeral=False)
+            await interaction.response.send_message("This is not for you!", ephemeral=True)
 import discord
 from modals.vinted import vintedmodal2
 
@@ -527,7 +519,7 @@ class NextstepVinted(discord.ui.View):
     @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
     async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=False)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
             return
 
         await interaction.response.send_modal(vintedmodal2())
@@ -542,7 +534,7 @@ class NextstepZalando(discord.ui.View):
         if str(interaction.user.id) == str(self.owner_id):
             await interaction.response.send_modal(zalandodemodal2())
         else:
-            await interaction.response.send_message(content="This button is not for you.", ephemeral=False)
+            await interaction.response.send_message(content="This button is not for you.", ephemeral=True)
 
 class NextstepHouseOfFraser(discord.ui.View):
     def __init__(self, owner_id):
@@ -554,22 +546,4 @@ class NextstepHouseOfFraser(discord.ui.View):
         if str(interaction.user.id) == str(self.owner_id):
             await interaction.response.send_modal(houseofffrasersmodal2())
         else:
-            await interaction.response.send_message(content="This button is not for you.", ephemeral=False)
-
-# New class for the "Next Modal" button that appears after step 1
-class NextModal(discord.ui.View):
-    def __init__(self, owner_id):
-        super().__init__(timeout=None)
-        self.owner_id = owner_id
-
-    @discord.ui.button(label="Next Modal", style=discord.ButtonStyle.secondary)
-    async def next_modal_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your form", ephemeral=False)
-            return
-
-        # Get the appropriate modal based on the brand context
-        # This is a simplified example - you'll need to determine which modal to show
-        # based on the current flow
-        from modals.harrods import harrodsmodal2
-        await interaction.response.send_modal(harrodsmodal2())
+            await interaction.response.send_message(content="This button is not for you.", ephemeral=True)
