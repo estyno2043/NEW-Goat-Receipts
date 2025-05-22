@@ -16,7 +16,11 @@ load_dotenv()
 
 # Bot configuration
 intents = discord.Intents.default()
-intents.message_content = True
+# Try using privileged intents if enabled in the developer portal
+try:
+    intents.message_content = True
+except:
+    print("Warning: Message content intent not available. Some features may not work.")
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Create a database to store user emails
