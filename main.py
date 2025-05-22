@@ -653,8 +653,12 @@ class MenuView(ui.View):
         has_credentials, has_email = check_user_setup(self.user_id)
 
         if not has_credentials or not has_email:
-            await interaction.response.send_message("Click on \"Credentials\" button and set up your credentials before you try to **generate**", ephemeral=True)
-
+            embed = discord.Embed(
+                title="Setup Required",
+                description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
         # Create generator panel
@@ -691,23 +695,13 @@ class MenuView(ui.View):
 
         await interaction.response.edit_message(embed=embed, view=CredentialsDropdownView(self.user_id))
 
-    @ui.button(label="Help", style=discord.ButtonStyle.gray, custom_id="help")
+    @ui.button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
     async def help(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
+        pass
 
-        # Redirect to Help channel
-        await interaction.response.send_message("Check out our Help channel for assistance.", ephemeral=True)
-
-    @ui.button(label="Brands", style=discord.ButtonStyle.gray, custom_id="brands")
+    @ui.button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
     async def brands(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Redirect to Brands channel
-        await interaction.response.send_message("Check out our Brands channel to see all available brands.", ephemeral=True)
+        pass
 
 @bot.event
 async def on_ready():
