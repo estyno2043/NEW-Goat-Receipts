@@ -655,8 +655,7 @@ class MenuView(ui.View):
         if not has_credentials or not has_email:
             embed = discord.Embed(
                 title="Setup Required",
-                description="Please click \"Credentials\" and set up your credentials first\n\n" +
-                            "-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
+                description="-# Click on \"Credentials\" button and set up your credentials before you try to **generate**",
                 color=discord.Color.from_str("#c2ccf8")
             )
 
