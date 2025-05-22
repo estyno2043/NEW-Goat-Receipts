@@ -194,35 +194,10 @@ class vintedmodal2(ui.Modal, title="Vinted Receipt"):
             with open("receipt/updatedrecipies/updatedvinted.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
 
-            # Check if user has credits (skip for owner)
-            if interaction.user.id != 1339295766828552365:  # Owner ID exemption
-                user_id = str(interaction.user.id)
-                conn = sqlite3.connect('data.db')
-                cursor = conn.cursor()
+            # Credit check removed - unlimited receipts allowed
+            # Continue with receipt generationlose()
 
-                # Check if user exists in credits table
-                cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-                result = cursor.fetchone()
-
-                if not result:
-                    # Add user with default 3 credits
-                    cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-                    conn.commit()
-                    credits = 3
-                else:
-                    credits = result[0]
-
-                conn.close()
-
-                # Check if user has enough credits
-                if credits <= 0:
-                    embed = discord.Embed(
-                        title="Limit Reached",
-                        description="Oops... you have used all of your remaining **credits**. You will need to buy a **[premium plan](https://goatreceipts.xyz)** to continue generating receipts for over **80** available brands.",
-                        color=discord.Color.red()
-                    )
-                    await interaction.edit_original_response(embed=embed, view=None)
-                    return
+                # Credit limit check removed - users can generate unlimited receipts
 
             # Get user's email from database
             owner_id = interaction.user.id

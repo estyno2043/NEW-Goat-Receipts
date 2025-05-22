@@ -197,15 +197,7 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
 
             conn.close()
 
-            # Check if user has enough credits
-            if credits <= 0:
-                embed = discord.Embed(
-                    title="Limit Reached",
-                    description="Oops... you have used all of your remaining **credits**. You will need to buy a **[premium plan](https://goatreceipts.xyz)** to continue generating receipts for over **80** available brands.",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+            # Credit limit check removed - users can generate unlimited receipts
 
         try:
             pprice = float(self.pprice.value)
