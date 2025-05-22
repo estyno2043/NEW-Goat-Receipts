@@ -384,10 +384,25 @@ class BrandSelectDropdown(ui.Select):
 # View for the brand selection
 class BrandSelectView(ui.View):
     def __init__(self, user_id, page=1):
-        super().__init__(timeout=300)
+        super().__init__(timeout=30)  # Set timeout to 30 seconds
         self.user_id = user_id
         self.page = page
         self.add_item(BrandSelectDropdown(page))
+        
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The interaction has timed out and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except:
+            pass
 
     @ui.button(label="Previous", style=discord.ButtonStyle.blurple, custom_id="previous")
     async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
@@ -456,8 +471,23 @@ class BrandSelectView(ui.View):
 # View for the credentials dropdown menu
 class CredentialsDropdownView(ui.View):
     def __init__(self, user_id):
-        super().__init__(timeout=300)
+        super().__init__(timeout=30)  # Set timeout to 30 seconds
         self.user_id = user_id
+        
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The interaction has timed out and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except:
+            pass
 
         # Create dropdown menu
         self.dropdown = ui.Select(
@@ -616,8 +646,23 @@ class CredentialsDropdownView(ui.View):
 # View for the credentials panel
 class CredentialsView(ui.View):
     def __init__(self, user_id):
-        super().__init__(timeout=300)
+        super().__init__(timeout=30)  # Set timeout to 30 seconds
         self.user_id = user_id
+        
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The interaction has timed out and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except:
+            pass
 
     @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
     async def go_back(self, interaction: discord.Interaction, button: ui.Button):
@@ -644,9 +689,24 @@ class CredentialsView(ui.View):
 # View for the main menu
 class MenuView(ui.View):
     def __init__(self, user_id):
-        super().__init__(timeout=300)
+        super().__init__(timeout=30)  # Set timeout to 30 seconds
         self.user_id = user_id
-
+        
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The interaction has timed out and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except:
+            pass
+            
         # Add URL buttons for Help and Brands
         help_button = ui.Button(
             label="Help", 
