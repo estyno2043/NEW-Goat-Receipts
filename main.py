@@ -770,8 +770,7 @@ async def on_ready():
     # Set up database
     setup_database()
 
-    # Sync```python
- commands with Discord
+    # Sync commands with Discord
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
