@@ -782,7 +782,6 @@ class MenuView(ui.View):
             label="Help", 
             style=discord.ButtonStyle.gray, 
             url="https://discord.com/channels/1339298010169086072/1339520924596043878"
-```python
         )
         self.add_item(help_button)
 
