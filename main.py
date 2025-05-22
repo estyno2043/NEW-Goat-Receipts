@@ -760,7 +760,9 @@ async def generate_command(interaction: discord.Interaction):
             description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`",
+                        f"`{subscription_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
         )
 
@@ -799,7 +801,9 @@ async def menu_command(interaction: discord.Interaction):
         description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
                     "-# pick an option below to continue\n\n" +
                     "**Subscription Type**\n" +
-                    f"`{subscription_type}`",
+                    f"`{subscription_type}`\n\n" +
+                    "**Note**\n" +
+                    "-# please click \"Credentials\" and set your credentials before you try to generate",
         color=discord.Color.from_str("#c2ccf8")
     )
 
