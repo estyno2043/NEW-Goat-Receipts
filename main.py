@@ -347,52 +347,73 @@ class BrandSelectDropdown(ui.Select):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Simulate receipt generation process
-        embed = discord.Embed(
-            title="Generating Receipt",
-            description=f"Generating a receipt for **{brand.capitalize()}**. Please wait...",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
-
-        # Here you would add your actual receipt generation logic
-        # For specific brands like Apple, StockX, Vinted, etc.
-
-        # Example placeholder for receipt generation:
-        if brand == "apple":
-            from modals.apple import applemodal
-            modal = applemodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "stockx":
-            from modals.stockx import stockxmodal
-            modal = stockxmodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "vinted":
-            from modals.vinted import vintedmodal
-            modal = vintedmodal()
-            await interaction.response.send_modal(modal)
-        else:
-            # Generic success message for demo purposes
-            await asyncio.sleep(2)  # Simulate processing time
-            success_embed = discord.Embed(
-                title="Receipt Generated",
-                description=f"Your {brand.capitalize()} receipt has been sent to your email.",
+        # Process brand selection and show appropriate modal
+        try:
+            # Import the appropriate modal module dynamically based on brand name
+            module_name = f"modals.{brand}"
+            modal_class_name = f"{brand}modal"
+            
+            # Special case handling for brands with different modal class naming patterns
+            special_cases = {
+                "acnestudios": "acnestudiosmodal",
+                "chromehearts": "chromemodal",
+                "canadagoose": "canadagoose",
+                "lv": "lvmodal",
+                "tnf": "tnfmodal",
+                "chewforever": "Chewforevermodal"
+                # Add other special cases as needed
+            }
+            
+            if brand in special_cases:
+                modal_class_name = special_cases[brand]
+                
+            # Dynamic import of the module
+            try:
+                import importlib
+                modal_module = importlib.import_module(module_name)
+                
+                # Get the modal class dynamically
+                modal_class = getattr(modal_module, modal_class_name)
+                
+                # Create the modal instance
+                modal = modal_class()
+                
+                # Show the modal to the user
+                await interaction.response.send_modal(modal)
+                
+            except (ImportError, AttributeError) as e:
+                print(f"Error loading modal for {brand}: {e}")
+                # Fallback message if modal can't be loaded
+                embed = discord.Embed(
+                    title="Modal Unavailable",
+                    description=f"The receipt form for **{brand.capitalize()}** couldn't be loaded. Please try another brand.",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            print(f"Error processing brand selection: {e}")
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while processing your selection. Please try again later.",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.edit_original_response(embed=success_embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # View for the brand selection
 class BrandSelectView(ui.View):
     def __init__(self, user_id, page=1):
-        super().__init__(timeout=180)  # Set timeout to 3 minutes
+        super().__init__(timeout=300)  # Set timeout to 5 minutes
         self.user_id = user_id
         self.page = page
         self.add_item(BrandSelectDropdown(page))
         self.last_interaction = datetime.now()
+        self.message = None
 
     async def interaction_check(self, interaction):
         # Update last interaction time on every interaction
         self.last_interaction = datetime.now()
+        # Reset timeout on interaction
+        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
         # Check if the interaction is from the original user
         return interaction.user.id == int(self.user_id)
 
@@ -406,7 +427,8 @@ class BrandSelectView(ui.View):
 
         # Try to edit the message with the timeout embed
         try:
-            await self.message.edit(embed=timeout_embed, view=None)
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
         except Exception as e:
             print(f"Error in timeout handling: {e}")
 
@@ -767,13 +789,29 @@ class MenuView(ui.View):
         username = interaction.user.display_name
         total_brands = get_total_brands()
 
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
         embed = discord.Embed(
             title=f"{username}'s Panel",
-            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Click \"Next Brands\" to see next page",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        await interaction.response.send_message(embed=embed, view=BrandSelectView(self.user_id), ephemeral=False)
+        view = BrandSelectView(self.user_id)
+        message = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+        
+        # Store the message for proper timeout handling
+        try:
+            # Get the message if it's not already available directly
+            if not message:
+                message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
 
     @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
     async def credentials(self, interaction: discord.Interaction, button: ui.Button):
@@ -874,7 +912,15 @@ async def generate_command(interaction: discord.Interaction):
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id), ephemeral=False)
+        view = BrandSelectView(user_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+        
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
 
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
