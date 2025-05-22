@@ -562,8 +562,12 @@ class CredentialsDropdownView(ui.View):
                 color=discord.Color.from_str("#c2ccf8")
             )
 
-            # Update the original message
-            await interaction.message.edit(embed=updated_embed)
+            # Try to update the original message, catch permission errors
+            try:
+                await interaction.message.edit(embed=updated_embed)
+            except discord.errors.Forbidden:
+                # Send as a new message instead if we can't edit the original
+                await interaction.followup.send(embed=updated_embed, ephemeral=True)
 
         elif selected == "Clear Info":
             # Clear user data
@@ -596,8 +600,12 @@ class CredentialsDropdownView(ui.View):
                 color=discord.Color.from_str("#c2ccf8")
             )
 
-            # Update the original message
-            await interaction.message.edit(embed=updated_embed)
+            # Try to update the original message, catch permission errors
+            try:
+                await interaction.message.edit(embed=updated_embed)
+            except discord.errors.Forbidden:
+                # Send as a new message instead if we can't edit the original
+                await interaction.followup.send(embed=updated_embed, ephemeral=True)
 
         elif selected == "Email":
             # Show email form
@@ -650,19 +658,19 @@ class MenuView(ui.View):
                 description="Please click \"Credentials\" and set up your credentials first",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            
+
             view = ui.View()
             credentials_button = ui.Button(label="Credentials", style=discord.ButtonStyle.gray)
             help_button = ui.Button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
             brands_button = ui.Button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
-            
+
             async def credentials_callback(interaction: discord.Interaction):
                 if interaction.user.id != int(self.user_id):
                     await interaction.response.send_message("This is not your menu!", ephemeral=True)
                     return
-                
+
                 has_credentials, has_email = check_user_setup(self.user_id)
-                
+
                 embed = discord.Embed(
                     title="Credentials",
                     description="Please make sure both options below are 'True'\n\n" +
@@ -672,17 +680,17 @@ class MenuView(ui.View):
                                 f"{'True' if has_email else 'False'}",
                     color=discord.Color.from_str("#c2ccf8")
                 )
-                
+
                 await interaction.response.send_message(embed=embed, view=CredentialsDropdownView(self.user_id), ephemeral=True)
-                
+
             credentials_button.callback = credentials_callback
-            
+
             view.add_item(credentials_button)
             view.add_item(help_button)
             view.add_item(brands_button)
-            
+
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-            
+
             return
 
         # Create generator panel
@@ -797,19 +805,19 @@ async def generate_command(interaction: discord.Interaction):
                         f"`{subscription_type}`",
             color=discord.Color.from_str("#c2ccf8")
         )
-        
+
         view = ui.View()
         credentials_button = ui.Button(label="Credentials", style=discord.ButtonStyle.gray)
         help_button = ui.Button(label="Help", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
         brands_button = ui.Button(label="Brands", style=discord.ButtonStyle.gray, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
-        
+
         async def credentials_callback(interaction: discord.Interaction):
             if interaction.user.id != int(user_id):
                 await interaction.response.send_message("This is not your menu!", ephemeral=True)
                 return
-            
+
             has_credentials, has_email = check_user_setup(user_id)
-            
+
             embed = discord.Embed(
                 title="Credentials",
                 description="Please make sure both options below are 'True'\n\n" +
@@ -819,11 +827,11 @@ async def generate_command(interaction: discord.Interaction):
                             f"{'True' if has_email else 'False'}",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            
+
             await interaction.response.send_message(embed=embed, view=CredentialsDropdownView(user_id), ephemeral=True)
-            
+
         credentials_button.callback = credentials_callback
-        
+
         view.add_item(credentials_button)
         view.add_item(help_button)
         view.add_item(brands_button)
