@@ -793,6 +793,27 @@ async def generate_command(interaction: discord.Interaction):
         
         await interaction.response.send_message(embed=embed, view=BrandSelectView(user_id))
 
+@bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
+async def menu_command(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    
+    # Check if user has a subscription or create default one
+    subscription_type, end_date = get_subscription(user_id)
+    
+    # Create menu panel
+    embed = discord.Embed(
+        title="GOAT Menu",
+        description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+                    "-# pick an option below to continue\n\n" +
+                    "**Subscription Type**\n" +
+                    f"`{subscription_type}`\n\n" +
+                    "**Note**\n" +
+                    "-# please click \"Credentials\" and set your credentials before you try to generate",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+    
+    await interaction.response.send_message(embed=embed, view=MenuView(user_id))
+
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
