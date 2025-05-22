@@ -81,7 +81,7 @@ class choiseView(discord.ui.View):
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
 
-                await interaction.edit_original_response(embed=embed, ephemeral=False)
+                await interaction.edit_original_response(embed=embed)
 
                 # Send additional plain text warning message for spoofed emails (non-ephemeral)
                 warning_message = "Important: **Spoofed emails often go to spam folders**. Please check your Spam/Junk folder. If you still don't see the email, please try the **Normal Email** option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely."
@@ -158,7 +158,7 @@ class choiseView(discord.ui.View):
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
 
-                await interaction.edit_original_response(embed=embed, ephemeral=False)
+                await interaction.edit_original_response(embed=embed)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=False)
         except Exception as e:
