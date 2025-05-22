@@ -502,28 +502,9 @@ class CredentialsDropdownView(ui.View):
         super().__init__(timeout=180)  # Set timeout to 3 minutes
         self.user_id = user_id
         self.last_interaction = datetime.now()
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time on every interaction
-        self.last_interaction = datetime.now()
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        # Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-        # Create dropdown menu
+        self.message = None
+        
+        # Create dropdown menu (moved from on_timeout to init)
         self.dropdown = ui.Select(
             placeholder="Select an option to proceed...",
             options=[
@@ -552,6 +533,29 @@ class CredentialsDropdownView(ui.View):
 
         self.dropdown.callback = self.dropdown_callback
         self.add_item(self.dropdown)
+
+    async def interaction_check(self, interaction):
+        # Update last interaction time on every interaction
+        self.last_interaction = datetime.now()
+        # Reset timeout on interaction
+        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
+        # Check if the interaction is from the original user
+        return interaction.user.id == int(self.user_id)
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The panel has timed out due to inactivity and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
 
     @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
     async def go_back(self, interaction: discord.Interaction, button: ui.Button):
@@ -833,7 +837,16 @@ class MenuView(ui.View):
             color=discord.Color.from_str("#c2ccf8")
         )
 
-        await interaction.response.edit_message(embed=embed, view=CredentialsDropdownView(self.user_id))
+        # Create view and store message reference
+        view = CredentialsDropdownView(self.user_id)
+        await interaction.response.edit_message(embed=embed, view=view)
+        
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference for credentials panel: {e}")
 
     def __init__(self, user_id):
         super().__init__(timeout=300)
