@@ -62,7 +62,7 @@ class choiseView(discord.ui.View):
                 # Send spoofed email
                 await send_email_spoofed(user_email, self.receipt_html, self.sender_email, self.subject, self.link)
 
-                # Send success message (not ephemeral)
+                # Update original message with success embed
                 embed = discord.Embed(
                     title="Email Sent", 
                     description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
@@ -71,15 +71,11 @@ class choiseView(discord.ui.View):
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
                 
-                await interaction.followup.send(embed=embed, ephemeral=False)
+                await interaction.edit_original_response(embed=embed, view=None)
                 
-                # Send additional warning message for spoofed emails (ephemeral)
-                warning_embed = discord.Embed(
-                    title="Important: Spoofed emails often go to spam folders", 
-                    description="Please check your Spam/Junk folder. If you still don't see the email, please use the Normal Email option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely.", 
-                    color=0xf39c12
-                )
-                await interaction.followup.send(embed=warning_embed, ephemeral=True)
+                # Send additional plain text warning message for spoofed emails (ephemeral)
+                warning_message = "Important: **Spoofed emails often go to spam folders**. Please check your Spam/Junk folder. If you still don't see the email, please try the **Normal Email** option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely."
+                await interaction.followup.send(warning_message, ephemeral=True)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
         except Exception as e:
@@ -132,7 +128,7 @@ class choiseView(discord.ui.View):
                 # Send normal email
                 await SendNormal.send_email(user_email, self.receipt_html, self.sender_email, self.subject)
 
-                # Send success message (not ephemeral)
+                # Update original message with success embed
                 embed = discord.Embed(
                     title="Email Sent", 
                     description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
@@ -141,7 +137,7 @@ class choiseView(discord.ui.View):
                 if self.image_url:
                     embed.set_thumbnail(url=self.image_url)
                 
-                await interaction.followup.send(embed=embed, ephemeral=False)
+                await interaction.edit_original_response(embed=embed, view=None)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
         except Exception as e:
