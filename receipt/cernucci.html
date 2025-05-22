@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cernucci Order Confirmation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 400px;
+        }
+        .order-number {
+            text-align: right;
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .thank-you {
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-weight: normal;
+            font-size: 24px;
+            margin: 0 0 10px;
+        }
+        .message {
+            color: #777;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #8E918F;
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-right: 15px;
+            margin-bottom: 20px;
+        }
+        .store-link {
+            color: #8e918f;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .section {
+            margin: 40px 0;
+        }
+        h3 {
+            font-weight: normal;
+            font-size: 20px;
+            margin: 0 0 25px;
+        }
+        .product {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 20px;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        .product-details {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+        }
+        .product-size {
+            font-size: 14px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .product-price {
+            color: #555;
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: auto;
+            text-align: right;
+        }
+        .summary {
+            width: 100%;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 20px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        .summary-label {
+            color: #777;
+            font-size: 16px;
+            text-align: left;
+            width: 30%;
+        }
+        .summary-value {
+            color: #555;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: right;
+            width: 30%;
+        }
+        .total {
+            border-top: 2px solid #e5e5e5;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+        .total .summary-value {
+            font-size: 20px;
+        }
+        .customer-info {
+            display: flex;
+            margin: 40px 0;
+        }
+        .address {
+            width: 50%;
+            padding-right: 20px;
+        }
+        .address h4 {
+            font-weight: 500;
+            font-size: 16px;
+            color: #555;
+            margin: 0 0 5px;
+        }
+        .address p {
+            color: #777;
+            font-size: 16px;
+            margin: 0 0 20px;
+        }
+        .shipping-method {
+            margin-top: 20px;
+        }
+        .footer {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 35px;
+            color: #999;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .footer a {
+            color: #8e918f;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="https://cdn.shopify.com/s/files/1/0591/2844/7137/files/logo.png?6205" alt="Cernucci US">
+    </div>
+
+    <div class="order-number">
+        Order #{ordernumber}
+    </div>
+
+    <div class="thank-you">
+        <h2>Thank you for your purchase!</h2>
+        <p class="message">We're getting your order ready to be shipped. We will notify you when it has been sent.</p>
+
+        <a href="#" class="button" style="color: white; text-decoration: none;">View your order</a>
+        <span>or <a href="https://us.cernucci.com" class="store-link">Visit our store</a></span>
+    </div>
+
+    <div class="section">
+        <h3>Order summary</h3>
+
+        <div class="product">
+            <img src="{imageurl}" alt="{productname}" class="product-image">
+            <div class="product-details">
+                <div>
+                    <div class="product-name">{productname} × 1</div>
+                    <div class="product-size">{size}</div>
+                </div>
+                <div class="product-price">{currency}{price}</div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="summary-row">
+                <div class="summary-label">Subtotal</div>
+                <div class="summary-value">{currency}{price}</div>
+            </div>
+            <div class="summary-row">
+                <div class="summary-label">Shipping</div>
+                <div class="summary-value">{currency}{shippingcost}</div>
+            </div>
+            <div class="summary-row">
+                <div class="summary-label">Taxes</div>
+                <div class="summary-value">{currency}{taxcost}</div>
+            </div>
+            <div class="summary-row total">
+                <div class="summary-label">Total</div>
+                <div class="summary-value">{currency}{total}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Customer information</h3>
+
+        <div class="customer-info">
+            <div class="address">
+                <h4>Shipping address</h4>
+                <p>
+                    {name}<br>
+                    {street}<br>
+                    {city}, {zip}<br>
+                    {country}
+                </p>
+            </div>
+            <div class="address">
+                <h4>Billing address</h4>
+                <p>
+                    {name}<br>
+                    {street}<br>
+                    {city}, {zip}<br>
+                    {country}
+                </p>
+            </div>
+        </div>
+
+        <div class="shipping-method">
+            <h4>Shipping method</h4>
+            <p>USA Standard: 6-9 Days</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>If you have any questions, reply to this email or contact us at <a href="https://us.cernucci.com">Cernucci Help Centre</a></p>
+    </div>
+</body>
+</html>
+```

@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        .receipt {
+            width: 594px;
+            height: 842px;
+            margin: 0 auto;
+            background-color: #f7f7f7;
+            position: relative;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #000;
+            height: 100px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        .logo {
+            height: 50px;
+            margin-right: 10px;
+        }
+        .now-you-know {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1;
+            margin-left: 20px;
+        }
+        .customer-info {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .address {
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        .order-number {
+            font-size: 14px;
+            text-align: right;
+        }
+        .order-number-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .product-name {
+            padding: 10px 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .product-details {
+            margin: 0 20px;
+            border-collapse: collapse;
+            width: calc(100% - 40px);
+        }
+        .product-details td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .product-details tr:last-child td {
+            border-bottom: none;
+        }
+        .price-details {
+            margin: 20px;
+            border-collapse: collapse;
+            width: calc(100% - 40px);
+        }
+        .price-details td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .price-details tr:last-child td {
+            border-bottom: 2px solid #000;
+            font-weight: bold;
+        }
+        .footer {
+            padding: 20px;
+            font-size: 12px;
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 40px);
+        }
+        .background-x {
+            position: absolute;
+            top: 150px;
+            left: 0;
+            width: 100%;
+            height: 600px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><path d="M0,0 L600,600 M600,0 L0,600" stroke="rgba(200,200,200,0.2)" stroke-width="40"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://stockx-assets.imgix.net/logo/stockx-header-logo.svg" alt="StockX" class="logo">
+                <div class="now-you-know">
+                    NOW<br>YOU<br>KNOW
+                </div>
+            </div>
+        </div>
+        <div class="background-x"></div>
+        <div class="customer-info">
+            <div class="address">
+                {name}<br>
+                {street}<br>
+                {city}, {state} {zip}
+            </div>
+            <div class="order-number">
+                Order Number:<br>
+                <span class="order-number-value">{order_number}</span>
+            </div>
+        </div>
+        <div class="product-name">{product_name}</div>
+        <table class="product-details">
+            <tr>
+                <td>U.S.Men's Size</td>
+                <td>{size}</td>
+            </tr>
+            <tr>
+                <td>Colorway</td>
+                <td>{colorway}</td>
+            </tr>
+            <tr>
+                <td>Style</td>
+                <td>{style}</td>
+            </tr>
+            <tr>
+                <td>Condition</td>
+                <td>New; 100% authentic</td>
+            </tr>
+        </table>
+        <table class="price-details">
+            <tr>
+                <td>Purchase Price</td>
+                <td>$ {purchase_price}</td>
+            </tr>
+            <tr>
+                <td>Shipping</td>
+                <td>$ {shipping}</td>
+            </tr>
+            <tr>
+                <td>Authentication Fee</td>
+                <td>{auth_fee}</td>
+            </tr>
+            <tr>
+                <td>Total</td>
+                <td>${total_price}</td>
+            </tr>
+        </table>
+        <div class="footer">
+            Please inspect item. All claims null and void if StockX verified authentic tag is removed.
+        </div>
+    </div>
+</body>
+</html>
