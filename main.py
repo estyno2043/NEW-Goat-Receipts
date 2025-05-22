@@ -51,11 +51,11 @@ def setup_database():
     )
     ''')
     
-    # Table for user subscriptions
+    # Table for user subscriptions - now with unlimited access by default
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_subscriptions (
         user_id TEXT PRIMARY KEY,
-        subscription_type TEXT DEFAULT '1 (Email Access Only)',
+        subscription_type TEXT DEFAULT 'Unlimited',
         start_date TEXT,
         end_date TEXT,
         is_active BOOLEAN DEFAULT 1
@@ -112,7 +112,7 @@ def check_user_setup(user_id):
     return has_credentials, has_email
 
 # Add or update user subscription
-def update_subscription(user_id, subscription_type="1 (Email Access Only)", days=30):
+def update_subscription(user_id, subscription_type="Unlimited", days=365):
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
     

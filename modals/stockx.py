@@ -177,27 +177,7 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
         global condition1, currency1, status, product_name, sizee
         global pprice, pfee, shipping, dd, style_id  # Store these for the third form
 
-        # Check if user has credits (skip for owner)
-        if interaction.user.id != 1339295766828552365:  # Skip credit check for owner
-            user_id = str(interaction.user.id)
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-
-            # Check if user exists in credits table
-            cursor.execute("SELECT credits FROM user_credits WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-
-            if not result:
-                # Add user with default 3 credits
-                cursor.execute("INSERT INTO user_credits (user_id, credits) VALUES (?, 3)", (user_id,))
-                conn.commit()
-                credits = 3
-            else:
-                credits = result[0]
-
-            conn.close()
-
-            # Credit limit check removed - users can generate unlimited receipts
+        # Credit check functionality completely removed
 
         try:
             pprice = float(self.pprice.value)
@@ -332,13 +312,7 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
                 embed = discord.Embed(title="Error", description="Failed to send email.", color=discord.Color.red())
                 await interaction.edit_original_response(embed=embed, view=None)
             else:
-                # Deduct a credit from the user (skip for owner)
-                if interaction.user.id != 1339295766828552365:
-                    conn = sqlite3.connect('data.db')
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE user_credits SET credits = credits - 1 WHERE user_id = ?", (str(owner_id),))
-                    conn.commit()
-                    conn.close()
+                # Credit deduction code completely removed
 
                 # Success message
                 success_embed = discord.Embed(

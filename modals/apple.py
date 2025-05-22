@@ -199,6 +199,8 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
                 await interaction.edit_original_response(embed=embed)
                 return
 
+            # Credit check functionality completely removed
+
             # Get user email from database
             conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
@@ -238,6 +240,8 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
                 image_url,
                 brand="Apple"
             )
+
+            # Credit deduction code completely removed
 
             # No need to store product_name on interaction object as we already pass it to send_email function
 
