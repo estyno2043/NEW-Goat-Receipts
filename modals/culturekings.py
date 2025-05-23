@@ -53,6 +53,9 @@ def is_ck_link(link):
 
 
 class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
+    
+# Create alias for compatibility
+culturekingsmodal = ckmodal
     Link = discord.ui.TextInput(label="Link", placeholder="https://culturekings.com/...", required=True)
     size = discord.ui.TextInput(label="Size", placeholder="S", required=True)
 

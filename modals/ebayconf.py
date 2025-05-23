@@ -13,6 +13,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
 class EbayConfModal(ui.Modal, title="eBay Receipt - Step 1"):
+    
+# Create alias for compatibility
+ebayconfmodal = EbayConfModal
     productname = discord.ui.TextInput(label="Product Name", placeholder="Apple Earbuds Pro", required=True)
     productimagelink = discord.ui.TextInput(label="Product Image Link", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     productprice = discord.ui.TextInput(label="Price without currency", placeholder="200.00", required=True)

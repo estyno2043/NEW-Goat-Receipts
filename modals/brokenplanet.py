@@ -47,6 +47,9 @@ lg = Colors.light_gray
 
 
 class brokenmodal(ui.Modal, title="discord.gg/goatreceipt"):
+    
+# Create alias for compatibility
+brokenplanetmodal = brokenmodal
     Price = discord.ui.TextInput(label="Price without currency", placeholder="190.00", required=True)
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
     tax = discord.ui.TextInput(label="Tax Costs", placeholder="10.00", required=True)

@@ -52,6 +52,9 @@ def is_dyson_link(link):
 
 
 class dyson(ui.Modal, title="discord.gg/goatreceipt"):
+    
+# Create alias for compatibility
+dysonmodal = dyson
     Link = discord.ui.TextInput(label="Link", placeholder="Dyson link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     price = discord.ui.TextInput(label="Price without Currency", placeholder="1693", required=True)

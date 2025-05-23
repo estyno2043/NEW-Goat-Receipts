@@ -9,6 +9,9 @@ from emails.choise import choiseView
 import datetime
 
 class houseoffrasermodal(ui.Modal, title="House of Fraser Receipt Generator (1/2)"):
+    
+# Create alias for compatibility
+houseoffrasersmodal = houseoffrasermodal
     productname = discord.ui.TextInput(label="Product Name", placeholder="Oxford Short Sleeve Tailored Shirt", required=True)
     imagelink = discord.ui.TextInput(label="Image URL", placeholder="https://example.com/image.jpg", required=True)
     productprice = discord.ui.TextInput(label="Price without currency", placeholder="50.00", required=True)

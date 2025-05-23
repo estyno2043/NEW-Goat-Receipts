@@ -27,6 +27,9 @@ r = Colors.red
 lg = Colors.light_gray
 
 class AmazonUKModal(ui.Modal, title="Amazon UK Order Generator"):
+    
+# Create alias for compatibility
+amazonukmodal = AmazonUKModal
     def __init__(self):
         super().__init__(timeout=None)
         
