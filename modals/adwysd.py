@@ -82,7 +82,7 @@ class adwysdmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             from addons.nextsteps import NextstepAdwysd
             embed = discord.Embed(title="Next Page", description="Click 'Next Page' to continue to the next set of inputs.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepAdwysd(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepAdwysd(owner_id), ephemeral=False)
         else:
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
