@@ -166,3 +166,7 @@ class HermesSecondModal(ui.Modal, title="Hermes Order - Step 2"):
 
 # Initialize global dictionary to store form data between steps
 hermes_form_data = {}
+# Add at the end of the file if the HermesModal class exists
+# This ensures both naming conventions work
+if 'HermesModal' in globals() and 'hermesmodal' not in globals():
+    hermesmodal = HermesModal

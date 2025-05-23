@@ -240,3 +240,7 @@ class SamsungModal(ui.Modal, title="Samsung Order - Step 1"):
             color=0x0080FF
         )
         await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+# Add at the end of the file if the SamsungModal class exists
+# This ensures both naming conventions work
+if 'SamsungModal' in globals() and 'samsungmodal' not in globals():
+    samsungmodal = SamsungModal

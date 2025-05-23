@@ -198,3 +198,7 @@ class Pradamodal(ui.Modal, title="discord.gg/goatreceipt"):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+# Add at the end of the file if the Pradamodal class exists
+# This ensures both naming conventions work
+if 'Pradamodal' in globals() and 'pradamodal' not in globals():
+    pradamodal = Pradamodal

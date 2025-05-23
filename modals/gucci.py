@@ -148,3 +148,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.followup.send(embed=embed, ephemeral=True)
+# Add at the end of the file if the guccimodal1 class exists
+# This ensures both naming conventions work
+if 'guccimodal1' in globals() and 'guccimodal' not in globals():
+    guccimodal = guccimodal1
