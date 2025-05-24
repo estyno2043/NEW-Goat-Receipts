@@ -369,17 +369,6 @@ class AdminCommands(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
-```
-
-```python
-import discord
-from discord import app_commands
-from discord.ext import commands
-import sqlite3
-from datetime import datetime, timedelta
-import json
-import logging
-import os
 
 # Assuming 'bot' is defined elsewhere, e.g., bot = commands.Bot(...)
 # You might need to adjust this depending on how your bot instance is created.
@@ -391,16 +380,16 @@ class KeygenView(discord.ui.View):  # Dummy class for KeygenView
 
 # Add license check debug command
 
-@bot.tree.command(name="keygen", description="Generate license keys (Owner only)")
-async def keygen_command(interaction: discord.Interaction):
+@commands.command(name="keygen", description="Generate license keys (Owner only)")
+async def keygen_command(ctx):
     # Check if user is the bot owner
     with open("config.json", "r") as f:
         import json
         config = json.load(f)
         owner_id = config.get("owner_id", "0")
 
-    if str(interaction.user.id) != owner_id:
-        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+    if str(ctx.author.id) != owner_id:
+        await ctx.send("You don't have permission to use this command.")
         return
 
     embed = discord.Embed(
@@ -410,22 +399,21 @@ async def keygen_command(interaction: discord.Interaction):
     )
 
     view = KeygenView()
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await ctx.send(embed=embed, view=view)
 
-@bot.tree.command(name="checklicense", description="Check license status for a user (Admin only)")
-@app_commands.describe(user="The user to check license for")
-async def check_license_command(interaction: discord.Interaction, user: discord.Member = None):
+@commands.command(name="checklicense", description="Check license status for a user (Admin only)")
+async def check_license_command(ctx, user: discord.Member = None):
     # Check if user is admin or bot owner
     with open("config.json", "r") as f:
         import json
         config = json.load(f)
         owner_id = config.get("owner_id", "0")
 
-    is_admin = str(interaction.user.id) == owner_id
+    is_admin = str(ctx.author.id) == owner_id
 
     if not is_admin:
         # Check if user has admin role
-        guild_id = str(interaction.guild.id)
+        guild_id = str(ctx.guild.id)
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute("SELECT admin_role_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
@@ -433,16 +421,16 @@ async def check_license_command(interaction: discord.Interaction, user: discord.
         conn.close()
 
         if result and result[0]:
-            admin_role = discord.utils.get(interaction.guild.roles, id=int(result[0]))
-            if admin_role and admin_role in interaction.user.roles:
+            admin_role = discord.utils.get(ctx.guild.roles, id=int(result[0]))
+            if admin_role and admin_role in ctx.author.roles:
                 is_admin = True
 
     if not is_admin:
-        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        await ctx.send("You don't have permission to use this command.")
         return
 
     # If no user specified, check the command user
-    target_user = user or interaction.user
+    target_user = user or ctx.author
 
     # Perform license check
     from utils.license_manager import LicenseManager
@@ -452,7 +440,7 @@ async def check_license_command(interaction: discord.Interaction, user: discord.
     client_role_id = int(config.get("Client_ID", 0))
     has_role = False
     if client_role_id > 0:
-        client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
+        client_role = discord.utils.get(ctx.guild.roles, id=client_role_id)
         if client_role and client_role in target_user.roles:
             has_role = True
 
@@ -496,10 +484,8 @@ async def check_license_command(interaction: discord.Interaction, user: discord.
             inline=False
         )
 
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-```
+    await ctx.send(embed=embed)
 
-```python
 from discord.ext import commands
 import discord
 import sqlite3
@@ -562,4 +548,3 @@ class LicenseManager:
         """
         if user_id in LicenseManager._license_cache:
             del LicenseManager._license_cache[user_id]
-```
