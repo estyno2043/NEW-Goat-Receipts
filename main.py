@@ -937,6 +937,26 @@ async def on_ready():
         from utils.db_init import init_db
         init_db()
 
+    # Restore license cache from backup for faster startup validation
+    try:
+        from utils.license_backup import LicenseBackup
+        # Restore existing licenses to cache
+        await LicenseBackup.restore_licenses_to_cache()
+        # Start backup scheduler in background
+        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
+        print("License backup system initialized")
+    except Exception as e:
+        print(f"Failed to initialize license backup system: {e}")
+
+    # Initialize license checker for expired subscriptions
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
+
     # Load admin commands
     try:
         if not os.path.exists('commands'):

@@ -145,6 +145,8 @@ class LicenseManager:
     _license_cache = {}
     _last_cache_cleanup = datetime.now()
     _cache_cleanup_interval = 3600  # Clean cache every hour
+    _initialization_complete = False
+    _cache_lock = asyncio.Lock()
 
     @staticmethod
     async def is_subscription_active(user_id):
@@ -155,19 +157,33 @@ class LicenseManager:
         current_time = datetime.now()
         user_id_str = str(user_id)
 
+        # If this is the first check after startup and cache is nearly empty,
+        # try to restore from backup before proceeding
+        if not LicenseManager._initialization_complete and len(LicenseManager._license_cache) < 5:
+            try:
+                async with LicenseManager._cache_lock:
+                    if not LicenseManager._initialization_complete:
+                        from utils.license_backup import LicenseBackup
+                        await LicenseBackup.restore_licenses_to_cache()
+                        LicenseManager._initialization_complete = True
+                        logging.info("License cache initialized from backup")
+            except Exception as e:
+                logging.error(f"Error initializing license cache: {str(e)}")
+
         # Clean up expired cache entries periodically
         if (current_time - LicenseManager._last_cache_cleanup).total_seconds() > LicenseManager._cache_cleanup_interval:
             try:
-                expired_keys = []
-                for cached_id, (expiry_time, _) in LicenseManager._license_cache.items():
-                    if current_time > expiry_time:
-                        expired_keys.append(cached_id)
+                async with LicenseManager._cache_lock:
+                    expired_keys = []
+                    for cached_id, (expiry_time, _) in LicenseManager._license_cache.items():
+                        if current_time > expiry_time:
+                            expired_keys.append(cached_id)
 
-                for key in expired_keys:
-                    LicenseManager._license_cache.pop(key, None)
+                    for key in expired_keys:
+                        LicenseManager._license_cache.pop(key, None)
 
-                LicenseManager._last_cache_cleanup = current_time
-                logging.info(f"Cleaned {len(expired_keys)} expired entries from license cache")
+                    LicenseManager._last_cache_cleanup = current_time
+                    logging.info(f"Cleaned {len(expired_keys)} expired entries from license cache")
             except Exception as e:
                 logging.error(f"Error cleaning license cache: {str(e)}")
 
@@ -349,6 +365,15 @@ class LicenseManager:
                         if is_active:
                             # Use actual expiry date with small buffer (1 hour)
                             LicenseManager._license_cache[user_id_str] = (expiry_date - timedelta(hours=1), False)
+                            
+                            # Trigger a background backup if we've added a significant number of new entries
+                            # This ensures new licenses are persisted even if the bot restarts
+                            if len(LicenseManager._license_cache) % 10 == 0:  # Every 10 new licenses
+                                try:
+                                    from utils.license_backup import LicenseBackup
+                                    asyncio.create_task(LicenseBackup.backup_licenses())
+                                except Exception as backup_error:
+                                    logging.error(f"Error triggering backup after license update: {str(backup_error)}")
                         else:
                             # Return expired date information
                             return {"active": False, "expired_date": expiry_str}
