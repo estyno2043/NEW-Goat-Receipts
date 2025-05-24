@@ -1261,10 +1261,25 @@ class KeygenView(discord.ui.View):
 
 @bot.tree.command(name="redeem", description="Redeem a license key for access")
 async def redeem_command(interaction: discord.Interaction):
+    # Check if user is the bot owner
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = config.get("owner_id", "0")
+    
+    if str(interaction.user.id) != owner_id:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner can use this command.",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
     embed = discord.Embed(
         title="Redeem License Key",
         description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1339335959652602010> and open ticket describing your issue!",
-        color=discord.Color.from_str("#c2ccf8")
+        color=discord.Color.green()
     )
     
     view = RedeemKeyView()
