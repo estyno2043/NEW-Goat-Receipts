@@ -858,6 +858,20 @@ async def on_ready():
 
     # Set up database when the bot is ready
     setup_database()
+    
+    # Load all cogs
+    try:
+        # Load guild commands
+        await bot.load_extension("commands.guild_commands")
+        print("Loaded guild commands")
+        
+        # Load admin commands
+        await bot.load_extension("commands.admin_commands")
+        print("Loaded admin commands")
+        
+        # You can add more cogs here as needed
+    except Exception as e:
+        print(f"Failed to load cogs: {e}")
 
     # Sync command tree for specific guild
     try:
