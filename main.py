@@ -1113,6 +1113,7 @@ async def generate_command(interaction: discord.Interaction):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
+        return
 
     # If in a guild server, check if the channel is allowed
     if not is_main_guild:
@@ -1142,6 +1143,24 @@ async def generate_command(interaction: discord.Interaction):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             conn.close()
+            return
+            
+        # Continue with the command execution for guild user
+        try:
+            # Send menu here for the guild user
+            menu_view = MainMenuView(interaction)
+            embed = discord.Embed(
+                title="GoatReceipts - Select a receipt type",
+                description="Choose from the options below:",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, view=menu_view, ephemeral=True)
+        except Exception as e:
+            print(f"Error handling guild generate command: {e}")
+            # Attempt to respond with error if interaction hasn't been responded to
+            if not interaction.response.is_done():
+                await interaction.response.send_message("An error occurred while processing your command. Please try again later.", ephemeral=True)
+            return
             return
 
         # Get the guild configuration including client role
@@ -1211,6 +1230,7 @@ async def generate_command(interaction: discord.Interaction):
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+                returnphemeral=True)
                 return
                 
         except Exception as e:
