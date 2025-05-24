@@ -58,6 +58,11 @@ class LicenseManager:
                 continue
 
             try:
+                # Skip entries with null expiry dates
+                if expiry_str is None:
+                    logging.info(f"Skipping license for user {owner_id} with null expiry date")
+                    continue
+                    
                 # Parse expiry date
                 expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
 

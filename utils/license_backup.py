@@ -78,7 +78,8 @@ class LicenseBackup:
                 key = license_data.get("key")
                 
                 # Skip invalid entries
-                if not expiry_str or not key:
+                if expiry_str is None or not key:
+                    logging.info(f"Skipping backup restoration for user {owner_id} due to null expiry date")
                     continue
                 
                 # Handle lifetime keys
