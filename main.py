@@ -989,6 +989,37 @@ async def on_ready():
 
     # Set up database
     setup_database()
+    
+    # Load admin commands - only once when bot starts
+    try:
+        if not os.path.exists('commands'):
+            os.makedirs('commands')
+        # Make sure __init__.py exists
+        if not os.path.exists('commands/__init__.py'):
+            with open('commands/__init__.py', 'w') as f:
+                f.write('# Initialize commands package\n')
+
+        # Load admin commands extension
+        await bot.load_extension('commands.admin_commands')
+        print("Admin commands loaded successfully")
+
+        # Load guild commands extension
+        await bot.load_extension('commands.guild_commands')
+        print("Guild commands loaded successfully")
+        
+        # Sync commands with Discord
+        try:
+            synced = await bot.tree.sync()
+            print(f"Synced {len(synced)} command(s)")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+            import traceback
+            traceback.print_exc()
+    except Exception as e:
+        print(f"Failed to load commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
 
 @bot.event
 async def on_message(message):
@@ -1052,28 +1083,6 @@ async def on_message(message):
         print("License checker started")
     except Exception as e:
         print(f"Failed to start license checker: {e}")
-
-    # Load admin commands
-    try:
-        if not os.path.exists('commands'):
-            os.makedirs('commands')
-        # Make sure __init__.py exists
-        if not os.path.exists('commands/__init__.py'):
-            with open('commands/__init__.py', 'w') as f:
-                f.write('# Initialize commands package\n')
-
-        # Load admin commands extension
-        await bot.load_extension('commands.admin_commands')
-        print("Admin commands loaded successfully")
-
-        # Load guild commands extension
-        await bot.load_extension('commands.guild_commands')
-        print("Guild commands loaded successfully")
-    except Exception as e:
-        print(f"Failed to load commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
 
     # Sync commands with Discord
     try:
