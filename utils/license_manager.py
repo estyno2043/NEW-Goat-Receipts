@@ -118,15 +118,15 @@ class LicenseManager:
                                         description="Your subscription expired on `{0}`. Please renew your subscription to continue using our services.".format(expiry_str),
                                         color=discord.Color.red()
                                     )
-                                    
+
                                     # Create view with renewal button
                                     class RenewalView(discord.ui.View):
                                         def __init__(self):
                                             super().__init__(timeout=None)
-                                            
+
                                             # Add button directly in __init__ instead of using decorator
-                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com"))
-                                    
+                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com/"))
+
                                     await member.send(embed=embed, view=RenewalView(), ephemeral=True)
                                 except:
                                     # User may have DMs disabled, just log the info
@@ -326,7 +326,7 @@ class LicenseManager:
                     if key and key.startswith("EXPIRED-"):
                         logging.info(f"Expired key found for user_id: {user_id}")
                         return {"active": False, "expired_date": expiry_str}
-                        
+
                     # Lifetime keys are always active
                     if key and ("LifetimeKey" in key or "owner-key" in key):
                         logging.info(f"Lifetime key found for user_id: {user_id}")

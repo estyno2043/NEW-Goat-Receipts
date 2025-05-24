@@ -993,7 +993,7 @@ async def generate_command(interaction: discord.Interaction):
                 # User never had a license
                 embed = discord.Embed(
                     title="Access Denied",
-                    description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                    description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
                     color=discord.Color.red()
                 )
             await interaction.response.send_message(embed=embed, ephemeral=True)
