@@ -233,32 +233,60 @@ class EmailForm(ui.Modal, title="Email Settings"):
         await interaction.response.send_message(embed=success_embed, ephemeral=True)
 
         # Update the credentials panel in real-time
-        has_credentials, has_email = check_user_setup(user_id)
-
-        # Create updated credentials panel
-        updated_embed = discord.Embed(
-            title="Credentials",
-            description="Please make sure both options below are 'True'\n\n" +
-                        "**Info**\n" +
-                        f"{'True' if has_credentials else 'False'}\n\n" +
-                        "**Email**\n" +
-                        f"{'True' if has_email else 'False'}",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Get the original message that showed the credentials panel
         try:
-            # Try to find the original message in the interaction's message history
-            original_message = None
-            for message in interaction.channel.history(limit=10):
-                if message.author == interaction.client.user and message.embeds and message.embeds[0].title == "Credentials":
-                    original_message = message
-                    break
-
+            # Get the original message that showed the credentials panel
+            # Use followup to get the original message that opened this modal
+            original_message = interaction.message
+            
             if original_message:
+                # Create updated credentials panel with refreshed data
+                has_credentials, has_email = check_user_setup(user_id)
+                
+                # Create updated credentials panel
+                updated_embed = discord.Embed(
+                    title="Credentials",
+                    description="Please make sure both options below are 'True'\n\n" +
+                                "**Info**\n" +
+                                f"{'True' if has_credentials else 'False'}\n\n" +
+                                "**Email**\n" +
+                                f"{'True' if has_email else 'False'}",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                
+                # Update the original credentials panel
                 await original_message.edit(embed=updated_embed)
+                print(f"Successfully updated credentials panel for user {user_id}")
+            else:
+                print(f"Could not find original message to update for user {user_id}")
+                
         except Exception as e:
             print(f"Failed to update credentials panel in real-time: {e}")
+            
+            # Fallback: Try to find the credentials panel in recent messages
+            try:
+                for channel in interaction.guild.text_channels:
+                    async for message in channel.history(limit=25):
+                        if (message.author == interaction.client.user and 
+                            message.embeds and 
+                            len(message.embeds) > 0 and 
+                            message.embeds[0].title == "Credentials"):
+                            
+                            # Update found credentials panel
+                            has_credentials, has_email = check_user_setup(user_id)
+                            updated_embed = discord.Embed(
+                                title="Credentials",
+                                description="Please make sure both options below are 'True'\n\n" +
+                                            "**Info**\n" +
+                                            f"{'True' if has_credentials else 'False'}\n\n" +
+                                            "**Email**\n" +
+                                            f"{'True' if has_email else 'False'}",
+                                color=discord.Color.from_str("#c2ccf8")
+                            )
+                            await message.edit(embed=updated_embed)
+                            print(f"Found and updated credentials panel in channel history for user {user_id}")
+                            break
+            except Exception as search_error:
+                print(f"Error while searching for credentials panel: {search_error}")
 
 # Custom info form
 class CustomInfoForm(ui.Modal, title="Set up your Information"):
