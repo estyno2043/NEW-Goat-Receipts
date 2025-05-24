@@ -1060,7 +1060,7 @@ async def menu_command(interaction: discord.Interaction):
                 def __init__(self):
                     super().__init__(timeout=None)
 
-                @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc")
+                @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com")
                 async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                     pass
 
@@ -1070,7 +1070,7 @@ async def menu_command(interaction: discord.Interaction):
             # User never had a license
             embed = discord.Embed(
                 title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
                 color=discord.Color.red()
             )
         await interaction.response.send_message(embed=embed, ephemeral=True)

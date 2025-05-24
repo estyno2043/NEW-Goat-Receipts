@@ -125,7 +125,7 @@ class LicenseManager:
                                             super().__init__(timeout=None)
                                             
                                             # Add button directly in __init__ instead of using decorator
-                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc"))
+                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com"))
                                     
                                     await member.send(embed=embed, view=RenewalView(), ephemeral=True)
                                 except:
