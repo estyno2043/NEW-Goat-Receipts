@@ -143,7 +143,7 @@ def get_subscription(user_id):
             # First check licenses table for expiry and key
             cursor.execute("SELECT key, expiry FROM licenses WHERE owner_id = ?", (str(user_id),))
             license_data = cursor.fetchone()
-            
+
             if license_data:
                 key, expiry_str = license_data
                 # Check if lifetime key
@@ -155,7 +155,7 @@ def get_subscription(user_id):
             # Handle missing columns
             print(f"License table error: {e}")
             # Continue to fallback method
-        
+
         # Check old subscriptions table as fallback
         try:
             cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
@@ -165,7 +165,7 @@ def get_subscription(user_id):
         except sqlite3.OperationalError:
             # Table might not exist
             pass
-            
+
         # Create default subscription if none exists
         return "Default", "1 Year"
     except Exception as e:
@@ -203,7 +203,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
         """Check if the email is an iCloud email address"""
         return "@icloud" in email.lower()
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         email = self.email.value
 
@@ -380,7 +380,7 @@ class BrandSelectDropdown(ui.Select):
             # Import the appropriate modal module dynamically based on brand name
             module_name = f"modals.{brand}"
             modal_class_name = f"{brand}modal"
-            
+
             # Special case handling for brands with different modal class naming patterns
             special_cases = {
                 "acnestudios": "acnestudiosmodal",
@@ -391,24 +391,24 @@ class BrandSelectDropdown(ui.Select):
                 "chewforever": "Chewforevermodal"
                 # Add other special cases as needed
             }
-            
+
             if brand in special_cases:
                 modal_class_name = special_cases[brand]
-                
+
             # Dynamic import of the module
             try:
                 import importlib
                 modal_module = importlib.import_module(module_name)
-                
+
                 # Get the modal class dynamically
                 modal_class = getattr(modal_module, modal_class_name)
-                
+
                 # Create the modal instance
                 modal = modal_class()
-                
+
                 # Show the modal to the user
                 await interaction.response.send_modal(modal)
-                
+
             except (ImportError, AttributeError) as e:
                 print(f"Error loading modal for {brand}: {e}")
                 # Fallback message if modal can't be loaded
@@ -531,7 +531,7 @@ class CredentialsDropdownView(ui.View):
         self.user_id = user_id
         self.last_interaction = datetime.now()
         self.message = None
-        
+
         # Create dropdown menu (moved from on_timeout to init)
         self.dropdown = ui.Select(
             placeholder="Select an option to proceed...",
@@ -835,7 +835,7 @@ class MenuView(ui.View):
 
         view = BrandSelectView(self.user_id)
         message = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-        
+
         # Store the message for proper timeout handling
         try:
             # Get the message if it's not already available directly
@@ -868,7 +868,7 @@ class MenuView(ui.View):
         # Create view and store message reference
         view = CredentialsDropdownView(self.user_id)
         await interaction.response.edit_message(embed=embed, view=view)
-        
+
         # Store message reference for proper timeout handling
         try:
             message = await interaction.original_response()
@@ -902,13 +902,13 @@ async def on_ready():
 
     # Set up database
     setup_database()
-    
+
     # Initialize license database tables if needed
     import os
     if os.path.exists('utils/db_init.py'):
         from utils.db_init import init_db
         init_db()
-    
+
     # Load admin commands
     try:
         if not os.path.exists('commands'):
@@ -928,28 +928,40 @@ async def on_ready():
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
-    
+
     try:
         # Check if user has a valid license
         from utils.license_manager import LicenseManager
         license_status = await LicenseManager.is_subscription_active(user_id)
-        
+
         # Handle different return types - could be bool or dict
         is_active = False
         if isinstance(license_status, dict):
             is_active = license_status.get("active", False)
         else:
             is_active = bool(license_status)
-            
+
         if not is_active:
             # Check if it's an expired license with expiry date (if license_status is dict)
             if isinstance(license_status, dict) and "expired_date" in license_status:
                 expired_date = license_status["expired_date"]
                 embed = discord.Embed(
                     title="Subscription Expired",
-                    description=f"Your subscription expired on `{expired_date}`.\nPlease renew your subscription to continue using our services.",
+                    description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
                     color=discord.Color.red()
                 )
+
+                # Create view with renewal button
+                class RenewalView(discord.ui.View):
+                    def __init__(self):
+                        super().__init__(timeout=None)
+
+                    @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc")
+                    async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                        pass
+
+                await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=False)
+                return
             else:
                 # User never had a license
                 embed = discord.Embed(
@@ -1011,7 +1023,7 @@ async def generate_command(interaction: discord.Interaction):
 
         view = BrandSelectView(user_id)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-        
+
         # Store message reference for proper timeout handling
         try:
             message = await interaction.original_response()
@@ -1022,27 +1034,39 @@ async def generate_command(interaction: discord.Interaction):
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
-    
+
     # Check if user has a valid license
     from utils.license_manager import LicenseManager
     license_status = await LicenseManager.is_subscription_active(user_id)
-    
+
     # Handle different return types - could be bool or dict
     is_active = False
     if isinstance(license_status, dict):
         is_active = license_status.get("active", False)
     else:
         is_active = bool(license_status)
-        
+
     if not is_active:
         # Check if it's an expired license with expiry date (if license_status is dict)
         if isinstance(license_status, dict) and "expired_date" in license_status:
             expired_date = license_status["expired_date"]
             embed = discord.Embed(
                 title="Subscription Expired",
-                description=f"Your subscription expired on `{expired_date}`.\nPlease renew your subscription to continue using our services.",
+                description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
                 color=discord.Color.red()
             )
+
+            # Create view with renewal button
+            class RenewalView(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=None)
+
+                @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc")
+                async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    pass
+
+            await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=False)
+            return
         else:
             # User never had a license
             embed = discord.Embed(
