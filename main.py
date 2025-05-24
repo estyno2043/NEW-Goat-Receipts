@@ -203,7 +203,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
         """Check if the email is an iCloud email address"""
         return "@icloud" in email.lower()
 
-    async def on_submit(self, self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         email = self.email.value
 
