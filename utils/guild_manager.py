@@ -94,7 +94,41 @@ class GuildManager:
         
         conn.commit()
         conn.close()
-        return True, "Bot token registered successfully. You can now run /configure_guild."
+        
+        # Start the guild user's bot in a subprocess
+        try:
+            import subprocess
+            import os
+            
+            # Create a directory for the guild bot if it doesn't exist
+            guild_bot_dir = f"guild_bots/{user_id}"
+            os.makedirs(guild_bot_dir, exist_ok=True)
+            
+            # Create a bot file using the template
+            bot_file_path = f"{guild_bot_dir}/bot.py"
+            
+            # Import the template
+            from utils.guild_bot_template import TEMPLATE
+            
+            # Write the bot file with the template
+            with open(bot_file_path, "w") as f:
+                f.write(TEMPLATE.format(
+                    owner_id=user_id,
+                    bot_token=bot_token
+                ))
+            
+            # Start the bot in a subprocess
+            subprocess.Popen(["python", bot_file_path], 
+                             stdout=subprocess.PIPE, 
+                             stderr=subprocess.PIPE,
+                             cwd=os.getcwd())
+            
+            logging.info(f"Started guild bot for user {user_id}")
+        except Exception as e:
+            logging.error(f"Error starting guild bot: {e}")
+            # Still return success as the token was saved
+        
+        return True, "Bot token registered successfully. Your bot has been started. You can now run /configure_guild."
     
     @staticmethod
     def has_bot_registered(user_id):

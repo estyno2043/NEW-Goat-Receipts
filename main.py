@@ -963,6 +963,66 @@ async def on_ready():
     # Start guild subscription checker
     bot.loop.create_task(GuildManager.check_guild_subscriptions_loop(bot))
     
+    # Start all registered guild bots
+    async def start_all_guild_bots():
+        await bot.wait_until_ready()
+        
+        try:
+            import os
+            import subprocess
+            import sqlite3
+            
+            # Create directory for guild bots if it doesn't exist
+            os.makedirs("guild_bots", exist_ok=True)
+            
+            # Get all active guild subscriptions with bot tokens
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            cursor.execute('''
+            SELECT user_id, bot_token 
+            FROM guild_subscriptions 
+            WHERE is_active = 1 AND bot_token IS NOT NULL AND bot_token != ''
+            ''')
+            
+            guild_bots = cursor.fetchall()
+            conn.close()
+            
+            for user_id, bot_token in guild_bots:
+                try:
+                    # Create a directory for this guild bot if it doesn't exist
+                    guild_bot_dir = f"guild_bots/{user_id}"
+                    os.makedirs(guild_bot_dir, exist_ok=True)
+                    
+                    # Create bot file using the template
+                    bot_file_path = f"{guild_bot_dir}/bot.py"
+                    
+                    # Import the template
+                    from utils.guild_bot_template import TEMPLATE
+                    
+                    # Write the bot file with the template
+                    with open(bot_file_path, "w") as f:
+                        f.write(TEMPLATE.format(
+                            owner_id=user_id,
+                            bot_token=bot_token
+                        ))
+                    
+                    # Start the bot in a subprocess
+                    subprocess.Popen(["python", bot_file_path], 
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.PIPE,
+                                    cwd=os.getcwd())
+                    
+                    print(f"Started guild bot for user {user_id}")
+                except Exception as e:
+                    print(f"Error starting guild bot for user {user_id}: {e}")
+            
+            print(f"Started {len(guild_bots)} guild bots")
+        except Exception as e:
+            print(f"Error starting guild bots: {e}")
+    
+    # Start all guild bots when the main bot starts
+    bot.loop.create_task(start_all_guild_bots())
+    
 @bot.event
 async def on_message(message):
     # Ignore messages from the bot itself
