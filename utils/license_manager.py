@@ -313,6 +313,11 @@ class LicenseManager:
 
                     expiry_str, key = result
 
+                    # Check if license is explicitly marked as expired
+                    if key and key.startswith("EXPIRED-"):
+                        logging.info(f"Expired key found for user_id: {user_id}")
+                        return {"active": False, "expired_date": expiry_str}
+                        
                     # Lifetime keys are always active
                     if key and ("LifetimeKey" in key or "owner-key" in key):
                         logging.info(f"Lifetime key found for user_id: {user_id}")
@@ -330,6 +335,9 @@ class LicenseManager:
                         if is_active:
                             # Use actual expiry date with small buffer (1 hour)
                             LicenseManager._license_cache[user_id_str] = (expiry_date - timedelta(hours=1), False)
+                        else:
+                            # Return expired date information
+                            return {"active": False, "expired_date": expiry_str}
 
                         return is_active
                     except Exception as e:

@@ -210,34 +210,57 @@ class AdminPanelView(discord.ui.View):
         cursor = conn.cursor()
         
         try:
-            # First, get the current expiry date to save it
-            cursor.execute("SELECT expiry FROM licenses WHERE owner_id = ?", (str(self.user.id),))
-            expiry_result = cursor.fetchone()
-            expiry_date = None
+            # Properly mark the license as expired
+            yesterday = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y %H:%M:%S')
             
-            if expiry_result and expiry_result[0]:
-                expiry_date = expiry_result[0]
+            # First check if the user has a license
+            cursor.execute("SELECT key FROM licenses WHERE owner_id = ?", (str(self.user.id),))
+            license_result = cursor.fetchone()
+            
+            if license_result:
+                # Update the expiry to yesterday and add "EXPIRED" to the key to ensure it's invalid
+                original_key = license_result[0]
+                expired_key = f"EXPIRED-{original_key}" if not original_key.startswith("EXPIRED-") else original_key
                 
-                # Instead of deleting, update the license to be expired
-                # This way we can show when it expired
-                if expiry_date:
-                    # Set expiry to yesterday
-                    yesterday = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y %H:%M:%S')
-                    cursor.execute("UPDATE licenses SET expiry = ? WHERE owner_id = ?", 
-                                  (yesterday, str(self.user.id)))
-                    conn.commit()
+                cursor.execute("UPDATE licenses SET expiry = ?, key = ? WHERE owner_id = ?", 
+                              (yesterday, expired_key, str(self.user.id)))
             else:
-                # If no license found, just delete any other user data
-                cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
-                cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
-                cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
-                conn.commit()
+                # If no license exists, create an expired one
+                cursor.execute("INSERT INTO licenses (owner_id, key, expiry, emailtf, credentialstf) VALUES (?, ?, ?, 'False', 'False')",
+                              (str(self.user.id), f"EXPIRED-Removed-{self.user.id}", yesterday))
+            
+            # Also clear cache in LicenseManager if it exists
+            from utils.license_manager import LicenseManager
+            if hasattr(LicenseManager, "_license_cache") and str(self.user.id) in LicenseManager._license_cache:
+                LicenseManager._license_cache.pop(str(self.user.id), None)
+            
+            # Also remove from old tables
+            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
+            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
+            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
+            
+            conn.commit()
+            
+            # Try to remove client role
+            try:
+                # Load role ID from config
+                with open("config.json", "r") as f:
+                    config = json.load(f)
+                    client_role_id = int(config.get("Client_ID", 0))
+                
+                if client_role_id:
+                    client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
+                    if client_role and client_role in self.user.roles:
+                        await self.user.remove_roles(client_role)
+                        logging.info(f"Removed client role from {self.user.name} due to access removal")
+            except Exception as e:
+                logging.error(f"Error removing role: {e}")
+            
         except Exception as e:
             print(f"Error updating user access: {e}")
+            logging.error(f"Error removing access: {e}")
         finally:
             conn.close()
-        
-        # We keep the client role intentionally - just expire the license
         
         embed = discord.Embed(
             title="Access Removed",
