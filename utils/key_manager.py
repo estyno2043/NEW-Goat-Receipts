@@ -138,7 +138,9 @@ class KeyManager:
             return now + timedelta(days=14)
         elif subscription_type == "1month" or subscription_type == "1_month":
             return now + timedelta(days=30)
-        elif "lifetime" in subscription_type.lower():
+        elif subscription_type == "guild_30days" or subscription_type == "guild30":
+            return now + timedelta(days=30)
+        elif "lifetime" in subscription_type.lower() or subscription_type == "guild_lifetime":
             # For lifetime subscriptions, set a date far in the future
             return now + timedelta(days=3650)  # ~10 years
         else:

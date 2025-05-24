@@ -368,7 +368,7 @@ class BrandSelectDropdown(ui.Select):
         # Sort alphabetically
         available_brands.sort()
 
-        # Show only 10 brands per page
+        # Show only 15 brands per page
         start_idx = (page - 1) * 15
         end_idx = min(start_idx + 15, len(available_brands))
 
@@ -386,8 +386,32 @@ class BrandSelectDropdown(ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         brand = self.values[0]
-
         user_id = str(interaction.user.id)
+        guild_id = str(interaction.guild.id if interaction.guild else "0")
+
+        # Load config to get main guild ID
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                main_guild_id = config.get("guild_id", "1339298010169086072")
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            main_guild_id = "1339298010169086072"
+        
+        # Check if this is a guild-specific instance
+        is_main_guild = (guild_id == main_guild_id)
+        
+        # Store the image channel ID for later use with URL handling
+        image_channel_id = None
+        if not is_main_guild:
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+            result = cursor.fetchone()
+            conn.close()
+            
+            if result:
+                image_channel_id = result[0]
 
         # Check if user has both credentials and email set up
         has_credentials, has_email = check_user_setup(user_id)
@@ -433,6 +457,15 @@ class BrandSelectDropdown(ui.Select):
 
                 # Create the modal instance
                 modal = modal_class()
+                
+                # Store the guild and image channel info for the modal to use
+                if hasattr(modal, "set_guild_info"):
+                    modal.set_guild_info(guild_id, image_channel_id)
+                
+                # For modals that don't have the method, monkey patch it
+                # This is needed because we can't modify all the modal classes
+                modal.guild_id = guild_id
+                modal.image_channel_id = image_channel_id
 
                 # Show the modal to the user
                 await interaction.response.send_modal(modal)
@@ -970,6 +1003,25 @@ async def on_message(message):
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
                     await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+    
+    # Check if message is in a guild-specific image channel
+    elif message.guild and message.attachments:
+        guild_id = str(message.guild.id)
+        channel_id = message.channel.id
+        
+        # Check if this channel is configured as an image channel for this guild
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result and str(channel_id) == result[0]:
+            # This is a guild image channel, handle attachments
+            for attachment in message.attachments:
+                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                    # Reply to the user's message with the image URL
+                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
                     
     # Process commands
     await bot.process_commands(message)
@@ -1012,8 +1064,12 @@ async def on_message(message):
         # Load admin commands extension
         await bot.load_extension('commands.admin_commands')
         print("Admin commands loaded successfully")
+        
+        # Load guild commands extension
+        await bot.load_extension('commands.guild_commands')
+        print("Guild commands loaded successfully")
     except Exception as e:
-        print(f"Failed to load admin commands: {e}")
+        print(f"Failed to load commands: {e}")
         # Print more detailed error information
         import traceback
         traceback.print_exc()
@@ -1030,64 +1086,155 @@ async def on_message(message):
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
-    # Check if command is used in the allowed channel
-    allowed_channel_id = 1374468007472009216
-    if interaction.channel_id != allowed_channel_id:
+    user_id = str(interaction.user.id)
+    guild_id = str(interaction.guild.id if interaction.guild else "0")
+    
+    # Load config to get main guild ID
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            main_guild_id = config.get("guild_id", "1339298010169086072")
+            main_channel_id = 1374468007472009216
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        main_guild_id = "1339298010169086072"
+        main_channel_id = 1374468007472009216
+    
+    # Check if this is a guild-specific or main guild request
+    is_main_guild = (guild_id == main_guild_id)
+    
+    # If in main guild, enforce channel restriction
+    if is_main_guild and interaction.channel_id != main_channel_id:
         embed = discord.Embed(
             title="Command Restricted",
-            description=f"This command can only be used in <#{allowed_channel_id}>",
+            description=f"This command can only be used in <#{main_channel_id}>",
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
+    
+    # If in a guild server, check if the channel is allowed
+    if not is_main_guild:
+        # Check if guild is configured
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT generate_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+        guild_config = cursor.fetchone()
         
-    user_id = str(interaction.user.id)
-
-    try:
-        # Check if user has a valid license
-        from utils.license_manager import LicenseManager
-        license_status = await LicenseManager.is_subscription_active(user_id)
-
-        # Handle different return types - could be bool or dict
-        is_active = False
-        if isinstance(license_status, dict):
-            is_active = license_status.get("active", False)
+        if not guild_config:
+            embed = discord.Embed(
+                title="Server Not Configured",
+                description="This server has not been configured to use GOAT Receipts. Please ask the server admin to use `/configure_guild`.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            conn.close()
+            return
+        
+        # Check if this is the right channel
+        allowed_channel_id = int(guild_config[0])
+        if interaction.channel_id != allowed_channel_id:
+            embed = discord.Embed(
+                title="Command Restricted",
+                description=f"This command can only be used in <#{allowed_channel_id}>",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            conn.close()
+            return
+        
+        # Check if user has access in this guild
+        cursor.execute("""
+        SELECT expiry, access_type FROM server_access 
+        WHERE guild_id = ? AND user_id = ?
+        """, (guild_id, user_id))
+        user_access = cursor.fetchone()
+        conn.close()
+        
+        if not user_access:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You don't have access to use this bot in this server. Please contact a server admin.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        # Check if access is still valid
+        expiry_str, access_type = user_access
+        
+        # Lifetime access is always valid
+        if access_type == "Lifetime":
+            pass  # Always valid
         else:
-            is_active = bool(license_status)
-
-        if not is_active:
-            # Check if it's an expired license with expiry date (if license_status is dict)
-            if isinstance(license_status, dict) and "expired_date" in license_status:
-                expired_date = license_status["expired_date"]
+            # Check expiry date
+            try:
+                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                if datetime.now() > expiry_date:
+                    embed = discord.Embed(
+                        title="Subscription Expired",
+                        description=f"Your access in this server expired on `{expiry_str}`. Please contact a server admin to renew your access.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except Exception as e:
+                print(f"Error checking expiry: {e}")
+                # If we can't parse the date, fall back to checking with the server owner
                 embed = discord.Embed(
-                    title="Subscription Expired",
-                    description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
-                    color=discord.Color.red()
-                )
-
-                # Create a view with a "Renew" button that redirects to goatreceipts.com
-                view = discord.ui.View()
-                view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-                await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-            else:
-                # User never had a license
-                embed = discord.Embed(
-                    title="Access Denied",
-                    description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                    title="Access Error",
+                    description="There was an error verifying your access. Please contact a server admin.",
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+    else:
+        # In main guild, check license normally
+        try:
+            # Check if user has a valid license
+            from utils.license_manager import LicenseManager
+            license_status = await LicenseManager.is_subscription_active(user_id)
+
+            # Handle different return types - could be bool or dict
+            is_active = False
+            if isinstance(license_status, dict):
+                is_active = license_status.get("active", False)
+            else:
+                is_active = bool(license_status)
+
+            if not is_active:
+                # Check if it's an expired license with expiry date (if license_status is dict)
+                if isinstance(license_status, dict) and "expired_date" in license_status:
+                    expired_date = license_status["expired_date"]
+                    embed = discord.Embed(
+                        title="Subscription Expired",
+                        description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
+                        color=discord.Color.red()
+                    )
+
+                    # Create a view with a "Renew" button that redirects to goatreceipts.com
+                    view = discord.ui.View()
+                    view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+                    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                else:
+                    # User never had a license
+                    embed = discord.Embed(
+                        title="Access Denied",
+                        description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+        except Exception as e:
+            print(f"Error checking license for {user_id}: {e}")
+            # Always deny access if there's any error
+            embed = discord.Embed(
+                title="Access Denied",
+                description="There was an error checking your subscription. Please try again later or contact support.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-    except Exception as e:
-        print(f"Error checking license for {user_id}: {e}")
-        # Always deny access if there's any error
-        embed = discord.Embed(
-            title="Access Denied",
-            description="There was an error checking your subscription. Please try again later or contact support.",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
 
     # Check if user has a subscription or create default one
     subscription_type, end_date = get_subscription(user_id)
@@ -1185,21 +1332,112 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             key_prefix = subscription_type
             license_key = f"{key_prefix}-{user_id}"
 
-            # Add user to licenses table with correct fields
-            cursor.execute('''
-            INSERT OR REPLACE INTO licenses 
-            (owner_id, key, expiry, emailtf, credentialstf) 
-            VALUES (?, ?, ?, 'False', 'False')
-            ''', (user_id, license_key, expiry_date))
+            # Check if this is a guild subscription
+            is_guild_key = subscription_type.startswith("guild_")
+            
+            if is_guild_key:
+                # Handle guild subscription
+                guild_sub_type = "Lifetime" if "lifetime" in subscription_type.lower() else "30 Days"
+                
+                # Parse expiry date
+                expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
+                end_date = expiry_dt.strftime('%Y-%m-%d')
+                
+                # Add to guild_subscriptions table
+                cursor.execute('''
+                INSERT OR REPLACE INTO guild_subscriptions
+                (user_id, subscription_type, start_date, end_date, is_active)
+                VALUES (?, ?, ?, ?, 1)
+                ''', (user_id, guild_sub_type, datetime.now().strftime('%Y-%m-%d'), end_date))
+                
+                # Also add to regular licenses for auth purposes
+                cursor.execute('''
+                INSERT OR REPLACE INTO licenses 
+                (owner_id, key, expiry, emailtf, credentialstf) 
+                VALUES (?, ?, ?, 'False', 'False')
+                ''', (user_id, license_key, expiry_date))
+                
+                # Update cache
+                from utils.license_manager import LicenseManager
+                now = datetime.now()
+                is_lifetime = 'lifetime' in subscription_type.lower()
+                LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+                
+                # Notification message for guild subscription
+                try:
+                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    if purchases_channel:
+                        # Create guild subscription notification
+                        guild_embed = discord.Embed(
+                            title="Thank you for purchasing",
+                            description=f"{interaction.user.mention}, your guild subscription has been updated. Check below\n"
+                                       f"-# Run command /configure_guild in <#1374468007472009216> to continue\n\n"
+                                       f"**Subscription Type**\n"
+                                       f"`Guild`\n\n"
+                                       f"**Consider leaving a review !**\n"
+                                       f"Please consider leaving a review at <#1339306483816337510>",
+                            color=discord.Color.green()
+                        )
 
-            # Update the LicenseManager cache to recognize this license immediately
-            from utils.license_manager import LicenseManager
-            now = datetime.now()
-            expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
-            is_lifetime = 'lifetime' in subscription_type.lower()
+                        await purchases_channel.send(content=interaction.user.mention, embed=guild_embed)
+                        
+                        # Also try to DM
+                        try:
+                            await interaction.user.send(embed=guild_embed)
+                        except:
+                            print(f"Could not send DM to {interaction.user.display_name}")
+                except Exception as e:
+                    print(f"Error sending guild notification: {e}")
+            else:
+                # Regular subscription key
+                cursor.execute('''
+                INSERT OR REPLACE INTO licenses 
+                (owner_id, key, expiry, emailtf, credentialstf) 
+                VALUES (?, ?, ?, 'False', 'False')
+                ''', (user_id, license_key, expiry_date))
 
-            # Update the cache with the new license
-            LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+                # Update the LicenseManager cache to recognize this license immediately
+                from utils.license_manager import LicenseManager
+                now = datetime.now()
+                expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
+                is_lifetime = 'lifetime' in subscription_type.lower()
+
+                # Update the cache with the new license
+                LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+                
+                # Send notification to Purchases channel
+                try:
+                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    if purchases_channel:
+                        # Clean up subscription type display
+                        display_type = subscription_type
+                        if subscription_type == "3day":
+                            display_type = "3 Days"
+                        elif subscription_type == "14day":
+                            display_type = "14 Days"
+                        elif subscription_type == "1month":
+                            display_type = "1 Month"
+
+                        # Create notification embed
+                        notification_embed = discord.Embed(
+                            title="Thank you for purchasing",
+                            description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
+                                      f"-# Run command /generate in <#1369426783153160304> to continue\n\n"
+                                      f"**Subscription Type**\n"
+                                      f"`{display_type}`\n\n"
+                                      f"- Please consider leaving a review at ⁠<#1339306483816337510>",
+                            color=discord.Color.green()
+                        )
+
+                        await purchases_channel.send(content=interaction.user.mention, embed=notification_embed)
+
+                        # Send DM to user
+                        try:
+                            await interaction.user.send(embed=notification_embed)
+                        except:
+                            print(f"Could not send DM to {interaction.user.display_name}")
+                except Exception as e:
+                    print(f"Error sending notification: {e}")
 
             # Trigger a backup of licenses
             try:
@@ -1210,15 +1448,6 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
             conn.commit()
             conn.close()
-
-            # Success message
-            embed = discord.Embed(
-                title="License Key Redeemed Successfully",
-                description=f"Your subscription has been activated:\n\n**Subscription Type**: {subscription_type}\n**Expires On**: {expiry_date}",
-                color=discord.Color.green()
-            )
-
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
             # Try to add client role to the user
             try:
@@ -1237,39 +1466,14 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             except Exception as e:
                 print(f"Error adding role: {e}")
 
-            # Send notification to Purchases channel
-            try:
-                purchases_channel = interaction.client.get_channel(1374468080817803264)
-                if purchases_channel:
-                    # Clean up subscription type display
-                    display_type = subscription_type
-                    if subscription_type == "3day":
-                        display_type = "3 Days"
-                    elif subscription_type == "14day":
-                        display_type = "14 Days"
-                    elif subscription_type == "1month":
-                        display_type = "1 Month"
+            # Success message
+            embed = discord.Embed(
+                title="License Key Redeemed Successfully",
+                description=f"Your subscription has been activated:\n\n**Subscription Type**: {subscription_type.replace('guild_', 'Guild ')}\n**Expires On**: {expiry_date}",
+                color=discord.Color.green()
+            )
 
-                    # Create notification embed
-                    notification_embed = discord.Embed(
-                        title="Thank you for purchasing",
-                        description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
-                                   f"-# Run command /generate in <#1369426783153160304> to continue\n\n"
-                                   f"**Subscription Type**\n"
-                                   f"`{display_type}`\n\n"
-                                   f"- Please consider leaving a review at ⁠<#1339306483816337510>",
-                        color=discord.Color.green()
-                    )
-
-                    await purchases_channel.send(content=interaction.user.mention, embed=notification_embed)
-
-                    # Send DM to user
-                    try:
-                        await interaction.user.send(embed=notification_embed)
-                    except:
-                        print(f"Could not send DM to {interaction.user.display_name}")
-            except Exception as e:
-                print(f"Error sending notification: {e}")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
         else:
             # Error handling
@@ -1329,6 +1533,16 @@ class KeygenTypeSelect(discord.ui.Select):
                 label="Lifetime",
                 description="Generate keys for lifetime subscriptions",
                 value="lifetime"
+            ),
+            discord.SelectOption(
+                label="Guild 30 Days",
+                description="Generate keys for 30-day guild subscriptions",
+                value="guild_30days"
+            ),
+            discord.SelectOption(
+                label="Guild Lifetime",
+                description="Generate keys for lifetime guild subscriptions",
+                value="guild_lifetime"
             )
         ]
         super().__init__(placeholder="Select subscription type...", options=options)

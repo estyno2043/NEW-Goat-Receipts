@@ -143,7 +143,6 @@ class AdminPanelView(discord.ui.View):
         ''', (str(self.user.id),))
         
         license_info = cursor.fetchone()
-        conn.close()
         
         if license_info:
             key, expiry_str, email, name, street, city, zip_code, country = license_info if len(license_info) >= 8 else (
@@ -178,6 +177,55 @@ class AdminPanelView(discord.ui.View):
         else:
             embed.add_field(name="Status", value="No license information found for this user.", inline=False)
         
+        # Check for guild subscription
+        cursor.execute('''
+        SELECT subscription_type, end_date, is_active
+        FROM guild_subscriptions WHERE user_id = ?
+        ''', (str(self.user.id),))
+        
+        guild_sub = cursor.fetchone()
+        
+        if guild_sub:
+            sub_type, end_date, is_active = guild_sub
+            
+            # Format guild subscription info
+            if is_active:
+                if sub_type.lower() == "lifetime":
+                    guild_status = "Lifetime Guild Subscription"
+                else:
+                    try:
+                        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+                        days_left = (end_date_obj - datetime.now()).days
+                        guild_status = f"Guild Subscription - Expires: {end_date} ({days_left} days remaining)"
+                    except:
+                        guild_status = f"Guild Subscription - Expires: {end_date}"
+            else:
+                guild_status = "Expired Guild Subscription"
+                
+            embed.add_field(name="Guild Subscription", value=guild_status, inline=False)
+            
+            # Get configured guild information
+            cursor.execute('''
+            SELECT guild_id, generate_channel_id
+            FROM guild_configs WHERE owner_id = ?
+            ''', (str(self.user.id),))
+            
+            guild_configs = cursor.fetchall()
+            
+            if guild_configs and len(guild_configs) > 0:
+                guild_list = []
+                for guild_id, gen_channel in guild_configs:
+                    # Try to get guild name
+                    guild = interaction.client.get_guild(int(guild_id))
+                    guild_name = guild.name if guild else f"Unknown Guild ({guild_id})"
+                    guild_list.append(f"• {guild_name} (Channel: {gen_channel})")
+                
+                guild_info = "\n".join(guild_list)
+                embed.add_field(name="Configured Guilds", value=guild_info, inline=False)
+            else:
+                embed.add_field(name="Configured Guilds", value="No guilds configured", inline=False)
+        
+        conn.close()
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @discord.ui.button(label="Add Access", style=discord.ButtonStyle.gray)
