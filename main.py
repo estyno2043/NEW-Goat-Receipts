@@ -1261,7 +1261,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                                        f"-# Run command **/register_bot** in <#1374468007472009216> to continue\n\n"
                                        f"**Subscription**\n"
                                        f"`Guild`\n\n"
-                                       f"Consider leaving a review!\n"
+                                       f"**Consider leaving a review!**\n"
                                        f"Please consider leaving a review at <#1339306483816337510>",
                             color=discord.Color.green()
                         )

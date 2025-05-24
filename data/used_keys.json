@@ -61,5 +61,12 @@
         "redeemed": true,
         "redeemed_by": "1372982221337792544",
         "redeemed_at": "2025-05-24 12:45:32"
+    },
+    "G30-TFRCP87BAS1ZNB": {
+        "subscription_type": "30days",
+        "user_id": "1372982221337792544",
+        "redeemed_on": "2025-05-24 15:20:09",
+        "expiry_date": "22/05/2035 15:20:09",
+        "is_guild_key": true
     }
 }
