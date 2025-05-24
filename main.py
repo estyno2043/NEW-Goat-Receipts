@@ -1008,6 +1008,9 @@ async def on_message(message):
         print("Admin commands loaded")
     except Exception as e:
         print(f"Failed to load admin commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
 
     # Sync commands with Discord
     try:
@@ -1015,6 +1018,9 @@ async def on_message(message):
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
