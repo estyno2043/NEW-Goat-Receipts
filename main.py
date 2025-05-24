@@ -968,8 +968,8 @@ async def on_message(message):
         if message.attachments:
             for attachment in message.attachments:
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                    # Send the image URL to the channel
-                    await message.channel.send(f"```\n{attachment.url}\n```")
+                    # Reply to the user's message with the image URL
+                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
                     
     # Process commands
     await bot.process_commands(message)
