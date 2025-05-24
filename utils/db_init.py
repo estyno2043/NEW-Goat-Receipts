@@ -170,9 +170,21 @@ def init_db():
         guild_id TEXT,
         user_id TEXT,
         added_by TEXT,
-        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        access_type TEXT,
+        expiry TEXT,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(guild_id, user_id)
     )
     ''')
+
+    # Check if expiry column exists in server_access table
+    try:
+        cursor.execute("SELECT expiry FROM server_access LIMIT 1")
+    except sqlite3.OperationalError:
+        # Add missing column
+        cursor.execute("ALTER TABLE server_access ADD COLUMN expiry TEXT")
+        cursor.execute("ALTER TABLE server_access ADD COLUMN access_type TEXT")
+        print("Added missing expiry and access_type columns to server_access table")
 
     conn.commit()
     conn.close()
