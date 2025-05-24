@@ -952,15 +952,6 @@ async def on_ready():
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
-        
-    # Start webhook server
-    try:
-        from utils.webhook_server import WebhookServer
-        webhook_server = WebhookServer(bot)
-        bot.loop.create_task(webhook_server.start())
-        print("Webhook server started")
-    except Exception as e:
-        print(f"Failed to start webhook server: {e}")
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
