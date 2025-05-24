@@ -944,9 +944,9 @@ async def generate_command(interaction: discord.Interaction):
             return
     except Exception as e:
         print(f"Error checking license for {user_id}: {e}")
-        # Fall back to denying access if there's any error
+        # Always deny access if there's any error
         embed = discord.Embed(
-            title="Access Error",
+            title="Access Denied",
             description="There was an error checking your subscription. Please try again later or contact support.",
             color=discord.Color.red()
         )

@@ -300,13 +300,15 @@ class LicenseManager:
                                 cursor.execute("SELECT COUNT(*) FROM licenses")
                                 count = cursor.fetchone()[0]
                                 logging.warning(f"Final license check failed for {user_id}. Database has {count} total licenses.")
-                                # If we have licenses but couldn't find this user, or during deployment,
-                                # temporarily grant access
-                                if count > 0 or is_deployment or is_starting:
+                                # Only grant access during actual deployment or startup
+                                if is_deployment or is_starting:
                                     logging.warning(f"Temporarily granting access for {user_id} - deployment: {is_deployment}, starting: {is_starting}")
                                     # Cache for 15 minutes during deployment transitions
                                     LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=15), False)
                                     return True
+                                # In normal operation, properly deny access
+                                logging.info(f"Access denied for user {user_id} - no valid license found")
+                                return False
                             continue
 
                     expiry_str, key = result
@@ -361,16 +363,25 @@ class LicenseManager:
             except Exception as e:
                 logging.error(f"Unexpected error checking license for user_id {user_id}: {str(e)}")
                 if attempt == max_attempts - 1:
-                    # Grant access on last attempt if any unexpected error
-                    cache_duration = timedelta(minutes=15) if (is_deployment or is_starting) else timedelta(minutes=5)
-                    LicenseManager._license_cache[user_id_str] = (current_time + cache_duration, False)
-                    return True
+                    # Only grant access during deployment or startup
+                    if is_deployment or is_starting:
+                        cache_duration = timedelta(minutes=15)
+                        LicenseManager._license_cache[user_id_str] = (current_time + cache_duration, False)
+                        return True
+                    # Properly deny access in normal operation
+                    logging.info(f"Access denied for user {user_id} - unexpected error during license check")
+                    return False
 
                 retry_delay = (attempt+1)*1.5
                 await asyncio.sleep(retry_delay)
 
         # This shouldn't be reached normally, but just in case
         logging.warning(f"License check for user {user_id} fell through to default case")
-        # Cache for 10 minutes during uncertain times
-        LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=10), False)
-        return True
+        # Only grant temporary access during deployment or startup
+        if is_deployment or is_starting:
+            # Cache for 10 minutes during uncertain times
+            LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=10), False)
+            return True
+        # Properly deny access in normal operation
+        logging.info(f"Access denied for user {user_id} - license check reached default case")
+        return False
