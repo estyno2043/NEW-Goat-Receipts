@@ -117,9 +117,9 @@ async def generate_command(interaction: discord.Interaction):
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute('''
-        SELECT expiry_date, is_active 
-        FROM guild_user_access 
-        WHERE guild_id = ? AND user_id = ?
+            SELECT expiry_date, is_active 
+            FROM guild_user_access 
+            WHERE guild_id = ? AND user_id = ?
         ''', (GUILD_ID, user_id))
         
         result = cursor.fetchone()
