@@ -955,10 +955,9 @@ async def generate_command(interaction: discord.Interaction):
                 class RenewalView(discord.ui.View):
                     def __init__(self):
                         super().__init__(timeout=None)
-
-                    @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc")
-                    async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                        pass
+                        
+                        # Add button directly in __init__ instead of using decorator
+                        self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc"))
 
                 await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=False)
                 return

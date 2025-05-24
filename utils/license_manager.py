@@ -124,9 +124,8 @@ class LicenseManager:
                                         def __init__(self):
                                             super().__init__(timeout=None)
                                             
-                                        @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com")
-                                        async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                                            pass
+                                            # Add button directly in __init__ instead of using decorator
+                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc"))
                                     
                                     await member.send(embed=embed, view=RenewalView())
                                 except:
