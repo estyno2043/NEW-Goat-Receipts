@@ -75,5 +75,12 @@
         "redeemed": true,
         "redeemed_by": "1340785306311463026",
         "redeemed_at": "2025-05-24 20:04:42"
+    },
+    "CAE66CGWZGBOSDMO": {
+        "subscription_type": "3day",
+        "generated_at": "2025-05-24 20:04:26",
+        "redeemed": true,
+        "redeemed_by": "1340785306311463026",
+        "redeemed_at": "2025-05-24 20:25:13"
     }
 }
