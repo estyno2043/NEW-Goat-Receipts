@@ -42,6 +42,15 @@ def init_db():
         expiry TEXT
     )
     ''')
+    
+    # Make sure key and expiry columns exist
+    try:
+        cursor.execute("SELECT key, expiry FROM licenses LIMIT 1")
+    except sqlite3.OperationalError:
+        # Add missing columns
+        cursor.execute("ALTER TABLE licenses ADD COLUMN key TEXT")
+        cursor.execute("ALTER TABLE licenses ADD COLUMN expiry TEXT")
+        print("Added missing key and expiry columns to licenses table")
 
     # Make sure all columns exist (for backward compatibility)
     columns_to_check = [

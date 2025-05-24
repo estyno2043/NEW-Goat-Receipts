@@ -929,14 +929,25 @@ async def on_ready():
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     
-    # Check if user has a valid license
-    from utils.license_manager import LicenseManager
-    has_license = await LicenseManager.is_subscription_active(user_id)
-    
-    if not has_license:
+    try:
+        # Check if user has a valid license
+        from utils.license_manager import LicenseManager
+        has_license = await LicenseManager.is_subscription_active(user_id)
+        
+        if not has_license:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+    except Exception as e:
+        print(f"Error checking license for {user_id}: {e}")
+        # Fall back to denying access if there's any error
         embed = discord.Embed(
-            title="Access Denied",
-            description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+            title="Access Error",
+            description="There was an error checking your subscription. Please try again later or contact support.",
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
