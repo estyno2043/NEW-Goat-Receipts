@@ -134,36 +134,48 @@ def update_subscription(user_id, subscription_type="Unlimited", days=365):
 
 # Get user subscription info
 def get_subscription(user_id):
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    # First check licenses table for expiry and key
-    cursor.execute("SELECT key, expiry FROM licenses WHERE owner_id = ?", (str(user_id),))
-    license_data = cursor.fetchone()
-    
-    conn.close()
-    
-    if license_data:
-        key, expiry_str = license_data
-        # Check if lifetime key
-        if key and key.startswith("LifetimeKey"):
-            return "Lifetime", "Lifetime"
-        else:
-            return "Premium", expiry_str
-    else:
-        # Check old subscriptions table as fallback
+    try:
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
-        result = cursor.fetchone()
-        conn.close()
+
+        # Check if the licenses table has the required columns
+        try:
+            # First check licenses table for expiry and key
+            cursor.execute("SELECT key, expiry FROM licenses WHERE owner_id = ?", (str(user_id),))
+            license_data = cursor.fetchone()
+            
+            if license_data:
+                key, expiry_str = license_data
+                # Check if lifetime key
+                if key and key.startswith("LifetimeKey"):
+                    return "Lifetime", "Lifetime"
+                else:
+                    return "Premium", expiry_str
+        except sqlite3.OperationalError as e:
+            # Handle missing columns
+            print(f"License table error: {e}")
+            # Continue to fallback method
         
-        if result:
-            return result[0], result[1]
-        else:
-            # Create default subscription if none exists
-            from datetime import datetime, timedelta
-            return "None", "No Subscription"
+        # Check old subscriptions table as fallback
+        try:
+            cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
+            result = cursor.fetchone()
+            if result:
+                return result[0], result[1]
+        except sqlite3.OperationalError:
+            # Table might not exist
+            pass
+            
+        # Create default subscription if none exists
+        return "Default", "1 Year"
+    except Exception as e:
+        print(f"Error in get_subscription: {e}")
+        return "Default", "1 Year"
+    finally:
+        try:
+            conn.close()
+        except:
+            pass
 
 # Get total brands count
 def get_total_brands():
