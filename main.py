@@ -1354,9 +1354,6 @@ async def generate_command(interaction: discord.Interaction):
 
     if not has_credentials or not has_email:
         # Show menu panel for new users
-        # Create menu panel (with updated format)
-        subscription_type, end_date = get_subscription(user_id)
-
         # Format subscription type for display
         display_type = subscription_type
         if subscription_type == "3day":
@@ -1377,6 +1374,18 @@ async def generate_command(interaction: discord.Interaction):
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
         )
+        
+        # Create and send the menu view
+        view = MenuView(user_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+        return
     else:
         # Show generator panel for returning users
         username = interaction.user.display_name
