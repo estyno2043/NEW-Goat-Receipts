@@ -1113,7 +1113,6 @@ async def generate_command(interaction: discord.Interaction):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
-        return
 
     # If in a guild server, check if the channel is allowed
     if not is_main_guild:
@@ -1841,4 +1840,18 @@ if os.getenv('REPLIT_DEPLOYMENT'):
     thread.start()
 
 # Run the bot
-bot.run(os.getenv('DISCORD_TOKEN'))
+# Try to get token from environment variables first, then fall back to config.json
+token = os.getenv('DISCORD_TOKEN')
+if not token:
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            token = config.get("bot_token")
+    except Exception as e:
+        print(f"Error loading token from config: {e}")
+
+if not token:
+    print("ERROR: No Discord bot token found. Please set the DISCORD_TOKEN environment variable or update config.json")
+    exit(1)
+
+bot.run(token)
