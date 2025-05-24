@@ -959,7 +959,7 @@ async def generate_command(interaction: discord.Interaction):
                         # Add button directly in __init__ instead of using decorator
                         self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc"))
 
-                await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=False)
+                await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=True)
                 return
             else:
                 # User never had a license
