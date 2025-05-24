@@ -426,13 +426,14 @@ class GuildCommands(commands.Cog):
 
         # Also check if user has the client role directly
         try:
-            client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
-            has_role = client_role in interaction.user.roles
-            print(f"User {user_id} has client role: {has_role}")
-            if has_role:
-                # Close connection before returning
-                conn.close()
-                return True  # Allow access if they have the role
+            if client_role_id:  # Make sure client_role_id is defined and not None
+                client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+                has_role = client_role in interaction.user.roles if client_role else False
+                print(f"User {user_id} has client role: {has_role}")
+                if has_role:
+                    # Close connection before returning
+                    conn.close()
+                    return True  # Allow access if they have the role
         except Exception as e:
             print(f"Error checking client role: {e}")
 

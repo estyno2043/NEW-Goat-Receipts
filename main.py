@@ -204,7 +204,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
         """Check if the email is an iCloud email address"""
         return "@icloud" in email.lower()
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         email = self.email.value
 
@@ -297,7 +297,7 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
     zip_code = ui.TextInput(label="Zip", placeholder="10001", required=True)
     country = ui.TextInput(label="Country", placeholder="United States", required=True)
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 
         # Save custom info to database
@@ -385,7 +385,7 @@ class BrandSelectDropdown(ui.Select):
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
 
-    async def callback(self, interaction: discord.Interaction):
+    async def callback(self, self, interaction: discord.Interaction):
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
@@ -523,7 +523,7 @@ class BrandSelectView(ui.View):
             print(f"Error in timeout handling: {e}")
 
     @ui.button(label="Previous", style=discord.ButtonStyle.blurple, custom_id="previous")
-    async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
+    async def previous_page(self, self, interaction: discord.Interaction, button: ui.Button):
         # Get total number of brands to calculate max pages
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
@@ -550,7 +550,7 @@ class BrandSelectView(ui.View):
             await interaction.response.send_message("You're already on the first page!", ephemeral=True)
 
     @ui.button(label="Next Brands", style=discord.ButtonStyle.blurple, custom_id="next")
-    async def next_page(self, interaction: discord.Interaction, button: ui.Button):
+    async def next_page(self, self, interaction: discord.Interaction, button: ui.Button):
         # Get total number of brands to calculate max pages
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
@@ -578,7 +578,7 @@ class BrandSelectView(ui.View):
             await interaction.response.send_message("You're already on the last page!", ephemeral=True)
 
     @ui.button(label="Close", style=discord.ButtonStyle.danger, custom_id="close")
-    async def close_menu(self, interaction: discord.Interaction, button: ui.Button):
+    async def close_menu(self, self, interaction: discord.Interaction, button: ui.Button):
         embed = discord.Embed(
             title="Menu Closed",
             description="The panel is no longer active.",
@@ -648,7 +648,7 @@ class CredentialsDropdownView(ui.View):
             print(f"Error in timeout handling: {e}")
 
     @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
-    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
+    async def go_back(self, self, interaction: discord.Interaction, button: ui.Button):
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
@@ -679,7 +679,7 @@ class CredentialsDropdownView(ui.View):
 
         await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
 
-    async def dropdown_callback(self, interaction: discord.Interaction):
+    async def dropdown_callback(self, self, interaction: discord.Interaction):
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
@@ -791,219 +791,7 @@ class CredentialsView(ui.View):
     async def interaction_check(self, interaction):
         # Update last interaction time on every interaction
         self.last_interaction = datetime.now()
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        ## Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
-    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Create menu panel (with updated format)
-        subscription_type, end_date = get_subscription(self.user_id)
-
-        # Format subscription type for display
-        display_type = subscription_type
-        if subscription_type == "3day":
-            display_type = "3 Days"
-        elif subscription_type == "14day":
-            display_type = "14 Days"
-        elif subscription_type == "1month":
-            display_type = "1 Month"
-
-        embed = discord.Embed(
-            title="GOAT Menu",
-            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscriptionends.\n") +
-                        "-# pick an option below to continue\n\n" +
-                        "**Subscription Type**\n" +
-                        f"`{display_type}`\n\n" +
-                        "**Note**\n" +
-                        "-# please click \"Credentials\" and set your credentials before you try to generate",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
-
-# View for the main menu
-class MenuView(ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=180)  # Set timeout to 3 minutes
-        self.user_id = user_id
-        self.last_interaction = datetime.now()
-        self.message = None # Store the message object
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time on everyinteraction
-        self.last_interaction = datetime.now()
-        ## Reset timeout on interaction
-        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        # Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            if self.message:
-                await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-        # Add URL buttons for Help and Brands
-        help_button = ui.Button(
-            label="Help", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
-        )
-        brands_button = ui.Button(
-            label="Brands", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
-        )
-        self.add_item(help_button)
-        self.add_item(brands_button)
-
-    @ui.button(label="Generate", style=discord.ButtonStyle.gray, custom_id="generate")
-    async def generate(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Check if user has credentials and email
-        has_credentials, has_email = check_user_setup(self.user_id)
-
-        if not has_credentials or not has_email:
-            embed = discord.Embed(
-                title="Setup Required",
-                description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Create generator panel
-        username = interaction.user.display_name
-        total_brands = get_total_brands()
-
-        # Calculate max pages
-        import os
-        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
-        total_count = len(modal_files)
-        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
-
-        embed = discord.Embed(
-            title=f"{username}'s Panel",
-            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        view = BrandSelectView(self.user_id)
-        message = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-
-        # Store the message for proper timeout handling
-        try:
-            # Get the message if it's not already available directly
-            if not message:
-                message = await interaction.original_response()
-            view.message = message
-        except Exception as e:
-            print(f"Failed to get message reference: {e}")
-
-    @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
-    async def credentials(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Get user setup status
-        has_credentials, has_email = check_user_setup(self.user_id)
-
-        # Create credentials panel
-        embed = discord.Embed(
-            title="Credentials",
-            description="Please make sure both options below are 'True'\n\n" +
-                        "**Info**\n" +
-                        f"{'True' if has_credentials else 'False'}\n\n" +
-                        "**Email**\n" +
-                        f"{'True' if has_email else 'False'}",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Create view and store message reference
-        view = CredentialsDropdownView(self.user_id)
-        await interaction.response.edit_message(embed=embed, view=view)
-
-        # Store message reference for proper timeout handling
-        try:
-            message = await interaction.original_response()
-            view.message = message
-        except Exception as e:
-            print(f"Failed to get message reference for credentials panel: {e}")
-
-    def __init__(self, user_id):
-        super().__init__(timeout=300)
-        self.user_id = user_id
-        self.message = None # Initialize message attribute
-
-        # Add URL buttons for Help and Brands
-        help_button = ui.Button(
-            label="Help", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
-        )
-        self.add_item(help_button)
-
-        brands_button = ui.Button(
-            label="Brands", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
-        )
-        self.add_item(brands_button)
-
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name} ({bot.user.id})')
-    print('------')
-
-    # Set up database
-    setup_database()
-
-@bot.event
-async def on_message(message):
-    # Ignore messages from the bot itself
-    if message.author == bot.user:
-        return
-
-    # Check if the message is in the image URL channel
-    if message.channel.id == 1375843777406570516:
-        # Check if the message has an attachment
-        if message.attachments:
-            for attachment in message.attachments:
-                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                    # Reply to the user's message with the image URL
-                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+        # Check if the interaction is from\n{attachment.url}\n```", mention_author=False)
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
@@ -1031,13 +819,13 @@ async def on_message(message):
     global _initialized
     if not globals().get('_initialized', False):
         _initialized = True
-        
+
         # Initialize license database tables if needed
         import os
         if os.path.exists('utils/db_init.py'):
             from utils.db_init import init_db
             init_db()
-        
+
         # Restore license cache from backup
         try:
             from utils.license_backup import LicenseBackup
@@ -1046,7 +834,7 @@ async def on_message(message):
             print("License backup system initialized")
         except Exception as e:
             print(f"Failed to initialize license backup system: {e}")
-        
+
         # Initialize license checker
         try:
             from utils.license_manager import LicenseManager
@@ -1055,7 +843,7 @@ async def on_message(message):
             print("License checker started")
         except Exception as e:
             print(f"Failed to start license checker: {e}")
-            
+
         # Load command extensions
         try:
             if not os.path.exists('commands'):
@@ -1063,20 +851,20 @@ async def on_message(message):
             if not os.path.exists('commands/__init__.py'):
                 with open('commands/__init__.py', 'w') as f:
                     f.write('# Initialize commands package\n')
-            
+
             # Load extensions only if not already loaded
             try:
                 await bot.load_extension('commands.admin_commands')
                 print("Admin commands loaded successfully")
             except discord.ext.commands.errors.ExtensionAlreadyLoaded:
                 print("Admin commands already loaded")
-                
+
             try:
                 await bot.load_extension('commands.guild_commands')
                 print("Guild commands loaded successfully")
             except discord.ext.commands.errors.ExtensionAlreadyLoaded:
                 print("Guild commands already loaded")
-                
+
             # Sync commands with Discord
             synced = await bot.tree.sync()
             print(f"Synced {len(synced)} command(s)")
@@ -1150,17 +938,24 @@ async def generate_command(interaction: discord.Interaction):
         WHERE guild_id = ? AND user_id = ?
         """, (guild_id, user_id))
         user_access = cursor.fetchone()
-        
+
         # Also check if user has the client role (which grants access)
         has_role_access = False
         try:
-            client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
-            if client_role and client_role in interaction.user.roles:
-                print(f"User {user_id} has client role in guild {guild_id}, granting access")
-                has_role_access = True
+            cursor.execute("SELECT client_role_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+            role_result = cursor.fetchone()
+            if role_result and role_result[0]:
+                client_role_id = role_result[0]
+                client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+                has_role = client_role in interaction.user.roles if client_role else False
+                print(f"User {user_id} has client role: {has_role}")
+                if has_role:
+                    # Close connection before returning
+                    conn.close()
+                    return True  # Allow access if they have the role
         except Exception as e:
             print(f"Error checking client role: {e}")
-        
+
         conn.close()
 
         if not user_access and not has_role_access:
@@ -1323,7 +1118,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
         self.bot = None
         self.interaction = None
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         key = self.license_key.value.strip()
 
@@ -1517,7 +1312,7 @@ class RedeemKeyView(discord.ui.View):
         emoji="<:discordkey:1372312945521856633>",
         custom_id="redeem_key_button"
     )
-    async def redeem_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def redeem_button(self, self, interaction: discord.Interaction, button: discord.ui.Button):
         # Show the redemption form
         modal = RedeemKeyModal()
         modal.interaction = interaction  # Store the interaction for role assignment
@@ -1561,7 +1356,7 @@ class KeygenTypeSelect(discord.ui.Select):
         ]
         super().__init__(placeholder="Select subscription type...", options=options)
 
-    async def callback(self, interaction: discord.Interaction):
+    async def callback(self, self, interaction: discord.Interaction):
         # Check if user is the bot owner
         with open("config.json", "r") as f:
             import json
