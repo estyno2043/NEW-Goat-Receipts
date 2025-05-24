@@ -40,5 +40,12 @@
         "redeemed": true,
         "redeemed_by": "1372982221337792544",
         "redeemed_at": "2025-05-24 12:37:58"
+    },
+    "19LY031ZOMLZZV4S": {
+        "subscription_type": "3day",
+        "generated_at": "2025-05-24 12:07:05",
+        "redeemed": true,
+        "redeemed_by": "1372982221337792544",
+        "redeemed_at": "2025-05-24 12:42:07"
     }
 }
