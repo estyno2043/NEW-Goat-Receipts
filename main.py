@@ -1085,6 +1085,11 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
         min_length=16,
         max_length=16
     )
+    
+    def __init__(self):
+        super().__init__()
+        self.bot = None
+        self.interaction = None
 
     async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
@@ -1109,13 +1114,29 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             key_prefix = subscription_type
             license_key = f"{key_prefix}-{user_id}"
 
-            # Add user to licenses table
+            # Add user to licenses table with correct fields
             cursor.execute('''
             INSERT OR REPLACE INTO licenses 
             (owner_id, key, expiry, emailtf, credentialstf) 
             VALUES (?, ?, ?, 'False', 'False')
             ''', (user_id, license_key, expiry_date))
-
+            
+            # Update the LicenseManager cache to recognize this license immediately
+            from utils.license_manager import LicenseManager
+            now = datetime.now()
+            expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
+            is_lifetime = 'lifetime' in subscription_type.lower()
+            
+            # Update the cache with the new license
+            LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+            
+            # Trigger a backup of licenses
+            try:
+                from utils.license_backup import LicenseBackup
+                self.bot.loop.create_task(LicenseBackup.backup_licenses())
+            except Exception as e:
+                print(f"Error backing up licenses: {e}")
+                
             conn.commit()
             conn.close()
 
@@ -1211,6 +1232,7 @@ class RedeemKeyView(discord.ui.View):
         # Show the redemption form
         modal = RedeemKeyModal()
         modal.interaction = interaction  # Store the interaction for role assignment
+        modal.bot = interaction.client   # Store the bot instance for background tasks
         await interaction.response.send_modal(modal)
 
 # Subscription type selection for key generation

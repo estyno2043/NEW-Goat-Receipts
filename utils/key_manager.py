@@ -131,13 +131,14 @@ class KeyManager:
         """Calculate expiry date based on subscription type"""
         now = datetime.now()
         
-        if subscription_type == "3day":
+        # Handle both formats (with and without "day" suffix)
+        if subscription_type == "3day" or subscription_type == "3days" or subscription_type == "3_days":
             return now + timedelta(days=3)
-        elif subscription_type == "14day":
+        elif subscription_type == "14day" or subscription_type == "14days" or subscription_type == "14_days":
             return now + timedelta(days=14)
-        elif subscription_type == "1month":
+        elif subscription_type == "1month" or subscription_type == "1_month":
             return now + timedelta(days=30)
-        elif subscription_type == "lifetime":
+        elif "lifetime" in subscription_type.lower():
             # For lifetime subscriptions, set a date far in the future
             return now + timedelta(days=3650)  # ~10 years
         else:
