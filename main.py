@@ -1144,24 +1144,6 @@ async def generate_command(interaction: discord.Interaction):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             conn.close()
             return
-            
-        # Continue with the command execution for guild user
-        try:
-            # Send menu here for the guild user
-            menu_view = MainMenuView(interaction)
-            embed = discord.Embed(
-                title="GoatReceipts - Select a receipt type",
-                description="Choose from the options below:",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-            await interaction.response.send_message(embed=embed, view=menu_view, ephemeral=True)
-        except Exception as e:
-            print(f"Error handling guild generate command: {e}")
-            # Attempt to respond with error if interaction hasn't been responded to
-            if not interaction.response.is_done():
-                await interaction.response.send_message("An error occurred while processing your command. Please try again later.", ephemeral=True)
-            return
-            return
 
         # Get the guild configuration including client role
         cursor.execute("""
@@ -1240,6 +1222,73 @@ async def generate_command(interaction: discord.Interaction):
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+            
+        # Continue with generating the receipt for guild users
+        # Check if user has credentials and email
+        has_credentials, has_email = check_user_setup(user_id)
+
+        if not has_credentials or not has_email:
+            # Show menu panel for new users
+            subscription_type, end_date = get_subscription(user_id)
+
+            # Format subscription type for display
+            display_type = subscription_type
+            if subscription_type == "3day":
+                display_type = "3 Days"
+            elif subscription_type == "14day":
+                display_type = "14 Days"
+            elif subscription_type == "1month":
+                display_type = "1 Month"
+
+            embed = discord.Embed(
+                title="GOAT Menu",
+                description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                            f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                            "-# pick an option below to continue\n\n" +
+                            "**Subscription Type**\n" +
+                            f"`{display_type}`\n\n" +
+                            "**Note**\n" +
+                            "-# please click \"Credentials\" and set your credentials before you try to generate",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            
+            view = MenuView(user_id)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            
+            # Store message reference for proper timeout handling
+            try:
+                message = await interaction.original_response()
+                view.message = message
+            except Exception as e:
+                print(f"Failed to get message reference: {e}")
+            return
+        else:
+            # Show generator panel for returning users
+            username = interaction.user.display_name
+            total_brands = get_total_brands()
+
+            # Calculate max pages
+            import os
+            modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+            total_count = len(modal_files)
+            max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
+            embed = discord.Embed(
+                title=f"{username}'s Panel",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+
+            view = BrandSelectView(user_id)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+            # Store message reference for proper timeout handling
+            try:
+                message = await interaction.original_response()
+                view.message = message
+            except Exception as e:
+                print(f"Failed to get message reference: {e}")
             return
     else:
         # In main guild, check license normally
