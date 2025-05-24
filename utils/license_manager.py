@@ -305,7 +305,7 @@ class LicenseManager:
                                     logging.warning(f"Temporarily granting access for {user_id} - deployment: {is_deployment}, starting: {is_starting}")
                                     # Cache for 15 minutes during deployment transitions
                                     LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=15), False)
-                                    return True
+                                    return {"active": True}
                                 # In normal operation, properly deny access
                                 logging.info(f"Access denied for user {user_id} - no valid license found")
                                 return False
@@ -367,7 +367,7 @@ class LicenseManager:
                     if is_deployment or is_starting:
                         cache_duration = timedelta(minutes=15)
                         LicenseManager._license_cache[user_id_str] = (current_time + cache_duration, False)
-                        return True
+                        return {"active": True}
                     # Properly deny access in normal operation
                     logging.info(f"Access denied for user {user_id} - unexpected error during license check")
                     return False

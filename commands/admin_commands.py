@@ -210,38 +210,34 @@ class AdminPanelView(discord.ui.View):
         cursor = conn.cursor()
         
         try:
-            # Remove license
-            cursor.execute("DELETE FROM licenses WHERE owner_id = ?", (str(self.user.id),))
+            # First, get the current expiry date to save it
+            cursor.execute("SELECT expiry FROM licenses WHERE owner_id = ?", (str(self.user.id),))
+            expiry_result = cursor.fetchone()
+            expiry_date = None
             
-            # Also clean up user emails
-            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
-            
-            # Clean up user credentials
-            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
-            
-            # Clean up user subscriptions (legacy table)
-            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
-            
-            conn.commit()
+            if expiry_result and expiry_result[0]:
+                expiry_date = expiry_result[0]
+                
+                # Instead of deleting, update the license to be expired
+                # This way we can show when it expired
+                if expiry_date:
+                    # Set expiry to yesterday
+                    yesterday = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y %H:%M:%S')
+                    cursor.execute("UPDATE licenses SET expiry = ? WHERE owner_id = ?", 
+                                  (yesterday, str(self.user.id)))
+                    conn.commit()
+            else:
+                # If no license found, just delete any other user data
+                cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
+                cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
+                cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
+                conn.commit()
         except Exception as e:
-            print(f"Error removing user data: {e}")
+            print(f"Error updating user access: {e}")
         finally:
             conn.close()
         
-        # Try to remove client role
-        try:
-            # Load role ID from config
-            with open("config.json", "r") as f:
-                config = json.load(f)
-                client_role_id = int(config.get("Client_ID", 1339305923545403442))
-            
-            # Get the role
-            client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
-            
-            if client_role and client_role in self.user.roles:
-                await self.user.remove_roles(client_role)
-        except Exception as e:
-            print(f"Error removing role from user: {e}")
+        # We keep the client role intentionally - just expire the license
         
         embed = discord.Embed(
             title="Access Removed",

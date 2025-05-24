@@ -932,14 +932,24 @@ async def generate_command(interaction: discord.Interaction):
     try:
         # Check if user has a valid license
         from utils.license_manager import LicenseManager
-        has_license = await LicenseManager.is_subscription_active(user_id)
+        license_status = await LicenseManager.is_subscription_active(user_id)
         
-        if not has_license:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                color=discord.Color.red()
-            )
+        if not license_status.get("active", False):
+            # Check if it's an expired license (has expired date)
+            if "expired_date" in license_status:
+                expired_date = license_status["expired_date"]
+                embed = discord.Embed(
+                    title="Subscription Expired",
+                    description=f"Your subscription expired on `{expired_date}`.\nPlease renew your subscription to continue using our services.",
+                    color=discord.Color.red()
+                )
+            else:
+                # User never had a license
+                embed = discord.Embed(
+                    title="Access Denied",
+                    description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                    color=discord.Color.red()
+                )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
     except Exception as e:
@@ -1008,14 +1018,24 @@ async def menu_command(interaction: discord.Interaction):
     
     # Check if user has a valid license
     from utils.license_manager import LicenseManager
-    has_license = await LicenseManager.is_subscription_active(user_id)
+    license_status = await LicenseManager.is_subscription_active(user_id)
     
-    if not has_license:
-        embed = discord.Embed(
-            title="Access Denied",
-            description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
-            color=discord.Color.red()
-        )
+    if not license_status.get("active", False):
+        # Check if it's an expired license (has expired date)
+        if "expired_date" in license_status:
+            expired_date = license_status["expired_date"]
+            embed = discord.Embed(
+                title="Subscription Expired",
+                description=f"Your subscription expired on `{expired_date}`.\nPlease renew your subscription to continue using our services.",
+                color=discord.Color.red()
+            )
+        else:
+            # User never had a license
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                color=discord.Color.red()
+            )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
