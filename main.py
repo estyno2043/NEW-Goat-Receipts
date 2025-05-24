@@ -1000,6 +1000,17 @@ async def on_ready():
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
+    # Check if command is used in the allowed channel
+    allowed_channel_id = 1374468007472009216
+    if interaction.channel_id != allowed_channel_id:
+        embed = discord.Embed(
+            title="Command Restricted",
+            description=f"This command can only be used in <#{allowed_channel_id}>",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+        
     user_id = str(interaction.user.id)
 
     try:
@@ -1384,6 +1395,17 @@ async def keygen_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
+    # Check if command is used in the allowed channel
+    allowed_channel_id = 1374468007472009216
+    if interaction.channel_id != allowed_channel_id:
+        embed = discord.Embed(
+            title="Command Restricted",
+            description=f"This command can only be used in <#{allowed_channel_id}>",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+        
     user_id = str(interaction.user.id)
 
     # Check if user has a valid license
