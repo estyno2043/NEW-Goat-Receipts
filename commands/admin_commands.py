@@ -124,7 +124,7 @@ class AdminPanelView(discord.ui.View):
         self.owner_id = owner_id  # ID of admin who invoked the command
         self.user = user  # User being edited
 
-    @discord.ui.button(label="Information", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="Information", style=discord.ButtonStyle.gray)
     async def handle_information(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
@@ -180,7 +180,7 @@ class AdminPanelView(discord.ui.View):
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @discord.ui.button(label="Add Access", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="Add Access", style=discord.ButtonStyle.gray)
     async def handle_add_access(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
@@ -199,7 +199,7 @@ class AdminPanelView(discord.ui.View):
         
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
-    @discord.ui.button(label="Remove Access", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Remove Access", style=discord.ButtonStyle.gray)
     async def handle_remove_access(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
@@ -237,7 +237,7 @@ class AdminPanelView(discord.ui.View):
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @discord.ui.button(label="Remove Email", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="Remove Email", style=discord.ButtonStyle.gray)
     async def handle_remove_email(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
@@ -297,7 +297,7 @@ class AdminCommands(commands.Cog):
             color=discord.Color.blue()
         )
         
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
