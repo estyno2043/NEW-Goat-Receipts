@@ -1144,7 +1144,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                                    f"**Subscription Type**\n"
                                    f"`{display_type}`\n\n"
                                    f"- Please consider leaving a review at ⁠<#1339306483816337510>",
-                        color=discord.Color.from_str("#c2ccf8")
+                        color=discord.Color.green()
                     )
                     
                     await purchases_channel.send(content=interaction.user.mention, embed=notification_embed)
