@@ -209,10 +209,24 @@ class AdminPanelView(discord.ui.View):
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         
-        # Remove license
-        cursor.execute("DELETE FROM licenses WHERE owner_id = ?", (str(self.user.id),))
-        conn.commit()
-        conn.close()
+        try:
+            # Remove license
+            cursor.execute("DELETE FROM licenses WHERE owner_id = ?", (str(self.user.id),))
+            
+            # Also clean up user emails
+            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
+            
+            # Clean up user credentials
+            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
+            
+            # Clean up user subscriptions (legacy table)
+            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
+            
+            conn.commit()
+        except Exception as e:
+            print(f"Error removing user data: {e}")
+        finally:
+            conn.close()
         
         # Try to remove client role
         try:
@@ -231,7 +245,7 @@ class AdminPanelView(discord.ui.View):
         
         embed = discord.Embed(
             title="Access Removed",
-            description=f"Successfully removed access for {self.user.mention}.",
+            description=f"Successfully removed access for {self.user.mention}.\nAll user data has been cleared from the database.",
             color=discord.Color.red()
         )
         
