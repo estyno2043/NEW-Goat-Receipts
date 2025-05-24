@@ -1021,9 +1021,22 @@ def start_server():
 
 # Start the Discord bot
 def start_bot():
+    # Try to get token from environment variables first
     bot_token = os.getenv("BOT_TOKEN")
+    
+    # If not found, try to get it from config.json
     if not bot_token:
-        raise ValueError("BOT_TOKEN is not set in the environment variables.")
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                bot_token = config.get("bot_token")
+        except Exception as e:
+            print(f"Error loading config: {e}")
+    
+    # Check if token is available
+    if not bot_token:
+        raise ValueError("Bot token not found in environment variables or config.json")
+    
     bot.run(bot_token)
 
 if __name__ == "__main__":
