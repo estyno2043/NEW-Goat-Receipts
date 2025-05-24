@@ -4,6 +4,25 @@ def init_db():
     """Initialize database and ensure all required tables and columns exist"""
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
+    
+    # Ensure licenses table exists
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS licenses (
+        owner_id TEXT PRIMARY KEY,
+        name TEXT,
+        street TEXT,
+        city TEXT,
+        zipp TEXT,
+        country TEXT,
+        email TEXT,
+        last_email_update TEXT,
+        credentialstf TEXT DEFAULT 'False',
+        emailtf TEXT DEFAULT 'False',
+        emailwhite TEXT DEFAULT 'False',
+        key TEXT,
+        expiry TEXT
+    )
+    ''')
 
     # Create licenses table if it doesn't exist with all necessary columns
     cursor.execute('''

@@ -137,17 +137,33 @@ def get_subscription(user_id):
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-
+    # First check licenses table for expiry and key
+    cursor.execute("SELECT key, expiry FROM licenses WHERE owner_id = ?", (str(user_id),))
+    license_data = cursor.fetchone()
+    
     conn.close()
-
-    if result:
-        return result[0], result[1]
+    
+    if license_data:
+        key, expiry_str = license_data
+        # Check if lifetime key
+        if key and key.startswith("LifetimeKey"):
+            return "Lifetime", "Lifetime"
+        else:
+            return "Premium", expiry_str
     else:
-        # Create default subscription if none exists
-        update_subscription(user_id)
-        return "1 (Email Access Only)", (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+        # Check old subscriptions table as fallback
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            return result[0], result[1]
+        else:
+            # Create default subscription if none exists
+            from datetime import datetime, timedelta
+            return "None", "No Subscription"
 
 # Get total brands count
 def get_total_brands():
@@ -874,6 +890,21 @@ async def on_ready():
 
     # Set up database
     setup_database()
+    
+    # Initialize license database tables if needed
+    import os
+    if os.path.exists('utils/db_init.py'):
+        from utils.db_init import init_db
+        init_db()
+    
+    # Load admin commands
+    try:
+        if not os.path.exists('commands'):
+            os.makedirs('commands')
+        await bot.load_extension('commands.admin_commands')
+        print("Admin commands loaded")
+    except Exception as e:
+        print(f"Failed to load admin commands: {e}")
 
     # Sync commands with Discord
     try:
@@ -885,6 +916,19 @@ async def on_ready():
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
+    
+    # Check if user has a valid license
+    from utils.license_manager import LicenseManager
+    has_license = await LicenseManager.is_subscription_active(user_id)
+    
+    if not has_license:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
 
     # Check if user has a subscription or create default one
     subscription_type, end_date = get_subscription(user_id)
@@ -938,6 +982,19 @@ async def generate_command(interaction: discord.Interaction):
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
+    
+    # Check if user has a valid license
+    from utils.license_manager import LicenseManager
+    has_license = await LicenseManager.is_subscription_active(user_id)
+    
+    if not has_license:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="You need to buy a **[subscription](https://goatreceipts.cc)** to use our services\n-# Be aware that it costs us money to run the bot.",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
 
     # Check if user has a subscription or create default one
     subscription_type, end_date = get_subscription(user_id)
@@ -945,7 +1002,8 @@ async def menu_command(interaction: discord.Interaction):
     # Create menu panel
     embed = discord.Embed(
         title="GOAT Menu",
-        description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                     "-# pick an option below to continue\n\n" +
                     "**Subscription Type**\n" +
                     f"`{subscription_type}`\n\n" +
