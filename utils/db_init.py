@@ -83,8 +83,6 @@ def init_db():
             filter_invites INTEGER DEFAULT 1,
             log_channel TEXT,
             commands_only_channels TEXT,
-            activity TEXT,
-            avatar_url TEXT,
             receipt_log_channel TEXT
         )
     ''')
