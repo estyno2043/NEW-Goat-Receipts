@@ -385,7 +385,7 @@ class BrandSelectDropdown(ui.Select):
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
 
-    async def callback(self, self, interaction: discord.Interaction):
+    async def callback(self, interaction: discord.Interaction):
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
@@ -523,7 +523,7 @@ class BrandSelectView(ui.View):
             print(f"Error in timeout handling: {e}")
 
     @ui.button(label="Previous", style=discord.ButtonStyle.blurple, custom_id="previous")
-    async def previous_page(self, self, interaction: discord.Interaction, button: ui.Button):
+    async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
         # Get total number of brands to calculate max pages
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
@@ -550,7 +550,7 @@ class BrandSelectView(ui.View):
             await interaction.response.send_message("You're already on the first page!", ephemeral=True)
 
     @ui.button(label="Next Brands", style=discord.ButtonStyle.blurple, custom_id="next")
-    async def next_page(self, self, interaction: discord.Interaction, button: ui.Button):
+    async def next_page(self, interaction: discord.Interaction, button: ui.Button):
         # Get total number of brands to calculate max pages
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
@@ -578,7 +578,7 @@ class BrandSelectView(ui.View):
             await interaction.response.send_message("You're already on the last page!", ephemeral=True)
 
     @ui.button(label="Close", style=discord.ButtonStyle.danger, custom_id="close")
-    async def close_menu(self, self, interaction: discord.Interaction, button: ui.Button):
+    async def close_menu(self, interaction: discord.Interaction, button: ui.Button):
         embed = discord.Embed(
             title="Menu Closed",
             description="The panel is no longer active.",
@@ -648,7 +648,7 @@ class CredentialsDropdownView(ui.View):
             print(f"Error in timeout handling: {e}")
 
     @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
-    async def go_back(self, self, interaction: discord.Interaction, button: ui.Button):
+    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
@@ -679,7 +679,7 @@ class CredentialsDropdownView(ui.View):
 
         await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
 
-    async def dropdown_callback(self, self, interaction: discord.Interaction):
+    async def dropdown_callback(self, interaction: discord.Interaction):
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your menu!", ephemeral=True)
             return
