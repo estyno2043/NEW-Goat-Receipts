@@ -1230,7 +1230,6 @@ async def generate_command(interaction: discord.Interaction):
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-                returnphemeral=True)
                 return
                 
         except Exception as e:
