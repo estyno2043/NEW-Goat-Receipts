@@ -934,9 +934,16 @@ async def generate_command(interaction: discord.Interaction):
         from utils.license_manager import LicenseManager
         license_status = await LicenseManager.is_subscription_active(user_id)
         
-        if not license_status.get("active", False):
-            # Check if it's an expired license (has expired date)
-            if "expired_date" in license_status:
+        # Handle different return types - could be bool or dict
+        is_active = False
+        if isinstance(license_status, dict):
+            is_active = license_status.get("active", False)
+        else:
+            is_active = bool(license_status)
+            
+        if not is_active:
+            # Check if it's an expired license with expiry date (if license_status is dict)
+            if isinstance(license_status, dict) and "expired_date" in license_status:
                 expired_date = license_status["expired_date"]
                 embed = discord.Embed(
                     title="Subscription Expired",
@@ -1020,9 +1027,16 @@ async def menu_command(interaction: discord.Interaction):
     from utils.license_manager import LicenseManager
     license_status = await LicenseManager.is_subscription_active(user_id)
     
-    if not license_status.get("active", False):
-        # Check if it's an expired license (has expired date)
-        if "expired_date" in license_status:
+    # Handle different return types - could be bool or dict
+    is_active = False
+    if isinstance(license_status, dict):
+        is_active = license_status.get("active", False)
+    else:
+        is_active = bool(license_status)
+        
+    if not is_active:
+        # Check if it's an expired license with expiry date (if license_status is dict)
+        if isinstance(license_status, dict) and "expired_date" in license_status:
             expired_date = license_status["expired_date"]
             embed = discord.Embed(
                 title="Subscription Expired",
