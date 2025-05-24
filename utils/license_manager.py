@@ -161,6 +161,7 @@ class LicenseManager:
         # Check if user is in cache with valid license
         current_time = datetime.now()
         user_id_str = str(user_id)
+        print(f"Checking license for user {user_id_str}")
 
         # If this is the first check after startup and cache is nearly empty,
         # try to restore from backup before proceeding

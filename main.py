@@ -1851,11 +1851,15 @@ if os.getenv('REPLIT_DEPLOYMENT'):
 # Run the bot
 # Try to get token from environment variables first, then fall back to config.json
 token = os.getenv('DISCORD_TOKEN')
-if not token:
+if token:
+    print("Using Discord token from environment variables")
+else:
     try:
         with open("config.json", "r") as f:
             config = json.load(f)
             token = config.get("bot_token")
+            if token:
+                print("Using Discord token from config.json")
     except Exception as e:
         print(f"Error loading token from config: {e}")
 
