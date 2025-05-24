@@ -622,12 +622,22 @@ class CredentialsDropdownView(ui.View):
         # Create menu panel (with updated format)
         subscription_type, end_date = get_subscription(self.user_id)
 
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
         embed = discord.Embed(
             title="GOAT Menu",
-            description=f"Hello <@{self.user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+            description=(f"Hello <@{self.user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{self.user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`\n\n" +
+                        f"`{display_type}`\n\n" +
                         "**Note**\n" +
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
@@ -773,12 +783,22 @@ class CredentialsView(ui.View):
         # Create menu panel (with updated format)
         subscription_type, end_date = get_subscription(self.user_id)
 
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
         embed = discord.Embed(
             title="GOAT Menu",
-            description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`\n\n" +
+                        f"`{display_type}`\n\n" +
                         "**Note**\n" +
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
@@ -1033,12 +1053,25 @@ async def generate_command(interaction: discord.Interaction):
 
     if not has_credentials or not has_email:
         # Show menu panel for new users
+        # Create menu panel (with updated format)
+        subscription_type, end_date = get_subscription(user_id)
+
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
         embed = discord.Embed(
             title="GOAT Menu",
-            description=f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n" +
+            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
-                        f"`{subscription_type}`\n\n" +
+                        f"`{display_type}`\n\n" +
                         "**Note**\n" +
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
@@ -1083,7 +1116,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
         min_length=16,
         max_length=16
     )
-    
+
     def __init__(self):
         super().__init__()
         self.bot = None
@@ -1118,23 +1151,23 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             (owner_id, key, expiry, emailtf, credentialstf) 
             VALUES (?, ?, ?, 'False', 'False')
             ''', (user_id, license_key, expiry_date))
-            
+
             # Update the LicenseManager cache to recognize this license immediately
             from utils.license_manager import LicenseManager
             now = datetime.now()
             expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
             is_lifetime = 'lifetime' in subscription_type.lower()
-            
+
             # Update the cache with the new license
             LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
-            
+
             # Trigger a backup of licenses
             try:
                 from utils.license_backup import LicenseBackup
                 self.bot.loop.create_task(LicenseBackup.backup_licenses())
             except Exception as e:
                 print(f"Error backing up licenses: {e}")
-                
+
             conn.commit()
             conn.close()
 
@@ -1396,6 +1429,15 @@ async def menu_command(interaction: discord.Interaction):
     # Check if user has a subscription or create default one
     subscription_type, end_date = get_subscription(user_id)
 
+    # Format subscription type for display
+    display_type = subscription_type
+    if subscription_type == "3day":
+        display_type = "3 Days"
+    elif subscription_type == "14day":
+        display_type = "14 Days"
+    elif subscription_type == "1month":
+        display_type = "1 Month"
+
     # Create menu panel
     embed = discord.Embed(
         title="GOAT Menu",
@@ -1403,7 +1445,7 @@ async def menu_command(interaction: discord.Interaction):
                     f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                     "-# pick an option below to continue\n\n" +
                     "**Subscription Type**\n" +
-                    f"`{subscription_type}`\n\n" +
+                    f"`{display_type}`\n\n" +
                     "**Note**\n" +
                     "-# please click \"Credentials\" and set your credentials before you try to generate",
         color=discord.Color.from_str("#c2ccf8")
