@@ -955,6 +955,24 @@ async def on_ready():
 
     # Set up database
     setup_database()
+    
+@bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+        
+    # Check if the message is in the image URL channel
+    if message.channel.id == 1375843777406570516:
+        # Check if the message has an attachment
+        if message.attachments:
+            for attachment in message.attachments:
+                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                    # Send the image URL to the channel
+                    await message.channel.send(f"```\n{attachment.url}\n```")
+                    
+    # Process commands
+    await bot.process_commands(message)
 
     # Initialize license database tables if needed
     import os
