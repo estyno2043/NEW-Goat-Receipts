@@ -1004,18 +1004,16 @@ async def generate_command(interaction: discord.Interaction):
                 # Create a view with a "Renew" button that redirects to goatreceipts.com
                 view = discord.ui.View()
                 view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            else:
+                # User never had a license
+                embed = discord.Embed(
+                    title="Access Denied",
+                    description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-        else:
-            # User never had a license
-            embed = discord.Embed(
-                title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                color=discord.Color.red()
-            )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
     except Exception as e:
         print(f"Error checking license for {user_id}: {e}")
         # Always deny access if there's any error
