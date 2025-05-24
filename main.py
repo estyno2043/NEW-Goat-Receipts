@@ -398,10 +398,10 @@ class BrandSelectDropdown(ui.Select):
         except Exception as e:
             print(f"Error loading config: {e}")
             main_guild_id = "1339298010169086072"
-        
+
         # Check if this is a guild-specific instance
         is_main_guild = (guild_id == main_guild_id)
-        
+
         # Store the image channel ID for later use with URL handling
         image_channel_id = None
         if not is_main_guild:
@@ -410,7 +410,7 @@ class BrandSelectDropdown(ui.Select):
             cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
             result = cursor.fetchone()
             conn.close()
-            
+
             if result:
                 image_channel_id = result[0]
 
@@ -458,11 +458,11 @@ class BrandSelectDropdown(ui.Select):
 
                 # Create the modal instance
                 modal = modal_class()
-                
+
                 # Store the guild and image channel info for the modal to use
                 if hasattr(modal, "set_guild_info"):
                     modal.set_guild_info(guild_id, image_channel_id)
-                
+
                 # For modals that don't have the method, monkey patch it
                 # This is needed because we can't modify all the modal classes
                 modal.guild_id = guild_id
@@ -795,7 +795,7 @@ class CredentialsView(ui.View):
         return interaction.user.id == int(self.user_id)
 
     async def on_timeout(self):
-        # Create timeout embed
+        ## Create timeout embed
         timeout_embed = discord.Embed(
             title="Interaction Timeout",
             description="The panel has timed out due to inactivity and is no longer active.",
@@ -989,13 +989,13 @@ async def on_ready():
 
     # Set up database
     setup_database()
-    
+
 @bot.event
 async def on_message(message):
     # Ignore messages from the bot itself
     if message.author == bot.user:
         return
-        
+
     # Check if the message is in the image URL channel
     if message.channel.id == 1375843777406570516:
         # Check if the message has an attachment
@@ -1004,26 +1004,26 @@ async def on_message(message):
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
                     await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
-    
+
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
         guild_id = str(message.guild.id)
         channel_id = message.channel.id
-        
+
         # Check if this channel is configured as an image channel for this guild
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
         result = cursor.fetchone()
         conn.close()
-        
+
         if result and str(channel_id) == result[0]:
             # This is a guild image channel, handle attachments
             for attachment in message.attachments:
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
                     await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
-                    
+
     # Process commands
     await bot.process_commands(message)
 
@@ -1061,11 +1061,11 @@ async def on_message(message):
         if not os.path.exists('commands/__init__.py'):
             with open('commands/__init__.py', 'w') as f:
                 f.write('# Initialize commands package\n')
-        
+
         # Load admin commands extension
         await bot.load_extension('commands.admin_commands')
         print("Admin commands loaded successfully")
-        
+
         # Load guild commands extension
         await bot.load_extension('commands.guild_commands')
         print("Guild commands loaded successfully")
@@ -1089,7 +1089,7 @@ async def on_message(message):
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     guild_id = str(interaction.guild.id if interaction.guild else "0")
-    
+
     # Load config to get main guild ID
     try:
         with open("config.json", "r") as f:
@@ -1100,10 +1100,10 @@ async def generate_command(interaction: discord.Interaction):
         print(f"Error loading config: {e}")
         main_guild_id = "1339298010169086072"
         main_channel_id = 1374468007472009216
-    
+
     # Check if this is a guild-specific or main guild request
     is_main_guild = (guild_id == main_guild_id)
-    
+
     # If in main guild, enforce channel restriction
     if is_main_guild and interaction.channel_id != main_channel_id:
         embed = discord.Embed(
@@ -1113,7 +1113,7 @@ async def generate_command(interaction: discord.Interaction):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
-    
+
     # If in a guild server, check if the channel is allowed
     if not is_main_guild:
         # Check if guild is configured
@@ -1121,7 +1121,7 @@ async def generate_command(interaction: discord.Interaction):
         cursor = conn.cursor()
         cursor.execute("SELECT generate_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
         guild_config = cursor.fetchone()
-        
+
         if not guild_config:
             embed = discord.Embed(
                 title="Server Not Configured",
@@ -1131,7 +1131,7 @@ async def generate_command(interaction: discord.Interaction):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             conn.close()
             return
-        
+
         # Check if this is the right channel
         allowed_channel_id = int(guild_config[0])
         if interaction.channel_id != allowed_channel_id:
@@ -1143,7 +1143,7 @@ async def generate_command(interaction: discord.Interaction):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             conn.close()
             return
-        
+
         # Check if user has access in this guild
         cursor.execute("""
         SELECT expiry, access_type FROM server_access 
@@ -1151,7 +1151,7 @@ async def generate_command(interaction: discord.Interaction):
         """, (guild_id, user_id))
         user_access = cursor.fetchone()
         conn.close()
-        
+
         if not user_access:
             embed = discord.Embed(
                 title="Access Denied",
@@ -1160,10 +1160,10 @@ async def generate_command(interaction: discord.Interaction):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-        
+
         # Check if access is still valid
         expiry_str, access_type = user_access
-        
+
         # Lifetime access is always valid
         if access_type == "Lifetime":
             pass  # Always valid
@@ -1335,35 +1335,35 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
             # Check if this is a guild subscription
             is_guild_key = subscription_type.startswith("guild_")
-            
+
             if is_guild_key:
                 # Handle guild subscription
                 guild_sub_type = "Lifetime" if "lifetime" in subscription_type.lower() else "30 Days"
-                
+
                 # Parse expiry date
                 expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
                 end_date = expiry_dt.strftime('%Y-%m-%d')
-                
+
                 # Add to guild_subscriptions table
                 cursor.execute('''
                 INSERT OR REPLACE INTO guild_subscriptions
                 (user_id, subscription_type, start_date, end_date, is_active)
                 VALUES (?, ?, ?, ?, 1)
                 ''', (user_id, guild_sub_type, datetime.now().strftime('%Y-%m-%d'), end_date))
-                
+
                 # Also add to regular licenses for auth purposes
                 cursor.execute('''
                 INSERT OR REPLACE INTO licenses 
                 (owner_id, key, expiry, emailtf, credentialstf) 
                 VALUES (?, ?, ?, 'False', 'False')
                 ''', (user_id, license_key, expiry_date))
-                
+
                 # Update cache
                 from utils.license_manager import LicenseManager
                 now = datetime.now()
                 is_lifetime = 'lifetime' in subscription_type.lower()
                 LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
-                
+
                 # Notification message for guild subscription
                 try:
                     purchases_channel = interaction.client.get_channel(1374468080817803264)
@@ -1381,7 +1381,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                         )
 
                         await purchases_channel.send(content=interaction.user.mention, embed=guild_embed)
-                        
+
                         # Also try to DM
                         try:
                             await interaction.user.send(embed=guild_embed)
@@ -1405,7 +1405,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Update the cache with the new license
                 LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
-                
+
                 # Send notification to Purchases channel
                 try:
                     purchases_channel = interaction.client.get_channel(1374468080817803264)
@@ -1650,7 +1650,7 @@ async def menu_command(interaction: discord.Interaction):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
-        
+
     user_id = str(interaction.user.id)
 
     # Check if user has a valid license
