@@ -387,5 +387,67 @@ class GuildCommands(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
+    async def check_guild_access(self, interaction: discord.Interaction):
+        """Check if a user has access to use the bot in the current guild."""
+        guild_id = str(interaction.guild.id)
+        user_id = str(interaction.user.id)
+
+        # Get guild configuration
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT generate_channel_id, client_role_id 
+        FROM guild_configs 
+        WHERE guild_id = ?
+        """, (guild_id,))
+
+        config = cursor.fetchone()
+        if not config:
+            conn.close()
+            embed = discord.Embed(
+                title="Server Not Configured",
+                description="This server has not been configured yet. Please contact a server admin to run `/configure_guild`.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return False  # Indicate no access
+        
+        generate_channel_id, client_role_id = config
+
+        # Check if user has access in this guild
+        cursor.execute("""
+        SELECT expiry, access_type FROM server_access 
+        WHERE guild_id = ? AND user_id = ?
+        """, (guild_id, user_id))
+        user_access = cursor.fetchone()
+
+        # Log for debugging
+        print(f"Checking access for user {user_id} in guild {guild_id}: {user_access}")
+
+        # Also check if user has the client role directly
+        try:
+            client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+            has_role = client_role in interaction.user.roles
+            print(f"User {user_id} has client role: {has_role}")
+            if has_role:
+                # Close connection before returning
+                conn.close()
+                return True  # Allow access if they have the role
+        except Exception as e:
+            print(f"Error checking client role: {e}")
+
+        conn.close()
+
+        if not user_access:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You don't have access to use this bot in this server. Please contact a server admin.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return False
+        
+        return True  # Access granted based on database entry
+
 async def setup(bot):
     await bot.add_cog(GuildCommands(bot))

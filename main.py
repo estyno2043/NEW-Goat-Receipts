@@ -1027,63 +1027,63 @@ async def on_message(message):
     # Process commands
     await bot.process_commands(message)
 
-    # Initialize license database tables if needed
-    import os
-    if os.path.exists('utils/db_init.py'):
-        from utils.db_init import init_db
-        init_db()
-
-    # Restore license cache from backup for faster startup validation
-    try:
-        from utils.license_backup import LicenseBackup
-        # Restore existing licenses to cache
-        await LicenseBackup.restore_licenses_to_cache()
-        # Start backup scheduler in background
-        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
-        print("License backup system initialized")
-    except Exception as e:
-        print(f"Failed to initialize license backup system: {e}")
-
-    # Initialize license checker for expired subscriptions
-    try:
-        from utils.license_manager import LicenseManager
-        license_manager = LicenseManager(bot)
-        await license_manager.start_license_checker()
-        print("License checker started")
-    except Exception as e:
-        print(f"Failed to start license checker: {e}")
-
-    # Load admin commands
-    try:
-        if not os.path.exists('commands'):
-            os.makedirs('commands')
-        # Make sure __init__.py exists
-        if not os.path.exists('commands/__init__.py'):
-            with open('commands/__init__.py', 'w') as f:
-                f.write('# Initialize commands package\n')
-
-        # Load admin commands extension
-        await bot.load_extension('commands.admin_commands')
-        print("Admin commands loaded successfully")
-
-        # Load guild commands extension
-        await bot.load_extension('commands.guild_commands')
-        print("Guild commands loaded successfully")
-    except Exception as e:
-        print(f"Failed to load commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
-
-    # Sync commands with Discord
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
+    # Process initialization tasks only once
+    global _initialized
+    if not globals().get('_initialized', False):
+        _initialized = True
+        
+        # Initialize license database tables if needed
+        import os
+        if os.path.exists('utils/db_init.py'):
+            from utils.db_init import init_db
+            init_db()
+        
+        # Restore license cache from backup
+        try:
+            from utils.license_backup import LicenseBackup
+            await LicenseBackup.restore_licenses_to_cache()
+            bot.loop.create_task(LicenseBackup.start_backup_scheduler())
+            print("License backup system initialized")
+        except Exception as e:
+            print(f"Failed to initialize license backup system: {e}")
+        
+        # Initialize license checker
+        try:
+            from utils.license_manager import LicenseManager
+            license_manager = LicenseManager(bot)
+            await license_manager.start_license_checker()
+            print("License checker started")
+        except Exception as e:
+            print(f"Failed to start license checker: {e}")
+            
+        # Load command extensions
+        try:
+            if not os.path.exists('commands'):
+                os.makedirs('commands')
+            if not os.path.exists('commands/__init__.py'):
+                with open('commands/__init__.py', 'w') as f:
+                    f.write('# Initialize commands package\n')
+            
+            # Load extensions only if not already loaded
+            try:
+                await bot.load_extension('commands.admin_commands')
+                print("Admin commands loaded successfully")
+            except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+                print("Admin commands already loaded")
+                
+            try:
+                await bot.load_extension('commands.guild_commands')
+                print("Guild commands loaded successfully")
+            except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+                print("Guild commands already loaded")
+                
+            # Sync commands with Discord
+            synced = await bot.tree.sync()
+            print(f"Synced {len(synced)} command(s)")
+        except Exception as e:
+            print(f"Failed to load or sync commands: {e}")
+            import traceback
+            traceback.print_exc()
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
@@ -1150,9 +1150,22 @@ async def generate_command(interaction: discord.Interaction):
         WHERE guild_id = ? AND user_id = ?
         """, (guild_id, user_id))
         user_access = cursor.fetchone()
+        
+        # Also check if user has the client role (which grants access)
+        has_role_access = False
+        try:
+            client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+            if client_role and client_role in interaction.user.roles:
+                print(f"User {user_id} has client role in guild {guild_id}, granting access")
+                has_role_access = True
+        except Exception as e:
+            print(f"Error checking client role: {e}")
+        
         conn.close()
 
-        if not user_access:
+        if not user_access and not has_role_access:
+            # Log for debugging
+            print(f"Access denied for user {user_id} in guild {guild_id}")
             embed = discord.Embed(
                 title="Access Denied",
                 description="You don't have access to use this bot in this server. Please contact a server admin.",
