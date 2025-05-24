@@ -119,15 +119,7 @@ class LicenseManager:
                                         color=discord.Color.red()
                                     )
 
-                                    # Create view with renewal button
-                                    class RenewalView(discord.ui.View):
-                                        def __init__(self):
-                                            super().__init__(timeout=None)
-
-                                            # Add button directly in __init__ instead of using decorator
-                                            self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com"))
-
-                                    await member.send(embed=embed, view=RenewalView(), ephemeral=True)
+                                    await member.send(embed=embed, ephemeral=True)
                                 except:
                                     # User may have DMs disabled, just log the info
                                     logging.info(f"Could not DM {member.name} about expired license")

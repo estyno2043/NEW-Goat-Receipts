@@ -237,11 +237,11 @@ class EmailForm(ui.Modal, title="Email Settings"):
             # Get the original message that showed the credentials panel
             # Use followup to get the original message that opened this modal
             original_message = interaction.message
-            
+
             if original_message:
                 # Create updated credentials panel with refreshed data
                 has_credentials, has_email = check_user_setup(user_id)
-                
+
                 # Create updated credentials panel
                 updated_embed = discord.Embed(
                     title="Credentials",
@@ -252,16 +252,16 @@ class EmailForm(ui.Modal, title="Email Settings"):
                                 f"{'True' if has_email else 'False'}",
                     color=discord.Color.from_str("#c2ccf8")
                 )
-                
+
                 # Update the original credentials panel
                 await original_message.edit(embed=updated_embed)
                 print(f"Successfully updated credentials panel for user {user_id}")
             else:
                 print(f"Could not find original message to update for user {user_id}")
-                
+
         except Exception as e:
             print(f"Failed to update credentials panel in real-time: {e}")
-            
+
             # Fallback: Try to find the credentials panel in recent messages
             try:
                 for channel in interaction.guild.text_channels:
@@ -270,7 +270,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
                             message.embeds and 
                             len(message.embeds) > 0 and 
                             message.embeds[0].title == "Credentials"):
-                            
+
                             # Update found credentials panel
                             has_credentials, has_email = check_user_setup(user_id)
                             updated_embed = discord.Embed(
@@ -794,7 +794,7 @@ class MenuView(ui.View):
         self.last_interaction = datetime.now()
 
     async def interaction_check(self, interaction):
-        # Update last interaction time on every interaction
+        # Update last interaction time on everyinteraction
         self.last_interaction = datetime.now()
         # Check if the interaction is from the original user
         return interaction.user.id == int(self.user_id)
@@ -979,25 +979,17 @@ async def generate_command(interaction: discord.Interaction):
                     color=discord.Color.red()
                 )
 
-                # Create view with renewal button
-                class RenewalView(discord.ui.View):
-                    def __init__(self):
-                        super().__init__(timeout=None)
-                        
-                        # Add button directly in __init__ instead of using decorator
-                        self.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc"))
-
-                await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=True)
-                return
-            else:
-                # User never had a license
-                embed = discord.Embed(
-                    title="Access Denied",
-                    description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                    color=discord.Color.red()
-                )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             return
+        else:
+            # User never had a license
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                color=discord.Color.red()
+            )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
     except Exception as e:
         print(f"Error checking license for {user_id}: {e}")
         # Always deny access if there's any error
@@ -1083,17 +1075,8 @@ async def menu_command(interaction: discord.Interaction):
                 color=discord.Color.red()
             )
 
-            # Create view with renewal button
-            class RenewalView(discord.ui.View):
-                def __init__(self):
-                    super().__init__(timeout=None)
-
-                @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com")
-                async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                    pass
-
-            await interaction.response.send_message(embed=embed, view=RenewalView(), ephemeral=False)
-            return
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+        return
         else:
             # User never had a license
             embed = discord.Embed(
