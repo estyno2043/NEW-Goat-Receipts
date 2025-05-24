@@ -124,7 +124,7 @@ class LicenseManager:
                                         def __init__(self):
                                             super().__init__(timeout=None)
                                             
-                                        @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.cc")
+                                        @discord.ui.button(label="Renew", style=discord.ButtonStyle.primary, url="https://goatreceipts.com")
                                         async def renew_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                                             pass
                                     
