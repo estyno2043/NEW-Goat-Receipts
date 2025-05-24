@@ -361,7 +361,7 @@ class BrandSelectDropdown(ui.Select):
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
 
         # Extract brand names from the filenames
-        for modal_file in modal_file:
+        for modal_file in modal_files:
             brand_name = modal_file.split('.')[0].capitalize()
             available_brands.append(brand_name)
 
