@@ -1054,6 +1054,242 @@ async def generate_command(interaction: discord.Interaction):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
+# License key redemption form
+class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
+    license_key = ui.TextInput(
+        label="License Key",
+        placeholder="Enter your unique license key",
+        required=True,
+        min_length=16,
+        max_length=16
+    )
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        key = self.license_key.value.strip()
+        
+        # Process key redemption
+        from utils.key_manager import KeyManager
+        key_manager = KeyManager()
+        result = key_manager.redeem_key(key, user_id)
+        
+        if result["success"]:
+            # Key is valid, add subscription to user
+            subscription_type = result["subscription_type"]
+            expiry_date = result["expiry_date"]
+            
+            # Connect to database
+            import sqlite3
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            
+            # Generate license key based on subscription type
+            key_prefix = subscription_type
+            license_key = f"{key_prefix}-{user_id}"
+            
+            # Add user to licenses table
+            cursor.execute('''
+            INSERT OR REPLACE INTO licenses 
+            (owner_id, key, expiry, emailtf, credentialstf) 
+            VALUES (?, ?, ?, 'False', 'False')
+            ''', (user_id, license_key, expiry_date))
+            
+            conn.commit()
+            conn.close()
+            
+            # Success message
+            embed = discord.Embed(
+                title="License Key Redeemed Successfully",
+                description=f"Your subscription has been activated:\n\n**Subscription Type**: {subscription_type}\n**Expires On**: {expiry_date}",
+                color=discord.Color.green()
+            )
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+            # Try to add client role to the user
+            try:
+                with open("config.json", "r") as f:
+                    import json
+                    config = json.load(f)
+                    client_role_id = int(config.get("Client_ID", 0))
+                
+                if client_role_id > 0:
+                    guild = interaction.guild
+                    if guild:
+                        role = discord.utils.get(guild.roles, id=client_role_id)
+                        if role:
+                            await interaction.user.add_roles(role)
+                            print(f"Added role {role.name} to {interaction.user.display_name}")
+            except Exception as e:
+                print(f"Error adding role: {e}")
+            
+            # Send notification to Purchases channel
+            try:
+                purchases_channel = interaction.client.get_channel(1374468080817803264)
+                if purchases_channel:
+                    # Clean up subscription type display
+                    display_type = subscription_type
+                    if subscription_type == "3day":
+                        display_type = "3 Days"
+                    elif subscription_type == "14day":
+                        display_type = "14 Days"
+                    elif subscription_type == "1month":
+                        display_type = "1 Month"
+                    
+                    # Create notification embed
+                    notification_embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{interaction.user.mention}, your subscription has been updated. Check below\n\n"
+                                   f"-# Run command /generate in <#1369426783153160304> to continue\n"
+                                   f"Subscription Consider leaving a review\n"
+                                   f"{display_type} Please consider leaving a review at ⁠<#1339306483816337510>",
+                        color=discord.Color.from_str("#c2ccf8")
+                    )
+                    
+                    await purchases_channel.send(content=interaction.user.mention, embed=notification_embed)
+                    
+                    # Send DM to user
+                    try:
+                        await interaction.user.send(embed=notification_embed)
+                    except:
+                        print(f"Could not send DM to {interaction.user.display_name}")
+            except Exception as e:
+                print(f"Error sending notification: {e}")
+            
+        else:
+            # Error handling
+            if result["error"] == "already_used":
+                embed = discord.Embed(
+                    title="Key Already Used",
+                    description="This license key has already been redeemed.",
+                    color=discord.Color.red()
+                )
+            else:
+                embed = discord.Embed(
+                    title="Invalid License Key",
+                    description="The license key you entered is invalid. Please check and try again.",
+                    color=discord.Color.red()
+                )
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Button view for redeem command
+class RedeemKeyView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(
+        label="Redeem", 
+        style=discord.ButtonStyle.primary, 
+        emoji="<:discordkey:1372312945521856633>",
+        custom_id="redeem_key_button"
+    )
+    async def redeem_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Show the redemption form
+        await interaction.response.send_modal(RedeemKeyModal())
+
+# Subscription type selection for key generation
+class KeygenTypeSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(
+                label="3 Days",
+                description="Generate keys for 3-day subscriptions",
+                value="3day"
+            ),
+            discord.SelectOption(
+                label="14 Days",
+                description="Generate keys for 14-day subscriptions",
+                value="14day"
+            ),
+            discord.SelectOption(
+                label="1 Month",
+                description="Generate keys for 1-month subscriptions",
+                value="1month"
+            ),
+            discord.SelectOption(
+                label="Lifetime",
+                description="Generate keys for lifetime subscriptions",
+                value="lifetime"
+            )
+        ]
+        super().__init__(placeholder="Select subscription type...", options=options)
+    
+    async def callback(self, interaction: discord.Interaction):
+        # Check if user is the bot owner
+        with open("config.json", "r") as f:
+            import json
+            config = json.load(f)
+            owner_id = config.get("owner_id", "0")
+        
+        if str(interaction.user.id) != owner_id:
+            await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+            return
+        
+        # Generate keys
+        subscription_type = self.values[0]
+        from utils.key_manager import KeyManager
+        key_manager = KeyManager()
+        keys = key_manager.generate_keys(subscription_type)
+        
+        # Create a formatted list of keys
+        keys_text = "\n".join(keys)
+        
+        # Create embed
+        embed = discord.Embed(
+            title=f"Generated {len(keys)} License Keys",
+            description=f"Subscription Type: **{subscription_type}**",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Send keys as a file for better formatting and security
+        import io
+        keys_file = io.StringIO(keys_text)
+        
+        await interaction.response.send_message(
+            embed=embed,
+            file=discord.File(fp=keys_file, filename=f"{subscription_type}_keys.txt"),
+            ephemeral=True
+        )
+
+# View for key generation
+class KeygenView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(KeygenTypeSelect())
+
+@bot.tree.command(name="redeem", description="Redeem a license key for access")
+async def redeem_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="Redeem License Key",
+        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1339335959652602010> and open ticket describing your issue!",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+    
+    view = RedeemKeyView()
+    await interaction.response.send_message(embed=embed, view=view)
+
+@bot.tree.command(name="keygen", description="Generate license keys (Owner only)")
+async def keygen_command(interaction: discord.Interaction):
+    # Check if user is the bot owner
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = config.get("owner_id", "0")
+    
+    if str(interaction.user.id) != owner_id:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        return
+    
+    embed = discord.Embed(
+        title="Generate License Keys",
+        description="Select the subscription type to generate 30 new license keys.",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+    
+    view = KeygenView()
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)

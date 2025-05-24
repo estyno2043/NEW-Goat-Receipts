@@ -111,18 +111,31 @@ class LicenseManager:
                                 await member.remove_roles(role)
                                 logging.info(f"Removed role {role.name} from {member.name} in {guild.name} due to expired license")
 
+                                # Create the expiry embed with renewal button
+                                embed = discord.Embed(
+                                    title="Your Subscription Has Expired",
+                                    description=f"Hello {member.mention}\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
+                                    color=discord.Color.red()
+                                )
+                                
+                                # Create renewal button
+                                view = discord.ui.View()
+                                view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+                                
                                 # Try to DM the user
                                 try:
-                                    embed = discord.Embed(
-                                        title="Subscription Expired",
-                                        description="Your subscription expired on `{0}`. Please renew your subscription to continue using our services.".format(expiry_str),
-                                        color=discord.Color.red()
-                                    )
-
-                                    await member.send(embed=embed, ephemeral=True)
+                                    await member.send(embed=embed, view=view)
                                 except:
                                     # User may have DMs disabled, just log the info
                                     logging.info(f"Could not DM {member.name} about expired license")
+                                
+                                # Send notification to Purchases channel
+                                try:
+                                    purchases_channel = self.bot.get_channel(1374468080817803264)
+                                    if purchases_channel:
+                                        await purchases_channel.send(content=member.mention, embed=embed, view=view)
+                                except Exception as channel_error:
+                                    logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
                             except Exception as e:
                                 logging.error(f"Error removing role from {member.name}: {str(e)}")
             except Exception as e:
