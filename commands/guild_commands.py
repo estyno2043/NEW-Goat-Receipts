@@ -374,8 +374,12 @@ class GuildCommands(commands.Cog):
             client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
             if client_role:
                 await user.add_roles(client_role)
+                print(f"Added client role {client_role_id} to user {user.id} in guild {interaction.guild.id}")
+            else:
+                print(f"Client role {client_role_id} not found in guild {interaction.guild.id}")
         except Exception as e:
             logging.error(f"Error adding client role: {e}")
+            print(f"Failed to add role {client_role_id} to user {user.id}: {e}")
 
         # Send public notification
         embed = discord.Embed(

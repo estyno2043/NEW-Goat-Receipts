@@ -1144,51 +1144,84 @@ async def generate_command(interaction: discord.Interaction):
             conn.close()
             return
 
-        # Check if user has access in this guild
+        # Get the guild configuration including client role
         cursor.execute("""
-        SELECT expiry, access_type FROM server_access 
-        WHERE guild_id = ? AND user_id = ?
-        """, (guild_id, user_id))
-        user_access = cursor.fetchone()
+        SELECT client_role_id, admin_role_id FROM guild_configs 
+        WHERE guild_id = ?
+        """, (guild_id,))
+        role_config = cursor.fetchone()
         conn.close()
-
-        if not user_access:
+        
+        if not role_config:
             embed = discord.Embed(
-                title="Access Denied",
-                description="You don't have access to use this bot in this server. Please contact a server admin.",
+                title="Server Not Configured",
+                description="This server has not been configured properly. Please ask the server admin to use `/configure_guild` command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-
-        # Check if access is still valid
-        expiry_str, access_type = user_access
-
-        # Lifetime access is always valid
-        if access_type == "Lifetime":
-            pass  # Always valid
-        else:
-            # Check expiry date
-            try:
-                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                if datetime.now() > expiry_date:
-                    embed = discord.Embed(
-                        title="Subscription Expired",
-                        description=f"Your access in this server expired on `{expiry_str}`. Please contact a server admin to renew your access.",
-                        color=discord.Color.red()
-                    )
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except Exception as e:
-                print(f"Error checking expiry: {e}")
-                # If we can't parse the date, fall back to checking with the server owner
+            
+        client_role_id, admin_role_id = role_config
+        
+        # Check if user is a guild admin or has client role
+        has_access = False
+        try:
+            # Check if user has admin role
+            if admin_role_id:
+                admin_role = discord.utils.get(interaction.guild.roles, id=int(admin_role_id))
+                if admin_role and admin_role in interaction.user.roles:
+                    print(f"User {user_id} has admin role in guild {guild_id}")
+                    has_access = True
+            
+            # Check if user has client role
+            if client_role_id and not has_access:
+                client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+                if client_role and client_role in interaction.user.roles:
+                    print(f"User {user_id} has client role in guild {guild_id}")
+                    has_access = True
+                    
+            # Also check database for legacy access
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT expiry, access_type FROM server_access 
+            WHERE guild_id = ? AND user_id = ?
+            """, (guild_id, user_id))
+            user_access = cursor.fetchone()
+            conn.close()
+            
+            if user_access:
+                expiry_str, access_type = user_access
+                # Lifetime access is always valid
+                if access_type == "Lifetime":
+                    has_access = True
+                else:
+                    # Check expiry date
+                    try:
+                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                        if datetime.now() < expiry_date:
+                            has_access = True
+                    except Exception as e:
+                        print(f"Error checking expiry: {e}")
+            
+            if not has_access:
                 embed = discord.Embed(
-                    title="Access Error",
-                    description="There was an error verifying your access. Please contact a server admin.",
+                    title="Access Denied",
+                    description="You don't have access to use this bot in this server. Please contact a server admin.",
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
+                
+        except Exception as e:
+            print(f"Error checking client role: {e}")
+            embed = discord.Embed(
+                title="Access Error",
+                description="There was an error verifying your access. Please contact a server admin.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
     else:
         # In main guild, check license normally
         try:
