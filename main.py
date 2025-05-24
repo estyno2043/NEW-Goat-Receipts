@@ -361,7 +361,7 @@ class BrandSelectDropdown(ui.Select):
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
 
         # Extract brand names from the filenames
-        for modal_file in modal_files:
+        for modal_file in modal_file:
             brand_name = modal_file.split('.')[0].capitalize()
             available_brands.append(brand_name)
 
@@ -795,7 +795,7 @@ class CredentialsView(ui.View):
         embed = discord.Embed(
             title="GOAT Menu",
             description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscriptionends.\n") +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
                         f"`{display_type}`\n\n" +
@@ -812,6 +812,7 @@ class MenuView(ui.View):
         super().__init__(timeout=180)  # Set timeout to 3 minutes
         self.user_id = user_id
         self.last_interaction = datetime.now()
+        self.message = None # Store the message object
 
     async def interaction_check(self, interaction):
         # Update last interaction time on everyinteraction
@@ -831,7 +832,8 @@ class MenuView(ui.View):
 
         # Try to edit the message with the timeout embed
         try:
-            await self.message.edit(embed=timeout_embed, view=None)
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
         except Exception as e:
             print(f"Error in timeout handling: {e}")
 
@@ -929,6 +931,7 @@ class MenuView(ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=300)
         self.user_id = user_id
+        self.message = None # Initialize message attribute
 
         # Add URL buttons for Help and Brands
         help_button = ui.Button(
@@ -1076,10 +1079,6 @@ async def generate_command(interaction: discord.Interaction):
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
             color=discord.Color.from_str("#c2ccf8")
         )
-
-        # Use MenuView with generate button functionality
-        menu_view = MenuView(user_id)
-        await interaction.response.send_message(embed=embed, view=menu_view, ephemeral=False)
     else:
         # Show generator panel for returning users
         username = interaction.user.display_name
