@@ -204,7 +204,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
         """Check if the email is an iCloud email address"""
         return "@icloud" in email.lower()
 
-    async def on_submit(self, self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         email = self.email.value
 
@@ -297,7 +297,7 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
     zip_code = ui.TextInput(label="Zip", placeholder="10001", required=True)
     country = ui.TextInput(label="Country", placeholder="United States", required=True)
 
-    async def on_submit(self, self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 
         # Save custom info to database
@@ -793,6 +793,192 @@ class CredentialsView(ui.View):
         self.last_interaction = datetime.now()
         # Check if the", mention_author=False)
 
+    # Check if message istimeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
+        # Check if the interaction is from the original user
+        return interaction.user.id == int(self.user_id)
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The panel has timed out due to inactivity and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            # Edit original message if possible
+            await self.message.edit(embed=timeout_embed, view=None)
+        except:
+            # Exception may occur if the panel was already removed
+            pass
+
+# View for the main menu
+class MenuView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=180)  # Set timeout to 3 minutes
+        self.user_id = user_id
+        self.last_interaction = datetime.now()
+        self.message = None
+
+        # Add buttons to the view
+        self.add_item(discord.ui.Button(style=discord.ButtonStyle.blurple, label="Credentials", custom_id="credentials"))
+        self.add_item(discord.ui.Button(style=discord.ButtonStyle.blurple, label="Generate", custom_id="generate"))
+        self.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="Close", custom_id="close"))
+
+    async def interaction_check(self, interaction):
+        # Update last interaction time on every interaction
+        self.last_interaction = datetime.now()
+        # Reset timeout on interaction
+        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
+        # Check if the interaction is from the original user
+        return interaction.user.id == int(self.user_id)
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The panel has timed out due to inactivity and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
+
+    async def interaction_check(self, interaction):
+        return interaction.user.id == int(self.user_id)
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+
+    # Set up database when the bot is ready
+    setup_database()
+
+    # Sync command tree for specific guild
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+
+@bot.tree.command(name="menu")
+async def menu(interaction: discord.Interaction):
+    """Shows the main menu with options."""
+    user_id = str(interaction.user.id)
+
+    # Get subscription info
+    subscription_type, end_date = get_subscription(user_id)
+
+    # Format subscription type for display
+    display_type = subscription_type
+    if subscription_type == "3day":
+        display_type = "3 Days"
+    elif subscription_type == "14day":
+        display_type = "14 Days"
+    elif subscription_type == "1month":
+        display_type = "1 Month"
+
+    embed = discord.Embed(
+        title="GOAT Menu",
+        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                    "-# pick an option below to continue\n\n" +
+                    "**Subscription Type**\n" +
+                    f"`{display_type}`\n\n" +
+                    "**Note**\n" +
+                    "-# please click \"Credentials\" and set your credentials before you try to generate",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+
+    # Create menu panel
+    view = MenuView(user_id)
+
+    # Send the initial message and store it for timeout handling
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    view.message = await interaction.original_response()
+
+@bot.event
+async def on_interaction(interaction: discord.Interaction):
+    if interaction.type == discord.InteractionType.component:
+        user_id = str(interaction.user.id)
+
+        if interaction.custom_id == "credentials":
+            # Show the credentials panel
+            has_credentials, has_email = check_user_setup(user_id)
+
+            # Create credentials panel
+            embed = discord.Embed(
+                title="Credentials",
+                description="Please make sure both options below are 'True'\n\n" +
+                            "**Info**\n" +
+                            f"{'True' if has_credentials else 'False'}\n\n" +
+                            "**Email**\n" +
+                            f"{'True' if has_email else 'False'}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+
+            # Create the credentials view
+            view = CredentialsDropdownView(user_id)
+
+            # Send the initial message and store it for timeout handling
+            await interaction.response.edit_message(embed=embed, view=view)
+            view.message = await interaction.original_response()
+
+        elif interaction.custom_id == "generate":
+            # Show the brand selection panel
+            username = interaction.user.display_name
+            total_brands = get_total_brands()
+            max_pages = (int(total_brands) + 14) // 15 # Calculate number of pages
+
+            # Create embed
+            embed = discord.Embed(
+                title=f"{username}'s Panel",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+
+            # Create brand selection panel
+            view = BrandSelectView(user_id, page=1)
+
+            # Send the initial message and store it for timeout handling
+            await interaction.response.edit_message(embed=embed, view=view)
+            view.message = await interaction.original_response()
+
+        elif interaction.custom_id == "close":
+            # Close the menu and remove buttons/dropdowns
+            embed = discord.Embed(
+                title="Menu Closed",
+                description="The panel is no longer active.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+
+            # Edit the original message, removing the view
+            await interaction.response.edit_message(embed=embed, view=None)
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    # Ignore commands outside of the main guild
+    if message.content.startswith("!") and message.guild:
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                main_guild_id = config.get("guild_id", "1339298010169086072")
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            main_guild_id = "1339298010169086072"
+
+        if str(message.guild.id) != main_guild_id:
+            await message.channel.send("-# This command can only be used in the main server", mention_author=False)
+            return
+
     # Check if message is in a guild-specific image channel
     if message.guild and message.attachments:
         guild_id = str(message.guild.id)
@@ -811,3 +997,40 @@ class CredentialsView(ui.View):
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
                     await message.reply(f"```\n{attachment.url}\n```")
+
+# Start the web server in a separate thread
+def start_server():
+    PORT = 8000  # Port for the web server
+    server_address = ('', PORT)
+
+    class MyHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == '/':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"Server is running")
+            else:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"Not found")
+
+    httpd = HTTPServer(server_address, MyHandler)
+    print(f'Starting web server on port {PORT}')
+    httpd.serve_forever()
+
+# Start the Discord bot
+def start_bot():
+    bot_token = os.getenv("BOT_TOKEN")
+    if not bot_token:
+        raise ValueError("BOT_TOKEN is not set in the environment variables.")
+    bot.run(bot_token)
+
+if __name__ == "__main__":
+    # Start the web server in a separate thread
+    server_thread = threading.Thread(target=start_server)
+    server_thread.daemon = True  # Daemon threads exit when the main program exits
+    server_thread.start()
+
+    # Start the Discord bot in the main thread
+    start_bot()
