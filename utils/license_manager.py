@@ -362,6 +362,11 @@ class LicenseManager:
 
                     # Check expiry date
                     try:
+                        # Check if expiry_str is None or empty
+                        if not expiry_str:
+                            logging.warning(f"Empty expiry date for user_id {user_id}, treating as expired")
+                            return False
+                            
                         expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
                         is_active = current_time < expiry_date
                         logging.info(f"License for user_id {user_id} active: {is_active}, expires: {expiry_str}")
