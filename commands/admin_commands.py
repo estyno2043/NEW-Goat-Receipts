@@ -241,20 +241,8 @@ class AdminPanelView(discord.ui.View):
             
             conn.commit()
             
-            # Try to remove client role
-            try:
-                # Load role ID from config
-                with open("config.json", "r") as f:
-                    config = json.load(f)
-                    client_role_id = int(config.get("Client_ID", 0))
-                
-                if client_role_id:
-                    client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
-                    if client_role and client_role in self.user.roles:
-                        await self.user.remove_roles(client_role)
-                        logging.info(f"Removed client role from {self.user.name} due to access removal")
-            except Exception as e:
-                logging.error(f"Error removing role: {e}")
+            # No longer removing client role - keeping it as requested
+            logging.info(f"Access removed for {self.user.name} but client role was kept")
             
         except Exception as e:
             print(f"Error updating user access: {e}")
@@ -264,7 +252,7 @@ class AdminPanelView(discord.ui.View):
         
         embed = discord.Embed(
             title="Access Removed",
-            description=f"Successfully removed access for {self.user.mention}.\nAll user data has been cleared from the database.",
+            description=f"Successfully removed access for {self.user.mention}.\nAll user data has been cleared from the database.\nThe client role has been kept as requested.",
             color=discord.Color.red()
         )
         
