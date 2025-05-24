@@ -971,6 +971,7 @@ async def on_ready():
             import os
             import subprocess
             import sqlite3
+            import traceback
             
             # Create directory for guild bots if it doesn't exist
             os.makedirs("guild_bots", exist_ok=True)
@@ -987,6 +988,7 @@ async def on_ready():
             guild_bots = cursor.fetchall()
             conn.close()
             
+            successful_starts = 0
             for user_id, bot_token in guild_bots:
                 try:
                     # Create a directory for this guild bot if it doesn't exist
@@ -1007,18 +1009,35 @@ async def on_ready():
                         ))
                     
                     # Start the bot in a subprocess
-                    subprocess.Popen(["python", bot_file_path], 
-                                    stdout=subprocess.PIPE, 
-                                    stderr=subprocess.PIPE,
-                                    cwd=os.getcwd())
+                    process = subprocess.Popen(
+                        ["python", bot_file_path], 
+                        stdout=subprocess.PIPE, 
+                        stderr=subprocess.PIPE,
+                        cwd=os.getcwd(),
+                        text=True  # Capture output as text
+                    )
                     
-                    print(f"Started guild bot for user {user_id}")
+                    # Wait a moment to check for immediate startup errors
+                    import time
+                    time.sleep(1)
+                    
+                    # Check if process is still running
+                    if process.poll() is not None:
+                        # Process has terminated, get error output
+                        _, stderr = process.communicate()
+                        print(f"Guild bot for user {user_id} failed to start: {stderr}")
+                    else:
+                        print(f"Started guild bot for user {user_id}")
+                        successful_starts += 1
+                        
                 except Exception as e:
                     print(f"Error starting guild bot for user {user_id}: {e}")
+                    traceback.print_exc()
             
-            print(f"Started {len(guild_bots)} guild bots")
+            print(f"Started {successful_starts} guild bots")
         except Exception as e:
             print(f"Error starting guild bots: {e}")
+            traceback.print_exc()
     
     # Start all guild bots when the main bot starts
     bot.loop.create_task(start_all_guild_bots())

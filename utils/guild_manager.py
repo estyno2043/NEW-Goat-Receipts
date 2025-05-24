@@ -99,6 +99,7 @@ class GuildManager:
         try:
             import subprocess
             import os
+            import traceback
             
             # Create a directory for the guild bot if it doesn't exist
             guild_bot_dir = f"guild_bots/{user_id}"
@@ -117,15 +118,33 @@ class GuildManager:
                     bot_token=bot_token
                 ))
             
-            # Start the bot in a subprocess
-            subprocess.Popen(["python", bot_file_path], 
-                             stdout=subprocess.PIPE, 
-                             stderr=subprocess.PIPE,
-                             cwd=os.getcwd())
+            # Start the bot in a subprocess with better error handling
+            process = subprocess.Popen(
+                ["python", bot_file_path], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                cwd=os.getcwd(),
+                text=True  # Capture output as text
+            )
+            
+            # Wait a moment to check for immediate startup errors
+            import time
+            time.sleep(2)
+            
+            # Check if process is still running
+            if process.poll() is not None:
+                # Process has terminated, get error output
+                _, stderr = process.communicate()
+                logging.error(f"Guild bot for user {user_id} failed to start: {stderr}")
+                return True, "Bot token registered successfully, but the bot couldn't be started due to an error. Please contact support."
             
             logging.info(f"Started guild bot for user {user_id}")
+            
+            # Sync slash commands (not done here, will be done within the bot itself)
+            
         except Exception as e:
             logging.error(f"Error starting guild bot: {e}")
+            traceback.print_exc()
             # Still return success as the token was saved
         
         return True, "Bot token registered successfully. Your bot has been started. You can now run /configure_guild."
