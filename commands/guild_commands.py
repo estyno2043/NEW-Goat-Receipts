@@ -1,4 +1,3 @@
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -13,7 +12,7 @@ import asyncio
 def setup_guild_database():
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
-    
+
     # Table for guild configurations
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS guild_configs (
@@ -27,7 +26,7 @@ def setup_guild_database():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
-    
+
     # Table for guild subscriptions
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS guild_subscriptions (
@@ -39,7 +38,7 @@ def setup_guild_database():
         is_active INTEGER DEFAULT 1
     )
     ''')
-    
+
     # Table for guild user access
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS server_access (
@@ -53,7 +52,7 @@ def setup_guild_database():
         UNIQUE(guild_id, user_id)
     )
     ''')
-    
+
     conn.commit()
     conn.close()
 
@@ -64,25 +63,25 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
         placeholder="Enter the channel ID for /generate command",
         required=True
     )
-    
+
     admin_role = ui.TextInput(
         label="Admin Role ID",
         placeholder="Enter the admin role ID",
         required=True
     )
-    
+
     client_role = ui.TextInput(
         label="Client Role ID",
         placeholder="Enter the client role ID",
         required=True
     )
-    
+
     image_channel = ui.TextInput(
         label="Image Link Channel ID",
         placeholder="Enter the channel ID for image links",
         required=True
     )
-    
+
     async def on_submit(self, interaction: discord.Interaction):
         # Validate IDs
         try:
@@ -90,15 +89,15 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
             admin_role_id = int(self.admin_role.value.strip())
             client_role_id = int(self.client_role.value.strip())
             image_channel_id = int(self.image_channel.value.strip())
-            
+
             # Save to database
             conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
-            
+
             # Check if already configured
             cursor.execute("SELECT * FROM guild_configs WHERE guild_id = ?", (str(interaction.guild.id),))
             existing_config = cursor.fetchone()
-            
+
             if existing_config:
                 # Update existing configuration
                 cursor.execute('''
@@ -115,10 +114,10 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
                 VALUES (?, ?, ?, ?, ?, ?)
                 ''', (str(interaction.guild.id), str(interaction.user.id), str(generate_channel_id),
                      str(admin_role_id), str(client_role_id), str(image_channel_id)))
-            
+
             conn.commit()
             conn.close()
-            
+
             # Send success message
             embed = discord.Embed(
                 title="Success",
@@ -126,7 +125,7 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
                 color=discord.Color.from_str("#c2ccf8")
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
         except ValueError:
             # Handle invalid IDs
             embed = discord.Embed(
@@ -148,7 +147,7 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
 class GuildConfigView(ui.View):
     def __init__(self):
         super().__init__(timeout=180)  # 3 minute timeout
-    
+
     @ui.button(label="Start", style=discord.ButtonStyle.primary)
     async def start_config(self, interaction: discord.Interaction, button: ui.Button):
         # Show the configuration modal
@@ -158,12 +157,12 @@ class GuildCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         setup_guild_database()
-    
+
     async def is_guild_admin(self, interaction: discord.Interaction):
         """Check if the user is a guild admin based on configured role"""
         if interaction.guild is None:
             return False
-            
+
         # Check if this is the main guild owner
         try:
             with open("config.json", "r") as f:
@@ -172,7 +171,7 @@ class GuildCommands(commands.Cog):
                     return True
         except Exception as e:
             logging.error(f"Error checking owner status: {e}")
-        
+
         # Check if user has guild admin role
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
@@ -180,37 +179,37 @@ class GuildCommands(commands.Cog):
                       (str(interaction.guild.id),))
         result = cursor.fetchone()
         conn.close()
-        
+
         if not result:
             return False
-            
+
         admin_role_id = int(result[0])
         admin_role = discord.utils.get(interaction.guild.roles, id=admin_role_id)
-        
+
         if admin_role and admin_role in interaction.user.roles:
             return True
-            
+
         return False
-    
+
     async def has_guild_subscription(self, user_id):
         """Check if a user has an active guild subscription"""
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
-        
+
         cursor.execute("SELECT subscription_type, end_date FROM guild_subscriptions WHERE user_id = ? AND is_active = 1", 
                       (str(user_id),))
         result = cursor.fetchone()
         conn.close()
-        
+
         if not result:
             return False
-            
+
         subscription_type, end_date = result
-        
+
         # Lifetime subscriptions are always valid
         if subscription_type.lower() == "lifetime":
             return True
-            
+
         # Check if subscription is still valid
         try:
             expiry_date = datetime.strptime(end_date, "%Y-%m-%d")
@@ -218,16 +217,16 @@ class GuildCommands(commands.Cog):
                 return True
         except Exception as e:
             logging.error(f"Error checking subscription expiry: {e}")
-            
+
         return False
-    
+
     @app_commands.command(name="configure_guild", description="Configure the bot for your guild")
     async def configure_guild(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
-        
+
         # First check if user has guild subscription
         has_subscription = await self.has_guild_subscription(user_id)
-        
+
         # If this is the main guild owner, allow configuration regardless
         is_owner = False
         try:
@@ -238,7 +237,7 @@ class GuildCommands(commands.Cog):
                     has_subscription = True
         except Exception as e:
             logging.error(f"Error checking owner status: {e}")
-        
+
         if not has_subscription and not is_owner:
             embed = discord.Embed(
                 title="Access Denied",
@@ -247,17 +246,17 @@ class GuildCommands(commands.Cog):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-        
+
         # Check the guild context
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
                 main_guild_id = config.get("guild_id", "1339298010169086072")
-                
+
             # Get bot application info for invite link
             app_info = await self.bot.application_info()
             client_id = app_info.id
-            
+
             # Create invite link with proper permissions
             invite_permissions = discord.Permissions(
                 send_messages=True,
@@ -273,7 +272,7 @@ class GuildCommands(commands.Cog):
                 permissions=invite_permissions,
                 scopes=["bot", "applications.commands"]
             )
-            
+
             # Check if we're in the main guild or a user guild
             if str(interaction.guild.id) == main_guild_id:
                 # If in main guild, show invite link
@@ -296,7 +295,7 @@ class GuildCommands(commands.Cog):
                 )
                 view = GuildConfigView()
                 await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-                
+
         except Exception as e:
             logging.error(f"Error in configure_guild command: {e}")
             embed = discord.Embed(
@@ -305,7 +304,7 @@ class GuildCommands(commands.Cog):
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
     @app_commands.command(name="add_access", description="Add access for a user in your guild")
     @app_commands.describe(
         user="The user to grant access to",
@@ -314,7 +313,7 @@ class GuildCommands(commands.Cog):
     async def add_access(self, interaction: discord.Interaction, user: discord.Member, days: int):
         # Check if user is a guild admin
         is_admin = await self.is_guild_admin(interaction)
-        
+
         if not is_admin:
             embed = discord.Embed(
                 title="Access Denied",
@@ -323,7 +322,7 @@ class GuildCommands(commands.Cog):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-            
+
         # Get guild configuration
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
@@ -332,9 +331,9 @@ class GuildCommands(commands.Cog):
         FROM guild_configs 
         WHERE guild_id = ?
         """, (str(interaction.guild.id),))
-        
+
         config = cursor.fetchone()
-        
+
         if not config:
             embed = discord.Embed(
                 title="Error",
@@ -344,9 +343,9 @@ class GuildCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             conn.close()
             return
-            
+
         generate_channel_id, client_role_id = config
-        
+
         # Calculate expiry date
         if days == 0:
             # Lifetime access
@@ -356,20 +355,20 @@ class GuildCommands(commands.Cog):
             # Temporary access
             expiry_date = datetime.now() + timedelta(days=days)
             access_type = f"{days} Days"
-            
+
         # Add or update user access
         expiry_str = expiry_date.strftime("%Y-%m-%d %H:%M:%S")
-        
+
         cursor.execute("""
         INSERT OR REPLACE INTO server_access
         (guild_id, user_id, added_by, access_type, expiry, added_at)
         VALUES (?, ?, ?, ?, ?, datetime('now'))
         """, (str(interaction.guild.id), str(user.id), str(interaction.user.id), 
               access_type, expiry_str))
-        
+
         conn.commit()
         conn.close()
-        
+
         # Try to add client role to the user
         try:
             client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
@@ -377,7 +376,7 @@ class GuildCommands(commands.Cog):
                 await user.add_roles(client_role)
         except Exception as e:
             logging.error(f"Error adding client role: {e}")
-        
+
         # Send public notification
         embed = discord.Embed(
             title="Access Granted",
@@ -385,7 +384,7 @@ class GuildCommands(commands.Cog):
                         f"» Go to <#{generate_channel_id}> and Run command `/generate`",
             color=discord.Color.green()
         )
-        
+
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
