@@ -1004,8 +1004,14 @@ async def on_message(message):
     try:
         if not os.path.exists('commands'):
             os.makedirs('commands')
+        # Make sure __init__.py exists
+        if not os.path.exists('commands/__init__.py'):
+            with open('commands/__init__.py', 'w') as f:
+                f.write('# Initialize commands package\n')
+        
+        # Load admin commands extension
         await bot.load_extension('commands.admin_commands')
-        print("Admin commands loaded")
+        print("Admin commands loaded successfully")
     except Exception as e:
         print(f"Failed to load admin commands: {e}")
         # Print more detailed error information
