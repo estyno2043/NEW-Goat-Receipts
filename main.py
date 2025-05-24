@@ -1074,9 +1074,6 @@ async def menu_command(interaction: discord.Interaction):
                 description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
                 color=discord.Color.red()
             )
-
-        await interaction.response.send_message(embed=embed, ephemeral=False)
-        return
         else:
             # User never had a license
             embed = discord.Embed(
@@ -1084,6 +1081,8 @@ async def menu_command(interaction: discord.Interaction):
                 description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
                 color=discord.Color.red()
             )
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+        return
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
