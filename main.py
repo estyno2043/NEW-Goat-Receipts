@@ -791,14 +791,11 @@ class CredentialsView(ui.View):
     async def interaction_check(self, interaction):
         # Update last interaction time on every interaction
         self.last_interaction = datetime.now()
-        # Check if the", mention_author=False)
-
-    # Check if message istimeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
         # Check if the interaction is from the original user
         return interaction.user.id == int(self.user_id)
 
     async def on_timeout(self):
-        # Create timeout embed
+        ## Create timeout embed
         timeout_embed = discord.Embed(
             title="Interaction Timeout",
             description="The panel has timed out due to inactivity and is no longer active.",
@@ -807,11 +804,41 @@ class CredentialsView(ui.View):
 
         # Try to edit the message with the timeout embed
         try:
-            # Edit original message if possible
             await self.message.edit(embed=timeout_embed, view=None)
-        except:
-            # Exception may occur if the panel was already removed
-            pass
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
+
+    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
+    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+
+        # Create menu panel (with updated format)
+        subscription_type, end_date = get_subscription(self.user_id)
+
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscriptionends.\n") +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{display_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
 
 # View for the main menu
 class MenuView(ui.View):
@@ -819,17 +846,12 @@ class MenuView(ui.View):
         super().__init__(timeout=180)  # Set timeout to 3 minutes
         self.user_id = user_id
         self.last_interaction = datetime.now()
-        self.message = None
-
-        # Add buttons to the view
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.blurple, label="Credentials", custom_id="credentials"))
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.blurple, label="Generate", custom_id="generate"))
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="Close", custom_id="close"))
+        self.message = None # Store the message object
 
     async def interaction_check(self, interaction):
-        # Update last interaction time on every interaction
+        # Update last interaction time on everyinteraction
         self.last_interaction = datetime.now()
-        # Reset timeout on interaction
+        ## Reset timeout on interaction
         self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
         # Check if the interaction is from the original user
         return interaction.user.id == int(self.user_id)
@@ -849,152 +871,142 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Error in timeout handling: {e}")
 
-    async def interaction_check(self, interaction):
-        return interaction.user.id == int(self.user_id)
+        # Add URL buttons for Help and Brands
+        help_button = ui.Button(
+            label="Help", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
+        )
+        brands_button = ui.Button(
+            label="Brands", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
+        )
+        self.add_item(help_button)
+        self.add_item(brands_button)
+
+    @ui.button(label="Generate", style=discord.ButtonStyle.gray, custom_id="generate")
+    async def generate(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+
+        # Check if user has credentials and email
+        has_credentials, has_email = check_user_setup(self.user_id)
+
+        if not has_credentials or not has_email:
+            embed = discord.Embed(
+                title="Setup Required",
+                description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Create generator panel
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        view = BrandSelectView(self.user_id)
+        message = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+        # Store the message for proper timeout handling
+        try:
+            # Get the message if it's not already available directly
+            if not message:
+                message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+    @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
+    async def credentials(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu!", ephemeral=True)
+            return
+
+        # Get user setup status
+        has_credentials, has_email = check_user_setup(self.user_id)
+
+        # Create credentials panel
+        embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Create view and store message reference
+        view = CredentialsDropdownView(self.user_id)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference for credentials panel: {e}")
+
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        self.message = None # Initialize message attribute
+
+        # Add URL buttons for Help and Brands
+        help_button = ui.Button(
+            label="Help", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
+        )
+        self.add_item(help_button)
+
+        brands_button = ui.Button(
+            label="Brands", 
+            style=discord.ButtonStyle.gray, 
+            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
+        )
+        self.add_item(brands_button)
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+    print(f'Logged in as {bot.user.name} ({bot.user.id})')
+    print('------')
 
-    # Set up database when the bot is ready
+    # Set up database
     setup_database()
-    
-    # Load all cogs
-    try:
-        # Load guild commands
-        await bot.load_extension("commands.guild_commands")
-        print("Loaded guild commands")
-        
-        # Load admin commands
-        await bot.load_extension("commands.admin_commands")
-        print("Loaded admin commands")
-        
-        # You can add more cogs here as needed
-    except Exception as e:
-        print(f"Failed to load cogs: {e}")
-
-    # Sync command tree for specific guild
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-
-@bot.tree.command(name="menu")
-async def menu(interaction: discord.Interaction):
-    """Shows the main menu with options."""
-    user_id = str(interaction.user.id)
-
-    # Get subscription info
-    subscription_type, end_date = get_subscription(user_id)
-
-    # Format subscription type for display
-    display_type = subscription_type
-    if subscription_type == "3day":
-        display_type = "3 Days"
-    elif subscription_type == "14day":
-        display_type = "14 Days"
-    elif subscription_type == "1month":
-        display_type = "1 Month"
-
-    embed = discord.Embed(
-        title="GOAT Menu",
-        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
-                    "-# pick an option below to continue\n\n" +
-                    "**Subscription Type**\n" +
-                    f"`{display_type}`\n\n" +
-                    "**Note**\n" +
-                    "-# please click \"Credentials\" and set your credentials before you try to generate",
-        color=discord.Color.from_str("#c2ccf8")
-    )
-
-    # Create menu panel
-    view = MenuView(user_id)
-
-    # Send the initial message and store it for timeout handling
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-    view.message = await interaction.original_response()
-
-@bot.event
-async def on_interaction(interaction: discord.Interaction):
-    if interaction.type == discord.InteractionType.component:
-        user_id = str(interaction.user.id)
-
-        if interaction.custom_id == "credentials":
-            # Show the credentials panel
-            has_credentials, has_email = check_user_setup(user_id)
-
-            # Create credentials panel
-            embed = discord.Embed(
-                title="Credentials",
-                description="Please make sure both options below are 'True'\n\n" +
-                            "**Info**\n" +
-                            f"{'True' if has_credentials else 'False'}\n\n" +
-                            "**Email**\n" +
-                            f"{'True' if has_email else 'False'}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            # Create the credentials view
-            view = CredentialsDropdownView(user_id)
-
-            # Send the initial message and store it for timeout handling
-            await interaction.response.edit_message(embed=embed, view=view)
-            view.message = await interaction.original_response()
-
-        elif interaction.custom_id == "generate":
-            # Show the brand selection panel
-            username = interaction.user.display_name
-            total_brands = get_total_brands()
-            max_pages = (int(total_brands) + 14) // 15 # Calculate number of pages
-
-            # Create embed
-            embed = discord.Embed(
-                title=f"{username}'s Panel",
-                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            # Create brand selection panel
-            view = BrandSelectView(user_id, page=1)
-
-            # Send the initial message and store it for timeout handling
-            await interaction.response.edit_message(embed=embed, view=view)
-            view.message = await interaction.original_response()
-
-        elif interaction.custom_id == "close":
-            # Close the menu and remove buttons/dropdowns
-            embed = discord.Embed(
-                title="Menu Closed",
-                description="The panel is no longer active.",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            # Edit the original message, removing the view
-            await interaction.response.edit_message(embed=embed, view=None)
 
 @bot.event
 async def on_message(message):
+    # Ignore messages from the bot itself
     if message.author == bot.user:
         return
 
-    # Ignore commands outside of the main guild
-    if message.content.startswith("!") and message.guild:
-        try:
-            with open("config.json", "r") as f:
-                config = json.load(f)
-                main_guild_id = config.get("guild_id", "1339298010169086072")
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            main_guild_id = "1339298010169086072"
-
-        if str(message.guild.id) != main_guild_id:
-            await message.channel.send("-# This command can only be used in the main server", mention_author=False)
-            return
+    # Check if the message is in the image URL channel
+    if message.channel.id == 1375843777406570516:
+        # Check if the message has an attachment
+        if message.attachments:
+            for attachment in message.attachments:
+                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                    # Reply to the user's message with the image URL
+                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
 
     # Check if message is in a guild-specific image channel
-    if message.guild and message.attachments:
+    elif message.guild and message.attachments:
         guild_id = str(message.guild.id)
         channel_id = message.channel.id
 
@@ -1010,54 +1022,722 @@ async def on_message(message):
             for attachment in message.attachments:
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
-                    await message.reply(f"```\n{attachment.url}\n```")
+                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
 
-# Start the web server in a separate thread
-def start_server():
-    PORT = 8000  # Port for the web server
-    server_address = ('', PORT)
+    # Process commands
+    await bot.process_commands(message)
 
-    class MyHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
-            if self.path == '/':
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(b"Server is running")
-            else:
-                self.send_response(404)
-                self.end_headers()
-                self.wfile.write(b"Not found")
+    # Initialize license database tables if needed
+    import os
+    if os.path.exists('utils/db_init.py'):
+        from utils.db_init import init_db
+        init_db()
 
-    httpd = HTTPServer(server_address, MyHandler)
-    print(f'Starting web server on port {PORT}')
-    httpd.serve_forever()
+    # Restore license cache from backup for faster startup validation
+    try:
+        from utils.license_backup import LicenseBackup
+        # Restore existing licenses to cache
+        await LicenseBackup.restore_licenses_to_cache()
+        # Start backup scheduler in background
+        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
+        print("License backup system initialized")
+    except Exception as e:
+        print(f"Failed to initialize license backup system: {e}")
 
-# Start the Discord bot
-def start_bot():
-    # Try to get token from environment variables first
-    bot_token = os.getenv("BOT_TOKEN")
-    
-    # If not found, try to get it from config.json
-    if not bot_token:
+    # Initialize license checker for expired subscriptions
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
+
+    # Load admin commands
+    try:
+        if not os.path.exists('commands'):
+            os.makedirs('commands')
+        # Make sure __init__.py exists
+        if not os.path.exists('commands/__init__.py'):
+            with open('commands/__init__.py', 'w') as f:
+                f.write('# Initialize commands package\n')
+
+        # Load admin commands extension
+        await bot.load_extension('commands.admin_commands')
+        print("Admin commands loaded successfully")
+
+        # Load guild commands extension
+        await bot.load_extension('commands.guild_commands')
+        print("Guild commands loaded successfully")
+    except Exception as e:
+        print(f"Failed to load commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
+
+    # Sync commands with Discord
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
+
+@bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
+async def generate_command(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    guild_id = str(interaction.guild.id if interaction.guild else "0")
+
+    # Load config to get main guild ID
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            main_guild_id = config.get("guild_id", "1339298010169086072")
+            main_channel_id = 1374468007472009216
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        main_guild_id = "1339298010169086072"
+        main_channel_id = 1374468007472009216
+
+    # Check if this is a guild-specific or main guild request
+    is_main_guild = (guild_id == main_guild_id)
+
+    # If in main guild, enforce channel restriction
+    if is_main_guild and interaction.channel_id != main_channel_id:
+        embed = discord.Embed(
+            title="Command Restricted",
+            description=f"This command can only be used in <#{main_channel_id}>",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # If in a guild server, check if the channel is allowed
+    if not is_main_guild:
+        # Check if guild is configured
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT generate_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+        guild_config = cursor.fetchone()
+
+        if not guild_config:
+            embed = discord.Embed(
+                title="Server Not Configured",
+                description="This server has not been configured to use GOAT Receipts. Please ask the server admin to use `/configure_guild`.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            conn.close()
+            return
+
+        # Check if this is the right channel
+        allowed_channel_id = int(guild_config[0])
+        if interaction.channel_id != allowed_channel_id:
+            embed = discord.Embed(
+                title="Command Restricted",
+                description=f"This command can only be used in <#{allowed_channel_id}>",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            conn.close()
+            return
+
+        # Check if user has access in this guild
+        cursor.execute("""
+        SELECT expiry, access_type FROM server_access 
+        WHERE guild_id = ? AND user_id = ?
+        """, (guild_id, user_id))
+        user_access = cursor.fetchone()
+        conn.close()
+
+        if not user_access:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You don't have access to use this bot in this server. Please contact a server admin.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Check if access is still valid
+        expiry_str, access_type = user_access
+
+        # Lifetime access is always valid
+        if access_type == "Lifetime":
+            pass  # Always valid
+        else:
+            # Check expiry date
+            try:
+                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                if datetime.now() > expiry_date:
+                    embed = discord.Embed(
+                        title="Subscription Expired",
+                        description=f"Your access in this server expired on `{expiry_str}`. Please contact a server admin to renew your access.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except Exception as e:
+                print(f"Error checking expiry: {e}")
+                # If we can't parse the date, fall back to checking with the server owner
+                embed = discord.Embed(
+                    title="Access Error",
+                    description="There was an error verifying your access. Please contact a server admin.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+    else:
+        # In main guild, check license normally
         try:
-            with open("config.json", "r") as f:
-                config = json.load(f)
-                bot_token = config.get("bot_token")
+            # Check if user has a valid license
+            from utils.license_manager import LicenseManager
+            license_status = await LicenseManager.is_subscription_active(user_id)
+
+            # Handle different return types - could be bool or dict
+            is_active = False
+            if isinstance(license_status, dict):
+                is_active = license_status.get("active", False)
+            else:
+                is_active = bool(license_status)
+
+            if not is_active:
+                # Check if it's an expired license with expiry date (if license_status is dict)
+                if isinstance(license_status, dict) and "expired_date" in license_status:
+                    expired_date = license_status["expired_date"]
+                    embed = discord.Embed(
+                        title="Subscription Expired",
+                        description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
+                        color=discord.Color.red()
+                    )
+
+                    # Create a view with a "Renew" button that redirects to goatreceipts.com
+                    view = discord.ui.View()
+                    view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+                    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                else:
+                    # User never had a license
+                    embed = discord.Embed(
+                        title="Access Denied",
+                        description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
         except Exception as e:
-            print(f"Error loading config: {e}")
-    
-    # Check if token is available
-    if not bot_token:
-        raise ValueError("Bot token not found in environment variables or config.json")
-    
-    bot.run(bot_token)
+            print(f"Error checking license for {user_id}: {e}")
+            # Always deny access if there's any error
+            embed = discord.Embed(
+                title="Access Denied",
+                description="There was an error checking your subscription. Please try again later or contact support.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
-if __name__ == "__main__":
-    # Start the web server in a separate thread
-    server_thread = threading.Thread(target=start_server)
-    server_thread.daemon = True  # Daemon threads exit when the main program exits
-    server_thread.start()
+    # Check if user has a subscription or create default one
+    subscription_type, end_date = get_subscription(user_id)
 
-    # Start the Discord bot in the main thread
-    start_bot()
+    # Check if user has credentials and email
+    has_credentials, has_email = check_user_setup(user_id)
+
+    if not has_credentials or not has_email:
+        # Show menu panel for new users
+        # Create menu panel (with updated format)
+        subscription_type, end_date = get_subscription(user_id)
+
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{display_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+    else:
+        # Show generator panel for returning users
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        view = BrandSelectView(user_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+# License key redemption form
+class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
+    license_key = ui.TextInput(
+        label="License Key",
+        placeholder="Enter your unique license key",
+        required=True,
+        min_length=16,
+        max_length=16
+    )
+
+    def __init__(self):
+        super().__init__()
+        self.bot = None
+        self.interaction = None
+
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        key = self.license_key.value.strip()
+
+        # Process key redemption
+        from utils.key_manager import KeyManager
+        key_manager = KeyManager()
+        result = key_manager.redeem_key(key, user_id)
+
+        if result["success"]:
+            # Key is valid, add subscription to user
+            subscription_type = result["subscription_type"]
+            expiry_date = result["expiry_date"]
+
+            # Connect to database
+            import sqlite3
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+
+            # Generate license key based on subscription type
+            key_prefix = subscription_type
+            license_key = f"{key_prefix}-{user_id}"
+
+            # Check if this is a guild subscription
+            is_guild_key = subscription_type.startswith("guild_")
+
+            if is_guild_key:
+                # Handle guild subscription
+                guild_sub_type = "Lifetime" if "lifetime" in subscription_type.lower() else "30 Days"
+
+                # Parse expiry date
+                expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
+                end_date = expiry_dt.strftime('%Y-%m-%d')
+
+                # Add to guild_subscriptions table
+                cursor.execute('''
+                INSERT OR REPLACE INTO guild_subscriptions
+                (user_id, subscription_type, start_date, end_date, is_active)
+                VALUES (?, ?, ?, ?, 1)
+                ''', (user_id, guild_sub_type, datetime.now().strftime('%Y-%m-%d'), end_date))
+
+                # Also add to regular licenses for auth purposes
+                cursor.execute('''
+                INSERT OR REPLACE INTO licenses 
+                (owner_id, key, expiry, emailtf, credentialstf) 
+                VALUES (?, ?, ?, 'False', 'False')
+                ''', (user_id, license_key, expiry_date))
+
+                # Update cache
+                from utils.license_manager import LicenseManager
+                now = datetime.now()
+                is_lifetime = 'lifetime' in subscription_type.lower()
+                LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+
+                # Notification message for guild subscription
+                try:
+                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    if purchases_channel:
+                        # Create guild subscription notification
+                        guild_embed = discord.Embed(
+                            title="Thank you for purchasing",
+                            description=f"{interaction.user.mention}, your guild subscription has been updated. Check below\n"
+                                       f"-# Run command /configure_guild in <#1374468007472009216> to continue\n\n"
+                                       f"**Subscription Type**\n"
+                                       f"`Guild`\n\n"
+                                       f"**Consider leaving a review !**\n"
+                                       f"Please consider leaving a review at <#1339306483816337510>",
+                            color=discord.Color.green()
+                        )
+
+                        await purchases_channel.send(content=interaction.user.mention, embed=guild_embed)
+
+                        # Also try to DM
+                        try:
+                            await interaction.user.send(embed=guild_embed)
+                        except:
+                            print(f"Could not send DM to {interaction.user.display_name}")
+                except Exception as e:
+                    print(f"Error sending guild notification: {e}")
+            else:
+                # Regular subscription key
+                cursor.execute('''
+                INSERT OR REPLACE INTO licenses 
+                (owner_id, key, expiry, emailtf, credentialstf) 
+                VALUES (?, ?, ?, 'False', 'False')
+                ''', (user_id, license_key, expiry_date))
+
+                # Update the LicenseManager cache to recognize this license immediately
+                from utils.license_manager import LicenseManager
+                now = datetime.now()
+                expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
+                is_lifetime = 'lifetime' in subscription_type.lower()
+
+                # Update the cache with the new license
+                LicenseManager._license_cache[user_id] = (expiry_dt, is_lifetime)
+
+                # Send notification to Purchases channel
+                try:
+                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    if purchases_channel:
+                        # Clean up subscription type display
+                        display_type = subscription_type
+                        if subscription_type == "3day":
+                            display_type = "3 Days"
+                        elif subscription_type == "14day":
+                            display_type = "14 Days"
+                        elif subscription_type == "1month":
+                            display_type = "1 Month"
+
+                        # Create notification embed
+                        notification_embed = discord.Embed(
+                            title="Thank you for purchasing",
+                            description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
+                                      f"-# Run command /generate in <#1369426783153160304> to continue\n\n"
+                                      f"**Subscription Type**\n"
+                                      f"`{display_type}`\n\n"
+                                      f"- Please consider leaving a review at ⁠<#1339306483816337510>",
+                            color=discord.Color.green()
+                        )
+
+                        await purchases_channel.send(content=interaction.user.mention, embed=notification_embed)
+
+                        # Send DM to user
+                        try:
+                            await interaction.user.send(embed=notification_embed)
+                        except:
+                            print(f"Could not send DM to {interaction.user.display_name}")
+                except Exception as e:
+                    print(f"Error sending notification: {e}")
+
+            # Trigger a backup of licenses
+            try:
+                from utils.license_backup import LicenseBackup
+                self.bot.loop.create_task(LicenseBackup.backup_licenses())
+            except Exception as e:
+                print(f"Error backing up licenses: {e}")
+
+            conn.commit()
+            conn.close()
+
+            # Try to add client role to the user
+            try:
+                with open("config.json", "r") as f:
+                    import json
+                    config = json.load(f)
+                    client_role_id = int(config.get("Client_ID", 0))
+
+                if client_role_id > 0:
+                    guild = self.interaction.guild  # Access guild through the stored interaction
+                    if guild:
+                        role = discord.utils.get(guild.roles, id=client_role_id)
+                        if role:
+                            await self.interaction.user.add_roles(role)  # Use stored interaction to add roles
+                            print(f"Added role {role.name} to {self.interaction.user.display_name}")
+            except Exception as e:
+                print(f"Error adding role: {e}")
+
+            # Success message
+            embed = discord.Embed(
+                title="License Key Redeemed Successfully",
+                description=f"Your subscription has been activated:\n\n**Subscription Type**: {subscription_type.replace('guild_', 'Guild ')}\n**Expires On**: {expiry_date}",
+                color=discord.Color.green()
+            )
+
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        else:
+            # Error handling
+            if result["error"] == "already_used":
+                embed = discord.Embed(
+                    title="Key Already Used",
+                    description="This license key has already been redeemed.",
+                    color=discord.Color.red()
+                )
+            else:
+                embed = discord.Embed(
+                    title="Invalid License Key",
+                    description="The license key you entered is invalid. Please check and try again.",
+                    color=discord.Color.red()
+                )
+
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Button view for redeem command
+class RedeemKeyView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="Redeem", 
+        style=discord.ButtonStyle.primary, 
+        emoji="<:discordkey:1372312945521856633>",
+        custom_id="redeem_key_button"
+    )
+    async def redeem_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Show the redemption form
+        modal = RedeemKeyModal()
+        modal.interaction = interaction  # Store the interaction for role assignment
+        modal.bot = interaction.client   # Store the bot instance for background tasks
+        await interaction.response.send_modal(modal)
+
+# Subscription type selection for key generation
+class KeygenTypeSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(
+                label="3 Days",
+                description="Generate keys for 3-day subscriptions",
+                value="3day"
+            ),
+            discord.SelectOption(
+                label="14 Days",
+                description="Generate keys for 14-day subscriptions",
+                value="14day"
+            ),
+            discord.SelectOption(
+                label="1 Month",
+                description="Generate keys for 1-month subscriptions",
+                value="1month"
+            ),
+            discord.SelectOption(
+                label="Lifetime",
+                description="Generate keys for lifetime subscriptions",
+                value="lifetime"
+            ),
+            discord.SelectOption(
+                label="Guild 30 Days",
+                description="Generate keys for 30-day guild subscriptions",
+                value="guild_30days"
+            ),
+            discord.SelectOption(
+                label="Guild Lifetime",
+                description="Generate keys for lifetime guild subscriptions",
+                value="guild_lifetime"
+            )
+        ]
+        super().__init__(placeholder="Select subscription type...", options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        # Check if user is the bot owner
+        with open("config.json", "r") as f:
+            import json
+            config = json.load(f)
+            owner_id = config.get("owner_id", "0")
+
+        if str(interaction.user.id) != owner_id:
+            await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+            return
+
+        # Generate keys
+        subscription_type = self.values[0]
+        from utils.key_manager import KeyManager
+        key_manager = KeyManager()
+        keys = key_manager.generate_keys(subscription_type)
+
+        # Create a formatted list of keys
+        keys_text = "\n".join(keys)
+
+        # Create embed
+        embed = discord.Embed(
+            title=f"Generated {len(keys)} License Keys",
+            description=f"Subscription Type: **{subscription_type}**",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Send keys as a file for better formatting and security
+        import io
+        keys_file = io.StringIO(keys_text)
+
+        await interaction.response.send_message(
+            embed=embed,
+            file=discord.File(fp=keys_file, filename=f"{subscription_type}_keys.txt"),
+            ephemeral=True
+        )
+
+# View for key generation
+class KeygenView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(KeygenTypeSelect())
+
+@bot.tree.command(name="redeem", description="Redeem a license key for access")
+async def redeem_command(interaction: discord.Interaction):
+    # Check if user is the bot owner
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = config.get("owner_id", "0")
+
+    if str(interaction.user.id) != owner_id:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner can use this command.",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    embed = discord.Embed(
+        title="Redeem License Key",
+        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1339335959652602010> and open ticket describing your issue!",
+        color=discord.Color.green()
+    )
+
+    view = RedeemKeyView()
+    await interaction.response.send_message(embed=embed, view=view)
+
+@bot.tree.command(name="keygen", description="Generate license keys (Owner only)")
+async def keygen_command(interaction: discord.Interaction):
+    # Check if user is the bot owner
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = config.get("owner_id", "0")
+
+    if str(interaction.user.id) != owner_id:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        return
+
+    embed = discord.Embed(
+        title="Generate License Keys",
+        description="Select the subscription type to generate 30 new license keys.",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+
+    view = KeygenView()
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+@bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
+async def menu_command(interaction: discord.Interaction):
+    # Check if command is used in the allowed channel
+    allowed_channel_id = 1374468007472009216
+    if interaction.channel_id != allowed_channel_id:
+        embed = discord.Embed(
+            title="Command Restricted",
+            description=f"This command can only be used in <#{allowed_channel_id}>",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    user_id = str(interaction.user.id)
+
+    # Check if user has a valid license
+    from utils.license_manager import LicenseManager
+    license_status = await LicenseManager.is_subscription_active(user_id)
+
+    # Handle different return types - could be bool or dict
+    is_active = False
+    if isinstance(license_status, dict):
+        is_active = license_status.get("active", False)
+    else:
+        is_active = bool(license_status)
+
+    if not is_active:
+        # Check if it's an expired license with expiry date (if license_status is dict)
+        if isinstance(license_status, dict) and "expired_date" in license_status:
+            expired_date = license_status["expired_date"]
+            embed = discord.Embed(
+                title="Subscription Expired",
+                description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
+                color=discord.Color.red()
+            )
+
+            # Create a view with a "Renew" button that redirects to goatreceipts.com
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            return
+        else:
+            # User never had a license
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Check if user has a subscription or create default one
+    subscription_type, end_date = get_subscription(user_id)
+
+    # Format subscription type for display
+    display_type = subscription_type
+    if subscription_type == "3day":
+        display_type = "3 Days"
+    elif subscription_type == "14day":
+        display_type = "14 Days"
+    elif subscription_type == "1month":
+        display_type = "1 Month"
+
+    # Create menu panel
+    embed = discord.Embed(
+        title="GOAT Menu",
+        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                    "-# pick an option below to continue\n\n" +
+                    "**Subscription Type**\n" +
+                    f"`{display_type}`\n\n" +
+                    "**Note**\n" +
+                    "-# please click \"Credentials\" and set your credentials before you try to generate",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+
+    await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
+
+# Simple HTTP server for health checks
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Bot is running!')
+
+def run_http_server():
+    server = HTTPServer(('0.0.0.0', 8080), SimpleHTTPRequestHandler)
+    print('Starting HTTP server on port 8080')
+    server.serve_forever()
+
+# Start HTTP server in a separate thread
+if os.getenv('REPLIT_DEPLOYMENT'):
+    print("Deployment detected, starting HTTP server")
+    thread = threading.Thread(target=run_http_server)
+    thread.daemon = True
+    thread.start()
+
+# Run the bot
+bot.run(os.getenv('DISCORD_TOKEN'))
