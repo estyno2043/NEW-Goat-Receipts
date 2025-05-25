@@ -546,6 +546,7 @@ class NextstepHouseOfFraser(discord.ui.View):
     @discord.ui.button(label="Continue", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if str(interaction.user.id) == str(self.owner_id):
+            from modals.houseoffrasers import houseofffrasersmodal2
             await interaction.response.send_modal(houseofffrasersmodal2())
         else:
             await interaction.response.send_message(content="This button is not for you.", ephemeral=True)

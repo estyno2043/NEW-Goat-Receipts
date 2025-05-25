@@ -10,8 +10,7 @@ import datetime
 
 class houseoffrasermodal(ui.Modal, title="House of Fraser Receipt Generator (1/2)"):
     
-# Create alias for compatibility
-houseoffrasersmodal = houseoffrasermodal
+    # Create alias for compatibility
     productname = discord.ui.TextInput(label="Product Name", placeholder="Oxford Short Sleeve Tailored Shirt", required=True)
     imagelink = discord.ui.TextInput(label="Image URL", placeholder="https://example.com/image.jpg", required=True)
     productprice = discord.ui.TextInput(label="Price without currency", placeholder="50.00", required=True)
@@ -30,6 +29,8 @@ houseoffrasersmodal = houseoffrasermodal
         embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
         await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepHouseOfFraser(owner_id), ephemeral=True)
 
+# Create alias for compatibility
+houseoffrasersmodal = houseoffrasermodal
 
 class houseofffrasersmodal2(ui.Modal, title="House of Fraser Receipt Generator (2/2)"):
     productcode = discord.ui.TextInput(label="Product Code", placeholder="55792622350", required=True)
