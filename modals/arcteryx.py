@@ -155,14 +155,14 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                     city = str(city) if city is not None else ""
                     zipp = str(zipp) if zipp is not None else ""
                     country = str(country) if country is not None else ""
-
+                    
                     # Replace all instances of placeholders
                     html_content = html_content.replace("{name}", name)
                     html_content = html_content.replace("{street}", street)
                     html_content = html_content.replace("{city}", city)
                     html_content = html_content.replace("{zip}", zipp)
                     html_content = html_content.replace("{country}", country)
-
+                    
                     # Verify replacements were made
                     if "{name}" in html_content or "{street}" in html_content or "{city}" in html_content or "{zip}" in html_content or "{country}" in html_content:
                         print(f"Warning: Some placeholders weren't replaced for {interaction.user.id}")
@@ -170,7 +170,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                     print(f"Warning: Some user details are missing for {interaction.user.id}")
                     # Log the actual values for debugging
                     print(f"Name: {name}, Street: {street}, City: {city}, Zip: {zipp}, Country: {country}")
-
+                    
                     # Attempt replacement anyway with empty strings for missing values
                     html_content = html_content.replace("{name}", str(name) if name is not None else "")
                     html_content = html_content.replace("{street}", str(street) if street is not None else "")
@@ -188,9 +188,24 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 html_content = html_content.replace("{ordernumber}", order_number)
                 html_content = html_content.replace("{orderdate}", ordedate)
 
-                # Create receipt in memory without writing to intermediate file
+
+
+
+
+
+
+
+
+
+
+
+
+                with open("receipt/updatedrecipies/updatedarcteryx.html", "w", encoding="utf-8") as file:
+                    file.write(html_content)
+
+
                 sender_email = "Arc'teryx <noreply@arcteryx.org>"
-                subject = f"Your Arc'teryx Order Is On Its Way"
+                subject = f"Your Arc’teryx Order Is On Its Way"
                 from emails.choise import choiseView
 
 
