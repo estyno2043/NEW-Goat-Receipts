@@ -164,7 +164,8 @@ class coolbluemodal(ui.Modal, title="discord.gg/goatreceipts"):
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
                 await interaction.edit_original_response(embed=embed)
-        except Exception as e:
+
+        else:
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
