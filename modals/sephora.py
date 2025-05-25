@@ -56,8 +56,8 @@ def is_sephora_link(link):
 
 class sephoranmodal(ui.Modal, title="discord.gg/goatreceipt"):
     
-# Create alias for compatibility
-sephoramodal = sephoranmodal
+    # Create alias for compatibility
+    sephoramodal = sephoranmodal
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=1)
     delivery = discord.ui.TextInput(label="Order Date", placeholder="Ex. 24/04/2024", required=True)

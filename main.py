@@ -401,8 +401,14 @@ class BrandSelectDropdown(ui.Select):
         options = [discord.SelectOption(label=brand, value=brand.lower()) for brand in current_brands]
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
+        self.user_id = user_id  # Store the owner's user ID
 
     async def callback(self, interaction: discord.Interaction):
+        # Check if interaction is from panel owner
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            return
+            
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
@@ -468,6 +474,24 @@ class BrandSelectDropdown(ui.Select):
             # Dynamic import of the module
             try:
                 import importlib
+                
+                # Handle special cases for brands with spaces in their names
+                if brand == "House of Frasers":
+                    module_name = "modals.houseoffrasers"
+                    modal_class_name = "houseoffrasermodal"
+                elif brand == "Louis Vuitton":
+                    module_name = "modals.lv"
+                    modal_class_name = "lvmodal"
+                elif brand == "The North Face":
+                    module_name = "modals.tnf"
+                    modal_class_name = "tnfmodal"
+                elif brand == "No Sauce The Plug":
+                    module_name = "modals.nosauce"
+                    modal_class_name = "nosaucemodal"
+                elif brand == "Corteiz":
+                    module_name = "modals.crtz"
+                    modal_class_name = "crtzmodal"
+                
                 modal_module = importlib.import_module(module_name)
 
                 # Get the modal class dynamically
