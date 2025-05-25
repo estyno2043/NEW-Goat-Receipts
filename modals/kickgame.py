@@ -124,7 +124,7 @@ class kickgamemodal2(discord.ui.Modal, title="Kick Game Receipt Generator (2/2)"
         self.add_item(self.productimagelink)
 
     async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content="Generating your Kick Game receipt...", ephemeral=True)
+        await interaction.response.send_message(content="Generating your Kick Game receipt...", ephemeral=False)
 
         # Retrieve user data
         member = interaction.user

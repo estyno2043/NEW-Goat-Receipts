@@ -231,7 +231,7 @@ class zalandodemodal(ui.Modal, title="discord.gg/goatreceipts"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-class zalandodemodal2(ui.Modal, title="discord.gg/goatreceipt - Additional Details"):
+class zalandodemodal2(ui.Modal, title="discord.gg/goatreceipts - Additional Details"):
     email = discord.ui.TextInput(label="Recipients Email", placeholder="yourmail@provider.com", required=True)
     name = discord.ui.TextInput(label="Full Name", placeholder="John Doe", required=True)
     street = discord.ui.TextInput(label="Street", placeholder="Main Street 123", required=True)
@@ -250,4 +250,4 @@ class zalandodemodal2(ui.Modal, title="discord.gg/goatreceipt - Additional Detai
         embed = discord.Embed(title="Details Submitted", 
                              description="Your additional information has been processed. The email will be sent shortly.",
                              color=0x00ff00)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
