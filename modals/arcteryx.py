@@ -166,7 +166,11 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 
-                with open("receipt/updatedrecipies/updatedarcteryx.html", "w", encoding="utf-8") as file:
+                # Ensure the updatedreceipts directory exists
+                import os
+                os.makedirs("receipt/updatedreceipts", exist_ok=True)
+                
+                with open("receipt/updatedreceipts/updatedarcteryx.html", "w", encoding="utf-8") as file:
                     file.write(html_content)
 
 
