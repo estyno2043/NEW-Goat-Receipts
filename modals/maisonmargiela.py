@@ -58,9 +58,6 @@ class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
 # Define class alias outside the class
 maisonmargielamodal = maisonmodal
 
-
-
-
     async def on_submit(self, interaction: discord.Interaction):
         global name, street, city, zipp, country, pname, imageurl, price, shipping, tax
         from addons.nextsteps import NextstepMaison
