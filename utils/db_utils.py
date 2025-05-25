@@ -5,6 +5,29 @@ import threading
 import queue
 import time
 
+def save_user_email(user_id, email):
+    """Save user email to both database tables for redundancy"""
+    try:
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        
+        # Save to user_emails table
+        cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", 
+                      (str(user_id), email))
+        
+        # Also update licenses table if the user exists there
+        cursor.execute("SELECT 1 FROM licenses WHERE owner_id = ?", (str(user_id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", 
+                          (email, str(user_id)))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error saving user email: {str(e)}")
+        return False
+
 # Create a connection pool
 class ConnectionPool:
     def __init__(self, max_connections=5, timeout=30.0):
