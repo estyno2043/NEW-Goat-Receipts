@@ -1554,7 +1554,6 @@ async def keygen_command(interaction: discord.Interaction):
     view = KeygenView()
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
-@bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 # View for the main menu
 class MenuView(ui.View):
     def __init__(self, user_id):
@@ -1640,6 +1639,7 @@ class MenuView(ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
+@bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
     # Check if command is used in the allowed channel
     allowed_channel_id = 1374468007472009216
