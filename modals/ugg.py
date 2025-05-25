@@ -19,14 +19,11 @@ class uggmodal(ui.Modal, title="UGG Receipt Generator"):
         from addons.nextsteps import NextstepUgg
         owner_id = interaction.user.id 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
 
         if user_details:
-            name, street, city, zipp, country = user_details
+            name, street, city, zipp, country, email = user_details
 
             productname = self.productname.value
             imagelink = self.imagelink.value

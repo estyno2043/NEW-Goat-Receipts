@@ -37,7 +37,10 @@ class vintedmodal(ui.Modal, title="discord.gg/goatreceipts"):
         global yourvintedname, sellername, productname, currency, shippingcost
         from addons.nextsteps import NextstepVinted
         owner_id = interaction.user.id 
-
+        
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
+        
         yourvintedname = self.yourvintedname.value
         sellername = self.sellername.value
         productname = self.productname.value

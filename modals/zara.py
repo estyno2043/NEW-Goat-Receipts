@@ -65,7 +65,9 @@ class zaramodal(ui.Modal, title="discord.gg/goatreceipts"):
         global Link , Price, currency, deliverydate
         from addons.nextsteps import Nextstepzara
         owner_id = interaction.user.id 
-
+        
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
 
         Link = self.Link.value
         deliverydate = self.deliverydate.value
