@@ -34,8 +34,13 @@ class choiseView(discord.ui.View):
             description="Please wait while we process your email...",
             color=0x3498db
         )
-        if self.image_url:
-            sending_embed.set_thumbnail(url=self.image_url)
+        # Validate image URL before setting it as thumbnail
+        if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
+            try:
+                sending_embed.set_thumbnail(url=self.image_url)
+            except Exception as img_error:
+                print(f"Error setting thumbnail: {str(img_error)}")
+                # Continue without the thumbnail if there's an error
 
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
@@ -139,8 +144,12 @@ class choiseView(discord.ui.View):
                     description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
                     color=0x2ecc71
                 )
-                if self.image_url:
-                    embed.set_thumbnail(url=self.image_url)
+                if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
+                    try:
+                        embed.set_thumbnail(url=self.image_url)
+                    except Exception as img_error:
+                        print(f"Error setting success thumbnail: {str(img_error)}")
+                        # Continue without the thumbnail if there's an error
 
                 await interaction.edit_original_response(embed=embed, view=None)
 
@@ -166,8 +175,13 @@ class choiseView(discord.ui.View):
             description="Please wait while we process your email...",
             color=0x3498db
         )
-        if self.image_url:
-            sending_embed.set_thumbnail(url=self.image_url)
+        # Validate image URL before setting it as thumbnail
+        if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
+            try:
+                sending_embed.set_thumbnail(url=self.image_url)
+            except Exception as img_error:
+                print(f"Error setting thumbnail: {str(img_error)}")
+                # Continue without the thumbnail if there's an error
 
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
@@ -271,8 +285,12 @@ class choiseView(discord.ui.View):
                     description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
                     color=0x2ecc71
                 )
-                if self.image_url:
-                    embed.set_thumbnail(url=self.image_url)
+                if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
+                    try:
+                        embed.set_thumbnail(url=self.image_url)
+                    except Exception as img_error:
+                        print(f"Error setting success thumbnail: {str(img_error)}")
+                        # Continue without the thumbnail if there's an error
 
                 await interaction.edit_original_response(embed=embed, view=None)
             else:
