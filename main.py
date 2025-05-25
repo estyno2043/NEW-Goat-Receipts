@@ -505,15 +505,17 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading House of Frasers modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading House of Frasers modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "Louis Vuitton":
+                elif brand == "Louis Vuitton" or brand.lower() == "louis vuitton":
                     # Ensure the modal is properly loaded
                     try:
                         from modals.lv import lvmodal
                         modal_class = lvmodal
                         modal = modal_class()
                         # Add guild info if available
-                        modal.guild_id = guild_id
-                        modal.image_channel_id = image_channel_id
+                        if hasattr(modal, 'guild_id'):
+                            modal.guild_id = guild_id
+                        if hasattr(modal, 'image_channel_id'):
+                            modal.image_channel_id = image_channel_id
                         await interaction.response.send_modal(modal)
                         return
                     except Exception as e:
