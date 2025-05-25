@@ -49,13 +49,14 @@ lg = Colors.light_gray
 class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
     """Maison Margiela receipt modal"""
     
-    # Define class alias outside the class
-maisonmargielamodal = maisonmodal
     pname = discord.ui.TextInput(label="Product Name", placeholder="Shoes", required=True)
     imageurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="178.96", required=True)
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
     tax = discord.ui.TextInput(label="Tax Costs", placeholder="10.00", required=True)
+
+# Define class alias outside the class
+maisonmargielamodal = maisonmodal
 
 
 
