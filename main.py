@@ -399,7 +399,17 @@ class BrandSelectDropdown(ui.Select):
 
         current_brands = available_brands[start_idx:end_idx]
 
-        options = [discord.SelectOption(label=brand, value=brand.lower()) for brand in current_brands]
+        # Make sure values are unique by adding index if needed
+        options = []
+        used_values = set()
+        
+        for idx, brand in enumerate(current_brands):
+            value = brand.lower()
+            # If value already exists, make it unique by adding index
+            if value in used_values:
+                value = f"{value}_{idx}"
+            used_values.add(value)
+            options.append(discord.SelectOption(label=brand, value=value))
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
         self.user_id = user_id  # Store the owner's user ID
