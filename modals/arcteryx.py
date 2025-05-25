@@ -154,6 +154,9 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 html_content = html_content.replace("78201", zipp)
                 html_content = html_content.replace("{country}", country)
 
+            # Use the template utility to replace user details properly
+            html_content = replace_user_details(html_content, user_details)
+
 
 
 
@@ -173,6 +176,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 sender_email = "Arc'teryx <noreply@arcteryx.org>"
                 subject = f"Your Arc’teryx Order Is On Its Way"
                 from emails.choise import choiseView
+from utils.template_utils import replace_user_details
 
 
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
