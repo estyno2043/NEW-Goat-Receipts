@@ -506,8 +506,16 @@ class BrandSelectDropdown(ui.Select):
                         await interaction.response.send_message(f"Error loading House of Frasers modal: {str(e)}", ephemeral=True)
                         return
                 elif brand == "Louis Vuitton":
-                    module_name = "modals.lv"
-                    modal_class_name = "lvmodal"
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.lv import lvmodal
+                        modal_class = lvmodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Louis Vuitton modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "The North Face":
                     module_name = "modals.tnf"
                     modal_class_name = "tnfmodal"
