@@ -777,6 +777,111 @@ class BrandSelectView(ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
+# Main menu view with buttons for Generator, Credentials, Email, and Settings
+class MenuView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=300)  # Set timeout to 5 minutes
+        self.user_id = user_id
+        self.last_interaction = datetime.now()
+        self.message = None
+
+    async def interaction_check(self, interaction):
+        # Check if the interaction is from the original user
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your menu", ephemeral=True)
+            return False
+        return True
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Menu Timeout",
+            description="The menu has timed out due to inactivity.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
+
+    @ui.button(label="Generator", style=discord.ButtonStyle.primary)
+    async def generator_button(self, interaction: discord.Interaction, button: ui.Button):
+        # Get user info
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
+        # Create generator panel
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Create and send brand selection view
+        view = BrandSelectView(self.user_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+    @ui.button(label="Credentials", style=discord.ButtonStyle.primary)
+    async def credentials_button(self, interaction: discord.Interaction, button: ui.Button):
+        user_id = str(interaction.user.id)
+        
+        # Check if user has both credentials and email
+        has_credentials, has_email = check_user_setup(user_id)
+        
+        # Create credentials panel
+        embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        
+        # Create view with dropdown for credentials
+        view = CredentialsDropdownView(user_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+        
+        # Store message reference for proper timeout handling
+        try:
+            message = await interaction.original_response()
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+    @ui.button(label="Email", style=discord.ButtonStyle.primary)
+    async def email_button(self, interaction: discord.Interaction, button: ui.Button):
+        # Show email form
+        modal = EmailForm()
+        await interaction.response.send_modal(modal)
+
+    @ui.button(label="Close", style=discord.ButtonStyle.danger)
+    async def close_button(self, interaction: discord.Interaction, button: ui.Button):
+        # Create closing embed
+        embed = discord.Embed(
+            title="Menu Closed",
+            description="The menu has been closed.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.edit_message(embed=embed, view=None)
+
 # View for the credentials dropdown menu
 class CredentialsDropdownView(ui.View):
     def __init__(self, user_id):
