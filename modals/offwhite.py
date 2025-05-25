@@ -53,7 +53,7 @@ def is_offwhite_link(link):
     return bool(cooblue_link_pattern.match(link))
 
 
-class offwhitemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class offwhitemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://off---white.com/...", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="275", required=True)
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
@@ -93,7 +93,7 @@ class offwhitemodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
                 with open("receipt/offwhite.html", "r", encoding="utf-8") as file:

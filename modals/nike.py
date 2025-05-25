@@ -53,7 +53,7 @@ def is_nike_link(link):
     return bool(nike_pattern.match(link))
 
 
-class nikemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class nikemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="nike.com Link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="120", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -88,7 +88,7 @@ class nikemodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             try:
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=False)
 
 
 

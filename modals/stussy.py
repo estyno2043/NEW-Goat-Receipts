@@ -54,7 +54,7 @@ def is_stussy_link(link):
     return bool(stussy_pattern.match(link))
 
 
-class stussymodal(ui.Modal, title="discord.gg/goatreceipt"):
+class stussymodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="eu.stussy.com link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     delivery = discord.ui.TextInput(label="Shipping Costs without currency", placeholder="Ex. 7.99", required=True)
@@ -86,7 +86,7 @@ class stussymodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             try:
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
 

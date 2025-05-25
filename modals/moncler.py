@@ -51,7 +51,7 @@ def is_moncler_link(link):
     return bool(moncler_link_pattern.match(link))
 
 
-class monclermodal(ui.Modal, title="GOAT Receipts"):
+class monclermodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="Moncler link", required=True)
     Size = discord.ui.TextInput(label="Size (1, 2, 3)", placeholder="Ex. 1", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790", required=True)
@@ -86,7 +86,7 @@ class monclermodal(ui.Modal, title="GOAT Receipts"):
                 owner_id = interaction.user.id 
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
                 cityzip = f"{city} {zipp}"

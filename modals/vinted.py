@@ -26,7 +26,7 @@ from pystyle import Colors
 r = Colors.red
 lg = Colors.light_gray
 
-class vintedmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class vintedmodal(ui.Modal, title="discord.gg/goatreceipts"):
     yourvintedname = ui.TextInput(label="Your Vinted Name", placeholder="Enter your Vinted username", required=True)
     sellername = ui.TextInput(label="Seller Name", placeholder="Enter seller's username", required=True)
     productname = ui.TextInput(label="Product Name", placeholder="Enter product name", required=True)
@@ -45,7 +45,7 @@ class vintedmodal(ui.Modal, title="discord.gg/goatreceipt"):
         shippingcost = self.shippingcost.value
 
         embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-        await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepVinted(owner_id), ephemeral=True)
+        await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepVinted(owner_id), ephemeral=False)
 
 class vintedmodal2(ui.Modal, title="Vinted Receipt"):
     productprice = ui.TextInput(label="Product Price", placeholder="2.00", required=True)

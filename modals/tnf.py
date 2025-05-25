@@ -54,7 +54,7 @@ def is_tnf_link(link):
     return bool(tnf_pattern.match(link))
 
 
-class tnfmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class tnfmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="thenorthface.co.uk link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     deliverydate = discord.ui.TextInput(label="Delivery Date", placeholder="Ex. 14/07/2024", required=True)
@@ -86,8 +86,8 @@ class tnfmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 return
 
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next steps to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextsteptnf(owner_id), ephemeral=True)
+            embed = discord.Embed(title="You are almost done...", description="Complete the next steps to receive the receipt.")
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextsteptnf(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

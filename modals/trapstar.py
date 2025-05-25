@@ -54,7 +54,7 @@ def is_trapstar_link(link):
     return bool(trapstar_pattern.match(link))
 
 
-class trapstarmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class trapstarmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="uk.trapstarlondon.com Link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)

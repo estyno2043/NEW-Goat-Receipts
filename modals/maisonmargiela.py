@@ -47,7 +47,7 @@ lg = Colors.light_gray
 
 
 
-class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class maisonmodal(ui.Modal, title="discord.gg/goatreceipts"):
     """Maison Margiela receipt modal"""
     
     pname = discord.ui.TextInput(label="Product Name", placeholder="Shoes", required=True)
@@ -76,8 +76,8 @@ class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
             shipping = float(self.shipping.value)
             tax = float(self.tax.value)
             
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepMaison(owner_id), ephemeral=True)
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepMaison(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

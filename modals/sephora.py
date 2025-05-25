@@ -54,7 +54,7 @@ def is_sephora_link(link):
     return bool(rl_pattern.match(link))
 
 
-class sephoranmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class sephoranmodal(ui.Modal, title="discord.gg/goatreceipts"):
     
     # Define the inputs first
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
@@ -81,7 +81,7 @@ class sephoranmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             embed = discord.Embed(title="You are almost done...", description="Complete the next steps to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepsephora(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepsephora(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

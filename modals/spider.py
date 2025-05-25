@@ -47,7 +47,7 @@ lg = Colors.light_gray
 
 
 
-class spidermodal(ui.Modal, title="discord.gg/goatreceipt"):
+class spidermodal(ui.Modal, title="discord.gg/goatreceipts"):
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="790.00", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     pname = discord.ui.TextInput(label="Product Name", placeholder="Sp5der Angel Number Hoodie", required=True)
@@ -77,7 +77,7 @@ class spidermodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             try:
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=False)
 
 
 

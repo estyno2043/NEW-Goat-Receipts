@@ -44,11 +44,11 @@ r = Colors.red
 lg = Colors.light_gray
 
 
-class stockxmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class stockxmodal(ui.Modal, title="discord.gg/goatreceipts"):
     product_name = discord.ui.TextInput(label="Product Name", placeholder="Nike Dunk Low Retro White Black Panda", required=True)
     conditionn = discord.ui.TextInput(label="Condition (New, Used)", placeholder="New", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
-    status = discord.ui.TextInput(label="Order Status", placeholder="Ex. Delivered, Ordered, Verified", required=True)
+    status = discord.ui.TextInput(label="Order Status", placeholder="Ex. Delivered, Ordered, Verified, Shipped, Arrived", required=True)
     sizee = discord.ui.TextInput(label="Size (If no size leave blank)", placeholder="US M 13", required=False)
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -66,7 +66,7 @@ class stockxmodal(ui.Modal, title="discord.gg/goatreceipt"):
         currency1 = f"{currency}"
 
         embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-        await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepStockX(owner_id), ephemeral=True)
+        await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepStockX(owner_id), ephemeral=False)
 
 
 class stockxmodal2(ui.Modal, title="StockX Receipt"):

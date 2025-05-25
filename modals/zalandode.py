@@ -54,7 +54,7 @@ def is_zalando_link(link):
     return bool(zalando_pattern.match(link))
 
 
-class zalandodemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class zalandodemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="zalando.de link", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790,00", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -86,7 +86,7 @@ class zalandodemodal(ui.Modal, title="discord.gg/goatreceipt"):
             try:
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
 

@@ -17,7 +17,7 @@ import os
 import hashlib
 from datetime import datetime
 
-class suprememodal(ui.Modal, title="discord.gg/goatreceipt"):
+class suprememodal(ui.Modal, title="discord.gg/goatreceipts"):
     productname = discord.ui.TextInput(label="Product Name", placeholder="Supreme Box Logo Hoodie", required=True)
     productsku = discord.ui.TextInput(label="Product SKU", placeholder="4033592", required=True)
     productsize = discord.ui.TextInput(label="Product Size", placeholder="M", required=True)
@@ -45,7 +45,7 @@ class suprememodal(ui.Modal, title="discord.gg/goatreceipt"):
             productprice = self.productprice.value
 
             embed = discord.Embed(title="Next Page", description="Click 'Next Page' to continue to the next set of inputs.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepSupreme(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepSupreme(owner_id), ephemeral=False)
         else:
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")

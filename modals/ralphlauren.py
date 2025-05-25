@@ -54,7 +54,7 @@ def is_rl_link(link):
     return bool(rl_pattern.match(link))
 
 
-class ralphlaurenmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class ralphlaurenmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="ralphlauren.co.uk/en link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)

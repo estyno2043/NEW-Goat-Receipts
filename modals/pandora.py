@@ -51,7 +51,7 @@ def is_pandora_link(link):
     return bool(adidas_pattern.match(link))
 
 
-class pandoramodal(ui.Modal, title="discord.gg/goatreceipt"):
+class pandoramodal(ui.Modal, title="discord.gg/goatreceipts"):
     link = discord.ui.TextInput(label="Link", placeholder="https://pandora.net/....", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="190.00", required=True)
     delivery = discord.ui.TextInput(label="Delivery Costs", placeholder="10.00", required=True)
@@ -86,8 +86,8 @@ class pandoramodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepPandora(owner_id), ephemeral=True)
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepPandora(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

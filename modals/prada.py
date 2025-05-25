@@ -54,7 +54,7 @@ def is_prada_link(link):
     return bool(prada_pattern.match(link))
 
 
-class Pradamodal(ui.Modal, title="discord.gg/goatreceipt"):
+class Pradamodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="Prada.com Link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -102,7 +102,7 @@ class Pradamodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             try:
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=False)
 
                 with open("receipt/prada.html", "r", encoding="utf-8") as file:
                     html_content = file.read()
