@@ -47,7 +47,7 @@ lg = Colors.light_gray
 
 
 
-class chronomodal(ui.Modal, title="discord.gg/goatreceipt"):
+class chronomodal(ui.Modal, title="discord.gg/goatreceipts"):
     pname = discord.ui.TextInput(label="Product Name", placeholder="Rolex Datejust", required=True)
     price = discord.ui.TextInput(label="Price without Currency", placeholder="199.99", required=True)
     sellername = discord.ui.TextInput(label="Sellername", placeholder="Albert", required=True)
@@ -71,7 +71,7 @@ class chronomodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
             with open("receipt/chrono24.html", "r", encoding="utf-8") as file:
@@ -106,7 +106,7 @@ class chronomodal(ui.Modal, title="discord.gg/goatreceipt"):
 
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, pname, imageurl, link)
-            await interaction.edit_original_response(embed=embed, view=view, ephemeral=True)
+            await interaction.edit_original_response(embed=embed, view=view, ephemeral=False)
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.edit_original_response(embed=embed, ephemeral=True)

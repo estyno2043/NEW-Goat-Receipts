@@ -53,7 +53,7 @@ def is_burberry_link(link):
     return bool(burberry_pattern.match(link))
 
 
-class burberrymodal(ui.Modal, title="discord.gg/goatreceipt"):
+class burberrymodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://us.burberry.com/...", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="990.00", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -94,7 +94,7 @@ class burberrymodal(ui.Modal, title="discord.gg/goatreceipt"):
             try:
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(embed=embed, ephemeral=True) # Send initial message
+                await interaction.response.send_message(embed=embed, ephemeral=False) # Send initial message
 
 
 

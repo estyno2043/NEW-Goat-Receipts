@@ -52,7 +52,7 @@ def is_cooblue_link(link):
     return bool(cooblue_link_pattern.match(link))
 
 
-class coolbluemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class coolbluemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://cooblue.de/...", required=True)
     deliverydate = discord.ui.TextInput(label="Delivery Date (DD/MM/YYYY)", placeholder="06/03/2024", required=True)
 
@@ -90,7 +90,7 @@ class coolbluemodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
                 with open("receipt/coolblue.html", "r", encoding="utf-8") as file:

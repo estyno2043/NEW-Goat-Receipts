@@ -51,7 +51,7 @@ def is_canadagoose_link(link):
     return bool(canadagoose_link_pattern.match(link))
 
 
-class canadagoose(ui.Modal, title="discord.gg/goatreceipt"):
+class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="Canada Goose link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     invoicedate = discord.ui.TextInput(label="Invoice Date", placeholder="Ex. 22/01/2024", required=True)

@@ -52,7 +52,7 @@ def is_chrome_link(link):
     return bool(chrome_link_pattern.match(link))
 
 
-class chromemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class chromemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://chrommehearts.com/", required=True)
     price = discord.ui.TextInput(label="Price without Currency", placeholder="300.00", required=True)
     tax = discord.ui.TextInput(label="Tax", placeholder="10.00", required=True)

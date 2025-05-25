@@ -52,7 +52,7 @@ def is_Chewforever_link(link):
     return bool(Chewforever_pattern.match(link))
 
 
-class Chewforevermodal(ui.Modal, title="discord.gg/goatreceipt"):
+class Chewforevermodal(ui.Modal, title="discord.gg/goatreceipts"):
     link = discord.ui.TextInput(label="Link", placeholder="https://chewforever.com/", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790.00", required=True)
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
