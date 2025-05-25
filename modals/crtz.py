@@ -185,7 +185,7 @@ class crtzmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 
-        else:
-            # Handle case where no user details are found
+        except Exception as e:
+            # Handle case where no user details are found or an error occurs
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
