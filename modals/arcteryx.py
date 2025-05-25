@@ -89,7 +89,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
                 with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
