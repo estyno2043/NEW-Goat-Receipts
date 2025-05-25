@@ -824,6 +824,12 @@ class CredentialsDropdownView(ui.View):
                 
         self.dropdown.callback = dropdown_callback
 
+    @bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+        
     # Handle image attachments in guild-specific image channels
     # Check if the message contains an image
     if message.attachments:
