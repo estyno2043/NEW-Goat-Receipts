@@ -786,7 +786,43 @@ class CredentialsDropdownView(ui.View):
                 )
             ]
         )
-        \n{message.content}\n```", mention_author=False)
+        
+        self.add_item(self.dropdown)
+        
+        # Set up callback for dropdown selection
+        async def dropdown_callback(interaction):
+            if interaction.user.id != int(self.user_id):
+                await interaction.response.send_message("This is not your panel", ephemeral=True)
+                return
+                
+            if interaction.data["values"][0] == "custom_info":
+                # Show custom info modal
+                modal = CustomInfoForm()
+                await interaction.response.send_modal(modal)
+            else:
+                # Generate random details
+                name, street, city, zip_code, country = generate_random_details()
+                
+                # Save random info to database
+                conn = sqlite3.connect('data.db')
+                cursor = conn.cursor()
+                cursor.execute('''
+                INSERT OR REPLACE INTO user_credentials 
+                (user_id, name, street, city, zip, country, is_random) 
+                VALUES (?, ?, ?, ?, ?, ?, 1)
+                ''', (self.user_id, name, street, city, zip_code, country))
+                conn.commit()
+                conn.close()
+                
+                # Send success message
+                embed = discord.Embed(
+                    title="Random Information Generated",
+                    description=f"**Name**: {name}\n**Street**: {street}\n**City**: {city}\n**Zip**: {zip_code}\n**Country**: {country}",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                
+        self.dropdown.callback = dropdown_callback
 
     # Handle image attachments in guild-specific image channels
     # Check if the message contains an image
