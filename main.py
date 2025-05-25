@@ -571,11 +571,21 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Loropiana" or brand == "Loro Piana":
                     # Special handling for Loro Piana
                     try:
-                        # Direct import is more reliable
-                        from modals.loropiana import loromodal
-                        modal = loromodal()
-                        await interaction.response.send_modal(modal)
-                        return
+                        # Import the module first, then access the class
+                        import importlib
+                        loro_module = importlib.import_module("modals.loropiana")
+                        # Make sure to access the class correctly with the right case sensitivity
+                        if hasattr(loro_module, "loromodal"):
+                            modal_class = getattr(loro_module, "loromodal")
+                            modal = modal_class()
+                            await interaction.response.send_modal(modal)
+                            return
+                        else:
+                            # Fallback to manual import if needed
+                            from modals.loropiana import loromodal
+                            modal = loromodal()
+                            await interaction.response.send_modal(modal)
+                            return
                     except Exception as e:
                         print(f"Error loading Loro Piana modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Loro Piana modal: {str(e)}", ephemeral=True)
