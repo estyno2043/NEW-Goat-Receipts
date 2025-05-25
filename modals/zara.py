@@ -71,14 +71,14 @@ class zaramodal(ui.Modal, title="discord.gg/goatreceipts"):
         deliverydate = self.deliverydate.value
         Price = float(self.Price.value)
         currency = self.currency.value
-        
+
 
         if not is_zara_link(Link):
             embed = discord.Embed(title="Error - Invalid Zara link", description="Please provide a valid Zara link.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        
+
         embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
         await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepzara(owner_id))
 
@@ -103,7 +103,7 @@ class zaramodal2(ui.Modal, title="Zara Receipt"):
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
             await interaction.response.edit_message(content=None,embed=embed, view=None)
 
-            
+
 
 
 
@@ -119,7 +119,7 @@ class zaramodal2(ui.Modal, title="Zara Receipt"):
                     "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                 },
-                verify='zyte-ca.crt' 
+                verify=False
             )
 
             if response.status_code == 200:
@@ -160,15 +160,15 @@ class zaramodal2(ui.Modal, title="Zara Receipt"):
 
 
 
-                    
 
-                
+
+
             street = str(self.Street.value)
             zipcity = str(self.zipcity.value)
             state = str(self.state.value)
             country = str(self.country.value)
             sizee = str(self.sizee.value)
-            
+
             tax = float("5.49")
 
             total = Price + tax
@@ -197,7 +197,7 @@ class zaramodal2(ui.Modal, title="Zara Receipt"):
 
 
 
-            
+
 
             with open("receipt/updatedrecipies/updatedzara.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
@@ -208,7 +208,7 @@ class zaramodal2(ui.Modal, title="Zara Receipt"):
             from emails.choise import choiseView
             owner_id = interaction.user.id
 
-                
+
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, Link)
             await interaction.edit_original_response(embed=embed, view=view)

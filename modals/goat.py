@@ -1,4 +1,3 @@
-
 import asyncio
 from base64 import b64decode
 import json
@@ -54,7 +53,7 @@ def is_goat_link(link):
 
 
 class goat(ui.Modal, title="discord.gg/goatreceipts"):
-    
+
     # Create alias for compatibility
     Link = discord.ui.TextInput(label="Link", placeholder="Goat link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -79,7 +78,7 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
             currency = self.currency.value
             colorr = self.colorr.value
             sizee = self.sizee.value if self.sizee.value else ""
-            
+
 
             if not is_goat_link(link):
                 embed = discord.Embed(title="Error - Invalid Goat link", description="Please provide a valid Goat link.")
@@ -87,7 +86,7 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                 return
 
 
-            
+
             try:
 
 
@@ -112,6 +111,11 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                         "product": True,
                         "productOptions": {"extractFrom": "browserHtml"},
                     },
+                    proxies={
+                        "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                        "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                    },
+                    verify=False
                 )
 
                 # Decode HTML data and parse it
@@ -172,7 +176,7 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                 from emails.choise import choiseView
                 owner_id = interaction.user.id
 
-                    
+
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
                 view = choiseView(owner_id, html_content, sender_email, subject, product_name, og_image_url, link)
                 await interaction.edit_original_response(embed=embed, view=view)
@@ -187,3 +191,4 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
 
 # Create a global variable to make the class accessible outside
 goatmodal = goat
+`

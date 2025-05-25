@@ -79,7 +79,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
             currency = self.currency.value
             sizee = self.sizee.value
             ordedate = self.orderdate.value
-            
+
 
             if not is_arcteryx_link(link):
                 embed = discord.Embed(title="Error - Invalid Arcteryx link", description="Please provide a valid Arcteryx link.")
@@ -87,7 +87,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 return
 
 
-            
+
             try:
 
 
@@ -108,7 +108,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                         "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                         "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     },
-                    verify='zyte-ca.crt' 
+                    verify=False
                 )
 
                 if response.status_code == 200:
@@ -180,7 +180,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 subject = f"Your Arc’teryx Order Is On Its Way"
                 from emails.choise import choiseView
 
-                    
+
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
                 view = choiseView(owner_id, html_content, sender_email, subject, pname, image_url, link)
                 await interaction.edit_original_response(embed=embed, view=view)
