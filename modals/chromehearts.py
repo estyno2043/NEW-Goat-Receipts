@@ -72,26 +72,28 @@ class chromemodal(ui.Modal, title="discord.gg/goatreceipts"):
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
-            link = self.Link.value
-            currency = self.currency.value
-            price = float(self.price.value)
-            tax = float(self.tax.value)
-            shipping = float(self.shipping.value)
+                link = self.Link.value
+                currency = self.currency.value
+                price = float(self.price.value)
+                tax = float(self.tax.value)
+                shipping = float(self.shipping.value)
 
-            
+                
 
-            if not is_chrome_link(link):
-                embed = discord.Embed(title="Error - Invalid Chromehearts link", description="Please provide a valid Chromehearts link.")
+                if not is_chrome_link(link):
+                    embed = discord.Embed(title="Error - Invalid Chromehearts link", description="Please provide a valid Chromehearts link.")
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return False
+                
+                from addons.nextsteps import NextstepChrome
+                embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepChrome(owner_id))
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-                return False
-            
-            from addons.nextsteps import NextstepChrome
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepChrome(owner_id))
-
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
