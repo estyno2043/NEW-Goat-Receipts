@@ -507,6 +507,9 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Corteiz":
                     module_name = "modals.crtz"
                     modal_class_name = "crtzmodal"
+                elif brand == "Culture Kings":
+                    module_name = "modals.culturekings"
+                    modal_class_name = "ckmodal"
                 
                 modal_module = importlib.import_module(module_name)
 
