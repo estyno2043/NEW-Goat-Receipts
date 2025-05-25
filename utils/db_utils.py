@@ -156,12 +156,27 @@ def get_user_details(user_id):
         Tuple containing (name, street, city, zip, country, email) or None if not found
     """
     try:
-        query = "SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?"
-        result = execute_query(query, (str(user_id),), fetchone=True)
-        if result:
-            return (result['name'], result['street'], result['city'], result['zipp'], result['country'], result['email'])
-        else:
-            return None
+        # First check user_credentials table which contains the most up-to-date info
+        query1 = "SELECT name, street, city, zip as zipp, country FROM user_credentials WHERE user_id = ?"
+        cred_result = execute_query(query1, (str(user_id),), fetchone=True)
+        
+        # Get email from user_emails table
+        query2 = "SELECT email FROM user_emails WHERE user_id = ?"
+        email_result = execute_query(query2, (str(user_id),), fetchone=True)
+        
+        if cred_result and email_result:
+            email = email_result['email']
+            return (cred_result['name'], cred_result['street'], cred_result['city'], 
+                   cred_result['zipp'], cred_result['country'], email)
+        
+        # Fallback to licenses table if credentials not found in dedicated tables
+        query3 = "SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?"
+        license_result = execute_query(query3, (str(user_id),), fetchone=True)
+        if license_result:
+            return (license_result['name'], license_result['street'], license_result['city'], 
+                   license_result['zipp'], license_result['country'], license_result['email'])
+        
+        return None
     except Exception as e:
         print(f"Error getting user details: {e}")
         return None
