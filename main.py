@@ -542,9 +542,18 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading Louis Vuitton modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Louis Vuitton modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "The North Face":
-                    module_name = "modals.tnf"
-                    modal_class_name = "tnfmodal"
+                elif brand == "The North Face" or brand.lower() == "the north face":
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.tnf import tnfmodal
+                        modal_class = tnfmodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        print(f"Error loading The North Face modal: {str(e)}")
+                        await interaction.response.send_message(f"Error loading The North Face modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "No Sauce The Plug" or brand.lower() == "no sauce the plug":
                     # Ensure the modal is properly loaded
                     try:
