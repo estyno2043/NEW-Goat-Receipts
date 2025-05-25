@@ -794,7 +794,7 @@ class CredentialsDropdownView(ui.View):
             name, street, city, zip_code, country = generate_random_details()
 
             # Save random info to database
-            conn\n{attachment.url}\n= sqlite3.connect('data.db')
+            conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
             cursor.execute('''
             INSERT OR REPLACE INTO user_credentials 
