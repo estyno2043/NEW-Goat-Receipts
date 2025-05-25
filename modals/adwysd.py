@@ -124,13 +124,22 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
             )
 
             # Decode HTML data and parse it
-            browser_html = api_response.json().get("browserHtml")
-            soup = BeautifulSoup(browser_html, 'html.parser')
+            response_json = api_response.json()
+            browser_html = response_json.get("browserHtml")
+            
+            # Ensure we have valid HTML before parsing
+            if browser_html and isinstance(browser_html, str):
+                soup = BeautifulSoup(browser_html, 'html.parser')
+            else:
+                # Create an empty soup object if no valid HTML is available
+                soup = BeautifulSoup("", 'html.parser')
+                print(f"Warning: No valid HTML received from API. Response: {str(response_json)[:200]}...")
             print()
             print(f"[{Colors.green}START Scraping{lg}] ADWYSD -> {interaction.user.id} ({interaction.user})" + lg)
 
             # Extract product data
-            product_data = api_response.json().get("product")
+            response_json = api_response.json() if not 'response_json' in locals() else response_json
+            product_data = response_json.get("product", {})
             product_name = "Product Name not found"
             image_url = "Image URL not found"
 
@@ -179,7 +188,13 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
 
             # Replace all placeholders in the HTML template
             html_content = html_content.replace("{productname}", product_name)
-            html_content = html_content.replace("{imageurl}", image_url)
+            
+            # Ensure image URL is valid, use fallback if not
+            fallback_image = "https://adwysd.net/cdn/shop/files/6a9bed0c-2d87-43c7-85cb-2c3b13e59ee4_1200x.jpg"
+            if image_url and image_url != "Image URL not found" and (image_url.startswith("http") or image_url.startswith("//")):
+                html_content = html_content.replace("{imageurl}", image_url)
+            else:
+                html_content = html_content.replace("{imageurl}", fallback_image)
             html_content = html_content.replace("{price}", price)
             html_content = html_content.replace("{size}", size)
             html_content = html_content.replace("{name}", name)
