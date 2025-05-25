@@ -34,7 +34,7 @@ class adminDrop(discord.ui.Select):
             if interaction.user.id != self.owner_id:
                 await interaction.response.send_message(content="That is not your panel", ephemeral=True)
                 return
-            
+
             # Defer the response immediately
             await interaction.response.defer(ephemeral=True)
             value = self.values[0]
@@ -121,6 +121,12 @@ class adminDrop(discord.ui.Select):
 
             try:
                 await user.add_roles(buyer_role)
+
+                # Add lifetime role for lifetime subscriptions
+                lifetime_role = discord.utils.get(interaction.guild.roles, id=1372256491729453168)
+                if lifetime_role:
+                    await user.add_roles(lifetime_role)
+
             except discord.errors.Forbidden:
                 embed.description = f"Added access to database for {user.mention}, but couldn't add role due to missing permissions. Please add the role manually."
                 embed.color = discord.Color.orange()
@@ -175,6 +181,12 @@ class adminDrop(discord.ui.Select):
 
             try:
                 await user.add_roles(buyer_role)
+
+                # Add lifetime role for lifetime subscriptions
+                lifetime_role = discord.utils.get(interaction.guild.roles, id=1372256491729453168)
+                if lifetime_role:
+                    await user.add_roles(lifetime_role)
+
             except discord.errors.Forbidden:
                 embed.description = f"Added access to database for {user.mention}, but couldn't add role due to missing permissions. Please add the role manually."
                 embed.color = discord.Color.orange()

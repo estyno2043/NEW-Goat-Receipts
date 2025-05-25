@@ -116,6 +116,13 @@ class LicenseManager:
                                 await member.remove_roles(role)
                                 logging.info(f"Removed role {role.name} from {member.name} in {guild.name} due to expired license")
 
+                                # Also remove subscription-specific roles for expired subscriptions
+                                # Remove 1 month role (but keep lifetime role as it shouldn't expire)
+                                month_role = discord.utils.get(guild.roles, id=1372256426684317909)
+                                if month_role and month_role in member.roles:
+                                    await member.remove_roles(month_role)
+                                    logging.info(f"Removed 1 month role {month_role.name} from {member.name} due to expired license")
+
                                 # Create the expiry embed with renewal button
                                 embed = discord.Embed(
                                     title="Your Subscription Has Expired",

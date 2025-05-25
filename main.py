@@ -1814,7 +1814,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             conn.commit()
             conn.close()
 
-            # Try to add client role to the user
+            # Try to add client role and subscription-specific roles to the user
             try:
                 with open("config.json", "r") as f:
                     import json
@@ -1824,12 +1824,28 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 if client_role_id > 0:
                     guild = self.interaction.guild  # Access guild through the stored interaction
                     if guild:
-                        role = discord.utils.get(guild.roles, id=client_role_id)
-                        if role:
-                            await self.interaction.user.add_roles(role)  # Use stored interaction to add roles
-                            print(f"Added role {role.name} to {self.interaction.user.display_name}")
+                        # Add client role
+                        client_role = discord.utils.get(guild.roles, id=client_role_id)
+                        if client_role:
+                            await self.interaction.user.add_roles(client_role)
+                            print(f"Added client role {client_role.name} to {self.interaction.user.display_name}")
+
+                        # Add subscription-specific roles
+                        if "1month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type:
+                            # Add 1 month role (ID: 1372256426684317909)
+                            month_role = discord.utils.get(guild.roles, id=1372256426684317909)
+                            if month_role:
+                                await self.interaction.user.add_roles(month_role)
+                                print(f"Added 1 month role {month_role.name} to {self.interaction.user.display_name}")
+                        
+                        elif "lifetime" in subscription_type.lower():
+                            # Add lifetime role (ID: 1372256491729453168)
+                            lifetime_role = discord.utils.get(guild.roles, id=1372256491729453168)
+                            if lifetime_role:
+                                await self.interaction.user.add_roles(lifetime_role)
+                                print(f"Added lifetime role {lifetime_role.name} to {self.interaction.user.display_name}")
             except Exception as e:
-                print(f"Error adding role: {e}")
+                print(f"Error adding roles: {e}")
 
             # Success message
             embed = discord.Embed(
