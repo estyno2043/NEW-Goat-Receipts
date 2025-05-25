@@ -64,8 +64,11 @@ class acnemodal(ui.Modal, title="discord.gg/goatreceipt"):
         from addons.nextsteps import NextstepAcne
         owner_id = interaction.user.id 
 
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
+        import sqlite3
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
+        user_details = cursor.fetchone()
 
         if user_details:
             name, street, city, zipp, country = user_details
@@ -246,8 +249,11 @@ class acnemodal(ui.Modal, title="discord.gg/goatreceipt"):
         from addons.nextsteps import NextstepAcne
         owner_id = interaction.user.id 
 
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
+        import sqlite3
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
+        user_details = cursor.fetchone()
 
         if user_details:
             name, street, city, zipp, country = user_details

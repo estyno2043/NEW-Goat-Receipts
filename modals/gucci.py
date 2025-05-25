@@ -93,8 +93,11 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             return
 
         # Get shipping details from database
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
+        import sqlite3
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(interaction.user.id),))
+        user_details = cursor.fetchone()
 
         if user_details:
             name, street, city, zipp, country, email = user_details
