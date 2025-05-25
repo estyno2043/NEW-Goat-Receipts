@@ -824,7 +824,7 @@ class CredentialsDropdownView(ui.View):
                 
         self.dropdown.callback = dropdown_callback
 
-    @bot.event
+@bot.event
 async def on_message(message):
     # Ignore messages from the bot itself
     if message.author == bot.user:
