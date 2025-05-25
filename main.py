@@ -220,23 +220,23 @@ class EmailForm(ui.Modal, title="Email Settings"):
 
         # Save email to database using both methods for redundancy
         from utils.db_utils import save_user_email
-        
+
         # Save to user_emails table
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", (user_id, email))
-        
+
         # Also update licenses table if the user exists there
         cursor.execute("SELECT 1 FROM licenses WHERE owner_id = ?", (user_id,))
         if cursor.fetchone():
             cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email, user_id))
-        
+
         conn.commit()
         conn.close()
-        
+
         # Double-check with the utility function
         save_user_email(user_id, email)
-        
+
         # Show success message
         embed = discord.Embed(
             title="Email Saved",
@@ -386,7 +386,7 @@ class BrandSelectDropdown(ui.Select):
         # Extract brand names from the filenames with proper naming
         for modal_file in modal_files:
             base_name = modal_file.split('.')[0]
-            
+
             # Special case handling for specific brands
             if base_name == "crtz" or base_name == "corteiz":  # Handle both crtz.py and corteiz.py
                 brand_name = "Corteiz"
@@ -402,7 +402,7 @@ class BrandSelectDropdown(ui.Select):
                 brand_name = "No Sauce The Plug"
             else:
                 brand_name = base_name.capitalize()
-            
+
             # Only add brand name if we haven't seen it before
             if brand_name not in seen_brand_names:
                 available_brands.append(brand_name)
@@ -426,7 +426,7 @@ class BrandSelectDropdown(ui.Select):
         # Make sure values are unique by adding index if needed
         options = []
         used_values = set()
-        
+
         for idx, brand in enumerate(current_brands):
             value = brand.lower()
             # If value already exists, make it unique by adding index
@@ -443,7 +443,7 @@ class BrandSelectDropdown(ui.Select):
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
-            
+
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
@@ -511,7 +511,7 @@ class BrandSelectDropdown(ui.Select):
             # Dynamic import of the module
             try:
                 import importlib
-                
+
                 # Handle special cases for brands with spaces in their names
                 if brand == "House of Frasers" or brand.lower() == "house of frasers":
                     # Ensure the modal is properly loaded
@@ -646,7 +646,7 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
-                
+
                 modal_module = importlib.import_module(module_name)
 
                 # Get the modal class dynamically
@@ -782,7 +782,7 @@ class BrandSelectView(ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
-# View for the credentials dropdown menu
+# View for the credentialsdropdown menu
 class CredentialsDropdownView(ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=180)  # Set timeout to 3 minutes
@@ -1185,7 +1185,7 @@ async def on_ready():
 
     # Set up database
     setup_database()
-    
+
     # Load admin commands - only once when bot starts
     try:
         if not os.path.exists('commands'):
@@ -1202,7 +1202,7 @@ async def on_ready():
         # Load guild commands extension
         await bot.load_extension('commands.guild_commands')
         print("Guild commands loaded successfully")
-        
+
         # Sync commands with Discord
         try:
             synced = await bot.tree.sync()
@@ -1356,7 +1356,7 @@ async def generate_command(interaction: discord.Interaction):
         """, (guild_id,))
         role_config = cursor.fetchone()
         conn.close()
-        
+
         if not role_config:
             embed = discord.Embed(
                 title="Server Not Configured",
@@ -1365,9 +1365,9 @@ async def generate_command(interaction: discord.Interaction):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-            
+
         client_role_id, admin_role_id = role_config
-        
+
         # Check if user is a guild admin or has client role
         has_access = False
         try:
@@ -1377,14 +1377,14 @@ async def generate_command(interaction: discord.Interaction):
                 if admin_role and admin_role in interaction.user.roles:
                     print(f"User {user_id} has admin role in guild {guild_id}")
                     has_access = True
-            
+
             # Check if user has client role
             if client_role_id and not has_access:
                 client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
                 if client_role and client_role in interaction.user.roles:
                     print(f"User {user_id} has client role in guild {guild_id}")
                     has_access = True
-                    
+
             # Also check database for legacy access
             conn = sqlite3.connect('data.db')
             cursor = conn.cursor()
@@ -1394,7 +1394,7 @@ async def generate_command(interaction: discord.Interaction):
             """, (guild_id, user_id))
             user_access = cursor.fetchone()
             conn.close()
-            
+
             if user_access:
                 expiry_str, access_type = user_access
                 # Lifetime access is always valid
@@ -1408,7 +1408,7 @@ async def generate_command(interaction: discord.Interaction):
                             has_access = True
                     except Exception as e:
                         print(f"Error checking expiry: {e}")
-            
+
             if not has_access:
                 embed = discord.Embed(
                     title="Access Denied",
@@ -1417,7 +1417,7 @@ async def generate_command(interaction: discord.Interaction):
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-                
+
         except Exception as e:
             print(f"Error checking client role: {e}")
             embed = discord.Embed(
@@ -1427,7 +1427,7 @@ async def generate_command(interaction: discord.Interaction):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-            
+
         # Continue with generating the receipt for guild users
         # Check if user has credentials and email
         has_credentials, has_email = check_user_setup(user_id)
@@ -1456,10 +1456,10 @@ async def generate_command(interaction: discord.Interaction):
                             "-# please click \"Credentials\" and set your credentials before you try to generate",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            
+
             view = MenuView(user_id)
             await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-            
+
             # Store message reference for proper timeout handling
             try:
                 message = await interaction.original_response()
@@ -1568,13 +1568,13 @@ async def generate_command(interaction: discord.Interaction):
                         f"`{display_type}`\n\n" +
                         "**Note**\n" +
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
-            color=discord.Color.from_str("#c2ccf8")
+        color=discord.Color.from_str("#c2ccf8")
         )
-        
+
         # Create and send the menu view
         view = MenuView(user_id)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-            
+
         # Store message reference for proper timeout handling
         try:
             message = await interaction.original_response()
@@ -2036,6 +2036,7 @@ async def menu_command(interaction: discord.Interaction):
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+```python
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
