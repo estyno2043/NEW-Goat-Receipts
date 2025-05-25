@@ -1,32 +1,8 @@
-# Improved get_user_details function to include email from both tables, handling None values and updating the licenses table.
 import sqlite3
 import contextlib
 import threading
 import queue
 import time
-
-def save_user_email(user_id, email):
-    """Save user email to both database tables for redundancy"""
-    try:
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        
-        # Save to user_emails table
-        cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", 
-                      (str(user_id), email))
-        
-        # Also update licenses table if the user exists there
-        cursor.execute("SELECT 1 FROM licenses WHERE owner_id = ?", (str(user_id),))
-        if cursor.fetchone():
-            cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", 
-                          (email, str(user_id)))
-        
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        print(f"Error saving user email: {str(e)}")
-        return False
 
 # Create a connection pool
 class ConnectionPool:
@@ -151,93 +127,21 @@ def execute_query(query, params=None, fetchone=False, fetchall=False):
         raise
 
 def get_user_details(user_id):
-    """Get user details from the database"""
+    """Get user details from the database for receipt generation
+
+    Args:
+        user_id: The Discord user ID
+
+    Returns:
+        Tuple containing (name, street, city, zip, country, email) or None if not found
+    """
     try:
-        conn = sqlite3.connect('data.db')
-        conn.row_factory = sqlite3.Row  # This allows us to access columns by name
-        cursor = conn.cursor()
-
-        # First check user_credentials table as the primary source
-        # This contains the user's custom or randomized details that were set in the UI
-        cursor.execute("""
-            SELECT name, street, city, zip, country FROM user_credentials 
-            WHERE user_id = ?
-        """, (str(user_id),))
-        cred_result = cursor.fetchone()
-        
-        if cred_result:
-            # Get email from user_emails
-            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
-            email_result = cursor.fetchone()
-            email = email_result[0] if email_result else None
-            
-            # Build tuple from credentials and email
-            user_data = (
-                cred_result['name'] if 'name' in cred_result.keys() else "",
-                cred_result['street'] if 'street' in cred_result.keys() else "",
-                cred_result['city'] if 'city' in cred_result.keys() else "",
-                cred_result['zip'] if 'zip' in cred_result.keys() else "",
-                cred_result['country'] if 'country' in cred_result.keys() else "",
-                email
-            )
-            
-            # Debug output to verify data
-            print(f"User details from user_credentials for {user_id}: {user_data}")
-            
-            # Ensure there are no None values in the tuple
-            user_data = tuple(str(val) if val is not None else "" for val in user_data)
-            print(f"User details for {user_id}: {user_data}")
-            
-            if email:
-                print(f"Found email from user_details: {email}")
-            
-            conn.close()
-            return user_data
-
-        # If user_credentials didn't have data, fall back to licenses table
-        cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(user_id),))
-        result = cursor.fetchone()
-
-        # If we have a result but email is None, try to get email from user_emails table
+        query = "SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?"
+        result = execute_query(query, (str(user_id),), fetchone=True)
         if result:
-            if result['email'] is None or result['email'] == '':
-                cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
-                email_result = cursor.fetchone()
-
-                if email_result and email_result[0]:
-                    # Update the licenses table with this email for future use
-                    cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email_result[0], str(user_id)))
-                    conn.commit()
-                    
-                    # Update our result with the new email
-                    email = email_result[0]
-                else:
-                    email = result['email']
-            else:
-                email = result['email']
-
-            # Convert Row object to tuple with proper column access
-            user_data = (
-                result['name'] if 'name' in result.keys() else "", 
-                result['street'] if 'street' in result.keys() else "", 
-                result['city'] if 'city' in result.keys() else "", 
-                result['zipp'] if 'zipp' in result.keys() else "", 
-                result['country'] if 'country' in result.keys() else "", 
-                email
-            )
-            
-            # Ensure there are no None values in the tuple
-            user_data = tuple(str(val) if val is not None else "" for val in user_data)
-            print(f"User details for {user_id}: {user_data}")
-            
-            if email:
-                print(f"Found email from user_details: {email}")
-                
-            conn.close()
-            return user_data
-        
-        conn.close()
-        return None
+            return (result['name'], result['street'], result['city'], result['zipp'], result['country'], result['email'])
+        else:
+            return None
     except Exception as e:
-        print(f"Error getting user details: {str(e)}")
+        print(f"Error getting user details: {e}")
         return None
