@@ -107,8 +107,20 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
             user_details = get_user_details(owner_id)
 
             if user_details:
-                name, street, city, zipp, country, email = user_details
-
+                # Make sure we handle incomplete user details
+                if len(user_details) >= 6:
+                    name, street, city, zipp, country, email = user_details
+                else:
+                    # Handle case with missing fields
+                    name = user_details[0] if len(user_details) > 0 else ""
+                    street = user_details[1] if len(user_details) > 1 else ""
+                    city = user_details[2] if len(user_details) > 2 else ""
+                    zipp = user_details[3] if len(user_details) > 3 else ""
+                    country = user_details[4] if len(user_details) > 4 else ""
+                    email = user_details[5] if len(user_details) > 5 else ""
+            else:
+                # Set default empty values if no user details found
+                name = street = city = zipp = country = email = ""
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
             await interaction.response.edit_message(embed=embed, view=None)
@@ -159,17 +171,18 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
             order_number = generate_order_number()
 
 
-            html_content = html_content.replace("{name}", name)
-            html_content = html_content.replace("{street}", street)
+            # Safely replace values, converting None to empty string
+            html_content = html_content.replace("{name}", name if name else "")
+            html_content = html_content.replace("{street}", street if street else "")
             html_content = html_content.replace("{ordernumber}", order_number)
-            html_content = html_content.replace("{citywzip}", Citywzip)
-            html_content = html_content.replace("{country}", country)
+            html_content = html_content.replace("{citywzip}", Citywzip if Citywzip else "")
+            html_content = html_content.replace("{country}", country if country else "")
             html_content = html_content.replace("{orderdate}", orderdate)
             html_content = html_content.replace("{shipping}", str(shipping))
             html_content = html_content.replace("{fulltotal}", str(fulltotal))
             html_content = html_content.replace("{pimg}", str(image_url))
             html_content = html_content.replace("{pname}", str(product_name))
-            html_content = html_content.replace("{currency}", currency) 
+            html_content = html_content.replace("{currency}", currency if currency else "$") 
             html_content = html_content.replace("{total}", str(Price))
 
 
