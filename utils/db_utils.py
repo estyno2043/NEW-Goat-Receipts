@@ -126,6 +126,26 @@ def execute_query(query, params=None, fetchone=False, fetchall=False):
         # Re-raise the exception to let the caller handle it
         raise
 
+def save_user_email(user_id, email):
+    """Save user email to both database tables for redundancy"""
+    try:
+        # Save to user_emails table
+        query1 = "INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)"
+        execute_query(query1, (str(user_id), email))
+        
+        # Also update licenses table if the user exists there
+        query2 = "SELECT 1 FROM licenses WHERE owner_id = ?"
+        result = execute_query(query2, (str(user_id),), fetchone=True)
+        
+        if result:
+            query3 = "UPDATE licenses SET email = ? WHERE owner_id = ?"
+            execute_query(query3, (email, str(user_id)))
+        
+        return True
+    except Exception as e:
+        print(f"Error saving user email: {str(e)}")
+        return False
+
 def get_user_details(user_id):
     """Get user details from the database for receipt generation
 
