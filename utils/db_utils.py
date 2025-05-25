@@ -180,6 +180,10 @@ def get_user_details(user_id):
                 cred_result['country'],
                 email
             )
+            
+            # Debug output to verify data
+            print(f"User details from user_credentials for {user_id}: {user_data}")
+            
             conn.close()
             return user_data
 

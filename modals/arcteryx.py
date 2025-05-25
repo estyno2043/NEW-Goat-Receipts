@@ -89,15 +89,18 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             try:
-
-
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
+                try:
+                    with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
+                        html_content = file.read()
 
-                with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
-                    html_content = file.read()
-
+                    if not html_content:
+                        raise ValueError("HTML content is empty")
+                except Exception as e:
+                    await interaction.edit_original_response(content=f"Error loading receipt template: {str(e)}")
+                    return
 
                 # Zyte API setup
                 url = link
@@ -143,13 +146,19 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 # Bestellnummer generieren
                 order_number = generate_order_number()
 
+                # Replace placeholders in the HTML template with proper error checking
+                # Make sure all user details are valid strings
+                if name and street and city and zipp and country:
+                    html_content = html_content.replace("{name}", name)
+                    html_content = html_content.replace("{street}", street)
+                    html_content = html_content.replace("{city}", city)
+                    html_content = html_content.replace("{zip}", zipp)
+                    html_content = html_content.replace("{country}", country)
+                else:
+                    print(f"Warning: Some user details are missing for {interaction.user.id}")
+                    # Log the actual values for debugging
+                    print(f"Name: {name}, Street: {street}, City: {city}, Zip: {zipp}, Country: {country}")
 
-
-
-                html_content = html_content.replace("{name}", name)
-                html_content = html_content.replace("{street}", street)
-                html_content = html_content.replace("{city}", city)
-                html_content = html_content.replace("{zip}", zipp)
 
                 html_content = html_content.replace("{pname}", pname)
                 html_content = html_content.replace("{price}", price)
