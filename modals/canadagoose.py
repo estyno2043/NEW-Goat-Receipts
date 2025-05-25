@@ -69,25 +69,27 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
-            link = self.Link.value
-            currency = self.currency.value
-            invoicedate = self.invoicedate.value
-            sizee = self.sizee.value if self.sizee.value else ""
-            
+                link = self.Link.value
+                currency = self.currency.value
+                invoicedate = self.invoicedate.value
+                sizee = self.sizee.value if self.sizee.value else ""
+                
 
-            if not is_canadagoose_link(link):
-                embed = discord.Embed(title="Error - Invalid Canada Goose link", description="Please provide a valid Canada Goose link.")
+                if not is_canadagoose_link(link):
+                    embed = discord.Embed(title="Error - Invalid Canada Goose link", description="Please provide a valid Canada Goose link.")
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+
+
+                
+                embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepcg(owner_id))
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-
-            
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepcg(owner_id))
-
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
