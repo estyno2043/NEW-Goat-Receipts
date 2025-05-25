@@ -103,6 +103,12 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
         owner_id = interaction.user.id 
 
         try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
             await interaction.response.edit_message(embed=embed, view=None)
