@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import random
@@ -55,9 +56,6 @@ class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
     tax = discord.ui.TextInput(label="Tax Costs", placeholder="10.00", required=True)
 
-# Define class alias outside the class
-maisonmargielamodal = maisonmodal
-
     async def on_submit(self, interaction: discord.Interaction):
         global name, street, city, zipp, country, pname, imageurl, price, shipping, tax
         from addons.nextsteps import NextstepMaison
@@ -77,10 +75,6 @@ maisonmargielamodal = maisonmodal
             price = float(self.price.value)
             shipping = float(self.shipping.value)
             tax = float(self.tax.value)
-
-
-
-
             
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
             await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepMaison(owner_id), ephemeral=True)
@@ -90,8 +84,8 @@ maisonmargielamodal = maisonmodal
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-
-
+# Define class alias outside the class
+maisonmargielamodal = maisonmodal
 
 
 class maisonmodal2(ui.Modal, title="Maison Margiela Receipt"):
@@ -100,11 +94,6 @@ class maisonmodal2(ui.Modal, title="Maison Margiela Receipt"):
     size = discord.ui.TextInput(label="Size", placeholder="M", required=True)
     orderdate = discord.ui.TextInput(label="Order Date (DD/MM/YYYY)", placeholder="14/06/2024", required=True)
     deliverydate = discord.ui.TextInput(label="Delivery Date (DD/MM/YYYY)", placeholder="17/04/2024", required=True)
-
-
-
-
-
 
     async def on_submit(self, interaction: discord.Interaction):
         owner_id = interaction.user.id 
@@ -115,8 +104,6 @@ class maisonmodal2(ui.Modal, title="Maison Margiela Receipt"):
             await interaction.response.edit_message(embed=embed, view=None)
 
             
-
-
 
             with open("receipt/maisonmargiela.html", "r", encoding="utf-8") as file:
                 html_content = file.read()
