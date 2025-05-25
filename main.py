@@ -783,7 +783,10 @@ class CredentialsDropdownView(ui.View):
                     label="Random Info", 
                     description="Generate random details",
                     emoji="🌐"
-                \\n{message.content}\\n```", mention_author=False)
+                )
+            ]
+        )
+        \n{message.content}\n```", mention_author=False)
 
     # Handle image attachments in guild-specific image channels
     # Check if the message contains an image
@@ -795,7 +798,7 @@ class CredentialsDropdownView(ui.View):
                 print(f"Attachment URL: {attachment.url}")
 
                 # Reply with the attachment URL
-                await message.reply(f"```\\n{attachment.url}\\n```", mention_author=False)
+                await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
@@ -1601,6 +1604,7 @@ async def menu_command(interaction: discord.Interaction):
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+```python
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
