@@ -164,6 +164,16 @@ async def on_ready():
         print("License checker started")
     except Exception as e:
         print(f"Failed to start license checker: {e}")
+        
+    # Load command cogs
+    try:
+        print("Loading command cogs...")
+        await load_extensions()
+        print("Command cogs loaded successfully")
+    except Exception as e:
+        print(f"Error loading cogs: {e}")
+        import traceback
+        traceback.print_exc()
 
     # Sync commands with Discord
     try:
@@ -1585,6 +1595,18 @@ async def menu_command(interaction: discord.Interaction):
             view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+# Function to load all command extensions/cogs
+async def load_extensions():
+    # Load all cogs from the commands directory
+    for filename in os.listdir('./commands'):
+        if filename.endswith('.py') and not filename.startswith('__'):
+            extension = f'commands.{filename[:-3]}'
+            try:
+                await bot.load_extension(extension)
+                print(f"Loaded extension: {extension}")
+            except Exception as e:
+                print(f"Failed to load extension {extension}: {e}")
 
 # Start the bot
 if __name__ == "__main__":
