@@ -89,6 +89,9 @@ class brokenmodal(ui.Modal, title="discord.gg/goatreceipts"):
 # Set the alias after class definition
 brokenmodal.brokenplanetmodal = brokenmodal
 
+# Also export at module level for external imports
+brokenplanetmodal = brokenmodal
+
 
 
 
