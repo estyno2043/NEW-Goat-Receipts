@@ -1012,8 +1012,24 @@ async def on_message(message):
 
     # Sync commands with Discord
     try:
+        # Load any Cogs/command extensions first
+        for filename in os.listdir('./commands'):
+            if filename.endswith('.py') and not filename.startswith('__'):
+                try:
+                    await bot.load_extension(f'commands.{filename[:-3]}')
+                    print(f"Loaded extension: commands.{filename[:-3]}")
+                except Exception as ext_err:
+                    print(f"Failed to load extension {filename}: {ext_err}")
+        
+        # Sync global commands
         synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
+        print(f"Synced {len(synced)} command(s) globally")
+        
+        # List all registered commands for debugging
+        print("Registered commands:")
+        for cmd in bot.tree.get_commands():
+            print(f"- /{cmd.name}")
+            
     except Exception as e:
         print(f"Failed to sync commands: {e}")
         # Print more detailed error information
