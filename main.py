@@ -510,6 +510,16 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Culture Kings":
                     module_name = "modals.culturekings"
                     modal_class_name = "ckmodal"
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.culturekings import ckmodal
+                        modal_class = ckmodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Culture Kings modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"

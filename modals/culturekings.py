@@ -1,3 +1,4 @@
+
 import asyncio
 from base64 import b64decode
 import json
@@ -55,7 +56,6 @@ def is_ck_link(link):
 class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
     # Create alias for compatibility
-    culturekingsmodal = ckmodal
     Link = discord.ui.TextInput(label="Link", placeholder="https://culturekings.com/...", required=True)
     size = discord.ui.TextInput(label="Size", placeholder="S", required=True)
 
@@ -156,11 +156,8 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.edit_original_response(embed=embed)
 
-# Set the alias after class definition
-ckmodal.culturekingsmodal = ckmodal
-
-# Also export at module level for external imports
+# Make sure the class is defined in the global scope
 culturekingsmodal = ckmodal
 
-# Make sure ckmodal is globally available
+# Make ckmodal globally available in different ways to ensure it can be found
 globals()['ckmodal'] = ckmodal
