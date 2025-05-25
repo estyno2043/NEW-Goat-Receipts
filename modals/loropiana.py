@@ -58,7 +58,6 @@ class loromodal(ui.Modal, title="discord.gg/goatreceipt"):
 # Create alias for compatibility
 loropianamodal = loromodal
 
-
     async def on_submit(self, interaction: discord.Interaction):
         global name, street, city, zipp, country, pname, imageurl, price, currency, color
         from addons.nextsteps import NextstepLoro
