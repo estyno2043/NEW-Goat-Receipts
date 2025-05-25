@@ -1,3 +1,4 @@
+
 import asyncio
 from base64 import b64decode
 import json
@@ -55,10 +56,6 @@ def is_goat_link(link):
 class goat(ui.Modal, title="discord.gg/goatreceipt"):
     
     # Create alias for compatibility
-    goatmodal = goat
-
-# Create a global variable to make the class accessible outside
-goatmodal = goat
     Link = discord.ui.TextInput(label="Link", placeholder="Goat link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     colorr = discord.ui.TextInput(label="Color", placeholder="Black", required=True)
@@ -187,3 +184,6 @@ goatmodal = goat
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Create a global variable to make the class accessible outside
+goatmodal = goat
