@@ -191,4 +191,3 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
 
 # Create a global variable to make the class accessible outside
 goatmodal = goat
-`
