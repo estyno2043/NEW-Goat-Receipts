@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import random
@@ -48,18 +49,14 @@ lg = Colors.light_gray
 
 class loromodal(ui.Modal, title="discord.gg/goatreceipt"):
     """Main modal for Loro Piana receipts"""
-    # Make the class name properly accessible
-    pass
-
-# Create alias for compatibility
-loropianamodal = loromodal
     pname = discord.ui.TextInput(label="Product Name", placeholder="Shoes", required=True)
     imageurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="178.96", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     color = discord.ui.TextInput(label="Color", placeholder="Black", required=True)
 
-
+# Create alias for compatibility
+loropianamodal = loromodal
 
 
     async def on_submit(self, interaction: discord.Interaction):
