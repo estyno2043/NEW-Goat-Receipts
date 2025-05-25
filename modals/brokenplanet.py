@@ -48,8 +48,8 @@ lg = Colors.light_gray
 
 class brokenmodal(ui.Modal, title="discord.gg/goatreceipts"):
     
-    # Create alias for compatibility
-    brokenplanetmodal = brokenmodal
+    # Create alias for compatibility (will be set after class definition)
+    brokenplanetmodal = None
     Price = discord.ui.TextInput(label="Price without currency", placeholder="190.00", required=True)
     shipping = discord.ui.TextInput(label="Shipping Costs", placeholder="10.00", required=True)
     tax = discord.ui.TextInput(label="Tax Costs", placeholder="10.00", required=True)
@@ -85,6 +85,9 @@ class brokenmodal(ui.Modal, title="discord.gg/goatreceipts"):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Set the alias after class definition
+brokenmodal.brokenplanetmodal = brokenmodal
 
 
 
