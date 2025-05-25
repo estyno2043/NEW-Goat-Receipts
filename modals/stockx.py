@@ -398,7 +398,7 @@ class ImageUrlModal(ui.Modal, title="StockX Image URL"):
             try:
                 # First try the standard response
                 if not interaction.response.is_done():
-                    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
                     return
 
                 # If we already responded, use followup
