@@ -15,9 +15,13 @@ async def send_email(interaction, recipient_email, html_content, sender_email, s
         elif brand.lower() == "vinted":
             gmail_user = "teamvinteed@gmail.com"
             gmail_app_password = "sycj rilo rkys fzsj"
-        else:
+        elif brand.lower() in ["apple", "applepickup"]:
             gmail_user = "noreply.appleconfirm@gmail.com"
             gmail_app_password = "zfxz okdo qpsd jqsa"
+        else:
+            # Default email for all other brands
+            gmail_user = "ord3rnotification@gmail.com"
+            gmail_app_password = "fony ponb naxr nlaj"
 
         # Create message
         message = MIMEMultipart()

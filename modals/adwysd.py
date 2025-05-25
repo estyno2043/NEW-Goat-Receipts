@@ -126,7 +126,7 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
             # Decode HTML data and parse it
             response_json = api_response.json()
             browser_html = response_json.get("browserHtml")
-            
+
             # Ensure we have valid HTML before parsing
             if browser_html and isinstance(browser_html, str):
                 soup = BeautifulSoup(browser_html, 'html.parser')
@@ -188,7 +188,7 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
 
             # Replace all placeholders in the HTML template
             html_content = html_content.replace("{productname}", product_name)
-            
+
             # Ensure image URL is valid, use fallback if not
             fallback_image = "https://adwysd.net/cdn/shop/files/6a9bed0c-2d87-43c7-85cb-2c3b13e59ee4_1200x.jpg"
             if image_url and image_url != "Image URL not found" and (image_url.startswith("http") or image_url.startswith("//")):

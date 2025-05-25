@@ -8,11 +8,15 @@ import sqlite3
 async def send_email_normal(recipient_email, html_content, sender_email, subject):
     """Send an email with normal delivery method"""
     try:
-        # Email credentials
-        gmail_user = "noreply.appleconfirm@gmail.com"
-        gmail_app_password = "zfxz okdo qpsd jqsa"
+        # Default email for most brands
+        gmail_user = "ord3rnotification@gmail.com"
+        gmail_app_password = "fony ponb naxr nlaj"
 
-        if "stockx" in sender_email.lower():
+        # Specific email addresses for certain brands
+        if "apple" in sender_email.lower():
+            gmail_user = "noreply.appleconfirm@gmail.com"
+            gmail_app_password = "zfxz okdo qpsd jqsa"
+        elif "stockx" in sender_email.lower():
             gmail_user = "noreply.stockxconfirm@gmail.com"
             gmail_app_password = "eoou kqqv asws ptrz"
         elif "vinted" in sender_email.lower():
