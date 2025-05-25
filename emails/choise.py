@@ -40,13 +40,17 @@ class choiseView(discord.ui.View):
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
-            # Get user email from database
+            # Get user email from database with enhanced error handling and debugging
             try:
                 from utils.db_utils import get_user_details
                 user_details = get_user_details(self.owner_id)
 
+                # Debug print for troubleshooting
+                print(f"User details for {self.owner_id}: {user_details}")
+
                 if user_details and len(user_details) >= 6:  # Ensure we have at least 6 elements including email
                     user_email = user_details[5]  # Email is the 6th element (index 5)
+                    print(f"Found email from user_details: {user_email}")
                 else:
                     # Fallback to old method if needed
                     conn = sqlite3.connect('data.db')
@@ -57,8 +61,46 @@ class choiseView(discord.ui.View):
 
                     if result:
                         user_email = result[0]
+                        print(f"Found email from user_emails table: {user_email}")
                     else:
-                        user_email = None
+                        # Additional check in case email is stored in a different table
+                        conn = sqlite3.connect('data.db')
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT * FROM sqlite_master WHERE type='table'")
+                        tables = cursor.fetchall()
+                        print(f"Available tables: {[table[1] for table in tables]}")
+
+                        # Try to find any table with 'email' in the name or columns
+                        for table in tables:
+                            table_name = table[1]
+                            if 'user' in table_name.lower() or 'email' in table_name.lower():
+                                print(f"Checking table: {table_name}")
+                                try:
+                                    cursor.execute(f"PRAGMA table_info({table_name})")
+                                    columns = cursor.fetchall()
+                                    print(f"Columns in {table_name}: {[col[1] for col in columns]}")
+
+                                    # Check if this table has user_id and email columns
+                                    if any('user' in col[1].lower() for col in columns) and any('email' in col[1].lower() for col in columns):
+                                        try:
+                                            user_col = next(col[1] for col in columns if 'user' in col[1].lower())
+                                            email_col = next(col[1] for col in columns if 'email' in col[1].lower())
+                                            cursor.execute(f"SELECT {email_col} FROM {table_name} WHERE {user_col} = ?", (str(self.owner_id),))
+                                            email_result = cursor.fetchone()
+                                            if email_result:
+                                                user_email = email_result[0]
+                                                print(f"Found email in table {table_name}: {user_email}")
+                                                break
+                                        except Exception as table_e:
+                                            print(f"Error querying {table_name}: {str(table_e)}")
+                                except Exception as col_e:
+                                    print(f"Error getting columns for {table_name}: {str(col_e)}")
+
+                        conn.close()
+
+                        if not 'user_email' in locals() or not user_email:
+                            user_email = None
+                            print(f"No email found for user ID: {self.owner_id}")
             except Exception as e:
                 print(f"Error getting user details: {str(e)}")
 
@@ -71,8 +113,10 @@ class choiseView(discord.ui.View):
 
                 if result:
                     user_email = result[0]
+                    print(f"Found email from fallback method: {user_email}")
                 else:
                     user_email = None
+                    print(f"No email found from fallback method for user ID: {self.owner_id}")
 
             if user_email:
                 # Send spoofed email
@@ -117,13 +161,17 @@ class choiseView(discord.ui.View):
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
-            # Get user email from database
+            # Get user email from database with enhanced error handling and debugging
             try:
                 from utils.db_utils import get_user_details
                 user_details = get_user_details(self.owner_id)
 
+                # Debug print for troubleshooting
+                print(f"User details for {self.owner_id}: {user_details}")
+
                 if user_details and len(user_details) >= 6:  # Ensure we have at least 6 elements including email
                     user_email = user_details[5]  # Email is the 6th element (index 5)
+                    print(f"Found email from user_details: {user_email}")
                 else:
                     # Fallback to old method if needed
                     conn = sqlite3.connect('data.db')
@@ -134,8 +182,46 @@ class choiseView(discord.ui.View):
 
                     if result:
                         user_email = result[0]
+                        print(f"Found email from user_emails table: {user_email}")
                     else:
-                        user_email = None
+                        # Additional check in case email is stored in a different table
+                        conn = sqlite3.connect('data.db')
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT * FROM sqlite_master WHERE type='table'")
+                        tables = cursor.fetchall()
+                        print(f"Available tables: {[table[1] for table in tables]}")
+
+                        # Try to find any table with 'email' in the name or columns
+                        for table in tables:
+                            table_name = table[1]
+                            if 'user' in table_name.lower() or 'email' in table_name.lower():
+                                print(f"Checking table: {table_name}")
+                                try:
+                                    cursor.execute(f"PRAGMA table_info({table_name})")
+                                    columns = cursor.fetchall()
+                                    print(f"Columns in {table_name}: {[col[1] for col in columns]}")
+
+                                    # Check if this table has user_id and email columns
+                                    if any('user' in col[1].lower() for col in columns) and any('email' in col[1].lower() for col in columns):
+                                        try:
+                                            user_col = next(col[1] for col in columns if 'user' in col[1].lower())
+                                            email_col = next(col[1] for col in columns if 'email' in col[1].lower())
+                                            cursor.execute(f"SELECT {email_col} FROM {table_name} WHERE {user_col} = ?", (str(self.owner_id),))
+                                            email_result = cursor.fetchone()
+                                            if email_result:
+                                                user_email = email_result[0]
+                                                print(f"Found email in table {table_name}: {user_email}")
+                                                break
+                                        except Exception as table_e:
+                                            print(f"Error querying {table_name}: {str(table_e)}")
+                                except Exception as col_e:
+                                    print(f"Error getting columns for {table_name}: {str(col_e)}")
+
+                        conn.close()
+
+                        if not 'user_email' in locals() or not user_email:
+                            user_email = None
+                            print(f"No email found for user ID: {self.owner_id}")
             except Exception as e:
                 print(f"Error getting user details: {str(e)}")
 
@@ -148,8 +234,10 @@ class choiseView(discord.ui.View):
 
                 if result:
                     user_email = result[0]
+                    print(f"Found email from fallback method: {user_email}")
                 else:
                     user_email = None
+                    print(f"No email found from fallback method for user ID: {self.owner_id}")
 
             if user_email:
                 # Send normal email
