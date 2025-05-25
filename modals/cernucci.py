@@ -59,31 +59,34 @@ class cernuccimodal(ui.Modal, title="discord.gg/goatreceipts"):
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
-            Link = self.Link.value
-            Price = self.Price.value
-            currency = self.currency.value
-            purchasedate = self.purchasedate.value
-            size = self.size.value
+                Link = self.Link.value
+                Price = self.Price.value
+                currency = self.currency.value
+                purchasedate = self.purchasedate.value
+                size = self.size.value
 
-            if not is_cernucci_link(Link):
-                embed = discord.Embed(title="Error - Invalid Cernucci link", description="Please provide a valid Cernucci link.")
+                if not is_cernucci_link(Link):
+                    embed = discord.Embed(title="Error - Invalid Cernucci link", description="Please provide a valid Cernucci link.")
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+
+                # Store data in global variables for next step
+                global link, price, curr, purchase_date, size_value
+                link = Link
+                price = Price
+                curr = currency
+                purchase_date = purchasedate
+                size_value = size
+
+                from addons.nextsteps import NextstepCernucci
+                embed = discord.Embed(title="Next Page", description="Click 'Next Page' to continue to the next set of inputs.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepCernucci(owner_id), ephemeral=False)
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-            # Store data in global variables for next step
-            global link, price, curr, purchase_date, size_value
-            link = Link
-            price = Price
-            curr = currency
-            purchase_date = purchasedate
-            size_value = size
-
-            from addons.nextsteps import NextstepCernucci
-            embed = discord.Embed(title="Next Page", description="Click 'Next Page' to continue to the next set of inputs.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepCernucci(owner_id), ephemeral=False)
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class cernuccimodal2(ui.Modal, title="Cernucci Receipt"):
