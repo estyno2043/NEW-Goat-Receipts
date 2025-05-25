@@ -56,8 +56,7 @@ def is_sephora_link(link):
 
 class sephoranmodal(ui.Modal, title="discord.gg/goatreceipt"):
     
-    # Create alias for compatibility
-    sephoramodal = sephoranmodal
+    # Define the inputs first
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=1)
     delivery = discord.ui.TextInput(label="Order Date", placeholder="Ex. 24/04/2024", required=True)
@@ -88,6 +87,9 @@ class sephoranmodal(ui.Modal, title="discord.gg/goatreceipt"):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Create alias for compatibility after class is fully defined
+sephoramodal = sephoranmodal
 
 
 
