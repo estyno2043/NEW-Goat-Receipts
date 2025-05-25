@@ -493,8 +493,16 @@ class BrandSelectDropdown(ui.Select):
                 
                 # Handle special cases for brands with spaces in their names
                 if brand == "House of Frasers":
-                    module_name = "modals.houseoffrasers"
-                    modal_class_name = "houseoffrasermodal"
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.houseoffrasers import houseoffrasermodal
+                        modal_class = houseoffrasermodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading House of Frasers modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Louis Vuitton":
                     module_name = "modals.lv"
                     modal_class_name = "lvmodal"
