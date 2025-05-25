@@ -791,7 +791,7 @@ class CredentialsDropdownView(ui.View):
 
         elif selected == "Random Info":
             # Generate random info
-            name, street, city, zip_code, country = generate_random\n{attachment.url}\n```", mention_author=False)
+            name, street, city, zip_code, country = generate_random_details()
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
