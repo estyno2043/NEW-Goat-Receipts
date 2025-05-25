@@ -72,147 +72,114 @@ class burberrymodal(ui.Modal, title="discord.gg/goatreceipts"):
             
             if user_details:
                 name, street, city, zipp, country, email = user_details
+                
+                Link = self.Link.value
+                Price = self.Price.value
+                currency = str(self.currency.value)
+                sizee = self.sizee.value
+                sku = self.sku.value
 
-            Link = self.Link.value
-            Price = self.Price.value
-            currency = str(self.currency.value)
-            sizee = self.sizee.value
-            sku = self.sku.value
+                if not is_burberry_link(Link):
+                    embed = discord.Embed(title="Error - Invalid burberry link", description="Please provide a valid burberry link.")
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
 
+                try:
+                    embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                    await interaction.response.send_message(embed=embed, ephemeral=False) # Send initial message
 
+                    with open("receipt/burberry.html", "r", encoding="utf-8") as file:
+                        html_content = file.read()
 
+                    url = Link
 
+                    response = requests.get(
+                        url=url,
+                        proxies={
+                            "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                            "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                        },
+                        verify=False  # Disable SSL verification
+                    )
 
-            if not is_burberry_link(Link):
-                embed = discord.Embed(title="Error - Invalid burberry link", description="Please provide a valid burberry link.")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+                    if response.status_code == 200:
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                        print()
+                        print(f"[{Colors.green}START Scraping{lg}] burberry-> {interaction.user.id} ({interaction.user})" + lg)
 
-
-            try:
-
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(embed=embed, ephemeral=False) # Send initial message
-
-
-
-
-
-                with open("receipt/burberry.html", "r", encoding="utf-8") as file:
-                    html_content = file.read()
-
-
-                url = Link
-
-                response = requests.get(
-                    url=url,
-                    proxies={
-                        "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                        "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                    },
-                    verify=False  # Disable SSL verification
-                )
-
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    print()
-                    print(f"[{Colors.green}START Scraping{lg}] burberry-> {interaction.user.id} ({interaction.user})" + lg)
-
-
-
-                    # Initialize variables with default values
-                    productname = "Burberry Product"
-                    color = "Not specified"
-                    image_url = "https://us.burberry.com/images/burberry-logo.png"
-                    
-                    # Try to find product name
-                    product_elem = soup.find('h1', {'class': 'product-info-panel__title css-183zbdt e19cbv3t0'})
-                    if product_elem:
-                        productname = product_elem.text.strip()
-                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {productname}" + lg)
-                    else:
-                        print(f"    [{Colors.red}Warning{lg}] Product name element not found, using default" + lg)
-
-                    # Try to find color
-                    color2 = soup.find('div', {'class': 'product-swatches-panel__description'})
-                    if color2:
-                        color_elem = color2.find('span', {'class': 'css-1t42rsd e19cbv3t0'})
-                        if color_elem:
-                            color = color_elem.text.strip()
-                            print(f"    [{Colors.cyan}Scraping{lg}] Color: {color}" + lg)
+                        # Initialize variables with default values
+                        productname = "Burberry Product"
+                        color = "Not specified"
+                        image_url = "https://us.burberry.com/images/burberry-logo.png"
+                        
+                        # Try to find product name
+                        product_elem = soup.find('h1', {'class': 'product-info-panel__title css-183zbdt e19cbv3t0'})
+                        if product_elem:
+                            productname = product_elem.text.strip()
+                            print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {productname}" + lg)
                         else:
-                            print(f"    [{Colors.red}Warning{lg}] Color element not found, using default" + lg)
-                    
-                    # Try to find image URL
-                    image_meta = soup.find('meta', {'property': 'og:image'})
-                    if image_meta and 'content' in image_meta.attrs:
-                        image_url = image_meta['content']
-                        print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
-                    else:
-                        print(f"    [{Colors.red}Warning{lg}] Image URL not found, using default" + lg)
+                            print(f"    [{Colors.red}Warning{lg}] Product name element not found, using default" + lg)
 
+                        # Try to find color
+                        color2 = soup.find('div', {'class': 'product-swatches-panel__description'})
+                        if color2:
+                            color_elem = color2.find('span', {'class': 'css-1t42rsd e19cbv3t0'})
+                            if color_elem:
+                                color = color_elem.text.strip()
+                                print(f"    [{Colors.cyan}Scraping{lg}] Color: {color}" + lg)
+                            else:
+                                print(f"    [{Colors.red}Warning{lg}] Color element not found, using default" + lg)
+                        
+                        # Try to find image URL
+                        image_meta = soup.find('meta', {'property': 'og:image'})
+                        if image_meta and 'content' in image_meta.attrs:
+                            image_url = image_meta['content']
+                            print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
+                        else:
+                            print(f"    [{Colors.red}Warning{lg}] Image URL not found, using default" + lg)
 
-                    print(f"[{Colors.green}Scraping DONE{lg}] burberry -> {interaction.user.id}" + lg)
-                    print()
+                        print(f"[{Colors.green}Scraping DONE{lg}] burberry -> {interaction.user.id}" + lg)
+                        print()
 
+                    def generate_order_number():
+                        return str(random.randint(10000000, 99999999))  # Generiert eine Zahl zwischen 10000000 und 99999999
 
+                    # Bestellnummer generieren
+                    order_number = generate_order_number()
 
+                    html_content = html_content.replace("{name}", name)
+                    html_content = html_content.replace("{street}", street)
+                    html_content = html_content.replace("{city}", city)
+                    html_content = html_content.replace("{zip}", zipp)
+                    html_content = html_content.replace("{country}", country)
 
+                    html_content = html_content.replace("{ordernumber}", order_number)
+                    html_content = html_content.replace("{pname}", productname)
+                    html_content = html_content.replace("{imageurl}", image_url)
+                    html_content = html_content.replace("{color}", color)
+                    html_content = html_content.replace("{articalnum}", sku)
+                    html_content = html_content.replace("{price}", Price)
+                    html_content = html_content.replace("{currency}", currency)
+                    html_content = html_content.replace("{size}", sizee)
 
+                    with open("receipt/updatedrecipies/updateburberry.html", "w", encoding="utf-8") as file:
+                        file.write(html_content)
 
-                def generate_order_number():
-                    return str(random.randint(10000000, 99999999))  # Generiert eine Zahl zwischen 10000000 und 99999999
+                    sender_email = "customerservice <noreply@orders.mail.burberry.com>"
+                    subject = f"Thank you for your order"
+                    from emails.choise import choiseView
 
-                # Bestellnummer generieren
-                order_number = generate_order_number()
+                    embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                    view = choiseView(owner_id, html_content, sender_email, subject, productname, image_url, Link)
+                    await interaction.edit_original_response(embed=embed, view=view) # Edit the original response
 
-
-
-
-                html_content = html_content.replace("{name}", name)
-                html_content = html_content.replace("{street}", street)
-                html_content = html_content.replace("{city}", city)
-                html_content = html_content.replace("{zip}", zipp)
-                html_content = html_content.replace("{country}", country)
-
-                html_content = html_content.replace("{ordernumber}", order_number)
-                html_content = html_content.replace("{pname}", productname)
-                html_content = html_content.replace("{imageurl}", image_url)
-                html_content = html_content.replace("{color}", color)
-                html_content = html_content.replace("{articalnum}", sku)
-                html_content = html_content.replace("{price}", Price)
-                html_content = html_content.replace("{currency}", currency)
-                html_content = html_content.replace("{size}", sizee)
-
-
-
-
-
-
-                with open("receipt/updatedrecipies/updateburberry.html", "w", encoding="utf-8") as file:
-                    file.write(html_content)
-
-
-
-                sender_email = "customerservice <noreply@orders.mail.burberry.com>"
-                subject = f"Thank you for your order"
-                from emails.choise import choiseView
-
-
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-                view = choiseView(owner_id, html_content, sender_email, subject, productname, image_url, Link)
-                await interaction.edit_original_response(embed=embed, view=view) # Edit the original response
-
-            except Exception as e:
-                embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-                await interaction.edit_original_response(embed=embed) # Edit the original response
-
-
-
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                except Exception as e:
+                    embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
+                    await interaction.edit_original_response(embed=embed) # Edit the original response
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-    except Exception as e:
-        embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
