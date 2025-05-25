@@ -29,7 +29,7 @@ lg = Colors.light_gray
 class AmazonUKModal(ui.Modal, title="Amazon UK Order Generator"):
     
     # Create alias for compatibility
-    amazonukmodal = AmazonUKModal
+    amazonukmodal = None  # Will be set after class definition
     def __init__(self):
         super().__init__(timeout=None)
         
@@ -199,3 +199,6 @@ class AmazonUKSecondModal(ui.Modal, title='Amazon UK Order - Part 2'):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.followup.send(embed=embed)
+
+# Set the alias after class definition
+amazonukmodal = AmazonUKModal
