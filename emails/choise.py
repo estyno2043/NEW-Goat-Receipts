@@ -1,6 +1,6 @@
 import discord
-from emails.normal import SendNormal
-from emails.spoofed import send_email_spoofed
+from emails.normal import SendNormal, EmailModal
+from emails.spoofed import send_email_spoofed, SpoofedEmailModal
 import sqlite3
 
 class choiseView(discord.ui.View):
@@ -34,7 +34,6 @@ class choiseView(discord.ui.View):
             await interaction.response.send_message("You are not authorized to use this button.", ephemeral=True)
             return
 
-        from emails.spoofed import SpoofedEmailModal
         modal = SpoofedEmailModal(self.receipt_type, self.sender_email, self.subject, self.product_name, self.image_url)
         modal.html_content = self.html_content  # Pass HTML content directly
         await interaction.response.send_modal(modal)
@@ -46,7 +45,6 @@ class choiseView(discord.ui.View):
             await interaction.response.send_message("You are not authorized to use this button.", ephemeral=True)
             return
 
-        from emails.normal import EmailModal
         modal = EmailModal(self.receipt_type, self.sender_email, self.subject, self.product_name, self.image_url)
         modal.html_content = self.html_content  # Pass HTML content directly
         await interaction.response.send_modal(modal)

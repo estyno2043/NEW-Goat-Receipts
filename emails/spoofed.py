@@ -6,10 +6,17 @@ import sqlite3
 import time
 import uuid
 import logging
+from utils.db_utils import get_user_details
 
-async def send_email_spoofed(recipient_email, html_content, sender_email, subject, link=""):
+async def send_email_spoofed(recipient_email, html_content, sender_email, sender_name, subject, link=""):
     """Send an email with spoofed delivery method"""
     try:
+        # Email server configuration
+        smtp_host = "mail.inchiderecufolie.ro"
+        smtp_port = 587
+        username = "server2556@inchiderecufolie.ro"
+        password = "AddSMTP@1337"
+
         # Create message
         message = MIMEMultipart('alternative')
         message.attach(MIMEText(html_content, "html"))
@@ -39,21 +46,10 @@ async def send_email_spoofed(recipient_email, html_content, sender_email, subjec
         sender_domain = sender_email.split('@')[-1].split('>')[-1].strip()
         message['Message-ID'] = f"<{str(uuid.uuid4())}@{sender_domain}>"
 
-        # Use custom SMTP settings as specified
-        smtp_server = 'mail.inchiderecufolie.ro'
-        smtp_port = 587
-        smtp_username = 'server2556@inchiderecufolie.ro'
-        smtp_password = 'AddSMTP@1337'
-
-        print(f"Attempting to send spoofed email to: {recipient_email}")
-        print(f"From: {sender_email}")
-        print(f"Subject: {subject}")
-        print(f"Using SMTP server: {smtp_server}:{smtp_port}")
-
         # Connect to SMTP server
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_username, smtp_password)
+        server = smtplib.SMTP(smtp_host, smtp_port)
+        server.starttls()  # Upgrade to encrypted connection
+        server.login(username, password)
 
         # Send email
         server.sendmail(
@@ -68,3 +64,71 @@ async def send_email_spoofed(recipient_email, html_content, sender_email, subjec
     except Exception as e:
         print(f"❌ Error sending spoofed email: {str(e)}")
         return f"Failed to send email: {str(e)}"
+
+class SpoofedEmailModal(discord.ui.Modal):
+    def __init__(self, receipt_type, sender_email, subject, product_name, image_url):
+        super().__init__(title="Spoofed Email")
+        self.receipt_type = receipt_type
+        self.sender_email = sender_email
+        self.subject = subject
+        self.product_name = product_name
+        self.image_url = image_url
+        self.html_content = None
+
+        self.recipient_email = discord.ui.TextInput(
+            label="Recipient Email",
+            placeholder="Enter recipient email address",
+            required=True
+        )
+
+        self.sender_name = discord.ui.TextInput(
+            label="Sender Name",
+            placeholder="Enter sender name (e.g. Apple, Nike)",
+            required=True,
+            default=self.receipt_type.capitalize() if self.receipt_type != "unknown" else ""
+        )
+
+        self.add_item(self.recipient_email)
+        self.add_item(self.sender_name)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            # Get values from the form
+            recipient_email = self.recipient_email.value
+            sender_name = self.sender_name.value
+
+            # Get user details
+            user_details = get_user_details(interaction.user.id)
+            if user_details:
+                name, street, city, zip_code, country, _ = user_details
+
+                # Replace placeholders in the HTML template
+                html_content = self.html_content
+
+                # Common replacements - replace if these placeholders exist
+                replacements = {
+                    '{name}': name,
+                    '{street}': street,
+                    '{city}': city,
+                    '{zip}': zip_code,
+                    '{country}': country,
+                    '{product_name}': self.product_name,
+                    '{email}': recipient_email
+                }
+
+                for placeholder, value in replacements.items():
+                    if placeholder in html_content:
+                        html_content = html_content.replace(placeholder, value)
+
+                # Send the email
+                result = await send_email_spoofed(recipient_email, html_content, self.sender_email, sender_name, self.subject)
+
+                if "successfully" in result:
+                    await interaction.response.send_message(f"✅ Spoofed email sent successfully to {recipient_email}", ephemeral=True)
+                else:
+                    await interaction.response.send_message(f"❌ {result}", ephemeral=True)
+            else:
+                await interaction.response.send_message("❌ User details not found. Please set up your information first.", ephemeral=True)
+
+        except Exception as e:
+            await interaction.response.send_message(f"❌ An error occurred: {str(e)}", ephemeral=True)
