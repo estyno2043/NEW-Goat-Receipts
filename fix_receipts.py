@@ -43,8 +43,25 @@ def fix_all_receipts():
             with open(filepath, 'r', encoding='utf-8') as file:
                 content = file.read()
             
-            # Fix the content
+            # First apply the function to replace template variables
             fixed_content = replace_user_details(content, test_user_details)
+            
+            # Directly replace any remaining hardcoded values that might be missed
+            # These are common hardcoded values found in receipt templates
+            hardcoded_replacements = {
+                "John Brown": test_user_details[0],
+                "Theodore Jones": test_user_details[0],
+                "651 Cedar Lane": test_user_details[1],
+                "Los Angeles": test_user_details[2],
+                "78201": test_user_details[3],
+                "United Kingdom": test_user_details[4],
+                "874 Beard Garden Suite 760": test_user_details[1],
+                "Brandonfort, CO 89234": test_user_details[1],
+                "Theodore.Jones@gmail.com": test_user_details[5]
+            }
+            
+            for old_val, new_val in hardcoded_replacements.items():
+                fixed_content = fixed_content.replace(old_val, new_val)
             
             # Write back to the file
             with open(filepath, 'w', encoding='utf-8') as file:

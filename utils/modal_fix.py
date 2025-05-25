@@ -27,6 +27,55 @@ def fix_receipt_html(html_content, user_details, replacements=None):
     
     return html_content
 
+def standardize_modal_user_detail_handling(modal_class):
+    """
+    Patch a modal class to ensure it correctly handles user details.
+    This function can be applied to any modal class to standardize
+    the way it handles user details replacement.
+    
+    Args:
+        modal_class: The modal class to patch
+        
+    Returns:
+        The patched modal class
+    """
+    original_on_submit = modal_class.on_submit
+    
+    async def patched_on_submit(self, interaction):
+        # First, let the original method run
+        result = await original_on_submit(self, interaction)
+        
+        # Then, ensure any generated HTML has proper user details
+        try:
+            # Check if the HTML file was generated
+            updated_receipt_path = f"receipt/updatedrecipies/updated{modal_class.__name__.lower()}.html"
+            if os.path.exists(updated_receipt_path):
+                # Get user details
+                owner_id = interaction.user.id
+                user_details = get_user_details(owner_id)
+                
+                if user_details:
+                    # Read the generated HTML
+                    with open(updated_receipt_path, 'r', encoding='utf-8') as file:
+                        content = file.read()
+                    
+                    # Fix user details
+                    fixed_content = replace_user_details(content, user_details)
+                    
+                    # Write back
+                    with open(updated_receipt_path, 'w', encoding='utf-8') as file:
+                        file.write(fixed_content)
+                    
+                    print(f"Automatically fixed user details in {updated_receipt_path}")
+        except Exception as e:
+            print(f"Error auto-fixing user details: {e}")
+        
+        return result
+    
+    # Replace the original method
+    modal_class.on_submit = patched_on_submit
+    return modal_class
+
 def process_html_template(template_path, output_path, user_details, replacements=None):
     """
     Process an HTML template by replacing user details and other placeholders,

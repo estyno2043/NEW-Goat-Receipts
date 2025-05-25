@@ -29,6 +29,23 @@ def process_receipt_content(html_content, user_details, replacements=None):
         for key, value in replacements.items():
             html_content = html_content.replace(key, str(value))
     
+    # Make a final pass to ensure no hardcoded values remain
+    if user_details and len(user_details) >= 6:
+        name, street, city, zip_code, country, email = user_details
+        
+        # Common hardcoded values that might be missed
+        hardcoded_replacements = {
+            "John Brown": name,
+            "Theodore Jones": name,
+            "651 Cedar Lane": street,
+            "Los Angeles": city,
+            "78201": zip_code,
+            "United Kingdom": country
+        }
+        
+        for old_val, new_val in hardcoded_replacements.items():
+            html_content = html_content.replace(old_val, new_val)
+    
     return html_content
 
 def save_receipt(html_content, user_details, output_path, replacements=None):
