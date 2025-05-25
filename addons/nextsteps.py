@@ -49,7 +49,7 @@ class NextstepStockX(discord.ui.View):
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("You cannot use this button.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return False
         return True
 

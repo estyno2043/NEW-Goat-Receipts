@@ -256,7 +256,7 @@ class PaginatedDropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
+            await interaction.response.send_message(content="This is not your panel", ephemeral=True)
             return
 
         selected_brand = self.values[0]
@@ -281,7 +281,7 @@ class DropdownView(discord.ui.View):
         self.last_interaction = datetime.now()
         # Only allow the owner to use this view
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return False
         return True
 
@@ -329,7 +329,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary, disabled=True, row=1)
     async def previous_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
         try:
@@ -375,7 +375,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Next Brands", style=discord.ButtonStyle.primary, row=1)
     async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
         try:
@@ -431,7 +431,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Close", style=discord.ButtonStyle.danger, row=1)
     async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
         try:
@@ -607,7 +607,7 @@ class RegionSelectionView(discord.ui.View):
         self.last_interaction = datetime.now()
         # Only allow the owner to use this view
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return False
         return True
 
@@ -677,7 +677,7 @@ class RegionSelectionView(discord.ui.View):
     @discord.ui.button(label="Settings", style=discord.ButtonStyle.secondary, row=1)
     async def settings(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
         cursor.execute("SELECT key, expiry, emailtf, credentialstf FROM licenses WHERE owner_id = ?", (str(interaction.user.id),))
