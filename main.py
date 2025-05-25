@@ -520,6 +520,19 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Culture Kings modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Dyson":
+                    module_name = "modals.dyson"
+                    modal_class_name = "dysonmodal"
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.dyson import dysonmodal
+                        modal_class = dysonmodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Dyson modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
