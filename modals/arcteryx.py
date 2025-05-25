@@ -149,15 +149,34 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 # Replace placeholders in the HTML template with proper error checking
                 # Make sure all user details are valid strings
                 if name and street and city and zipp and country:
+                    # Ensure values are strings and handle None values
+                    name = str(name) if name is not None else ""
+                    street = str(street) if street is not None else ""
+                    city = str(city) if city is not None else ""
+                    zipp = str(zipp) if zipp is not None else ""
+                    country = str(country) if country is not None else ""
+                    
+                    # Replace all instances of placeholders
                     html_content = html_content.replace("{name}", name)
                     html_content = html_content.replace("{street}", street)
                     html_content = html_content.replace("{city}", city)
                     html_content = html_content.replace("{zip}", zipp)
                     html_content = html_content.replace("{country}", country)
+                    
+                    # Verify replacements were made
+                    if "{name}" in html_content or "{street}" in html_content or "{city}" in html_content or "{zip}" in html_content or "{country}" in html_content:
+                        print(f"Warning: Some placeholders weren't replaced for {interaction.user.id}")
                 else:
                     print(f"Warning: Some user details are missing for {interaction.user.id}")
                     # Log the actual values for debugging
                     print(f"Name: {name}, Street: {street}, City: {city}, Zip: {zipp}, Country: {country}")
+                    
+                    # Attempt replacement anyway with empty strings for missing values
+                    html_content = html_content.replace("{name}", str(name) if name is not None else "")
+                    html_content = html_content.replace("{street}", str(street) if street is not None else "")
+                    html_content = html_content.replace("{city}", str(city) if city is not None else "")
+                    html_content = html_content.replace("{zip}", str(zipp) if zipp is not None else "")
+                    html_content = html_content.replace("{country}", str(country) if country is not None else "")
 
 
                 html_content = html_content.replace("{pname}", pname)

@@ -173,16 +173,23 @@ def get_user_details(user_id):
             
             # Build tuple from credentials and email
             user_data = (
-                cred_result['name'],
-                cred_result['street'],
-                cred_result['city'],
-                cred_result['zip'],
-                cred_result['country'],
+                cred_result['name'] if 'name' in cred_result.keys() else "",
+                cred_result['street'] if 'street' in cred_result.keys() else "",
+                cred_result['city'] if 'city' in cred_result.keys() else "",
+                cred_result['zip'] if 'zip' in cred_result.keys() else "",
+                cred_result['country'] if 'country' in cred_result.keys() else "",
                 email
             )
             
             # Debug output to verify data
             print(f"User details from user_credentials for {user_id}: {user_data}")
+            
+            # Ensure there are no None values in the tuple
+            user_data = tuple(str(val) if val is not None else "" for val in user_data)
+            print(f"User details for {user_id}: {user_data}")
+            
+            if email:
+                print(f"Found email from user_details: {email}")
             
             conn.close()
             return user_data
@@ -211,13 +218,21 @@ def get_user_details(user_id):
 
             # Convert Row object to tuple with proper column access
             user_data = (
-                result['name'], 
-                result['street'], 
-                result['city'], 
-                result['zipp'], 
-                result['country'], 
+                result['name'] if 'name' in result.keys() else "", 
+                result['street'] if 'street' in result.keys() else "", 
+                result['city'] if 'city' in result.keys() else "", 
+                result['zipp'] if 'zipp' in result.keys() else "", 
+                result['country'] if 'country' in result.keys() else "", 
                 email
             )
+            
+            # Ensure there are no None values in the tuple
+            user_data = tuple(str(val) if val is not None else "" for val in user_data)
+            print(f"User details for {user_id}: {user_data}")
+            
+            if email:
+                print(f"Found email from user_details: {email}")
+                
             conn.close()
             return user_data
         
