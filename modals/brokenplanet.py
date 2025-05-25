@@ -46,7 +46,7 @@ lg = Colors.light_gray
 
 
 
-class brokenmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class brokenmodal(ui.Modal, title="discord.gg/goatreceipts"):
     
 # Create alias for compatibility
 brokenplanetmodal = brokenmodal
@@ -106,7 +106,7 @@ class brokenmodal2(ui.Modal, title="Brokenplanet Receipt"):
         try:
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
 

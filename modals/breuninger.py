@@ -53,7 +53,7 @@ def is_breuninger_link(link):
     return bool(breuninger_pattern.match(link))
 
 
-class breuningermodal(ui.Modal, title="discord.gg/goatreceipt"):
+class breuningermodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="breuninger.com link", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790,00", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)

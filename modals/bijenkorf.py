@@ -24,7 +24,7 @@ def is_bijenkorf_link(link):
     bijenkorf_pattern = re.compile(r'^https?://(www\.)?(debijenkorf\.(nl|be))(/.+)?')
     return bool(bijenkorf_pattern.match(link))
 
-class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
     productname = discord.ui.TextInput(label="Product Name", placeholder="Filippa K", required=True)
     imageurl = discord.ui.TextInput(label="Product Image URL", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     productcategory = discord.ui.TextInput(label="Product Category", placeholder="Filippa K", required=True)
@@ -58,7 +58,7 @@ class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipt"):
             print()
 
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=Nextstepbijenkorf(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=Nextstepbijenkorf(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

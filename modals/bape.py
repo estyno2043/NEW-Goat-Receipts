@@ -32,7 +32,7 @@ def is_bape_link(link):
     return bool(bape_pattern.match(link))
 
 
-class bapemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class bapemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="eu.bape.com link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="790", required=True)
     delivery = discord.ui.TextInput(label="Shipping Costs without currency", placeholder="7.99", required=True)
