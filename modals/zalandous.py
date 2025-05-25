@@ -55,9 +55,10 @@ def is_zalando_link(link):
 
 
 class zalandomodal(ui.Modal, title="discord.gg/goatreceipt"):
+    pass
     
-    # Create alias for compatibility
-    zalandousmodal = zalandomodal
+# Create alias for compatibility - fixed to be a global variable not inside the class
+zalandousmodal = zalandomodal
     Link = discord.ui.TextInput(label="Link", placeholder="zalando.com link", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790,00", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)

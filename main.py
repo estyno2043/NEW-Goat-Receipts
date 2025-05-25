@@ -557,11 +557,23 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Zalandous" or brand.lower() == "zalandous":
                     # Ensure the modal is properly loaded
                     try:
+                        # Import the modal with proper error handling
                         from modals.zalandous import zalandomodal
-                        modal_class = zalandomodal
-                        modal = modal_class()
+                        # Create instance and send modal
+                        modal = zalandomodal()
                         await interaction.response.send_modal(modal)
                         return
+                    except ImportError:
+                        # Try alternative class name if first attempt fails
+                        try:
+                            from modals.zalandous import zalandousmodal
+                            modal = zalandousmodal()
+                            await interaction.response.send_modal(modal)
+                            return
+                        except Exception as e:
+                            print(f"Error loading Zalandous modal (alt method): {str(e)}")
+                            await interaction.response.send_message(f"Error loading Zalandous modal: {str(e)}", ephemeral=True)
+                            return
                     except Exception as e:
                         print(f"Error loading Zalandous modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Zalandous modal: {str(e)}", ephemeral=True)
