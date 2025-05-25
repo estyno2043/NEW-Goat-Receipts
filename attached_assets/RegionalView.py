@@ -164,7 +164,7 @@ all_brands = {
     'Gucci': guccimodal1,
     'Harrods': harrodsmodal,
     'Hermès': HermesModal,
-    'House of Frasers': houseoffrasermodal,
+    'House of Fraser': houseoffrasermodal,
     'iStores': istoresmodal,
     'JD Sports': jdsportsmodal,
     'Kick Game': kickgamemodal,
@@ -233,7 +233,7 @@ brands_de = load_brands('DE')
 
 
 class PaginatedDropdown(discord.ui.Select):
-    def __init__(self, owner_id, options, per_page=15):
+    def __init__(self, owner_id, options, per_page=25):
         super().__init__(placeholder='Select a brand to proceed', min_values=1, max_values=1)
         self.owner_id = owner_id
         self.all_options = sorted(options, key=lambda x: x[0])  # Sort alphabetically
@@ -256,7 +256,7 @@ class PaginatedDropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message(content="This is not your panel", ephemeral=True)
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
             return
 
         selected_brand = self.values[0]
@@ -269,21 +269,11 @@ class PaginatedDropdown(discord.ui.Select):
 
 class DropdownView(discord.ui.View):
     def __init__(self, owner_id, brand_options):
-        super().__init__(timeout=300)  # Increased timeout to 5 minutes
+        super().__init__(timeout=180)
         self.owner_id = owner_id
         self.dropdown = PaginatedDropdown(owner_id, brand_options, per_page=13)
         self.add_item(self.dropdown)
         self.region = "US"  # Default region
-        self.last_interaction = datetime.now()
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time
-        self.last_interaction = datetime.now()
-        # Only allow the owner to use this view
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
-            return False
-        return True
 
         if brand_options == brands_de:
             self.region = "DE"
@@ -329,7 +319,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary, disabled=True, row=1)
     async def previous_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
         try:
@@ -375,7 +365,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Next Brands", style=discord.ButtonStyle.primary, row=1)
     async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
         try:
@@ -431,7 +421,7 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label="Close", style=discord.ButtonStyle.danger, row=1)
     async def close_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
         try:
@@ -494,7 +484,7 @@ class DropdownView(discord.ui.View):
                 current_page = 5
             elif new_region == "US6":
                 current_page = 6
-
+                
             # For DE region, remove Previous and Next buttons
             if new_region == "DE":
                 # Remove navigation buttons for German view
@@ -596,20 +586,10 @@ class DropdownView(discord.ui.View):
 
 class RegionSelectionView(discord.ui.View):
     def __init__(self, owner_id, user_roles):
-        super().__init__(timeout=300)  # 5 minute timeout
+        super().__init__(timeout=180)  # 3 minute timeout
         self.owner_id = owner_id
         self.user_roles = user_roles
         self.value = None
-        self.last_interaction = datetime.now()
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time
-        self.last_interaction = datetime.now()
-        # Only allow the owner to use this view
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
-            return False
-        return True
 
         # Add region selection dropdown
         self.add_item(self.RegionSelect(self))
@@ -677,7 +657,7 @@ class RegionSelectionView(discord.ui.View):
     @discord.ui.button(label="Settings", style=discord.ButtonStyle.secondary, row=1)
     async def settings(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
         cursor.execute("SELECT key, expiry, emailtf, credentialstf FROM licenses WHERE owner_id = ?", (str(interaction.user.id),))
@@ -717,8 +697,7 @@ class RegionSelectionView(discord.ui.View):
 
         # Remove user from active_menus in GenerateCog
         from commands.generate import GenerateCog
-        for cog in interaction.client.cogs```python
-.values():
+        for cog in interaction.client.cogs.values():
             if isinstance(cog, GenerateCog):
                 cog.active_menus.pop(self.owner_id, None)
                 break
@@ -1418,7 +1397,7 @@ class USView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Guapi", custom_id="guapi", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Harrods", custom_id="harrods", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Hermès", custom_id="hermes", style=discord.ButtonStyle.primary))
-        self.add_item(discord.ui.Button(label="House of Frasers", custom_id="houseoffraser", style=discord.ButtonStyle.primary))
+        self.add_item(discord.ui.Button(label="House of Fraser", custom_id="houseoffraser", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="iStores", custom_id="istores", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="JD Sports", custom_id="jdsports", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Kick Game", custom_id="kickgame", style=discord.ButtonStyle.primary))
@@ -1441,7 +1420,7 @@ class USView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Stussy", custom_id="stussy", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Supreme", custom_id="supreme", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Syna World", custom_id="synaworld", style=discord.ButtonStyle.primary))
-        self.add_item(discord.ui.Button(label="The North Face", custom_id="tnf", style=discord.ButtonStyle.primary))
+        self.add_item(discord.ui.Button(label="TNF", custom_id="tnf", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Trapstar", custom_id="trapstar", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="UGG", custom_id="ugg", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Vinted", custom_id="vinted", style=discord.ButtonStyle.primary))
@@ -1456,12 +1435,6 @@ class DEView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Breuninger", custom_id="breuninger", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Zalando DE", custom_id="zalandode", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Zara", custom_id="zara", style=discord.ButtonStyle.primary))
-
-    async def interaction_check(self, interaction):
-        if interaction.user.id != interaction.client.user.id:
-            await interaction.response.send_message("This is not your panel.", ephemeral=True)
-            return False
-        return True
 
 async def handle_button_click(interaction: discord.Interaction, custom_id: str):
     if interaction.user.id != interaction.client.user.id:
@@ -1528,9 +1501,6 @@ async def handle_button_click(interaction: discord.Interaction, custom_id: str):
         elif custom_id == "coolblue":
             from modals.coolblue import coolbluemodal
             await interaction.response.send_modal(coolbluemodal())
-        elif custom_id == "corteiz":
-            from modals.crtz import crtzmodal
-            await interaction.response.send_modal(crtzmodal())
         elif custom_id == "culturekings":
             from modals.culturekings import ckmodal
             await interaction.response.send_modal(ckmodal())
