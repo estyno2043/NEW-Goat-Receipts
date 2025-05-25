@@ -1640,7 +1640,6 @@ async def menu_command(interaction: discord.Interaction):
 # Simple HTTP server for health checks
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-```python
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
