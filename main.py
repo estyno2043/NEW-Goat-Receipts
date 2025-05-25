@@ -350,8 +350,9 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
 
 # Dropdown for brand selection
 class BrandSelectDropdown(ui.Select):
-    def __init__(self, page=1):
+    def __init__(self, user_id, page=1):
         self.page = page
+        self.user_id = user_id  # Store the owner's user ID
 
         # List only the brands that have actual modal implementations
         # This automatically detects brands from the modals folder
@@ -536,7 +537,7 @@ class BrandSelectView(ui.View):
         super().__init__(timeout=300)  # Set timeout to 5 minutes
         self.user_id = user_id
         self.page = page
-        self.add_item(BrandSelectDropdown(page))
+        self.add_item(BrandSelectDropdown(user_id, page))
         self.last_interaction = datetime.now()
         self.message = None
 
