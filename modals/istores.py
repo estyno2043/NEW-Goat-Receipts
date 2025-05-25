@@ -16,11 +16,8 @@ class istoresmodal(ui.Modal, title="iStores Order - Step 1"):
         owner_id = interaction.user.id 
 
         # Get user details from database
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
         conn.close()
 
         if user_details:
@@ -59,11 +56,8 @@ class iStoresSecondModal(ui.Modal, title="iStores Order - Step 2"):
         owner_id = interaction.user.id
 
         # First retrieve user credentials from database
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
         conn.close()
 
         # Check if user credentials exist

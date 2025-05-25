@@ -7,7 +7,7 @@ from datetime import datetime
 
 lg = '\033[0m'  # Reset color
 
-class argosmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class argosmodal(ui.Modal, title="discord.gg/goatreceipts"):
     productname = discord.ui.TextInput(label="Product Name", placeholder="Russell Hobbs Bronte 2 Slice Toaster", required=True)
     productimage = discord.ui.TextInput(label="Product Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     productprice = discord.ui.TextInput(label="Price without currency", placeholder="50.00", required=True)
@@ -19,11 +19,8 @@ class argosmodal(ui.Modal, title="discord.gg/goatreceipt"):
         from addons.nextsteps import NextstepArgos
         owner_id = interaction.user.id 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db') # Database connection established here
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
 
         if user_details:
             name, street, city, zipp, country = user_details

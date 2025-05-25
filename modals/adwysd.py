@@ -52,11 +52,8 @@ class adwysdmodal(ui.Modal, title="discord.gg/goatreceipt"):
     async def on_submit(self, interaction: discord.Interaction):
         owner_id = interaction.user.id 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
 
         if user_details:
             name, street, city, zipp, country = user_details
@@ -179,11 +176,8 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
             # Generate order number
             order_number = "08094"
 
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
+            from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
             name, street, city, zipp, country = user_details
 
             # Replace all placeholders in the HTML template
