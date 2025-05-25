@@ -793,8 +793,33 @@ class CredentialsDropdownView(ui.View):
             # Generate random info
             name, street, city, zip_code, country = generate_random_details()
 
+            # Save random info to database
+            conn\n{attachment.url}\n= sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            cursor.execute('''
+            INSERT OR REPLACE INTO user_credentials 
+            (user_id, name, street, city, zip, country, is_random) 
+            VALUES (?, ?, ?, ?, ?, ?, 1)
+            ''', (user_id, name, street, city, zip_code, country))
+            conn.commit()
+            conn.close()
+
+            # Send success message
+            success_embed = discord.Embed(
+                title="Success",
+                description=f"-# Random information has been generated and saved:\n\n**Name**: {name}\n**Address**: {street}, {city}, {zip_code}\n**Country**: {country}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=success_embed, ephemeral=True)
+
+# Check if message is in a guild-specific image channel
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+
     # Check if message is in a guild-specific image channel
-    elif message.guild and message.attachments:
+    if message.guild and message.attachments:
         guild_id = str(message.guild.id)
         channel_id = message.channel.id
 
@@ -810,7 +835,7 @@ class CredentialsDropdownView(ui.View):
             for attachment in message.attachments:
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
-                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+                    await message.reply(f"```
 
     # Process commands
     await bot.process_commands(message)
@@ -1185,7 +1210,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
         self.bot = None
         self.interaction = None
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         key = self.license_key.value.strip()
 
@@ -1553,84 +1578,4 @@ async def menu_command(interaction: discord.Interaction):
             view = discord.ui.View()
             view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-            return
-        else:
-            # User never had a license
-            embed = discord.Embed(
-                title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    # Check if user has a subscription or create default one
-    subscription_type, end_date = get_subscription(user_id)
-
-    # Format subscription type for display
-    display_type = subscription_type
-    if subscription_type == "3day":
-        display_type = "3 Days"
-    elif subscription_type == "14day":
-        display_type = "14 Days"
-    elif subscription_type == "1month":
-        display_type = "1 Month"
-
-    # Create menu panel
-    embed = discord.Embed(
-        title="GOAT Menu",
-        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
-                    "-# pick an option below to continue\n\n" +
-                    "**Subscription Type**\n" +
-                    f"`{display_type}`\n\n" +
-                    "**Note**\n" +
-                    "-# please click \"Credentials\" and set your credentials before you try to generate",
-        color=discord.Color.from_str("#c2ccf8")
-    )
-
-    await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
-
-# Simple HTTP server for health checks
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Bot is running!')
-
-def run_http_server():
-    server = HTTPServer(('0.0.0.0', 8080), SimpleHTTPRequestHandler)
-    print('Starting HTTP server on port 8080')
-    server.serve_forever()
-
-# Start HTTP server in a separate thread
-if os.getenv('REPLIT_DEPLOYMENT'):
-    print("Deployment detected, starting HTTP server")
-    thread = threading.Thread(target=run_http_server)
-    thread.daemon = True
-    thread.start()
-
-# Run the bot
-# Try to get token from environment variables first, then fall back to config.json
-token = os.getenv('DISCORD_TOKEN')
-if token:
-    print("Using Discord token from environment variables")
-else:
-    try:
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            token = config.get("bot_token")
-            if token:
-                print("Using Discord token from config.json")
-    except Exception as e:
-        print(f"Error loading token from config: {e}")
-
-if not token:
-    print("ERROR: No Discord bot token found. Please set the DISCORD_TOKEN environment variable or update config.json")
-    exit(1)
-
-bot.run(token)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)\n{attachment.url}\n
