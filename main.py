@@ -480,7 +480,8 @@ class BrandSelectDropdown(ui.Select):
                 "lv": "lvmodal",
                 "tnf": "tnfmodal",
                 "chewforever": "Chewforevermodal",
-                "corteiz": "crtzmodal"
+                "corteiz": "crtzmodal",
+                "loropiana": "loromodal"
                 # Add other special cases as needed
             }
 
@@ -566,6 +567,16 @@ class BrandSelectDropdown(ui.Select):
                         return
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Ebayconf modal: {str(e)}", ephemeral=True)
+                        return
+                elif brand == "Loropiana" or brand == "Loro Piana":
+                    # Special handling for Loro Piana
+                    try:
+                        from modals.loropiana import loromodal
+                        modal = loromodal()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Loro Piana modal: {str(e)}", ephemeral=True)
                         return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
