@@ -1,4 +1,3 @@
-
 import asyncio
 import discord
 from discord.ui import Select
@@ -13,7 +12,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
 class EbayConfModal(ui.Modal, title="eBay Receipt - Step 1"):
-    
+
     # Create alias for compatibility
     # ebayconfmodal = EbayConfModal  # This creates a circular reference, commented out
     productname = discord.ui.TextInput(label="Product Name", placeholder="Apple Earbuds Pro", required=True)
@@ -28,23 +27,23 @@ class EbayConfModal(ui.Modal, title="eBay Receipt - Step 1"):
         productprice = self.productprice.value
         productcurrency = self.productcurrency.value
         productsku = self.productsku.value
-        
+
         # Instead of sending another modal, store data and respond with a message/button
         embed = discord.Embed(title="Product Details", description="First part completed successfully!", color=0x1e1f22)
         embed.add_field(name="Product Name", value=productname, inline=False)
         embed.add_field(name="Price", value=f"{productcurrency}{productprice}", inline=True)
         embed.add_field(name="SKU", value=productsku, inline=True)
-        
+
         # Create a button to continue to the next step
         class ContinueButton(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=300)
-                
+
             @discord.ui.button(label="Continue", style=discord.ButtonStyle.primary)
             async def continue_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                 second_modal = EbayConfSecondModal(productname, productimagelink, productprice, productcurrency, productsku)
                 await interaction.response.send_modal(second_modal)
-        
+
         await interaction.response.send_message(embed=embed, view=ContinueButton(), ephemeral=False)
 
 class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
@@ -55,7 +54,7 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
         self.productprice = productprice
         self.productcurrency = productcurrency
         self.productsku = productsku
-        
+
         self.add_item(discord.ui.TextInput(label="Shipping Cost", placeholder="10.00", required=True))
         self.add_item(discord.ui.TextInput(label="Delivery Date (DD/MM/YYYY)", placeholder="6/5/2025", required=True))
         self.add_item(discord.ui.TextInput(label="Seller Name", placeholder="John Lewis", required=True))
@@ -69,12 +68,12 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
 
         if user_details:
             name, street, city, zipp, country, email = user_details
-            
+
             # Get form values
             productshippingcost = self.children[0].value
             productdeliverydate = self.children[1].value
             productseller = self.children[2].value
-            
+
             # Calculate total
             try:
                 total = float(self.productprice) + float(productshippingcost)
@@ -92,14 +91,14 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
 
                 # Replace placeholders with actual values
                 html_content = html_content.replace("Thanks for your purchase, Laura Vincent.", f"Thanks for your purchase, {name}.")
-                
+
                 # Replace address information
                 address_replacement = f"{name}<br>{street}<br>{city}, {zipp}<br>{country}"
                 html_content = html_content.replace("Laura Vincent<br>2456 Miller Dale\nPort Sarahfurt, OK 06684<br>2456 Miller Dale\nPort Sarahfurt, OK 06684, 56370 <br>Guadeloupe", address_replacement)
-                
+
                 # Replace delivery date
                 html_content = html_content.replace("6/5/2025", productdeliverydate)
-                
+
                 # Replace product details
                 html_content = html_content.replace("Apple Earbuds Pro 1st Generation Wireless Headphones And Built In Microphone", self.productname)
                 # Find and replace the image tag with the new product image
@@ -114,12 +113,12 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
                 else:
                     # Fallback to direct replacement if pattern not found
                     html_content = html_content.replace("https://ci3.googleusercontent.com/meips/ADKq_NZ1ah4ngQLsz-9pI2EpOreZDtdHFo88218-LXqPJM9gozh7IUvr4LyivMVD9VbeTbugU_zecFewYn-SFAfaHigSJWq-UaMxaLXjy8tnqyNS9Q=s0-d-e1-ft#https://i.ebayimg.com/images/g/PiYAAOSwU3ZnxNik/s-l960.webp", self.productimagelink)
-                
+
                 # Replace pricing
                 html_content = html_content.replace("<span><b>€200.00</b></span>", f"<span><b>{self.productcurrency}{self.productprice}</b></span>")
                 html_content = html_content.replace("<span>827384</span>", f"<span>{self.productsku}</span>")
                 html_content = html_content.replace("John Lewis", productseller)
-                
+
                 # Replace order totals
                 html_content = html_content.replace("€200.00", f"{self.productcurrency}{self.productprice}")
                 html_content = html_content.replace("€10.00", f"{self.productcurrency}{productshippingcost}")
@@ -139,11 +138,11 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
                 link = "https://ebay.com"
 
                 from emails.choise import choiseView
-                
+
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
                 view = choiseView(owner_id, html_content, sender_email, subject, self.productname, self.productimagelink, link)
                 await interaction.edit_original_response(embed=embed, view=view)
-                
+
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
                 await interaction.edit_original_response(embed=embed)

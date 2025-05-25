@@ -63,10 +63,15 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipts"):
     async def on_submit(self, interaction: discord.Interaction):
         owner_id = interaction.user.id 
 
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+            
+            if user_details:
+                name, street, city, zipp, country, email = user_details
 
-
-        link = self.Link.value
-        size = self.size.value
+            link = self.Link.value
+            size = self.size.value
 
 
 
