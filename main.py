@@ -25,6 +25,14 @@ except:
     print("Warning: Message content intent not available. Some features may not work.")
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Initialize receipt processing utilities
+try:
+    from utils.receipt_processor import patched_open
+    from utils.template_utils import replace_user_details
+    print("Receipt processing utilities initialized successfully")
+except Exception as e:
+    print(f"Failed to initialize receipt processing utilities: {e}")
+
 # Create a database to store user data
 def setup_database():
     conn = sqlite3.connect('data.db')
