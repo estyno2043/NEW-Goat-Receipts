@@ -157,28 +157,54 @@ def get_user_details(user_id):
         conn.row_factory = sqlite3.Row  # This allows us to access columns by name
         cursor = conn.cursor()
 
-        # Try to get data from licenses table first
+        # First check user_credentials table as the primary source
+        # This contains the user's custom or randomized details that were set in the UI
+        cursor.execute("""
+            SELECT name, street, city, zip, country FROM user_credentials 
+            WHERE user_id = ?
+        """, (str(user_id),))
+        cred_result = cursor.fetchone()
+        
+        if cred_result:
+            # Get email from user_emails
+            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
+            email_result = cursor.fetchone()
+            email = email_result[0] if email_result else None
+            
+            # Build tuple from credentials and email
+            user_data = (
+                cred_result['name'],
+                cred_result['street'],
+                cred_result['city'],
+                cred_result['zip'],
+                cred_result['country'],
+                email
+            )
+            conn.close()
+            return user_data
+
+        # If user_credentials didn't have data, fall back to licenses table
         cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(user_id),))
         result = cursor.fetchone()
 
         # If we have a result but email is None, try to get email from user_emails table
-        if result and (result['email'] is None or result['email'] == ''):
-            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
-            email_result = cursor.fetchone()
+        if result:
+            if result['email'] is None or result['email'] == '':
+                cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
+                email_result = cursor.fetchone()
 
-            if email_result and email_result[0]:
-                # Update the licenses table with this email for future use
-                cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email_result[0], str(user_id)))
-                conn.commit()
-                
-                # Update our result with the new email
-                email = email_result[0]
+                if email_result and email_result[0]:
+                    # Update the licenses table with this email for future use
+                    cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email_result[0], str(user_id)))
+                    conn.commit()
+                    
+                    # Update our result with the new email
+                    email = email_result[0]
+                else:
+                    email = result['email']
             else:
                 email = result['email']
-        else:
-            email = result['email'] if result else None
 
-        if result:
             # Convert Row object to tuple with proper column access
             user_data = (
                 result['name'], 
@@ -190,31 +216,6 @@ def get_user_details(user_id):
             )
             conn.close()
             return user_data
-        else:
-            # Also check user_credentials table as fallback
-            cursor.execute("""
-                SELECT name, street, city, zip, country FROM user_credentials 
-                WHERE user_id = ?
-            """, (str(user_id),))
-            cred_result = cursor.fetchone()
-            
-            if cred_result:
-                # Get email from user_emails
-                cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
-                email_result = cursor.fetchone()
-                email = email_result[0] if email_result else None
-                
-                # Build tuple from credentials and email
-                user_data = (
-                    cred_result['name'],
-                    cred_result['street'],
-                    cred_result['city'],
-                    cred_result['zip'],
-                    cred_result['country'],
-                    email
-                )
-                conn.close()
-                return user_data
         
         conn.close()
         return None
