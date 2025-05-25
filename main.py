@@ -571,8 +571,11 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Loropiana" or brand == "Loro Piana":
                     # Special handling for Loro Piana
                     try:
-                        from modals.loropiana import loromodal
-                        modal = loromodal()
+                        # Import relative to the loropiana module
+                        import importlib
+                        loro_module = importlib.import_module("modals.loropiana")
+                        modal_class = getattr(loro_module, "loromodal")
+                        modal = modal_class()
                         await interaction.response.send_modal(modal)
                         return
                     except Exception as e:
