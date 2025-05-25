@@ -835,7 +835,7 @@ async def on_message(message):
             for attachment in message.attachments:
                 if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
                     # Reply to the user's message with the image URL
-                    await message.reply(f"```
+                    await message.reply(f"```\n{attachment.url}\n```")
 
     # Process commands
     await bot.process_commands(message)
