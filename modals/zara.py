@@ -55,7 +55,7 @@ def is_zara_link(link):
     return bool(zara_pattern.match(link))
 
 
-class zaramodal(ui.Modal, title="discord.gg/goatreceipt"):
+class zaramodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="zara.com link", required=True)
     Price = discord.ui.TextInput(label="Price without currency", placeholder="49.50", required=True)
     currency = discord.ui.TextInput(label="Currency Code (EUR, USD)", placeholder="EUR", required=True, min_length=1, max_length=3)
@@ -79,7 +79,7 @@ class zaramodal(ui.Modal, title="discord.gg/goatreceipt"):
             return
 
         
-        embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
+        embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
         await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepzara(owner_id))
 
 
