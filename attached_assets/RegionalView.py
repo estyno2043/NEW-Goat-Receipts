@@ -275,12 +275,15 @@ class DropdownView(discord.ui.View):
         self.add_item(self.dropdown)
         self.region = "US"  # Default region
         self.last_interaction = datetime.now()
-        
+
     async def interaction_check(self, interaction):
         # Update last interaction time
         self.last_interaction = datetime.now()
         # Only allow the owner to use this view
-        return interaction.user.id == self.owner_id
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            return False
+        return True
 
         if brand_options == brands_de:
             self.region = "DE"
@@ -491,7 +494,7 @@ class DropdownView(discord.ui.View):
                 current_page = 5
             elif new_region == "US6":
                 current_page = 6
-                
+
             # For DE region, remove Previous and Next buttons
             if new_region == "DE":
                 # Remove navigation buttons for German view
@@ -598,12 +601,15 @@ class RegionSelectionView(discord.ui.View):
         self.user_roles = user_roles
         self.value = None
         self.last_interaction = datetime.now()
-        
+
     async def interaction_check(self, interaction):
         # Update last interaction time
         self.last_interaction = datetime.now()
         # Only allow the owner to use this view
-        return interaction.user.id == self.owner_id
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            return False
+        return True
 
         # Add region selection dropdown
         self.add_item(self.RegionSelect(self))
@@ -711,7 +717,8 @@ class RegionSelectionView(discord.ui.View):
 
         # Remove user from active_menus in GenerateCog
         from commands.generate import GenerateCog
-        for cog in interaction.client.cogs.values():
+        for cog in interaction.client.cogs```python
+.values():
             if isinstance(cog, GenerateCog):
                 cog.active_menus.pop(self.owner_id, None)
                 break
@@ -1449,6 +1456,12 @@ class DEView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Breuninger", custom_id="breuninger", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Zalando DE", custom_id="zalandode", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Zara", custom_id="zara", style=discord.ButtonStyle.primary))
+
+    async def interaction_check(self, interaction):
+        if interaction.user.id != interaction.client.user.id:
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            return False
+        return True
 
 async def handle_button_click(interaction: discord.Interaction, custom_id: str):
     if interaction.user.id != interaction.client.user.id:

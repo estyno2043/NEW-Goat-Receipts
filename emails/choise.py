@@ -14,6 +14,12 @@ class choiseView(discord.ui.View):
         self.image_url = image_url
         self.link = link
 
+    async def interaction_check(self, interaction):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            return False
+        return True
+
     @discord.ui.button(label="Spoofed Email", style=discord.ButtonStyle.blurple, custom_id="spoofed")
     async def spoofed_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:

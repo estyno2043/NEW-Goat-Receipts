@@ -364,15 +364,17 @@ class NextstepTrapstar(discord.ui.View):
 
 class NextstepAdwysd(discord.ui.View):
     def __init__(self, owner_id):
-        super().__init__()
+        super().__init__(timeout=None)
         self.owner_id = owner_id
 
-    @discord.ui.button(label="Next Page", style=discord.ButtonStyle.primary)
-    async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def interaction_check(self, interaction):
         if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("That is not your button.", ephemeral=True)
-            return
+            await interaction.response.send_message("This is not your panel.", ephemeral=True)
+            return False
+        return True
 
+    @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
+    async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
         from modals.adwysd import adwysdmodal2
         await interaction.response.send_modal(adwysdmodal2())
 
