@@ -266,28 +266,3 @@ def send_html(recipient_email, html_content, sender_email, subject, save_file_na
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
-
-def save_receipt_html(html_content, brand_name):
-    """
-    Save HTML receipt content to the updatedreceipts folder.
-    
-    Args:
-        html_content (str): The HTML content to save
-        brand_name (str): The name of the brand (used for filename)
-        
-    Returns:
-        str: The full path to the saved file
-    """
-    # Ensure the directory exists
-    receipts_dir = "receipt/updatedreceipts"
-    os.makedirs(receipts_dir, exist_ok=True)
-    
-    # Create the file path
-    file_path = f"{receipts_dir}/updated{brand_name.lower()}.html"
-    
-    # Write the content to the file
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(html_content)
-    
-    print(f"Receipt saved to: {file_path}")
-    return file_path
