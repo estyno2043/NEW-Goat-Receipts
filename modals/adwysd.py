@@ -95,131 +95,140 @@ class adwysdmodal2(ui.Modal, title="ADWYSD Receipt"):
 
     async def on_submit(self, interaction: discord.Interaction):
         global link, price, curr, purchase_date, arrival_date
-        owner_id = interaction.user.id 
-
+        owner_id = interaction.user.id
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.edit_message(embed=embed, view=None)
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
 
-            with open("receipt/adwysd.html", "r", encoding="utf-8") as file:
-                html_content = file.read()
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+            try:
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                await interaction.response.edit_message(embed=embed, view=None)
 
-            size = self.size.value
-            tax = float(self.taxcost.value)
-            shipping = float(self.shippingcost.value)
+                with open("receipt/adwysd.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
 
-            # Zyte API setup for scraping
-            url = link
+                size = self.size.value
+                tax = float(self.taxcost.value)
+                shipping = float(self.shippingcost.value)
 
-            # Zyte API request
-            api_response = requests.post(
-                "https://api.zyte.com/v1/extract",
-                auth=("a9abed72c425496584d422cfdba283d2", ""),
-                json={
-                    "url": url,
-                    "browserHtml": True,
-                    "product": True,
-                    "productOptions": {"extractFrom": "browserHtml"},
-                },
-            )
+                # Zyte API setup for scraping
+                url = link
 
-            # Decode HTML data and parse it
-            response_json = api_response.json()
-            browser_html = response_json.get("browserHtml")
+                # Zyte API request
+                api_response = requests.post(
+                    "https://api.zyte.com/v1/extract",
+                    auth=("a9abed72c425496584d422cfdba283d2", ""),
+                    json={
+                        "url": url,
+                        "browserHtml": True,
+                        "product": True,
+                        "productOptions": {"extractFrom": "browserHtml"},
+                    },
+                )
 
-            # Ensure we have valid HTML before parsing
-            if browser_html and isinstance(browser_html, str):
-                soup = BeautifulSoup(browser_html, 'html.parser')
-            else:
-                # Create an empty soup object if no valid HTML is available
-                soup = BeautifulSoup("", 'html.parser')
-                print(f"Warning: No valid HTML received from API. Response: {str(response_json)[:200]}...")
-            print()
-            print(f"[{Colors.green}START Scraping{lg}] ADWYSD -> {interaction.user.id} ({interaction.user})" + lg)
+                # Decode HTML data and parse it
+                response_json = api_response.json()
+                browser_html = response_json.get("browserHtml")
 
-            # Extract product data
-            response_json = api_response.json() if not 'response_json' in locals() else response_json
-            product_data = response_json.get("product", {})
-            product_name = "Product Name not found"
-            image_url = "Image URL not found"
-
-            if product_data:
-                product_name = product_data.get("name", product_name)
-                image_url = product_data.get("mainImage", {}).get("url", image_url)
-
-            # If product name not found in product data, try to extract from HTML
-            if product_name == "Product Name not found":
-                # Try to find product name in the page
-                product_name_element = soup.find('h1', class_='product-title')
-                if product_name_element:
-                    product_name = product_name_element.text.strip()
-
-            # If image URL not found in product data, try to extract from HTML
-            if image_url == "Image URL not found":
-                # Try to find image in the page
-                image_element = soup.find('img', class_='product-image')
-                if image_element and 'src' in image_element.attrs:
-                    image_url = image_element['src']
+                # Ensure we have valid HTML before parsing
+                if browser_html and isinstance(browser_html, str):
+                    soup = BeautifulSoup(browser_html, 'html.parser')
                 else:
-                    # Try meta og:image as fallback
-                    og_image = soup.find('meta', {'property': 'og:image'})
-                    if og_image and 'content' in og_image.attrs:
-                        image_url = og_image['content']
+                    # Create an empty soup object if no valid HTML is available
+                    soup = BeautifulSoup("", 'html.parser')
+                    print(f"Warning: No valid HTML received from API. Response: {str(response_json)[:200]}...")
+                print()
+                print(f"[{Colors.green}START Scraping{lg}] ADWYSD -> {interaction.user.id} ({interaction.user})" + lg)
 
-            print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
-            print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
-            print(f"[{Colors.green}Scraping DONE{lg}] ADWYSD -> {interaction.user.id}" + lg)
-            print()
+                # Extract product data
+                response_json = api_response.json() if not 'response_json' in locals() else response_json
+                product_data = response_json.get("product", {})
+                product_name = "Product Name not found"
+                image_url = "Image URL not found"
 
-            # Calculate total
-            price_float = float(price)
-            total = price_float + shipping + tax
-            total = round(total, 2)
+                if product_data:
+                    product_name = product_data.get("name", product_name)
+                    image_url = product_data.get("mainImage", {}).get("url", image_url)
 
-            # Generate order number
-            order_number = "08094"
+                # If product name not found in product data, try to extract from HTML
+                if product_name == "Product Name not found":
+                    # Try to find product name in the page
+                    product_name_element = soup.find('h1', class_='product-title')
+                    if product_name_element:
+                        product_name = product_name_element.text.strip()
 
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
-            name, street, city, zipp, country = user_details
+                # If image URL not found in product data, try to extract from HTML
+                if image_url == "Image URL not found":
+                    # Try to find image in the page
+                    image_element = soup.find('img', class_='product-image')
+                    if image_element and 'src' in image_element.attrs:
+                        image_url = image_element['src']
+                    else:
+                        # Try meta og:image as fallback
+                        og_image = soup.find('meta', {'property': 'og:image'})
+                        if og_image and 'content' in og_image.attrs:
+                            image_url = og_image['content']
 
-            # Replace all placeholders in the HTML template
-            html_content = html_content.replace("{productname}", product_name)
+                print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
+                print(f"[{Colors.green}Scraping DONE{lg}] ADWYSD -> {interaction.user.id}" + lg)
+                print()
 
-            # Ensure image URL is valid, use fallback if not
-            fallback_image = "https://adwysd.net/cdn/shop/files/6a9bed0c-2d87-43c7-85cb-2c3b13e59ee4_1200x.jpg"
-            if image_url and image_url != "Image URL not found" and (image_url.startswith("http") or image_url.startswith("//")):
-                html_content = html_content.replace("{imageurl}", image_url)
-            else:
-                html_content = html_content.replace("{imageurl}", fallback_image)
-            html_content = html_content.replace("{price}", price)
-            html_content = html_content.replace("{size}", size)
-            html_content = html_content.replace("{name}", name)
-            html_content = html_content.replace("{street}", street)
-            html_content = html_content.replace("{city}", city)
-            html_content = html_content.replace("{zip}", zipp)
-            html_content = html_content.replace("{country}", country)
-            html_content = html_content.replace("{currency}", curr)
-            html_content = html_content.replace("{total}", str(total))
-            html_content = html_content.replace("{currencyalp}", "")
-            html_content = html_content.replace("{shippingcost}", str(shipping))
-            html_content = html_content.replace("{taxcost}", str(tax))  # Currency spelled out if needed
+                # Calculate total
+                price_float = float(price)
+                total = price_float + shipping + tax
+                total = round(total, 2)
+
+                # Generate order number
+                order_number = "08094"
+
+                import sqlite3
+                conn = sqlite3.connect('data.db')
+                cursor = conn.cursor()
+                cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
+                user_details = cursor.fetchone()
+                name, street, city, zipp, country = user_details
+
+                # Replace all placeholders in the HTML template
+                html_content = html_content.replace("{productname}", product_name)
+
+                # Ensure image URL is valid, use fallback if not
+                fallback_image = "https://adwysd.net/cdn/shop/files/6a9bed0c-2d87-43c7-85cb-2c3b13e59ee4_1200x.jpg"
+                if image_url and image_url != "Image URL not found" and (image_url.startswith("http") or image_url.startswith("//")):
+                    html_content = html_content.replace("{imageurl}", image_url)
+                else:
+                    html_content = html_content.replace("{imageurl}", fallback_image)
+                html_content = html_content.replace("{price}", price)
+                html_content = html_content.replace("{size}", size)
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{country}", country)
+                html_content = html_content.replace("{currency}", curr)
+                html_content = html_content.replace("{total}", str(total))
+                html_content = html_content.replace("{currencyalp}", "")
+                html_content = html_content.replace("{shippingcost}", str(shipping))
+                html_content = html_content.replace("{taxcost}", str(tax))  # Currency spelled out if needed
 
 
-            with open("receipt/updatedrecipies/updatedadwysd.html", "w", encoding="utf-8") as file:
-                file.write(html_content)
+                with open("receipt/updatedrecipies/updatedadwysd.html", "w", encoding="utf-8") as file:
+                    file.write(html_content)
 
-            from emails.choise import choiseView
-            sender_email = "ADWYSD <noreply@goatreceipts.com>"
-            subject = f"Order #08094 confirmed"
+                from emails.choise import choiseView
+                sender_email = "ADWYSD <noreply@goatreceipts.com>"
+                subject = f"Order #08094 confirmed"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-            view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, link)
-            await interaction.edit_original_response(embed=embed, view=view)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, link)
+                await interaction.edit_original_response(embed=embed, view=view)
 
+            except Exception as e:
+                embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
+                await interaction.edit_original_response(embed=embed)
         except Exception as e:
-            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-            await interaction.edit_original_response(embed=embed)
+            print(f"Error getting user details: {e}")
+            embed = discord.Embed(title="Error", description="Failed to retrieve user details.")
+            await interaction.response.send_message(embed=embed, ephemeral=True)

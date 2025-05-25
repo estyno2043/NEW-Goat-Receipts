@@ -75,111 +75,100 @@ class applepickupmodal2(ui.Modal, title="Apple Pickup Receipt - Step 2"):
     async def on_submit(self, interaction: discord.Interaction):
         global productname, productimagelink, orderdate, productprice, taxcost
         owner_id = interaction.user.id
-
         try:
-            # Display processing message
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.edit_message(embed=embed, view=None)
-
-            # Load HTML template
-            with open("receipt/applepickup.html", "r", encoding="utf-8") as file:
-                html_content = file.read()
-
-            # Get values from form
-            productcurrency = self.productcurrency.value
-            taxpercent = self.taxpercent.value
-            storestreet = self.storestreet.value
-            storephone = self.storephone.value #Fixed typo here
-
-            # Get user details from database
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
-            name, street, city, zipp, country, email = user_details if len(user_details) >= 6 else (*user_details, None)
-
-            # Print scraping info for debugging
-            print()
-            print(f"[{Colors.green}START Processing{lg}] Apple Pickup -> {interaction.user.id} ({interaction.user})" + lg)
-            print(f"    [{Colors.cyan}Processing{lg}] Product Name: {productname}" + lg)
-            print(f"    [{Colors.cyan}Processing{lg}] Image URL: {productimagelink}" + lg)
-            print(f"[{Colors.green}Processing DONE{lg}] Apple Pickup -> {interaction.user.id}" + lg)
-            print()
-
-            # Calculate total
-            price_float = float(productprice)
-            tax_float = float(taxcost)
-            total = price_float + tax_float
-            total = round(total, 2)
-
-            # Replace all placeholders in the HTML template
-            html_content = html_content.replace("{orderdate}", orderdate)
-            html_content = html_content.replace("{productname}", productname)
-            html_content = html_content.replace("{productcurrency}", productcurrency)
-            html_content = html_content.replace("{productprice}", productprice)
-            html_content = html_content.replace("{storestreet}", storestreet)
-            html_content = html_content.replace("{storephone}", storephone)
-            html_content = html_content.replace("{city}", city)
-            html_content = html_content.replace("{country}", country)
-            html_content = html_content.replace("{zip}", zipp)
-            html_content = html_content.replace("{name}", name)
-            html_content = html_content.replace("{email}", email if email else "")
-            html_content = html_content.replace("{street}", street)
-            html_content = html_content.replace("{taxpercent}", taxpercent)
-            html_content = html_content.replace("{taxcost}", taxcost)
-            html_content = html_content.replace("{ordertotal}", str(total))
-
-            # Get user details from database
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
 
             if user_details:
                 name, street, city, zipp, country, email = user_details
+
+                # Display processing message
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                await interaction.response.edit_message(embed=embed, view=None)
+
+                # Load HTML template
+                with open("receipt/applepickup.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+
+                # Get values from form
+                productcurrency = self.productcurrency.value
+                taxpercent = self.taxpercent.value
+                storestreet = self.storestreet.value
+                storephone = self.storephone.value #Fixed typo here
+
+                # Print scraping info for debugging
+                print()
+                print(f"[{Colors.green}START Processing{lg}] Apple Pickup -> {interaction.user.id} ({interaction.user})" + lg)
+                print(f"    [{Colors.cyan}Processing{lg}] Product Name: {productname}" + lg)
+                print(f"    [{Colors.cyan}Processing{lg}] Image URL: {productimagelink}" + lg)
+                print(f"[{Colors.green}Processing DONE{lg}] Apple Pickup -> {interaction.user.id}" + lg)
+                print()
+
+                # Calculate total
+                price_float = float(productprice)
+                tax_float = float(taxcost)
+                total = price_float + tax_float
+                total = round(total, 2)
+
+                # Replace all placeholders in the HTML template
+                html_content = html_content.replace("{orderdate}", orderdate)
+                html_content = html_content.replace("{productname}", productname)
+                html_content = html_content.replace("{productcurrency}", productcurrency)
+                html_content = html_content.replace("{productprice}", productprice)
+                html_content = html_content.replace("{storestreet}", storestreet)
+                html_content = html_content.replace("{storephone}", storephone)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{country}", country)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{email}", email if email else "")
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{taxpercent}", taxpercent)
+                html_content = html_content.replace("{taxcost}", taxcost)
+                html_content = html_content.replace("{ordertotal}", str(total))
+
+                # Calculate total cost
+                tax_amount = float(productprice) * (float(taxpercent) / 100)
+                taxcost = round(tax_amount, 2)
+                total = float(productprice) + tax_amount
+                total = round(total, 2)
+
+                # Replace all placeholders in the HTML
+                html_content = html_content.replace("{orderdate}", orderdate)
+                html_content = html_content.replace("{productimagelink}", productimagelink)
+                html_content = html_content.replace("{productname}", productname)
+                html_content = html_content.replace("{productcurrency}", productcurrency)
+                html_content = html_content.replace("{productprice}", productprice)
+                html_content = html_content.replace("{storestreet}", storestreet)
+                html_content = html_content.replace("{storephone}", storephone)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{country}", country)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{email}", email)
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{taxpercent}", taxpercent)
+                html_content = html_content.replace("{taxcost}", str(taxcost))
+                html_content = html_content.replace("{total}", str(total))
+
+                # Save updated HTML
+                with open("receipt/updatedrecipies/updatedapplepickup.html", "w", encoding="utf-8") as file:
+                    file.write(html_content)
+
+                # Prepare email
+                from emails.choise import choiseView
+                sender_email = "Apple <noreply@apple.com>"
+                subject = f"We're processing your order W886012551"
+                link = "https://apple.com/"
+
+                # Display email options
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                view = choiseView(owner_id, html_content, sender_email, subject, productname, productimagelink, link)
+                await interaction.edit_original_response(embed=embed, view=view)
             else:
-                name, street, city, zipp, country, email = "User Name", "User Street", "User City", "12345", "User Country", "user@example.com"
+                embed = discord.Embed(title="Error", description=f"Could not retrieve user details.")
+                await interaction.edit_original_response(embed=embed)
 
-            # Calculate total cost
-            tax_amount = float(productprice) * (float(taxpercent) / 100)
-            taxcost = round(tax_amount, 2)
-            total = float(productprice) + tax_amount
-            total = round(total, 2)
-
-            # Replace all placeholders in the HTML
-            html_content = html_content.replace("{orderdate}", orderdate)
-            html_content = html_content.replace("{productimagelink}", productimagelink)
-            html_content = html_content.replace("{productname}", productname)
-            html_content = html_content.replace("{productcurrency}", productcurrency)
-            html_content = html_content.replace("{productprice}", productprice)
-            html_content = html_content.replace("{storestreet}", storestreet)
-            html_content = html_content.replace("{storephone}", storephone)
-            html_content = html_content.replace("{city}", city)
-            html_content = html_content.replace("{country}", country)
-            html_content = html_content.replace("{zip}", zipp)
-            html_content = html_content.replace("{name}", name)
-            html_content = html_content.replace("{email}", email)
-            html_content = html_content.replace("{street}", street)
-            html_content = html_content.replace("{taxpercent}", taxpercent)
-            html_content = html_content.replace("{taxcost}", str(taxcost))
-            html_content = html_content.replace("{total}", str(total))
-
-            # Save updated HTML
-            with open("receipt/updatedrecipies/updatedapplepickup.html", "w", encoding="utf-8") as file:
-                file.write(html_content)
-
-            # Prepare email
-            from emails.choise import choiseView
-            sender_email = "Apple <noreply@apple.com>"
-            subject = f"We're processing your order W886012551"
-            link = "https://apple.com/"
-
-            # Display email options
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-            view = choiseView(owner_id, html_content, sender_email, subject, productname, productimagelink, link)
-            await interaction.edit_original_response(embed=embed, view=view)
 
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")

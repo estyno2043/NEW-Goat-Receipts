@@ -60,54 +60,51 @@ class amazonmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
     async def on_submit(self, interaction: discord.Interaction):
-        owner_id = interaction.user.id 
+        owner_id = interaction.user.id
+            
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+
+                currency = self.currency.value
+                price = self.price.value
+                arriving = self.arriving.value
+                imageurl = self.imageurl.value
+                pname = self.pname.value
+
+                try:
 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
-
-        if user_details:
-            name, street, city, zipp, country = user_details
-
-            currency = self.currency.value
-            price = self.price.value
-            arriving = self.arriving.value
-            imageurl = self.imageurl.value
-            pname = self.pname.value
-
-            try:
+                    embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                    await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
-
-
-                with open("receipt/amazon.html", "r", encoding="utf-8") as file:
-                    html_content = file.read()
+                    with open("receipt/amazon.html", "r", encoding="utf-8") as file:
+                        html_content = file.read()
 
 
 
-                print()
-                print(f"[{Colors.green}START Scraping{lg}] Amazon -> {interaction.user.id} ({interaction.user})" + lg)
-                print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {pname}" + lg)
-                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {imageurl}" + lg)
-                print(f"[{Colors.green}Scraping DONE{lg}] Amazon -> {interaction.user.id}" + lg)
-                print()
+                    print()
+                    print(f"[{Colors.green}START Scraping{lg}] Amazon -> {interaction.user.id} ({interaction.user})" + lg)
+                    print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {pname}" + lg)
+                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {imageurl}" + lg)
+                    print(f"[{Colors.green}Scraping DONE{lg}] Amazon -> {interaction.user.id}" + lg)
+                    print()
 
 
 
-                html_content = html_content.replace("{name}", name)
-                html_content = html_content.replace("{street}", street)
-                html_content = html_content.replace("{city}", city)
-                html_content = html_content.replace("{zip}", zipp)
-                html_content = html_content.replace("{currency}", currency)
-                html_content = html_content.replace("{total}", price)
-                html_content = html_content.replace("{arriving}", arriving)
-                html_content = html_content.replace("{imageurl}", imageurl)
-                html_content = html_content.replace("{pname}", pname)
+                    html_content = html_content.replace("{name}", name)
+                    html_content = html_content.replace("{street}", street)
+                    html_content = html_content.replace("{city}", city)
+                    html_content = html_content.replace("{zip}", zipp)
+                    html_content = html_content.replace("{currency}", currency)
+                    html_content = html_content.replace("{total}", price)
+                    html_content = html_content.replace("{arriving}", arriving)
+                    html_content = html_content.replace("{imageurl}", imageurl)
+                    html_content = html_content.replace("{pname}", pname)
 
 
 
@@ -117,24 +114,26 @@ class amazonmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
 
-                with open("receipt/updatedrecipies/updatedamazon.html", "w", encoding="utf-8") as file:
-                    file.write(html_content)
+                    with open("receipt/updatedrecipies/updatedamazon.html", "w", encoding="utf-8") as file:
+                        file.write(html_content)
 
-                from emails.choise import choiseView
-                sender_email = "Amazon <no-reply@amazon.com>"
-                subject = f"Your Amazon.com order."
-                link = "https://amazon.com/"
+                    from emails.choise import choiseView
+                    sender_email = "Amazon <no-reply@amazon.com>"
+                    subject = f"Your Amazon.com order."
+                    link = "https://amazon.com/"
 
 
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-                view = choiseView(owner_id, html_content, sender_email, subject, pname, imageurl, link)
-                await interaction.edit_original_response(embed=embed, view=view)
+                    embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                    view = choiseView(owner_id, html_content, sender_email, subject, pname, imageurl, link)
+                    await interaction.edit_original_response(embed=embed, view=view)
 
-            except Exception as e:
-                embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-                await interaction.edit_original_response(embed=embed)
+                except Exception as e:
+                    embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
+                    await interaction.edit_original_response(embed=embed)
 
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            print(f"Error: {e}")
