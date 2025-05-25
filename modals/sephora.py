@@ -73,17 +73,19 @@ class sephoranmodal(ui.Modal, title="discord.gg/goatreceipts"):
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
-            currencyff = self.currencyff.value
-            Priceff = float(self.Priceff.value)
-            delivery = self.delivery.value
+                currencyff = self.currencyff.value
+                Priceff = float(self.Priceff.value)
+                delivery = self.delivery.value
 
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next steps to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepsephora(owner_id), ephemeral=False)
-
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                embed = discord.Embed(title="You are almost done...", description="Complete the next steps to receive the receipt.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepsephora(owner_id), ephemeral=False)
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # Create alias for compatibility after class is fully defined
