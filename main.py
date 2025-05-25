@@ -1595,6 +1595,51 @@ async def menu_command(interaction: discord.Interaction):
             view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            return
+        else:
+            # User never had a license
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+            
+    # Display the menu panel for users with active subscription
+    subscription_type, end_date = get_subscription(user_id)
+    
+    # Format subscription type for display
+    display_type = subscription_type
+    if subscription_type == "3day":
+        display_type = "3 Days"
+    elif subscription_type == "14day":
+        display_type = "14 Days"
+    elif subscription_type == "1month":
+        display_type = "1 Month"
+    
+    embed = discord.Embed(
+        title="GOAT Menu",
+        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                    "-# pick an option below to continue\n\n" +
+                    "**Subscription Type**\n" +
+                    f"`{display_type}`\n\n" +
+                    "**Note**\n" +
+                    "-# please click \"Credentials\" and set your credentials before you try to generate",
+        color=discord.Color.from_str("#c2ccf8")
+    )
+    
+    # Create and send the menu view
+    view = MenuView(user_id)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+    
+    # Store message reference for proper timeout handling
+    try:
+        message = await interaction.original_response()
+        view.message = message
+    except Exception as e:
+        print(f"Failed to get message reference: {e}")
 
 # Function to load all command extensions/cogs
 async def load_extensions():
