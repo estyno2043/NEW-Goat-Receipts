@@ -511,9 +511,13 @@ class BrandSelectDropdown(ui.Select):
                         from modals.lv import lvmodal
                         modal_class = lvmodal
                         modal = modal_class()
+                        # Add guild info if available
+                        modal.guild_id = guild_id
+                        modal.image_channel_id = image_channel_id
                         await interaction.response.send_modal(modal)
                         return
                     except Exception as e:
+                        print(f"Error loading Louis Vuitton modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Louis Vuitton modal: {str(e)}", ephemeral=True)
                         return
                 elif brand == "The North Face":
