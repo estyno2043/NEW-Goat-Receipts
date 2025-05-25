@@ -783,9 +783,19 @@ class CredentialsDropdownView(ui.View):
                     label="Random Info", 
                     description="Generate random details",
                     emoji="🌐"
-                ),
-                discord.SelectOption(
-                    \n{attachment.url}\n```", mention_author=False)
+                \\n{message.content}\\n```", mention_author=False)
+
+    # Handle image attachments in guild-specific image channels
+    # Check if the message contains an image
+    if message.attachments:
+        for attachment in message.attachments:
+            # Check if the attachment is an image
+            if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                # Log the attachment URL in the console
+                print(f"Attachment URL: {attachment.url}")
+
+                # Reply with the attachment URL
+                await message.reply(f"```\\n{attachment.url}\\n```", mention_author=False)
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
