@@ -52,7 +52,7 @@ def is_arcteryx_link(link):
     return bool(arcteryx_link_pattern.match(link))
 
 
-class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://arcteryx.com/...", required=True)
     price = discord.ui.TextInput(label="Price without Currency", placeholder="199.99", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -89,18 +89,15 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             try:
+
+
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
 
-                try:
-                    with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
-                        html_content = file.read()
 
-                    if not html_content:
-                        raise ValueError("HTML content is empty")
-                except Exception as e:
-                    await interaction.edit_original_response(content=f"Error loading receipt template: {str(e)}")
-                    return
+                with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+
 
                 # Zyte API setup
                 url = link
@@ -111,7 +108,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                         "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                         "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     },
-                    verify=False
+                    verify=False  # Disable SSL verification to fix certificate errors
                 )
 
                 if response.status_code == 200:
@@ -146,44 +143,13 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                 # Bestellnummer generieren
                 order_number = generate_order_number()
 
-                # Replace placeholders in the HTML template with proper error checking
-                # Make sure all user details are valid strings
-                if name and street and city and zipp and country:
-                    # Ensure values are strings and handle None values
-                    name = str(name) if name is not None else ""
-                    street = str(street) if street is not None else ""
-                    city = str(city) if city is not None else ""
-                    zipp = str(zipp) if zipp is not None else ""
-                    country = str(country) if country is not None else ""
-                    
-                    # Replace all instances of placeholders
-                    html_content = html_content.replace("{name}", name)
-                    html_content = html_content.replace("{street}", street)
-                    html_content = html_content.replace("{city}", city)
-                    html_content = html_content.replace("{zip}", zipp)
-                    html_content = html_content.replace("{country}", country)
-                    
-                    # Also replace hardcoded values in the HTML
-                    html_content = html_content.replace("John Brown", name)
-                    html_content = html_content.replace("651 Cedar Lane", street)
-                    html_content = html_content.replace("Los Angeles", city)
-                    html_content = html_content.replace("78201", zipp)
-                    
-                    # Verify replacements were made
-                    if "{name}" in html_content or "{street}" in html_content or "{city}" in html_content or "{zip}" in html_content or "{country}" in html_content:
-                        print(f"Warning: Some placeholders weren't replaced for {interaction.user.id}")
-                else:
-                    print(f"Warning: Some user details are missing for {interaction.user.id}")
-                    # Log the actual values for debugging
-                    print(f"Name: {name}, Street: {street}, City: {city}, Zip: {zipp}, Country: {country}")
-                    
-                    # Attempt replacement anyway with empty strings for missing values
-                    html_content = html_content.replace("{name}", str(name) if name is not None else "")
-                    html_content = html_content.replace("{street}", str(street) if street is not None else "")
-                    html_content = html_content.replace("{city}", str(city) if city is not None else "")
-                    html_content = html_content.replace("{zip}", str(zipp) if zipp is not None else "")
-                    html_content = html_content.replace("{country}", str(country) if country is not None else "")
 
+
+
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{zip}", zipp)
 
                 html_content = html_content.replace("{pname}", pname)
                 html_content = html_content.replace("{price}", price)
