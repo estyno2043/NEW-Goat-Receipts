@@ -60,25 +60,29 @@ class applemodal(ui.Modal, title="discord.gg/goatreceipts"):
         from addons.nextsteps import NextstepApple
         owner_id = interaction.user.id 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
+        try:
+            import sqlite3
+            conn = sqlite3.connect('data.db')
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
+            user_details = cursor.fetchone()
 
-        if user_details:
-            name, street, city, zipp, country = user_details
+            if user_details:
+                name, street, city, zipp, country = user_details
 
-            currency = self.currency.value
-            Price = float(self.Price.value)
-            orderdate = self.orderdate.value
+                currency = self.currency.value
+                Price = float(self.Price.value)
+                orderdate = self.orderdate.value
 
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepApple(owner_id), ephemeral=False)
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepApple(owner_id), ephemeral=False)
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
