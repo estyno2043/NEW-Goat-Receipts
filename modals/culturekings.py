@@ -53,7 +53,7 @@ def is_ck_link(link):
 
 
 class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
-    
+
     # Create alias for compatibility
     culturekingsmodal = ckmodal
     Link = discord.ui.TextInput(label="Link", placeholder="https://culturekings.com/...", required=True)
@@ -70,7 +70,7 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
 
-        
+
 
         if not is_ck_link(link):
             embed = discord.Embed(title="Error - Invalid Culturekings link", description="Please provide a valid Culturekings link.")
@@ -78,7 +78,7 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
             return
 
 
-        
+
         try:
 
 
@@ -148,10 +148,16 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
             from emails.choise import choiseView
             owner_id = interaction.user.id
 
-                
+
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, img_src, link)
             await interaction.edit_original_response(embed=embed, view=view)
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.edit_original_response(embed=embed)
+
+# Set the alias after class definition
+ckmodal.culturekingsmodal = ckmodal
+
+# Also export at module level for external imports
+ckmodal = ckmodal
