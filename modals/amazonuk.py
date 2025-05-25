@@ -160,16 +160,16 @@ class AmazonUKSecondModal(ui.Modal, title='Amazon UK Order - Part 2'):
                 
                 # Replace placeholders in HTML
                 html_content = html_content.replace("{productarrivaldate}", productarrivaldate)
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{country}", country)
                 html_content = html_content.replace("{productname}", productname)
                 html_content = html_content.replace("{condition}", condition)
                 html_content = html_content.replace("{productprice}", productprice)
                 html_content = html_content.replace("{productcurrency}", productcurrency)
                 html_content = html_content.replace("{imageurl}", productimagelink)
                 html_content = html_content.replace("{pname}", productname)
-                
-                # Replace user details using the template utility
-                from utils.template_utils import replace_user_details
-                html_content = replace_user_details(html_content, user_details)
                 
                 # Create directory for the updated receipt if not exists
                 import os

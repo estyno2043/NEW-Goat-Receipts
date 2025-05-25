@@ -82,9 +82,7 @@ class SamsungSecondModal(ui.Modal, title="Samsung Order - Step 2"):
             html_content = html_content.replace("{serialnumber}", self.serialnumber.value)
             html_content = html_content.replace("{taxcost}", self.taxcost.value)
             
-            # Replace user details using the template utility
-            from utils.template_utils import replace_user_details
-            html_content = replace_user_details(html_content, user_details)
+            # Replace user details
             html_content = html_content.replace("{name}", name)
             html_content = html_content.replace("{street}", street)
             html_content = html_content.replace("{city}", city)

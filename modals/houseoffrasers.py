@@ -66,9 +66,17 @@ class houseofffrasersmodal2(ui.Modal, title="House of Fraser Receipt Generator (
                 with open("receipt/houseoffrasers.html", "r", encoding="utf-8") as file:
                     html_content = file.read()
                 
-                # Replace user details using the template utility
-                from utils.template_utils import replace_user_details
-                html_content = replace_user_details(html_content, user_details)
+                # Replace placeholders with user details from database
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("Theodore Jones", name)
+                html_content = html_content.replace("874 Beard Garden Suite 760\nBrandonfort, CO 89234", street)
+                html_content = html_content.replace("East Nicolefort Oneillchester", city)
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{country}", country)
+                html_content = html_content.replace("Germany", country)
+                html_content = html_content.replace("53877", zipp)
                 
                 # Replace product details
                 html_content = html_content.replace("Oxford Short Sleeve Tailored Shirt", productname)
