@@ -604,6 +604,17 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading Loro Piana modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Loro Piana modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Maison Margiela" or brand.lower() == "maisonmargiela":
+                    # Special handling for Maison Margiela
+                    try:
+                        from modals.maisonmargiela import maisonmodal
+                        modal = maisonmodal()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        print(f"Error loading Maison Margiela modal: {str(e)}")
+                        await interaction.response.send_message(f"Error loading Maison Margiela modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
