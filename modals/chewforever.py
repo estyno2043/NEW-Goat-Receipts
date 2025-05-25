@@ -172,10 +172,7 @@ class Chewforevermodal(ui.Modal, title="discord.gg/goatreceipts"):
                     # Handle expired interaction
                     pass
 
-
-
-
-        else:
-            # Handle case where no user details are found
+        # Handle case where no user details are found
+        except Exception as e:
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
