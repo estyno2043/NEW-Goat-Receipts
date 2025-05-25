@@ -355,9 +355,10 @@ class BrandSelectDropdown(ui.Select):
         self.user_id = user_id  # Store the owner's user ID
 
         # List only the brands that have actual modal implementations
-        # This automatically detects brands from the modals folder
+        # This automatically detects brands from the modals directory
         import os
         available_brands = []
+        seen_brand_names = set()  # Track brand names to avoid duplicates
 
         # Get modal files from the modals directory
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
@@ -367,7 +368,7 @@ class BrandSelectDropdown(ui.Select):
             base_name = modal_file.split('.')[0]
             
             # Special case handling for specific brands
-            if base_name == "crtz":
+            if base_name == "crtz" or base_name == "corteiz":  # Handle both crtz.py and corteiz.py
                 brand_name = "Corteiz"
             elif base_name == "houseoffrasers":
                 brand_name = "House of Frasers"
@@ -381,8 +382,11 @@ class BrandSelectDropdown(ui.Select):
                 brand_name = "No Sauce The Plug"
             else:
                 brand_name = base_name.capitalize()
-                
-            available_brands.append(brand_name)
+            
+            # Only add brand name if we haven't seen it before
+            if brand_name not in seen_brand_names:
+                available_brands.append(brand_name)
+                seen_brand_names.add(brand_name)
 
         # Sort alphabetically
         available_brands.sort()
