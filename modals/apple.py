@@ -50,7 +50,7 @@ def is_apple_link(link):
     return bool(apple_pattern.match(link))
 
 
-class applemodal(ui.Modal, title="discord.gg/goatreceipt"):
+class applemodal(ui.Modal, title="discord.gg/goatreceipts"):
     Price = discord.ui.TextInput(label="Price without currency", placeholder="790", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     orderdate = discord.ui.TextInput(label="Orderdate (DD/MM/YY)", placeholder="Ex. 9/10/2024", required=True)
@@ -74,7 +74,7 @@ class applemodal(ui.Modal, title="discord.gg/goatreceipt"):
             orderdate = self.orderdate.value
 
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
             await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepApple(owner_id), ephemeral=False)
         else:
             # Handle case where no user details are found
