@@ -465,7 +465,8 @@ class BrandSelectDropdown(ui.Select):
                 "canadagoose": "canadagoose",
                 "lv": "lvmodal",
                 "tnf": "tnfmodal",
-                "chewforever": "Chewforevermodal"
+                "chewforever": "Chewforevermodal",
+                "corteiz": "crtzmodal"
                 # Add other special cases as needed
             }
 

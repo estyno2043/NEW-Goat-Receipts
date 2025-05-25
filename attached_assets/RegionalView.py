@@ -1528,6 +1528,9 @@ async def handle_button_click(interaction: discord.Interaction, custom_id: str):
         elif custom_id == "coolblue":
             from modals.coolblue import coolbluemodal
             await interaction.response.send_modal(coolbluemodal())
+        elif custom_id == "corteiz":
+            from modals.crtz import crtzmodal
+            await interaction.response.send_modal(crtzmodal())
         elif custom_id == "culturekings":
             from modals.culturekings import ckmodal
             await interaction.response.send_modal(ckmodal())
