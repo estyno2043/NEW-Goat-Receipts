@@ -133,6 +133,48 @@ def update_subscription(user_id, subscription_type="Unlimited", days=365):
     conn.commit()
     conn.close()
 
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name} ({bot.user.id})')
+    
+    # Set up database
+    setup_database()
+    
+    # Initialize license database tables if needed
+    if os.path.exists('utils/db_init.py'):
+        from utils.db_init import init_db
+        init_db()
+
+    # Restore license cache from backup for faster startup validation
+    try:
+        from utils.license_backup import LicenseBackup
+        # Restore existing licenses to cache
+        await LicenseBackup.restore_licenses_to_cache()
+        # Start backup scheduler in background
+        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
+        print("License backup system initialized")
+    except Exception as e:
+        print(f"Failed to initialize license backup system: {e}")
+
+    # Initialize license checker for expired subscriptions
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
+
+    # Sync commands with Discord
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+        # Print more detailed error information
+        import traceback
+        traceback.print_exc()
+
 # Get user subscription info
 def get_subscription(user_id):
     try:
@@ -840,42 +882,6 @@ async def on_message(message):
     # Process commands
     await bot.process_commands(message)
 
-    # Initialize license database tables if needed
-    import os
-    if os.path.exists('utils/db_init.py'):
-        from utils.db_init import init_db
-        init_db()
-
-    # Restore license cache from backup for faster startup validation
-    try:
-        from utils.license_backup import LicenseBackup
-        # Restore existing licenses to cache
-        await LicenseBackup.restore_licenses_to_cache()
-        # Start backup scheduler in background
-        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
-        print("License backup system initialized")
-    except Exception as e:
-        print(f"Failed to initialize license backup system: {e}")
-
-    # Initialize license checker for expired subscriptions
-    try:
-        from utils.license_manager import LicenseManager
-        license_manager = LicenseManager(bot)
-        await license_manager.start_license_checker()
-        print("License checker started")
-    except Exception as e:
-        print(f"Failed to start license checker: {e}")
-
-    # Sync commands with Discord
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
-
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
@@ -1579,3 +1585,17 @@ async def menu_command(interaction: discord.Interaction):
             view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+# Start the bot
+if __name__ == "__main__":
+    # Register on_message event
+    bot.add_listener(on_message, "on_message")
+    
+    # Run the bot
+    token = os.getenv('BOT_TOKEN') or config.get('bot_token')
+    if not token:
+        print("Error: No bot token found. Please set it in config.json or as an environment variable.")
+        exit(1)
+    
+    print("Starting bot...")
+    bot.run(token)
