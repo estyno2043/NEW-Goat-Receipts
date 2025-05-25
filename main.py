@@ -545,6 +545,18 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Ebayconf modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Ebayconf" or brand.lower() == "ebayconf":
+                    # Special handling for Ebayconf
+                    try:
+                        from modals.ebayconf import EbayConfModal
+                        modal = EbayConfModal()
+                        modal.guild_id = guild_id
+                        modal.image_channel_id = image_channel_id
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Ebayconf modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
