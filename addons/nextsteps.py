@@ -29,7 +29,7 @@ from modals.flannels import flannelsmodal2
 from modals.gallerydept import gallerydeptmodal2
 from modals.grailed import grailedmodal2
 from modals.loropiana import loromodal2
-from modals.maisonmargiela import maisonmodal2
+from modals.maisonmargiela import maisonmodal, maisonmodal2
 from modals.pandora import pandoramodal2
 from modals.sephora import sephoramodal2
 from modals.stockx import stockxmodal2
@@ -305,6 +305,7 @@ class NextstepMaison(discord.ui.View):
     @discord.ui.button(label="Next Modal")
     async def nextmodal(self, interaction: discord.Interaction, Button: discord.ui.Button):
         if interaction.user.id == self.owner_id: 
+            from modals.maisonmargiela import maisonmodal2
             await interaction.response.send_modal(maisonmodal2())
         else:
             await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
