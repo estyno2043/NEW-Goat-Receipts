@@ -1210,7 +1210,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
         self.bot = None
         self.interaction = None
 
-    async def on_submit(self, self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         key = self.license_key.value.strip()
 
