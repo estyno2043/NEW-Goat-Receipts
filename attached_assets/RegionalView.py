@@ -164,7 +164,7 @@ all_brands = {
     'Gucci': guccimodal1,
     'Harrods': harrodsmodal,
     'Hermès': HermesModal,
-    'House of Fraser': houseoffrasermodal,
+    'House of Frasers': houseoffrasermodal,
     'iStores': istoresmodal,
     'JD Sports': jdsportsmodal,
     'Kick Game': kickgamemodal,
@@ -1418,7 +1418,7 @@ class USView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Guapi", custom_id="guapi", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Harrods", custom_id="harrods", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Hermès", custom_id="hermes", style=discord.ButtonStyle.primary))
-        self.add_item(discord.ui.Button(label="House of Fraser", custom_id="houseoffraser", style=discord.ButtonStyle.primary))
+        self.add_item(discord.ui.Button(label="House of Frasers", custom_id="houseoffraser", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="iStores", custom_id="istores", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="JD Sports", custom_id="jdsports", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Kick Game", custom_id="kickgame", style=discord.ButtonStyle.primary))
@@ -1441,7 +1441,7 @@ class USView(discord.ui.View):
         self.add_item(discord.ui.Button(label="Stussy", custom_id="stussy", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Supreme", custom_id="supreme", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Syna World", custom_id="synaworld", style=discord.ButtonStyle.primary))
-        self.add_item(discord.ui.Button(label="TNF", custom_id="tnf", style=discord.ButtonStyle.primary))
+        self.add_item(discord.ui.Button(label="The North Face", custom_id="tnf", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Trapstar", custom_id="trapstar", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="UGG", custom_id="ugg", style=discord.ButtonStyle.primary))
         self.add_item(discord.ui.Button(label="Vinted", custom_id="vinted", style=discord.ButtonStyle.primary))

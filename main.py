@@ -361,9 +361,26 @@ class BrandSelectDropdown(ui.Select):
         # Get modal files from the modals directory
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
 
-        # Extract brand names from the filenames
+        # Extract brand names from the filenames with proper naming
         for modal_file in modal_files:
-            brand_name = modal_file.split('.')[0].capitalize()
+            base_name = modal_file.split('.')[0]
+            
+            # Special case handling for specific brands
+            if base_name == "crtz":
+                brand_name = "Corteiz"
+            elif base_name == "houseoffrasers":
+                brand_name = "House of Frasers"
+            elif base_name == "istores":
+                brand_name = "iStores"
+            elif base_name == "lv":
+                brand_name = "Louis Vuitton"
+            elif base_name == "tnf":
+                brand_name = "The North Face"
+            elif base_name == "nosauce":
+                brand_name = "No Sauce The Plug"
+            else:
+                brand_name = base_name.capitalize()
+                
             available_brands.append(brand_name)
 
         # Sort alphabetically
