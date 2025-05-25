@@ -70,7 +70,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
         self.add_item(self.productcolor)
 
     async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content="Generating your Gucci receipt...", ephemeral=True)
+        await interaction.response.send_message(content="Generating your Gucci receipt...", ephemeral=False)
 
         # Retrieve user data
         member = interaction.user
@@ -143,7 +143,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
 
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, productname, productimage, link)
-            await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+            await interaction.followup.send(embed=embed, view=view, ephemeral=False)
 
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")

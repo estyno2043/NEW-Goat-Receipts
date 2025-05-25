@@ -82,8 +82,8 @@ class flannelsmodal(ui.Modal, title="Flannels Receipt"):
             currency = self.currency.value
 
             
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepFlannels(owner_id), ephemeral=True)
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepFlannels(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

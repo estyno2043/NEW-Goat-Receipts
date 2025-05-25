@@ -52,7 +52,7 @@ def is_gallerydept_link(link):
     return bool(adidas_pattern.match(link))
 
 
-class gallerydeptmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class gallerydeptmodal(ui.Modal, title="discord.gg/goatreceipts"):
     link = discord.ui.TextInput(label="Link", placeholder="https://gallerydept.com/....", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="190.00", required=True)
     delivery = discord.ui.TextInput(label="Delivery Costs", placeholder="10.00", required=True)
@@ -82,8 +82,8 @@ class gallerydeptmodal(ui.Modal, title="discord.gg/goatreceipt"):
             currency = self.currency.value
 
             
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGallerydept(owner_id), ephemeral=True)
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGallerydept(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

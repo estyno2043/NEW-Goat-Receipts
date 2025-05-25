@@ -54,7 +54,7 @@ def is_farfetch_link(link):
     return bool(farfetch_pattern.match(link))
 
 
-class farfetchmodal(ui.Modal, title="discord.gg/maison"):
+class farfetchmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="Farfetch EU link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -87,7 +87,7 @@ class farfetchmodal(ui.Modal, title="discord.gg/maison"):
 
             try:
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, ephemeral=False)
 
                 deliverydate = self.deliverydateff.value
 

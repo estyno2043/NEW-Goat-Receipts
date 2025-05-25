@@ -62,8 +62,8 @@ class guapimodal(ui.Modal, title="Guapi Order - Step 1"):
 
             # Scrape product information
             try:
-                embed = discord.Embed(title="Processing...", description="Scraping product details...", color=0x1e1f22)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                embed = discord.Embed(title="Processing...", description="Scraping product details...Please wait !", color=0x1e1f22)
+                await interaction.response.send_message(embed=embed, ephemeral=False)
 
                 # Configure proxies for scraping using Zyte API (as used in other modals)
                 proxies = {
@@ -135,7 +135,7 @@ class guapimodal(ui.Modal, title="Guapi Order - Step 1"):
                 await interaction.edit_original_response(
                     content="Click 'Next Page' to continue to the next set of inputs.",
                     embed=None,
-                    view=view, ephemeral=True
+                    view=view, ephemeral=False
                 )
 
             except Exception as e:
@@ -202,7 +202,7 @@ class GuapiNextButton(discord.ui.View):
             # Create embed for email provider choice
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(interaction.user.id, html_content, sender_email, subject, data['product_name'], data['product_image'], link)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 
         except Exception as e:
             await interaction.followup.send(f"Failed to prepare email options: {str(e)}", ephemeral=True)

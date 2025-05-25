@@ -42,7 +42,7 @@ def is_cernucci_link(link):
     cernucci_pattern = re.compile(r'^https?://((www\.|eu\.)?cernucci\.com|cernucci\.(eu|co\.uk|de|fr|it|es))/.+')
     return bool(cernucci_pattern.match(link))
 
-class cernuccimodal(ui.Modal, title="discord.gg/goatreceipt"):
+class cernuccimodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Product link *", placeholder="https://cernucci.com/...", required=True)
     Price = discord.ui.TextInput(label="Price without currency *", placeholder="143", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £) *", placeholder="€", required=True, min_length=1, max_length=2)

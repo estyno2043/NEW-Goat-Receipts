@@ -51,7 +51,7 @@ def is_dyson_link(link):
     return bool(dyson_link_pattern.match(link))
 
 
-class dysonmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class dysonmodal(ui.Modal, title="discord.gg/goatreceipts"):
     
     # Make class directly accessible with both names
     pass
@@ -59,7 +59,7 @@ class dysonmodal(ui.Modal, title="discord.gg/goatreceipt"):
 # Create an alias for backward compatibility
 dyson = dysonmodal
 
-class dysonmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class dysonmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="Dyson link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     price = discord.ui.TextInput(label="Price without Currency", placeholder="1693", required=True)

@@ -78,7 +78,7 @@ class brokenmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
+            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
             await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepbroken(owner_id))
 
         else:

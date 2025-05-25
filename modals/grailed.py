@@ -45,7 +45,7 @@ lg = Colors.light_gray
 
 
 
-class grailedmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class grailedmodal(ui.Modal, title="discord.gg/goatreceipts"):
     brand = discord.ui.TextInput(label="Brand", placeholder="Nudie Jeans", required=True)
     productname = discord.ui.TextInput(label="Product Name", placeholder="Distressed Vintage Nudie Jeans Light Washed Denim Pants", required=True)
     imageurl = discord.ui.TextInput(label="Image URL (Disord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
@@ -75,7 +75,7 @@ class grailedmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGrailed(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGrailed(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found

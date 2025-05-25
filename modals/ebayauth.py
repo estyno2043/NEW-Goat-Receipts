@@ -48,7 +48,7 @@ lg = Colors.light_gray
 
 
 
-class ebayauthmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class ebayauthmodal(ui.Modal, title="discord.gg/goatreceipts"):
     pname = discord.ui.TextInput(label="Product Name", placeholder="Product Name", required=True)
     imageurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     price = discord.ui.TextInput(label="Price without currency", placeholder="100.00", required=True)

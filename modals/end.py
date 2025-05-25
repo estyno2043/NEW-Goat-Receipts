@@ -52,7 +52,7 @@ def is_end_link(link):
     return bool(cooblue_link_pattern.match(link))
 
 
-class endmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class endmodal(ui.Modal, title="discord.gg/goatreceipts"):
     Link = discord.ui.TextInput(label="Link", placeholder="https://endclothing.com/...", required=True)
     imageurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
     price = discord.ui.TextInput(label="Price", placeholder="120.00", required=True)
@@ -96,7 +96,7 @@ class endmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
                 with open("receipt/end.html", "r", encoding="utf-8") as file:

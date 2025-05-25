@@ -45,7 +45,7 @@ class EbayConfModal(ui.Modal, title="eBay Receipt - Step 1"):
                 second_modal = EbayConfSecondModal(productname, productimagelink, productprice, productcurrency, productsku)
                 await interaction.response.send_modal(second_modal)
         
-        await interaction.response.send_message(embed=embed, view=ContinueButton(), ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=ContinueButton(), ephemeral=False)
 
 class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
     def __init__(self, productname, productimagelink, productprice, productcurrency, productsku):

@@ -53,7 +53,7 @@ def is_ck_link(link):
     return bool(ck_link_pattern.match(link))
 
 
-class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class ckmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
     # Create alias for compatibility
     Link = discord.ui.TextInput(label="Link", placeholder="https://culturekings.com/...", required=True)
@@ -83,7 +83,7 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
             with open("receipt/culturekings.html", "r", encoding="utf-8") as file:
