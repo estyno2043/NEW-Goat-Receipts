@@ -77,14 +77,11 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 
-        if not is_ck_link(link):
-            embed = discord.Embed(title="Error - Invalid Culturekings link", description="Please provide a valid Culturekings link.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-
-
         try:
+            if not is_ck_link(link):
+                embed = discord.Embed(title="Error - Invalid Culturekings link", description="Please provide a valid Culturekings link.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
 
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
