@@ -160,4 +160,7 @@ class ckmodal(ui.Modal, title="discord.gg/goatreceipt"):
 ckmodal.culturekingsmodal = ckmodal
 
 # Also export at module level for external imports
-ckmodal = ckmodal
+culturekingsmodal = ckmodal
+
+# Make sure ckmodal is globally available
+globals()['ckmodal'] = ckmodal
