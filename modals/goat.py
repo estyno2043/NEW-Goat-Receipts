@@ -56,6 +56,9 @@ class goat(ui.Modal, title="discord.gg/goatreceipt"):
     
     # Create alias for compatibility
     goatmodal = goat
+
+# Create a global variable to make the class accessible outside
+goatmodal = goat
     Link = discord.ui.TextInput(label="Link", placeholder="Goat link", required=True)
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     colorr = discord.ui.TextInput(label="Color", placeholder="Black", required=True)

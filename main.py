@@ -533,6 +533,19 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Dyson modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Goat":
+                    module_name = "modals.goat"
+                    modal_class_name = "goatmodal"
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.goat import goatmodal
+                        modal_class = goatmodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Goat modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Ebayconf" or brand.lower() == "ebayconf":
                     # Special handling for Ebayconf
                     try:
