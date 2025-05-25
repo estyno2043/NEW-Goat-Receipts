@@ -60,7 +60,7 @@ class adidasmodal(ui.Modal, title="Adidas Receipt"):
 
 
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepAdidas(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepAdidas(owner_id), ephemeral=False)
         else:
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
