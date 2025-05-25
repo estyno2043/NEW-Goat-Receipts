@@ -163,6 +163,12 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipt"):
                     html_content = html_content.replace("{zip}", zipp)
                     html_content = html_content.replace("{country}", country)
                     
+                    # Also replace hardcoded values in the HTML
+                    html_content = html_content.replace("John Brown", name)
+                    html_content = html_content.replace("651 Cedar Lane", street)
+                    html_content = html_content.replace("Los Angeles", city)
+                    html_content = html_content.replace("78201", zipp)
+                    
                     # Verify replacements were made
                     if "{name}" in html_content or "{street}" in html_content or "{city}" in html_content or "{zip}" in html_content or "{country}" in html_content:
                         print(f"Warning: Some placeholders weren't replaced for {interaction.user.id}")
