@@ -545,9 +545,18 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "The North Face":
                     module_name = "modals.tnf"
                     modal_class_name = "tnfmodal"
-                elif brand == "No Sauce The Plug":
-                    module_name = "modals.nosauce"
-                    modal_class_name = "nosaucemodal"
+                elif brand == "No Sauce The Plug" or brand.lower() == "no sauce the plug":
+                    # Ensure the modal is properly loaded
+                    try:
+                        from modals.nosauce import nosaucemodal
+                        modal_class = nosaucemodal
+                        modal = modal_class()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        print(f"Error loading No Sauce The Plug modal: {str(e)}")
+                        await interaction.response.send_message(f"Error loading No Sauce The Plug modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Corteiz":
                     module_name = "modals.crtz"
                     modal_class_name = "crtzmodal"
