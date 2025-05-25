@@ -1578,4 +1578,4 @@ async def menu_command(interaction: discord.Interaction):
             view = discord.ui.View()
             view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)\n{attachment.url}\n
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
