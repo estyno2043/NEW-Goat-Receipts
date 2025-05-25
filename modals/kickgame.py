@@ -145,14 +145,11 @@ class kickgamemodal2(discord.ui.Modal, title="Kick Game Receipt Generator (2/2)"
             return
 
         # Get shipping details from interaction user's profile
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(interaction.user.id),))
-        user_details = cursor.fetchone()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(interaction.user.id)
 
         if user_details:
-            name, street, city, zipp, country = user_details
+            name, street, city, zipp, country, email = user_details
         else:
             # Fallback to default values if no user details found
             name = "Laura Vincent"

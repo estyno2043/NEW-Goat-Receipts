@@ -37,15 +37,11 @@ class guapimodal(ui.Modal, title="Guapi Order - Step 1"):
         owner_id = interaction.user.id 
 
         # Get user details from database
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
-        conn.close()
-
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
+        
         if user_details:
-            name, street, city, zipp, country = user_details
+            name, street, city, zipp, country, email = user_details
 
             # Validate the product link
             productlink = self.productlink.value

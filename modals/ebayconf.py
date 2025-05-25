@@ -65,7 +65,7 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
         # Get user details from database
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
-
+        
         if user_details:
             name, street, city, zipp, country, email = user_details
 

@@ -48,6 +48,7 @@ class houseofffrasersmodal2(ui.Modal, title="House of Fraser Receipt Generator (
             shippingcost = self.shippingcost.value
 
             # Get user details from database
+            from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
             
             if user_details:

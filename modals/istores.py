@@ -16,15 +16,11 @@ class istoresmodal(ui.Modal, title="iStores Order - Step 1"):
         owner_id = interaction.user.id 
 
         # Get user details from database
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
-        conn.close()
-
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
+        
         if user_details:
-            name, street, city, zipp, country = user_details
+            name, street, city, zipp, country, email = user_details
 
             # Save the values as class attributes for later access
             istoresmodal.productname_value = self.productname.value
