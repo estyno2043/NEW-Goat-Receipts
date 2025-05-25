@@ -1,3 +1,4 @@
+# Improved get_user_details function to include email from both tables, handling None values and updating the licenses table.
 import sqlite3
 import contextlib
 import threading
@@ -127,21 +128,37 @@ def execute_query(query, params=None, fetchone=False, fetchall=False):
         raise
 
 def get_user_details(user_id):
-    """Get user details from the database for receipt generation
-
-    Args:
-        user_id: The Discord user ID
-
-    Returns:
-        Tuple containing (name, street, city, zip, country, email) or None if not found
-    """
+    """Get user details from the database"""
     try:
-        query = "SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?"
-        result = execute_query(query, (str(user_id),), fetchone=True)
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+
+        # Try to get data from licenses table first
+        cursor.execute("SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?", (str(user_id),))
+        result = cursor.fetchone()
+
+        # If we have a result but email is None, try to get email from user_emails table
+        if result and (result['email'] is None or result['email'] == ''):
+            cursor.execute("SELECT email FROM user_emails WHERE user_id = ?", (str(user_id),))
+            email_result = cursor.fetchone()
+
+            if email_result and email_result and email_result[0]:
+                # Create a new tuple with the email from user_emails
+                result = tuple(result)
+                result_list = list(result)
+                result_list[5] = email_result[0]
+                result = tuple(result_list)
+
+                # Update the licenses table with this email for future use
+                cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email_result[0], str(user_id)))
+                conn.commit()
         if result:
             return (result['name'], result['street'], result['city'], result['zipp'], result['country'], result['email'])
         else:
             return None
+
+        conn.close()
+        return result
     except Exception as e:
-        print(f"Error getting user details: {e}")
+        print(f"Error getting user details: {str(e)}")
         return None

@@ -218,12 +218,32 @@ class EmailForm(ui.Modal, title="Email Settings"):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        # Save email to database
+        # Save email to database using both methods for redundancy
+        from utils.db_utils import save_user_email
+        
+        # Save to user_emails table
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", (user_id, email))
+        
+        # Also update licenses table if the user exists there
+        cursor.execute("SELECT 1 FROM licenses WHERE owner_id = ?", (user_id,))
+        if cursor.fetchone():
+            cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email, user_id))
+        
         conn.commit()
         conn.close()
+        
+        # Double-check with the utility function
+        save_user_email(user_id, email)
+        
+        # Show success message
+        embed = discord.Embed(
+            title="Email Saved",
+            description=f"Your email ({email}) has been saved successfully.",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
         # Send success message to user
         success_embed = discord.Embed(
