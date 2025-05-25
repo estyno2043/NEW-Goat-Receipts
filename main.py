@@ -512,7 +512,7 @@ class BrandSelectDropdown(ui.Select):
                     modal_class_name = "ckmodal"
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
-                    modal_class_name = "AmazonUKModal"
+                    modal_class_name = "amazonukmodal"
                 
                 modal_module = importlib.import_module(module_name)
 
