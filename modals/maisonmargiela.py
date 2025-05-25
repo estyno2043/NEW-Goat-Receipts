@@ -43,7 +43,7 @@ r = Colors.red
 lg = Colors.light_gray
 
 
-class maisonmodal(ui.Modal, title="discord.gg/goatreceipt"):
+class maisonmodal(ui.Modal, title="Maison Margiela"):
 
     pname = ui.TextInput(label="Product Name", placeholder="Shoes", required=True)
     imageurl = ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/...", required=True)

@@ -785,7 +785,10 @@ class CredentialsDropdownView(ui.View):
                 discord.SelectOption(
                     label="Clear Info", 
                     description="Remove all saved data",
-                    emoji="🗑\n{attachment.url}\n```", mention_author=False)
+                    emoji="🗑"
+                )
+            ]
+        )
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
