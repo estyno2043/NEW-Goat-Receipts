@@ -305,8 +305,11 @@ class NextstepMaison(discord.ui.View):
     @discord.ui.button(label="Next Modal")
     async def nextmodal(self, interaction: discord.Interaction, Button: discord.ui.Button):
         if interaction.user.id == self.owner_id: 
-            from modals.maisonmargiela import maisonmodal2
-            await interaction.response.send_modal(maisonmodal2())
+            try:
+                from modals.maisonmargiela import maisonmodal2
+                await interaction.response.send_modal(maisonmodal2())
+            except Exception as e:
+                await interaction.response.send_message(content=f"Error: {str(e)}", ephemeral=True)
         else:
             await interaction.response.send_message(content="That is not your panel", ephemeral=True) 
 

@@ -607,14 +607,22 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Maison Margiela" or brand.lower() == "maisonmargiela":
                     # Special handling for Maison Margiela
                     try:
-                        from modals.maisonmargiela import maisonmodal
-                        modal = maisonmodal()
+                        from modals.maisonmargiela import maisonmodal as MaisonMargielaModal
+                        modal = MaisonMargielaModal()
                         await interaction.response.send_modal(modal)
                         return
                     except Exception as e:
                         print(f"Error loading Maison Margiela modal: {str(e)}")
-                        await interaction.response.send_message(f"Error loading Maison Margiela modal: {str(e)}", ephemeral=True)
-                        return
+                        # Try alternative approach
+                        try:
+                            from modals.maisonmargiela import maisonmargielamodal
+                            modal = maisonmargielamodal()
+                            await interaction.response.send_modal(modal)
+                            return
+                        except Exception as nested_e:
+                            print(f"Alternative approach failed: {str(nested_e)}")
+                            await interaction.response.send_message(f"Error loading Maison Margiela modal: {str(e)}", ephemeral=True)
+                            return
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
