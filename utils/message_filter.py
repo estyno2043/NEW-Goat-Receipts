@@ -18,12 +18,14 @@ class MessageFilter:
         if message.guild and message.author.id == message.guild.owner_id:
             return False
         
-        # Specific channel to enforce message deletion (Channel ID: 1359498078482075759)
-        if message.guild and str(message.channel.id) == "1359498078482075759":
+        # Specific channels to enforce message deletion
+        commands_only_channels = ["1359498078482075759", "1374468007472009216"]
+        if message.guild and str(message.channel.id) in commands_only_channels:
             try:
-                # Delete any message in this specific channel
-                await message.delete()
-                return True
+                # Delete any message in these specific channels unless it's a valid slash command
+                if not message.interaction:
+                    await message.delete()
+                    return True
             except Exception as e:
                 print(f"Error deleting message from specific channel: {e}")
                 

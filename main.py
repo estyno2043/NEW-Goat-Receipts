@@ -1291,6 +1291,15 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    # Initialize and check message filter
+    from utils.message_filter import MessageFilter
+    message_filter = MessageFilter(bot)
+    was_filtered = await message_filter.check_message(message)
+    
+    # If message was filtered (deleted), don't process further
+    if was_filtered:
+        return
+
     # Check if the message is in the image URL channel
     if message.channel.id == 1375843777406570516:
         # Check if the message has an attachment
