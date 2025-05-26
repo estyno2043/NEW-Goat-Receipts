@@ -1988,6 +1988,10 @@ async def redeem_command(interaction: discord.Interaction):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
+    # Send ephemeral acknowledgment
+    await interaction.response.send_message("Command received.", ephemeral=True)
+
+    # Send the public panel message
     embed = discord.Embed(
         title="Redeem License Key",
         description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1339335959652602010> and open ticket describing your issue!",
@@ -1995,7 +1999,7 @@ async def redeem_command(interaction: discord.Interaction):
     )
 
     view = RedeemKeyView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.followup.send(embed=embed, view=view, ephemeral=False)
 
 @bot.tree.command(name="keygen", description="Generate license keys (Owner only)")
 async def keygen_command(interaction: discord.Interaction):
