@@ -220,10 +220,10 @@ class EmailForm(ui.Modal, title="Email Settings"):
         if self.is_icloud_email(email):
             embed = discord.Embed(
                 title="Email Not Saved",
-                description="Your iCloud email was not saved since receipt delivery to iCloud mail won't function. Please change it to **Gmail, Outlook or Yahoo** for successful delivery.\n\n-# This way you won't waste your credits",
+                description="Your iCloud email was not saved since receipt delivery to iCloud mail won't function. Please change it to **Gmail, Outlook or Yahoo** for successful delivery.\n\n-# This way you won't waste your limit",
                 color=discord.Color.from_str("#c2ccf8")
             )
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # Save email to database using both methods for redundancy
@@ -1596,7 +1596,7 @@ async def generate_command(interaction: discord.Interaction):
                     expired_date = license_status["expired_date"]
                     embed = discord.Embed(
                         title="Subscription Expired",
-                        description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
+                        description=f"Your subscription expired on `{expired_date}`. Please renew your subscription below to continue using our services.",
                         color=discord.Color.red()
                     )
 
