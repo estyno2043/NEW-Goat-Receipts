@@ -42,6 +42,22 @@ from pystyle import Colors
 r = Colors.red
 lg = Colors.light_gray
 
+def scrape_cartier_with_proxy(url):
+    """Scrape Cartier product page using proxy with SSL verification disabled"""
+    try:
+        response = requests.get(
+            url=url,
+            proxies={
+                "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+            },
+            verify=False,  # Disable SSL verification
+            timeout=10
+        )
+        return response
+    except requests.RequestException as e:
+        print(f"Warning: Failed to connect to Cartier via proxy: {str(e)}")
+        return None
 
 
 class cartiermodal(ui.Modal, title="discord.gg/goatreceipts"):
@@ -132,10 +148,14 @@ class cartiermodal2(ui.Modal, title="Cartier Receipt"):
             print(f"[{Colors.green}Scraping DONE{lg}] cartier -> {interaction.user.id} ({interaction.user})" + lg)
             print()
 
-
-
-
-
+            # Try to scrape Cartier page using proxy (but continue if it fails)
+            try:
+                cartier_url = "https://cartier.com"
+                proxy_response = scrape_cartier_with_proxy(cartier_url)
+                if proxy_response:
+                    print(f"Successfully connected to Cartier via proxy for product: {product_name}")
+            except Exception as proxy_error:
+                print(f"Proxy scraping failed for Cartier product {product_name}: {str(proxy_error)}")
 
             # Calculate total and ensure all values have 2 decimal places
             fulltotal = shipping + tax + Price
