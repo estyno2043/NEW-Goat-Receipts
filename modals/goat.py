@@ -115,8 +115,21 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                     verify=False
                 )
 
+                # Check if API response is valid
+                if api_response.status_code != 200:
+                    raise Exception(f"Zyte API request failed with status code: {api_response.status_code}")
+                
+                # Try to parse JSON response
+                try:
+                    api_json = api_response.json()
+                except ValueError as e:
+                    raise Exception(f"Invalid JSON response from Zyte API: {str(e)}")
+                
                 # Decode HTML data and parse it
-                browser_html = api_response.json().get("browserHtml")
+                browser_html = api_json.get("browserHtml")
+                if not browser_html:
+                    raise Exception("No browserHtml data received from Zyte API")
+                
                 soup = BeautifulSoup(browser_html, 'html.parser')
                 print()
                 print(f"[{Colors.green}START Scraping{lg}] GOAT -> {interaction.user.id} ({interaction.user})" + lg)
@@ -127,10 +140,12 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                 product_name = "Product Name not found"
 
                 # Check for additional product information in API response
-                product_data = api_response.json().get("product")
+                product_data = api_json.get("product")
                 if product_data:
                     product_name = product_data.get("name", product_name)  # Override if name found
-                    og_image_url = product_data.get("mainImage", {}).get("url", og_image_url)  # Override if mainImage URL found
+                    main_image = product_data.get("mainImage")
+                    if main_image and isinstance(main_image, dict):
+                        og_image_url = main_image.get("url", og_image_url)  # Override if mainImage URL found
 
 
                 print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
