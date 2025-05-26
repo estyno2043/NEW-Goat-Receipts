@@ -102,7 +102,7 @@ class crtzmodal(ui.Modal, title="discord.gg/goatreceipts"):
                         "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                         "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     },
-                    verify='zyte-ca.crt' 
+                    verify=False 
                 )
 
 
