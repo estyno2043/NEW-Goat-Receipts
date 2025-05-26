@@ -27,6 +27,23 @@ def is_adidas_link(link):
 
     return bool(adidas_pattern.match(link))
 
+def scrape_adidas_with_proxy(url):
+    """Scrape Adidas product page using proxy with SSL verification disabled"""
+    try:
+        response = requests.get(
+            url=url,
+            proxies={
+                "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+            },
+            verify=False,  # Disable SSL verification
+            timeout=10
+        )
+        return response
+    except requests.RequestException as e:
+        print(f"Warning: Failed to connect to Adidas via proxy: {str(e)}")
+        return None
+
 
 class adidasmodal(ui.Modal, title="Adidas Receipt"):
     image_url = discord.ui.TextInput(label="Product Image URL", placeholder="https://example.com/image.jpg", required=True)
@@ -146,6 +163,14 @@ class adidasmodal2(ui.Modal, title="Adidas Receipt"):
 
                 # Create link from the product name and image URL for reference
                 link = is_adidas_link(image_url) and image_url or f"https://adidas.com/search?q={pname.replace(' ', '+')}"
+
+                # Try to scrape Adidas page using proxy (but continue if it fails)
+                try:
+                    proxy_response = scrape_adidas_with_proxy(link)
+                    if proxy_response:
+                        print(f"Successfully connected to Adidas via proxy for product: {pname}")
+                except Exception as proxy_error:
+                    print(f"Proxy scraping failed for Adidas product {pname}: {str(proxy_error)}")
 
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
                 view = choiseView(owner_id, html_content, sender_email, subject, pname, image_url, link)
