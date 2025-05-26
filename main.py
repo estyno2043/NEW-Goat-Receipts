@@ -470,6 +470,9 @@ class BrandSelectDropdown(ui.Select):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
+        # Check if user should receive review request (after 3 receipts)
+        rate_limiter.check_review_request(interaction.user.id, count, interaction.client, interaction.channel)
+
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
