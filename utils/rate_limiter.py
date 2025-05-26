@@ -210,7 +210,7 @@ class ReceiptRateLimiter:
 
                 # Send review request message
                 import asyncio
-                asyncio.create_task(self._send_review_message(channel))
+                asyncio.create_task(self._send_review_message(channel, user_id))
                 return True
 
             return False
@@ -219,7 +219,7 @@ class ReceiptRateLimiter:
             print(f"Error checking review request: {e}")
             return False
 
-    async def _send_review_message(self, channel):
+    async def _send_review_message(self, channel, user_id=None):
         """Send the review request message to the channel"""
         try:
             import discord
@@ -228,6 +228,9 @@ class ReceiptRateLimiter:
                 description="**Please consider leaving a review in** <#1339306483816337510>\n-# Your input helps us improve.",
                 color=discord.Color.gold()
             )
-            await channel.send(embed=embed)
+            
+            # Send with user mention if provided
+            content = f"<@{user_id}>" if user_id else None
+            await channel.send(content=content, embed=embed)
         except Exception as e:
             print(f"Error sending review message: {e}")
