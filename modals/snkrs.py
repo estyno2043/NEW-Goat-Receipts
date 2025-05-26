@@ -59,7 +59,7 @@ class snkrsmodal(ui.Modal, title="discord.gg/goatreceipts"):
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
@@ -108,7 +108,8 @@ class snkrsmodal(ui.Modal, title="discord.gg/goatreceipts"):
                         "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                         "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     },
-                    verify=False  # Disable SSL verification
+                    verify=False,
+                    timeout=10
                 )
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
                 view = choiseView(owner_id, html_content, sender_email, subject, pname, imageurl, link)

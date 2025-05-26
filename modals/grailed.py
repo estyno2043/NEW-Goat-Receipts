@@ -60,7 +60,7 @@ class grailedmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
-        
+
         if user_details:
             name, street, city, zipp, country, email = user_details
 
@@ -168,3 +168,13 @@ class grailedmodal2(ui.Modal, title="Grailed Receipt"):
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.edit_original_response(embed=embed)
+
+response = requests.get(
+                url="https://example.com",
+                proxies={
+                    "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                    "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                },
+                verify=False,
+                timeout=10
+            )
