@@ -245,18 +245,10 @@ class EmailForm(ui.Modal, title="Email Settings"):
         # Double-check with the utility function
         save_user_email(user_id, email)
 
-        # Show success message
-        embed = discord.Embed(
-            title="Email Saved",
-            description=f"Your email ({email}) has been saved successfully.",
-            color=discord.Color.green()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-
         # Send success message to user
         success_embed = discord.Embed(
-            title="Success",
-            description=f"-# Your email has been set to: `{email}`",
+            title="Email Saved",
+            description=f"Your email has been saved successfully.\n\n-# Your email has been set to: `{email}`",
             color=discord.Color.from_str("#c2ccf8")
         )
         await interaction.response.send_message(embed=success_embed, ephemeral=True)
