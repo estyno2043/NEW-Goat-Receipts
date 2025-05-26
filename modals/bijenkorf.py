@@ -24,6 +24,24 @@ def is_bijenkorf_link(link):
     bijenkorf_pattern = re.compile(r'^https?://(www\.)?(debijenkorf\.(nl|be))(/.+)?')
     return bool(bijenkorf_pattern.match(link))
 
+def scrape_bijenkorf_with_proxy(url):
+    """Scrape Bijenkorf product page using proxy with SSL verification disabled"""
+    try:
+        import requests
+        response = requests.get(
+            url=url,
+            proxies={
+                "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+            },
+            verify=False,  # Disable SSL verification
+            timeout=10
+        )
+        return response
+    except requests.RequestException as e:
+        print(f"Warning: Failed to connect to Bijenkorf via proxy: {str(e)}")
+        return None
+
 class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
     productname = discord.ui.TextInput(label="Product Name", placeholder="Filippa K", required=True)
     imageurl = discord.ui.TextInput(label="Product Image URL", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
@@ -51,6 +69,15 @@ class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
             print(f"    [{Colors.cyan}Scraping{lg}] Product Category: {productcategory}" + lg)
             print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {imageurl}" + lg)
             print(f"    [{Colors.cyan}Scraping{lg}] Order Date: {orderdate}" + lg)
+            
+            # Try to scrape Bijenkorf page using proxy (but continue if it fails)
+            try:
+                proxy_response = scrape_bijenkorf_with_proxy(imageurl)
+                if proxy_response:
+                    print(f"Successfully connected to Bijenkorf via proxy for product: {productname}")
+            except Exception as proxy_error:
+                print(f"Proxy scraping failed for Bijenkorf product {productname}: {str(proxy_error)}")
+            
             print(f"[{Colors.green}Scraping DONE{lg}] Bijenkorf -> {interaction.user.id}" + lg)
             print()
 
