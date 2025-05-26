@@ -101,16 +101,14 @@ class SubscriptionOption(discord.ui.Select):
                 print(f"Added client role to {self.user.display_name}")
 
             # Add subscription-specific roles based on subscription type
-            subscription_type = self.subscription_type.values[0]
-            
-            if subscription_type == "1monthstandard":
+            if selected == "1_month":
                 # Add 1 month role
                 month_role = discord.utils.get(interaction.guild.roles, id=1372256426684317909)
                 if month_role:
                     await self.user.add_roles(month_role)
                     print(f"Added 1 month role to {self.user.display_name}")
             
-            elif subscription_type == "lifetimestandard":
+            elif selected == "lifetime":
                 # Add lifetime role
                 lifetime_role = discord.utils.get(interaction.guild.roles, id=1372256491729453168)
                 if lifetime_role:
