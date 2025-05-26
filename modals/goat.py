@@ -98,58 +98,102 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
                 # Zyte API setup
                 url = link  # Link should be defined or passed into the class
 
-                # Zyte API request
-                api_response = requests.post(
-                    "https://api.zyte.com/v1/extract",
-                    auth=("a9abed72c425496584d422cfdba283d2", ""),
-                    json={
-                        "url": url,
-                        "browserHtml": True,
-                        "product": True,
-                        "productOptions": {"extractFrom": "browserHtml"},
-                    },
-                    proxies={
-                        "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                        "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                    },
-                    verify=False
-                )
-
-                # Check if API response is valid
-                if api_response.status_code != 200:
-                    raise Exception(f"Zyte API request failed with status code: {api_response.status_code}")
+                # Try Zyte API first, with fallback to direct proxy request
+                og_image_url = "https://cdn.goat.com/web-platform/v1/style/images/goat_logo.svg"
+                product_name = "GOAT Product"
                 
-                # Try to parse JSON response
                 try:
-                    api_json = api_response.json()
-                except ValueError as e:
-                    raise Exception(f"Invalid JSON response from Zyte API: {str(e)}")
-                
-                # Decode HTML data and parse it
-                browser_html = api_json.get("browserHtml")
-                if not browser_html:
-                    raise Exception("No browserHtml data received from Zyte API")
-                
-                soup = BeautifulSoup(browser_html, 'html.parser')
-                print()
-                print(f"[{Colors.green}START Scraping{lg}] GOAT -> {interaction.user.id} ({interaction.user})" + lg)
+                    # Zyte API request
+                    api_response = requests.post(
+                        "https://api.zyte.com/v1/extract",
+                        auth=("a9abed72c425496584d422cfdba283d2", ""),
+                        json={
+                            "url": url,
+                            "browserHtml": True,
+                            "product": True,
+                            "productOptions": {"extractFrom": "browserHtml"},
+                        },
+                        proxies={
+                            "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                            "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                        },
+                        verify=False,
+                        timeout=15
+                    )
 
+                    # Check if API response is valid
+                    if api_response.status_code == 200:
+                        # Try to parse JSON response
+                        try:
+                            api_json = api_response.json()
+                            
+                            # Decode HTML data and parse it
+                            browser_html = api_json.get("browserHtml")
+                            if browser_html:
+                                soup = BeautifulSoup(browser_html, 'html.parser')
+                                print()
+                                print(f"[{Colors.green}START Scraping{lg}] GOAT -> {interaction.user.id} ({interaction.user})" + lg)
 
-                og_image_url = "Image URL not found"
+                                # Check for additional product information in API response
+                                product_data = api_json.get("product")
+                                if product_data:
+                                    product_name = product_data.get("name", product_name)
+                                    main_image = product_data.get("mainImage")
+                                    if main_image and isinstance(main_image, dict):
+                                        og_image_url = main_image.get("url", og_image_url)
 
-                product_name = "Product Name not found"
-
-                # Check for additional product information in API response
-                product_data = api_json.get("product")
-                if product_data:
-                    product_name = product_data.get("name", product_name)  # Override if name found
-                    main_image = product_data.get("mainImage")
-                    if main_image and isinstance(main_image, dict):
-                        og_image_url = main_image.get("url", og_image_url)  # Override if mainImage URL found
-
-
-                print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
-                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {og_image_url}" + lg)
+                                print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {og_image_url}" + lg)
+                            else:
+                                print(f"[{Colors.yellow}Warning{lg}] No browserHtml data received from Zyte API")
+                                raise Exception("No browserHtml data")
+                        except ValueError as e:
+                            print(f"[{Colors.yellow}Warning{lg}] Invalid JSON response from Zyte API: {str(e)}")
+                            raise Exception(f"Invalid JSON response: {str(e)}")
+                    else:
+                        print(f"[{Colors.yellow}Warning{lg}] Zyte API failed with status {api_response.status_code}, trying fallback")
+                        raise Exception(f"Zyte API failed with status code: {api_response.status_code}")
+                        
+                except Exception as zyte_error:
+                    print(f"[{Colors.yellow}Warning{lg}] Zyte API failed: {str(zyte_error)}")
+                    print(f"[{Colors.cyan}Info{lg}] Using fallback method with default values")
+                    
+                    # Fallback: try direct proxy request
+                    try:
+                        fallback_response = requests.get(
+                            url=url,
+                            proxies={
+                                "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                                "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                            },
+                            verify=False,
+                            timeout=10,
+                            headers={
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                            }
+                        )
+                        
+                        if fallback_response.status_code == 200:
+                            soup = BeautifulSoup(fallback_response.text, 'html.parser')
+                            print(f"[{Colors.green}START Scraping{lg}] GOAT (Fallback) -> {interaction.user.id} ({interaction.user})" + lg)
+                            
+                            # Try to extract basic product info
+                            title_tag = soup.find('title')
+                            if title_tag:
+                                product_name = title_tag.get_text().strip()
+                                
+                            # Try to find product image
+                            og_image = soup.find('meta', {'property': 'og:image'})
+                            if og_image and og_image.get('content'):
+                                og_image_url = og_image['content']
+                                
+                            print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                            print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {og_image_url}" + lg)
+                        else:
+                            print(f"[{Colors.yellow}Warning{lg}] Fallback request also failed with status {fallback_response.status_code}")
+                    except Exception as fallback_error:
+                        print(f"[{Colors.yellow}Warning{lg}] Fallback method failed: {str(fallback_error)}")
+                        print(f"[{Colors.cyan}Info{lg}] Using default values for receipt generation")
 
 
 
