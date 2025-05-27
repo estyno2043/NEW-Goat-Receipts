@@ -217,6 +217,29 @@ class ReceiptRateLimiter:
             print(f"Error checking review request: {e}")
             return False
 
+    def reset_user_limit(self, user_id):
+        """Reset rate limit for a specific user (admin function)"""
+        try:
+            self._initialize_table()
+            user_id = str(user_id)
+            
+            # Remove from rate limits table
+            execute_query(
+                "DELETE FROM receipt_rate_limits WHERE user_id = ?",
+                params=(user_id,)
+            )
+            
+            # Remove from review requests table
+            execute_query(
+                "DELETE FROM review_requests WHERE user_id = ?",
+                params=(user_id,)
+            )
+            
+            return True
+        except Exception as e:
+            print(f"Error resetting user limit: {e}")
+            return False
+
     async def _send_review_message(self, channel, user_id=None):
         """Send the review request message to the channel"""
         try:
