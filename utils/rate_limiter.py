@@ -44,10 +44,10 @@ class ReceiptRateLimiter:
                 config = json.load(f)
                 if str(user_id) == config.get("owner_id"):
                     return True, 0, 0, 0
-                    
+
             # Add the actual rate limiting logic here if needed
             return True, 0, 0, 0
-            
+
         except Exception as e:
             print(f"Error in add_receipt: {e}")
             return True, 0, 0, 0
@@ -170,10 +170,6 @@ class ReceiptRateLimiter:
                 f"> -# You can generate your next receipt in {time_str}."
             )
 
-        except Exception as e:
-            print(f"Error getting rate limit message: {e}")
-            return None
-
     def check_review_request(self, user_id, current_count, bot, channel):
         """
         Check if user should receive a review request after generating 3 receipts
@@ -210,7 +206,7 @@ class ReceiptRateLimiter:
             if current_count == 3:
                 # Mark review as sent
                 execute_query(
-                    "INSERT OR REPLACE INTO review_requests (user_id, review_sent, receipts_at_request) VALUES (?, ?, ?)",
+                    "INSERT OR REPLACE INTO review_requests (user_id, review_sent, receipts_at_request) VALUES (?, ?, ?, ?)",
                     params=(user_id, True, current_count)
                 )
 
