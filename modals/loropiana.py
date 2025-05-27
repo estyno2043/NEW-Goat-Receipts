@@ -54,10 +54,7 @@ class loromodal(ui.Modal, title="discord.gg/goatreceipts"):
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     color = discord.ui.TextInput(label="Color", placeholder="Black", required=True)
 
-# Create alias for compatibility
-loropianamodal = loromodal
-
-async def on_submit(self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         global name, street, city, zipp, country, pname, imageurl, price, currency, color
         from addons.nextsteps import NextstepLoro
         owner_id = interaction.user.id 
@@ -86,8 +83,8 @@ async def on_submit(self, interaction: discord.Interaction):
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-
-
+# Create alias for compatibility
+loropianamodal = loromodal
 
 class loromodal2(ui.Modal, title="Loro Piana Receipt"):
     size = discord.ui.TextInput(label="Size", placeholder="M", required=True)
