@@ -202,7 +202,7 @@ class ReceiptRateLimiter:
             if current_count == 3:
                 # Mark review as sent
                 execute_query(
-                    "INSERT OR REPLACE INTO review_requests (user_id, review_sent, receipts_at_request) VALUES (?, ?, ?, ?)",
+                    "INSERT OR REPLACE INTO review_requests (user_id, review_sent, receipts_at_request) VALUES (?, ?, ?)",
                     params=(user_id, True, current_count)
                 )
 
