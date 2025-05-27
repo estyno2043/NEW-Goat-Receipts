@@ -444,27 +444,6 @@ class BrandSelectDropdown(ui.Select):
             await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
-        # Check rate limit before proceeding
-        from utils.rate_limiter import ReceiptRateLimiter
-        rate_limiter = ReceiptRateLimiter()
-        is_allowed, count, reset_time, remaining_time = rate_limiter.add_receipt(interaction.user.id)
-        
-        if not is_allowed:
-            time_str = rate_limiter.format_time_remaining(remaining_time)
-            embed = discord.Embed(
-                title="Rate Limited",
-                description=f"🧾 **Whoa there, Receipt Champ!** 🏆\n\n"
-                           f"You've already whipped up 5 receipts in the last 3 hours.\n"
-                           f"Let the printer cool down before you cook up more. 🖨️🔥\n\n"
-                           f"> -# You can generate your next receipt in {time_str}.",
-                color=discord.Color.orange()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Check if user should receive review request (after 3 receipts)
-        rate_limiter.check_review_request(interaction.user.id, count, interaction.client, interaction.channel)
-
         brand = self.values[0]
         user_id = str(interaction.user.id)
         guild_id = str(interaction.guild.id if interaction.guild else "0")
@@ -1366,20 +1345,6 @@ async def on_message(message):
 async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     guild_id = str(interaction.guild.id if interaction.guild else "0")
-
-    # Check rate limit first
-    from utils.rate_limiter import ReceiptRateLimiter
-    rate_limiter = ReceiptRateLimiter()
-    rate_limit_message = rate_limiter.get_rate_limit_message(user_id)
-    
-    if rate_limit_message:
-        embed = discord.Embed(
-            title="Rate Limited",
-            description=rate_limit_message,
-            color=discord.Color.orange()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
 
     # Load config to get main guild ID
     try:

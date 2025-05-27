@@ -454,58 +454,7 @@ class AdminCommands(commands.Cog):
 
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
-    @app_commands.command(name="reset", description="Reset a user's rate limit (Owner only)")
-    async def reset_rate_limit(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can use this command.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Connect to database and reset user's rate limit
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        try:
-            # Remove user from rate limit table
-            cursor.execute("DELETE FROM receipt_rate_limits WHERE user_id = ?", (str(user.id),))
-            
-            # Also remove from review requests table to allow them to get review request again
-            cursor.execute("DELETE FROM review_requests WHERE user_id = ?", (str(user.id),))
-            
-            conn.commit()
-            
-            # Clear cache if it exists
-            from utils.rate_limiter import ReceiptRateLimiter
-            rate_limiter = ReceiptRateLimiter()
-            
-            embed = discord.Embed(
-                title="Rate Limit Reset",
-                description=f"Successfully reset rate limit for {user.mention}.\n\nThey can now generate 5 receipts again.",
-                color=discord.Color.green()
-            )
-            
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            
-        except Exception as e:
-            print(f"Error resetting rate limit: {e}")
-            embed = discord.Embed(
-                title="Error",
-                description="An error occurred while resetting the rate limit.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            
-        finally:
-            conn.close()
+    
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
