@@ -45,6 +45,23 @@ class choiseView(discord.ui.View):
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
+            # Check rate limit before proceeding
+            from utils.rate_limiter import ReceiptRateLimiter
+            rate_limiter = ReceiptRateLimiter()
+
+            is_allowed, count, reset_time, remaining_time = rate_limiter.check_rate_limit(self.owner_id)
+
+            if not is_allowed:
+                rate_limit_message = rate_limiter.get_rate_limit_message(self.owner_id)
+                if rate_limit_message:
+                    embed = discord.Embed(
+                        title="Rate Limited",
+                        description=rate_limit_message,
+                        color=discord.Color.red()
+                    )
+                    await interaction.edit_original_response(embed=embed, view=None)
+                    return
+
             # Get user email from database with enhanced error handling and debugging
             try:
                 from utils.db_utils import get_user_details, save_user_email
@@ -156,6 +173,9 @@ class choiseView(discord.ui.View):
                 # Send additional plain text warning message for spoofed emails (non-ephemeral)
                 warning_message = "Important: **Spoofed emails often go to spam folders**. Please check your Spam/Junk folder. If you still don't see the email, please try the **Normal Email** option instead.\n\nSome email providers (like Gmail, Outlook, Yahoo) have very strict spam filters that might block spoofed emails completely."
                 await interaction.followup.send(warning_message, ephemeral=True)
+
+                # Add receipt after successful email sending
+                rate_limiter.add_receipt(self.owner_id)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
         except Exception as e:
@@ -186,6 +206,23 @@ class choiseView(discord.ui.View):
         await interaction.edit_original_response(embed=sending_embed, view=None)
 
         try:
+            # Check rate limit before proceeding
+            from utils.rate_limiter import ReceiptRateLimiter
+            rate_limiter = ReceiptRateLimiter()
+
+            is_allowed, count, reset_time, remaining_time = rate_limiter.check_rate_limit(self.owner_id)
+
+            if not is_allowed:
+                rate_limit_message = rate_limiter.get_rate_limit_message(self.owner_id)
+                if rate_limit_message:
+                    embed = discord.Embed(
+                        title="Rate Limited",
+                        description=rate_limit_message,
+                        color=discord.Color.red()
+                    )
+                    await interaction.edit_original_response(embed=embed, view=None)
+                    return
+
             # Get user email from database with enhanced error handling and debugging
             try:
                 from utils.db_utils import get_user_details, save_user_email
@@ -293,6 +330,9 @@ class choiseView(discord.ui.View):
                         # Continue without the thumbnail if there's an error
 
                 await interaction.edit_original_response(embed=embed, view=None)
+                
+                # Add receipt after successful email sending
+                rate_limiter.add_receipt(self.owner_id)
             else:
                 await interaction.followup.send(embed=discord.Embed(title="Error", description="No email found for your account. Please set up your email.", color=0xe74c3c), ephemeral=True)
         except Exception as e:

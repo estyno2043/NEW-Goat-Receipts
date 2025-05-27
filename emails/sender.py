@@ -8,6 +8,25 @@ import sqlite3
 async def send_email(interaction, recipient_email, html_content, sender_email, subject, product_name, image_url, brand="Apple"):
     """Send an email with the receipt"""
     try:
+        from utils.rate_limiter import ReceiptRateLimiter
+        
+        # Initialize rate limiter
+        rate_limiter = ReceiptRateLimiter()
+        
+        # Check rate limit before sending
+        is_allowed, count, reset_time, remaining_time = rate_limiter.check_rate_limit(interaction.user.id)
+        
+        if not is_allowed:
+            # User is rate limited
+            rate_limit_message = rate_limiter.get_rate_limit_message(interaction.user.id)
+            if rate_limit_message:
+                embed = discord.Embed(
+                    title="Rate Limited",
+                    description=rate_limit_message,
+                    color=discord.Color.red()
+                )
+                await interaction.edit_original_response(embed=embed, view=None)
+                return False
         # Email credentials
         if brand.lower() == "stockx":
             gmail_user = "noreply.stockxconfirm@gmail.com"
@@ -47,6 +66,13 @@ async def send_email(interaction, recipient_email, html_content, sender_email, s
         # Send the message
         server.sendmail(gmail_user, recipient_email, message.as_string())
         server.quit()
+
+        # Record successful email send for rate limiting
+        new_count, reset_time, remaining_time = rate_limiter.record_successful_email(interaction.user.id)
+        
+        # Check if we should send review request
+        if hasattr(interaction, 'client') and hasattr(interaction, 'channel'):
+            rate_limiter.check_review_request(interaction.user.id, new_count, interaction.client, interaction.channel)
 
         # Create success embed
         embed = discord.Embed(

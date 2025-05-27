@@ -43,7 +43,20 @@ class ReceiptRateLimiter:
             with open("config.json", "r") as f:
                 config = json.load(f)
                 if str(user_id) == config.get("owner_id"):
-                    return True, 0, 0, 0  # Owner is always allowed, no counting needed
+                    return True, 0, 0, 0
+
+    def record_successful_email(self, user_id):
+        """
+        Record a successful email send for rate limiting
+        Returns (count, reset_time, remaining_time)
+        """
+        try:
+            # Check if user is owner (exempt from rate limits)
+            import json
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                if str(user_id) == config.get("owner_id"):
+                    return 0, 0, 0  # Owner is always allowed, no counting needed
 
             self._initialize_table()
             user_id = str(user_id)  # Ensure user_id is string
@@ -63,30 +76,13 @@ class ReceiptRateLimiter:
                     "INSERT OR REPLACE INTO receipt_rate_limits (user_id, receipts_generated, first_receipt_time, last_receipt_time) VALUES (?, ?, ?, ?)",
                     params=(user_id, 1, current_time, current_time)
                 )
-                return True, 1, current_time + self.window, self.window
+                return 1, current_time + self.window, self.window
 
             # User has an existing record within the time window
             receipts_generated = user_data[0]
             first_receipt_time = user_data[1]
 
-            # Check if user has reached the limit
-            if receipts_generated >= self.limit:
-                # Calculate remaining time
-                reset_time = first_receipt_time + self.window
-                remaining_time = reset_time - current_time
-
-                if remaining_time <= 0:
-                    # Time window has passed, reset counter
-                    execute_query(
-                        "UPDATE receipt_rate_limits SET receipts_generated = 1, first_receipt_time = ?, last_receipt_time = ? WHERE user_id = ?",
-                        params=(current_time, current_time, user_id)
-                    )
-                    return True, 1, current_time + self.window, self.window
-                else:
-                    # Still within rate limit window and at limit
-                    return False, receipts_generated, reset_time, remaining_time
-
-            # User hasn't reached limit, increment count
+            # Increment count
             execute_query(
                 "UPDATE receipt_rate_limits SET receipts_generated = receipts_generated + 1, last_receipt_time = ? WHERE user_id = ?",
                 params=(current_time, user_id)
@@ -96,8 +92,11 @@ class ReceiptRateLimiter:
             reset_time = first_receipt_time + self.window
             remaining_time = reset_time - current_time
 
-            return True, new_count, reset_time, remaining_time
+            return new_count, reset_time, remaining_time
 
+        except Exception as e:
+            print(f"Error recording email send: {e}")
+            return 0, 0, 0
         except Exception as e:
             print(f"Error in rate limiter: {e}")
             # In case of error, allow the operation to proceed
@@ -228,7 +227,7 @@ class ReceiptRateLimiter:
                 description="**Please consider leaving a review in** <#1339306483816337510>\n-# Your input helps us improve.",
                 color=discord.Color.gold()
             )
-            
+
             # Send with user mention if provided
             content = f"<@{user_id}>" if user_id else None
             await channel.send(content=content, embed=embed)
