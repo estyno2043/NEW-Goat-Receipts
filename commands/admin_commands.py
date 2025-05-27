@@ -337,6 +337,61 @@ class AdminPanelView(discord.ui.View):
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+        # Send subscription expired notification to purchases channel
+        try:
+            # Determine subscription type for display
+            display_type = "Unknown"
+            if license_result:
+                original_key = license_result[0]
+                if "LifetimeKey" in original_key:
+                    display_type = "Lifetime"
+                elif "1Month" in original_key:
+                    display_type = "1 Month"
+                elif "14Days" in original_key or "14day" in original_key:
+                    display_type = "14 Days"
+                elif "3Days" in original_key or "3day" in original_key:
+                    display_type = "3 Days"
+                elif "1Day" in original_key or "1day" in original_key:
+                    display_type = "1 Day"
+
+            # Create DM embed
+            dm_embed = discord.Embed(
+                title="Your Subscription Has Expired",
+                description=f"Hello {self.user.mention},\n\nYour subscription has expired. We appreciate your support !\n\nIf you'd like to renew, click the button below.",
+                color=discord.Color.default()
+            )
+            
+            # Create purchases channel embed
+            purchases_embed = discord.Embed(
+                title="Subscription Expired",
+                description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below !\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                color=discord.Color.default()
+            )
+            
+            # Create renewal buttons
+            dm_view = discord.ui.View()
+            dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+            
+            purchases_view = discord.ui.View()
+            purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+            
+            # Try to DM the user
+            try:
+                await self.user.send(embed=dm_embed, view=dm_view)
+            except:
+                logging.info(f"Could not DM {self.user.name} about access removal")
+            
+            # Send notification to Purchases channel
+            try:
+                purchases_channel = interaction.client.get_channel(1374468080817803264)
+                if purchases_channel:
+                    await purchases_channel.send(content=self.user.mention, embed=purchases_embed, view=purchases_view)
+            except Exception as channel_error:
+                logging.error(f"Could not send access removal notification to Purchases channel: {channel_error}")
+                
+        except Exception as notification_error:
+            logging.error(f"Error sending subscription expiration notifications: {notification_error}")
+
     @discord.ui.button(label="Remove Email", style=discord.ButtonStyle.gray)
     async def handle_remove_email(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.owner_id:
