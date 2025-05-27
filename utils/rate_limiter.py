@@ -44,6 +44,13 @@ class ReceiptRateLimiter:
                 config = json.load(f)
                 if str(user_id) == config.get("owner_id"):
                     return True, 0, 0, 0
+                    
+            # Add the actual rate limiting logic here if needed
+            return True, 0, 0, 0
+            
+        except Exception as e:
+            print(f"Error in add_receipt: {e}")
+            return True, 0, 0, 0
 
     def record_successful_email(self, user_id):
         """
