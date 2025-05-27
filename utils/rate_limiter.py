@@ -104,10 +104,6 @@ class ReceiptRateLimiter:
         except Exception as e:
             print(f"Error recording email send: {e}")
             return 0, 0, 0
-        except Exception as e:
-            print(f"Error in rate limiter: {e}")
-            # In case of error, allow the operation to proceed
-            return True, 0, 0, 0
 
     def format_time_remaining(self, seconds):
         """Format seconds into a human-readable time string"""
