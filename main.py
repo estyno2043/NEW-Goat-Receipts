@@ -1228,6 +1228,32 @@ async def on_ready():
     # Set up database
     setup_database()
 
+    # Initialize license database tables if needed
+    import os
+    if os.path.exists('utils/db_init.py'):
+        from utils.db_init import init_db
+        init_db()
+
+    # Restore license cache from backup for faster startup validation
+    try:
+        from utils.license_backup import LicenseBackup
+        # Restore existing licenses to cache
+        await LicenseBackup.restore_licenses_to_cache()
+        # Start backup scheduler in background
+        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
+        print("License backup system initialized")
+    except Exception as e:
+        print(f"Failed to initialize license backup system: {e}")
+
+    # Initialize license checker for expired subscriptions
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
+
     # Load admin commands - only once when bot starts
     try:
         if not os.path.exists('commands'):
@@ -1304,42 +1330,6 @@ async def on_message(message):
 
     # Process commands
     await bot.process_commands(message)
-
-    # Initialize license database tables if needed
-    import os
-    if os.path.exists('utils/db_init.py'):
-        from utils.db_init import init_db
-        init_db()
-
-    # Restore license cache from backup for faster startup validation
-    try:
-        from utils.license_backup import LicenseBackup
-        # Restore existing licenses to cache
-        await LicenseBackup.restore_licenses_to_cache()
-        # Start backup scheduler in background
-        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
-        print("License backup system initialized")
-    except Exception as e:
-        print(f"Failed to initialize license backup system: {e}")
-
-    # Initialize license checker for expired subscriptions
-    try:
-        from utils.license_manager import LicenseManager
-        license_manager = LicenseManager(bot)
-        await license_manager.start_license_checker()
-        print("License checker started")
-    except Exception as e:
-        print(f"Failed to start license checker: {e}")
-
-    # Sync commands with Discord
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
 
 @bot.tree.command(name="generate", description="Generate receipts with GOAT Receipts")
 async def generate_command(interaction: discord.Interaction):
