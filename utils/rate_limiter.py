@@ -205,10 +205,17 @@ class ReceiptRateLimiter:
                     "INSERT OR REPLACE INTO review_requests (user_id, review_sent, receipts_at_request) VALUES (?, ?, ?)",
                     params=(user_id, True, current_count)
                 )
+                
+                # Send review request message
+                import asyncio
+                asyncio.create_task(self._send_review_message(channel, user_id))
+                return True
+
+            return False
 
         except Exception as e:
-            print(f"Error in rate limiter: {e}")
-            return True, 0, 0, 0
+            print(f"Error checking review request: {e}")
+            return False
 
     async def _send_review_message(self, channel, user_id=None):
         """Send the review request message to the channel"""
