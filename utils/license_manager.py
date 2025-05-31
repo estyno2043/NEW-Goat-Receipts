@@ -180,8 +180,8 @@ class LicenseManager:
                                     if purchases_channel:
                                         await purchases_channel.send(content=notification_member.mention, embed=purchases_embed, view=purchases_view)
                                         logging.info(f"Sent expiration notification to purchases channel for {notification_member.name}")
-                                    except Exception as channel_error:
-                                        logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
+                                except Exception as channel_error:
+                                    logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
 
                         except Exception as notification_error:
                             logging.error(f"Error sending expiration notifications: {notification_error}")
