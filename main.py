@@ -41,15 +41,20 @@ def setup_database():
         # Test the connection by getting the database
         db = mongo_manager.get_database()
         
-        # Insert default system config if not exists
-        system_config = db.system_config.find_one({"key": "total_brands"})
-        if not system_config:
-            db.system_config.insert_one({"key": "total_brands", "value": "100"})
-        
-        logging.info("MongoDB setup completed successfully")
+        if db is not None:
+            # Insert default system config if not exists
+            try:
+                system_config = db.system_config.find_one({"key": "total_brands"})
+                if not system_config:
+                    db.system_config.insert_one({"key": "total_brands", "value": "100"})
+            except Exception as config_e:
+                logging.warning(f"Could not setup system config: {config_e}")
+            
+            logging.info("MongoDB setup completed successfully")
+        else:
+            logging.warning("MongoDB connection failed, but bot will continue running with limited functionality")
     except Exception as e:
-        logging.error(f"MongoDB setup failed: {e}")
-        raise
+        logging.warning(f"MongoDB setup failed: {e}, bot will continue running with limited functionality")
 
 # Generate random details for users
 def generate_random_details():

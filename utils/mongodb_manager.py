@@ -24,13 +24,23 @@ class MongoDBManager:
     def connect(self):
         """Establish connection to MongoDB"""
         try:
-            # MongoDB connection string with credentials
-            uri = "mongodb+srv://kuboestok:oPb8iDVVzRwKe1RX@cluster0.gxc5mt1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+            # MongoDB connection string with credentials and SSL configuration
+            uri = "mongodb+srv://kuboestok:oPb8iDVVzRwKe1RX@cluster0.gxc5mt1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true&tlsAllowInvalidCertificates=true"
             
-            # Create client and connect to server
-            self._client = MongoClient(uri, server_api=ServerApi('1'))
+            # Create client with additional SSL options for Replit compatibility
+            self._client = MongoClient(
+                uri, 
+                server_api=ServerApi('1'),
+                ssl=True,
+                tlsAllowInvalidCertificates=True,
+                connectTimeoutMS=30000,
+                socketTimeoutMS=30000,
+                serverSelectionTimeoutMS=30000,
+                maxPoolSize=10,
+                retryWrites=True
+            )
             
-            # Test connection
+            # Test connection with timeout
             self._client.admin.command('ping')
             logging.info("Successfully connected to MongoDB!")
             
@@ -42,7 +52,10 @@ class MongoDBManager:
             
         except Exception as e:
             logging.error(f"Failed to connect to MongoDB: {e}")
-            raise
+            # Don't raise the exception, allow the bot to continue running
+            # We'll handle MongoDB operations with proper error checking
+            self._client = None
+            self._db = None
     
     def _create_indexes(self):
         """Create database indexes for better performance"""
@@ -59,6 +72,11 @@ class MongoDBManager:
         """Get database instance"""
         if self._db is None:
             self.connect()
+        
+        # If still None after connection attempt, return None
+        if self._db is None:
+            logging.warning("MongoDB database is not available")
+            return None
         return self._db
     
     def close_connection(self):
@@ -73,6 +91,8 @@ class MongoDBManager:
         """Get license for a user"""
         try:
             db = self.get_database()
+            if db is None:
+                return None
             license_doc = db.licenses.find_one({"owner_id": str(user_id)})
             return license_doc
         except Exception as e:
@@ -83,6 +103,8 @@ class MongoDBManager:
         """Create or update license for a user"""
         try:
             db = self.get_database()
+            if db is None:
+                return False
             license_data["owner_id"] = str(user_id)
             license_data["updated_at"] = datetime.utcnow()
             
@@ -149,6 +171,8 @@ class MongoDBManager:
         """Get user credentials"""
         try:
             db = self.get_database()
+            if db is None:
+                return None
             return db.user_credentials.find_one({"user_id": str(user_id)})
         except Exception as e:
             logging.error(f"Error getting credentials for user {user_id}: {e}")
@@ -158,6 +182,8 @@ class MongoDBManager:
         """Save user credentials"""
         try:
             db = self.get_database()
+            if db is None:
+                return False
             credentials_data = {
                 "user_id": str(user_id),
                 "name": name,
@@ -194,6 +220,8 @@ class MongoDBManager:
         """Get user email"""
         try:
             db = self.get_database()
+            if db is None:
+                return None
             email_doc = db.user_emails.find_one({"user_id": str(user_id)})
             return email_doc.get("email") if email_doc else None
         except Exception as e:
@@ -204,6 +232,8 @@ class MongoDBManager:
         """Save user email"""
         try:
             db = self.get_database()
+            if db is None:
+                return False
             email_data = {
                 "user_id": str(user_id),
                 "email": email,
