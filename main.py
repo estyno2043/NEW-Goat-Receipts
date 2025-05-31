@@ -4,6 +4,7 @@ import random
 import datetime
 import json
 import logging
+import sqlite3
 from datetime import datetime, timedelta
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -96,13 +97,17 @@ def get_total_brands():
     count = len(modal_files)
 
     # Update the count in the database
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    cursor.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES (?, ?)", 
-                  ("total_brands", str(count)))
-    conn.commit()
-    conn.close()
+    try:
+        from utils.mongodb_manager import mongo_manager
+        db = mongo_manager.get_database()
+        if db is not None:
+            db.system_config.update_one(
+                {"key": "total_brands"},
+                {"$set": {"key": "total_brands", "value": str(count)}},
+                upsert=True
+            )
+    except Exception as e:
+        print(f"Error updating total brands count: {e}")
 
     return str(count)
 
@@ -1235,18 +1240,20 @@ async def on_message(message):
         channel_id = message.channel.id
 
         # Check if this channel is configured as an image channel for this guild
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
-        result = cursor.fetchone()
-        conn.close()
-
-        if result and str(channel_id) == result[0]:
-            # This is a guild image channel, handle attachments
-            for attachment in message.attachments:
-                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                    # Reply to the user's message with the image URL
-                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+        try:
+            from utils.mongodb_manager import mongo_manager
+            db = mongo_manager.get_database()
+            if db is not None:
+                guild_config = db.guild_configs.find_one({"guild_id": guild_id})
+                
+                if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
+                    # This is a guild image channel, handle attachments
+                    for attachment in message.attachments:
+                        if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                            # Reply to the user's message with the image URL
+                            await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+        except Exception as e:
+            print(f"Error checking guild image channel config: {e}")
 
     # Process commands
     await bot.process_commands(message)
@@ -1283,40 +1290,53 @@ async def generate_command(interaction: discord.Interaction):
     # If in a guild server, check if the channel is allowed
     if not is_main_guild:
         # Check if guild is configured
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT generate_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
-        guild_config = cursor.fetchone()
+        try:
+            from utils.mongodb_manager import mongo_manager
+            db = mongo_manager.get_database()
+            if db is None:
+                embed = discord.Embed(
+                    title="Database Error",
+                    description="Unable to connect to database. Please try again later.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+                
+            guild_config = db.guild_configs.find_one({"guild_id": guild_id})
 
-        if not guild_config:
+            if not guild_config:
+                embed = discord.Embed(
+                    title="Server Not Configured",
+                    description="This server has not been configured to use GOAT Receipts. Please ask the server admin to use `/configure_guild`.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+
+            # Check if this is the right channel
+            allowed_channel_id = int(guild_config.get("generate_channel_id", 0))
+            if interaction.channel_id != allowed_channel_id:
+                embed = discord.Embed(
+                    title="Command Restricted",
+                    description=f"This command can only be used in <#{allowed_channel_id}>",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+
+            # Get the guild configuration including client role
+            client_role_id = guild_config.get("client_role_id")
+            admin_role_id = guild_config.get("admin_role_id")
+            role_config = (client_role_id, admin_role_id)
+        except Exception as e:
+            print(f"Error checking guild configuration: {e}")
             embed = discord.Embed(
-                title="Server Not Configured",
-                description="This server has not been configured to use GOAT Receipts. Please ask the server admin to use `/configure_guild`.",
+                title="Configuration Error",
+                description="There was an error checking server configuration. Please contact a server admin.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            conn.close()
             return
-
-        # Check if this is the right channel
-        allowed_channel_id = int(guild_config[0])
-        if interaction.channel_id != allowed_channel_id:
-            embed = discord.Embed(
-                title="Command Restricted",
-                description=f"This command can only be used in <#{allowed_channel_id}>",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            conn.close()
-            return
-
-        # Get the guild configuration including client role
-        cursor.execute("""
-        SELECT client_role_id, admin_role_id FROM guild_configs 
-        WHERE guild_id = ?
-        """, (guild_id,))
-        role_config = cursor.fetchone()
-        conn.close()
 
         if not role_config:
             embed = discord.Embed(
@@ -1347,28 +1367,31 @@ async def generate_command(interaction: discord.Interaction):
                     has_access = True
 
             # Also check database for legacy access
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("""
-            SELECT expiry, access_type FROM server_access 
-            WHERE guild_id = ? AND user_id = ?
-            """, (guild_id, user_id))
-            user_access = cursor.fetchone()
-            conn.close()
+            try:
+                db = mongo_manager.get_database()
+                if db is not None:
+                    user_access_doc = db.server_access.find_one({
+                        "guild_id": guild_id,
+                        "user_id": user_id
+                    })
 
-            if user_access:
-                expiry_str, access_type = user_access
-                # Lifetime access is always valid
-                if access_type == "Lifetime":
-                    has_access = True
-                else:
-                    # Check expiry date
-                    try:
-                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                        if datetime.now() < expiry_date:
+                    if user_access_doc:
+                        expiry_str = user_access_doc.get("expiry")
+                        access_type = user_access_doc.get("access_type")
+                        
+                        # Lifetime access is always valid
+                        if access_type == "Lifetime":
                             has_access = True
-                    except Exception as e:
-                        print(f"Error checking expiry: {e}")
+                        else:
+                            # Check expiry date
+                            try:
+                                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                                if datetime.now() < expiry_date:
+                                    has_access = True
+                            except Exception as e:
+                                print(f"Error checking expiry: {e}")
+            except Exception as e:
+                print(f"Error checking server access: {e}")
 
             if not has_access:
                 embed = discord.Embed(
