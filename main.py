@@ -1743,7 +1743,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                         notification_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
-                                      f"-# Run command /generate in <#1369426783153160304> to continue\n\n"
+                                      f"-# Run command /generate in <#1374468007472009216> to continue\n\n"
                                       f"**Subscription Type**\n"
                                       f"`{display_type}`\n\n"
                                       f"- Please consider leaving a review at ⁠<#1339306483816337510>",
