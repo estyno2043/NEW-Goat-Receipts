@@ -173,7 +173,7 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
                 return
 
             embed = discord.Embed(title="Processing...", description="Generating your receipt and preparing email...", color=0x1e1f22)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
 
             # Get the previously entered form values from stockxmodal2
             from emails.choise import choiseView
