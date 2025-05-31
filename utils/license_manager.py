@@ -186,8 +186,8 @@ class LicenseManager:
                         except Exception as notification_error:
                             logging.error(f"Error sending expiration notifications: {notification_error}")
 
-                except Exception as e:
-                    logging.error(f"Error processing license for user {owner_id}: {str(e)}")
+            except Exception as e:
+                logging.error(f"Error processing license for user {owner_id}: {str(e)}")
 
         except Exception as e:
             logging.error(f"Error in _process_expired_licenses: {str(e)}")
