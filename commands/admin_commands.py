@@ -132,6 +132,31 @@ class SubscriptionOption(discord.ui.Select):
 
         await interaction.response.send_message(embed=embed, ephemeral=False)
 
+        # Send purchase notification to Purchases channel (like key redemption)
+        try:
+            purchases_channel = interaction.client.get_channel(1374468080817803264)
+            if purchases_channel:
+                # Create notification embed
+                notification_embed = discord.Embed(
+                    title="Thank you for purchasing",
+                    description=f"{self.user.mention}, your subscription has been updated. Check below\n"
+                              f"-# Run command /generate in <#1369426783153160304> to continue\n\n"
+                              f"**Subscription Type**\n"
+                              f"`{subscription_type}`\n\n"
+                              f"- Please consider leaving a review at ⁠<#1339306483816337510>",
+                    color=discord.Color.green()
+                )
+
+                await purchases_channel.send(content=self.user.mention, embed=notification_embed)
+
+                # Send DM to user
+                try:
+                    await self.user.send(embed=notification_embed)
+                except:
+                    print(f"Could not send DM to {self.user.display_name}")
+        except Exception as e:
+            print(f"Error sending purchase notification: {e}")
+
 class AdminPanelView(discord.ui.View):
     def __init__(self, owner_id, user):
         super().__init__(timeout=None)
@@ -357,14 +382,14 @@ class AdminPanelView(discord.ui.View):
             # Create DM embed
             dm_embed = discord.Embed(
                 title="Your Subscription Has Expired",
-                description=f"Hello {self.user.mention},\n\nYour subscription has expired. We appreciate your support !\n\nIf you'd like to renew, click the button below.",
+                description=f"Hello {self.user.mention},\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
                 color=discord.Color.default()
             )
             
             # Create purchases channel embed
             purchases_embed = discord.Embed(
                 title="Subscription Expired",
-                description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below !\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
                 color=discord.Color.default()
             )
             
@@ -378,6 +403,7 @@ class AdminPanelView(discord.ui.View):
             # Try to DM the user
             try:
                 await self.user.send(embed=dm_embed, view=dm_view)
+                logging.info(f"Sent expiration DM to {self.user.name}")
             except:
                 logging.info(f"Could not DM {self.user.name} about access removal")
             
@@ -386,6 +412,7 @@ class AdminPanelView(discord.ui.View):
                 purchases_channel = interaction.client.get_channel(1374468080817803264)
                 if purchases_channel:
                     await purchases_channel.send(content=self.user.mention, embed=purchases_embed, view=purchases_view)
+                    logging.info(f"Sent expiration notification to purchases channel for {self.user.name}")
             except Exception as channel_error:
                 logging.error(f"Could not send access removal notification to Purchases channel: {channel_error}")
                 
