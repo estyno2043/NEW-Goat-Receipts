@@ -42,6 +42,7 @@ class MongoDBManager:
             
             # Test connection with timeout
             self._client.admin.command('ping')
+            print("✅ Successfully connected to MongoDB")
             logging.info("Successfully connected to MongoDB!")
             
             # Select database
@@ -51,6 +52,8 @@ class MongoDBManager:
             self._create_indexes()
             
         except Exception as e:
+            print("❌ MongoDB connection failed:")
+            print(e)
             logging.error(f"Failed to connect to MongoDB: {e}")
             # Don't raise the exception, allow the bot to continue running
             # We'll handle MongoDB operations with proper error checking
