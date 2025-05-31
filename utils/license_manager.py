@@ -250,54 +250,6 @@ class LicenseManager:
                     logging.info(f"User {user_id} is the bot owner - granting access")
                     LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=3650), True)
                     return True
-
-                # Check if user has client role in any guild the bot is in
-                import discord
-                client_role_id = int(config.get("Client_ID", 0))
-
-                # Get the Discord client
-                import asyncio
-                from discord.ext import commands
-                bot = None
-
-                # Try to get bot instance through active tasks
-                for task in asyncio.all_tasks():
-                    if hasattr(task, "_coro") and hasattr(task._coro, "__self__"):
-                        coro_self = task._coro.__self__
-                        if isinstance(coro_self, commands.Bot):
-                            bot = coro_self
-                            break
-
-                if bot:
-                    # Check for the user in all guilds
-                    for guild in bot.guilds:
-                        try:
-                            # Try to get server-specific role ID from MongoDB
-                            db = mongo_manager.get_database()
-                            server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
-
-                            guild_role_id = None
-                            if server_config and server_config.get("client_id"):
-                                try:
-                                    guild_role_id = int(server_config["client_id"])
-                                    logging.info(f"Found server-specific role ID: {guild_role_id}")
-                                except (ValueError, TypeError):
-                                    logging.warning(f"Invalid server-specific role ID for guild {guild.id}")
-
-                            if guild_role_id is None:
-                                guild_role_id = client_role_id
-                                logging.info(f"Using default role ID from config: {guild_role_id}")
-
-                            # Check if user has the role in this guild
-                            member = guild.get_member(int(user_id))
-                            if member:
-                                role = discord.utils.get(guild.roles, id=guild_role_id)
-                                if role and role in member.roles:
-                                    logging.info(f"User {user_id} has client role in guild {guild.id}")
-                                    LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=30), False)
-                                    return True
-                        except Exception as e:
-                            logging.error(f"Error checking roles in guild {guild.id}: {str(e)}")
         except Exception as e:
             logging.error(f"Error checking config for owner: {str(e)}")
 

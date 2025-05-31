@@ -38,14 +38,6 @@ class SubscriptionOption(discord.ui.Select):
 
         subscription_type, days = subscription_data[selected]
 
-        # Connect to database
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        # Check if user already exists in database
-        cursor.execute("SELECT expiry FROM licenses WHERE owner_id = ?", (str(self.user.id),))
-        existing_license = cursor.fetchone()
-
         # Generate key based on subscription type
         key_prefix = "1Day"
         if selected == "3_days":
@@ -69,22 +61,22 @@ class SubscriptionOption(discord.ui.Select):
             expiry_date = datetime.now() + timedelta(days=3650)  # ~10 years
             expiry_str = expiry_date.strftime('%d/%m/%Y %H:%M:%S')
 
-        if existing_license:
-            # Update existing license
-            cursor.execute('''
-            UPDATE licenses 
-            SET key = ?, expiry = ? 
-            WHERE owner_id = ?
-            ''', (license_key, expiry_str, str(self.user.id)))
-        else:
-            # Create new license
-            cursor.execute('''
-            INSERT INTO licenses (owner_id, key, expiry, emailtf, credentialstf) 
-            VALUES (?, ?, ?, 'False', 'False')
-            ''', (str(self.user.id), license_key, expiry_str))
-
-        conn.commit()
-        conn.close()
+        # Save to MongoDB
+        from utils.mongodb_manager import mongo_manager
+        license_data = {
+            "key": license_key,
+            "expiry": expiry_str,
+            "subscription_type": subscription_type,
+            "is_active": True,
+            "emailtf": "False",
+            "credentialstf": "False"
+        }
+        
+        success = mongo_manager.create_or_update_license(self.user.id, license_data)
+        
+        if not success:
+            await interaction.response.send_message("Failed to save license to database. Please try again.", ephemeral=True)
+            return
 
         # Try to add client role to the user
         try:
@@ -171,23 +163,30 @@ class AdminPanelView(discord.ui.View):
 
         embed = discord.Embed(title="User Information", color=discord.Color.blue())
 
-        # Connect to database
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
+        # Get license information from MongoDB
+        from utils.mongodb_manager import mongo_manager
+        license_doc = mongo_manager.get_license(self.user.id)
+        user_credentials = mongo_manager.get_user_credentials(self.user.id)
+        user_email = mongo_manager.get_user_email(self.user.id)
 
-        # Get license information
-        cursor.execute('''
-        SELECT key, expiry, email, name, street, city, zipp, country
-        FROM licenses WHERE owner_id = ?
-        ''', (str(self.user.id),))
-
-        license_info = cursor.fetchone()
-
-        if license_info:
-            key, expiry_str, email, name, street, city, zip_code, country = license_info if len(license_info) >= 8 else (
-                license_info[0], license_info[1], license_info[2] if len(license_info) > 2 else "Not set", 
-                "Not set", "Not set", "Not set", "Not set", "Not set"
-            )
+        if license_doc:
+            key = license_doc.get("key", "")
+            expiry_str = license_doc.get("expiry", "")
+            email = user_email or "Not set"
+            
+            # Get user credentials
+            name = "Not set"
+            street = "Not set"
+            city = "Not set"
+            zip_code = "Not set"
+            country = "Not set"
+            
+            if user_credentials:
+                name = user_credentials.get("name", "Not set")
+                street = user_credentials.get("street", "Not set")
+                city = user_credentials.get("city", "Not set")
+                zip_code = user_credentials.get("zip", "Not set")
+                country = user_credentials.get("country", "Not set")
 
             # Check if it's a lifetime key
             if key and "LifetimeKey" in key:
@@ -216,55 +215,7 @@ class AdminPanelView(discord.ui.View):
         else:
             embed.add_field(name="Status", value="No license information found for this user.", inline=False)
 
-        # Check for guild subscription
-        cursor.execute('''
-        SELECT subscription_type, end_date, is_active
-        FROM guild_subscriptions WHERE user_id = ?
-        ''', (str(self.user.id),))
-
-        guild_sub = cursor.fetchone()
-
-        if guild_sub:
-            sub_type, end_date, is_active = guild_sub
-
-            # Format guild subscription info
-            if is_active:
-                if sub_type.lower() == "lifetime":
-                    guild_status = "Lifetime Guild Subscription"
-                else:
-                    try:
-                        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
-                        days_left = (end_date_obj - datetime.now()).days
-                        guild_status = f"Guild Subscription - Expires: {end_date} ({days_left} days remaining)"
-                    except:
-                        guild_status = f"Guild Subscription - Expires: {end_date}"
-            else:
-                guild_status = "Expired Guild Subscription"
-
-            embed.add_field(name="Guild Subscription", value=guild_status, inline=False)
-
-            # Get configured guild information
-            cursor.execute('''
-            SELECT guild_id, generate_channel_id
-            FROM guild_configs WHERE owner_id = ?
-            ''', (str(self.user.id),))
-
-            guild_configs = cursor.fetchall()
-
-            if guild_configs and len(guild_configs) > 0:
-                guild_list = []
-                for guild_id, gen_channel in guild_configs:
-                    # Try to get guild name
-                    guild = interaction.client.get_guild(int(guild_id))
-                    guild_name = guild.name if guild else f"Unknown Guild ({guild_id})"
-                    guild_list.append(f"• {guild_name} (Channel: {gen_channel})")
-
-                guild_info = "\n".join(guild_list)
-                embed.add_field(name="Configured Guilds", value=guild_info, inline=False)
-            else:
-                embed.add_field(name="Configured Guilds", value="No guilds configured", inline=False)
-
-        conn.close()
+        
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @discord.ui.button(label="Add Access", style=discord.ButtonStyle.gray)
@@ -292,41 +243,17 @@ class AdminPanelView(discord.ui.View):
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
-        # Connect to database
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
         try:
-            # Properly mark the license as expired
-            yesterday = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y %H:%M:%S')
-
-            # First check if the user has a license
-            cursor.execute("SELECT key FROM licenses WHERE owner_id = ?", (str(self.user.id),))
-            license_result = cursor.fetchone()
-
-            if license_result:
-                # Update the expiry to yesterday and add "EXPIRED" to the key to ensure it's invalid
-                original_key = license_result[0]
-                expired_key = f"EXPIRED-{original_key}" if not original_key.startswith("EXPIRED-") else original_key
-
-                cursor.execute("UPDATE licenses SET expiry = ?, key = ? WHERE owner_id = ?", 
-                              (yesterday, expired_key, str(self.user.id)))
-            else:
-                # If no license exists, create an expired one
-                cursor.execute("INSERT INTO licenses (owner_id, key, expiry, emailtf, credentialstf) VALUES (?, ?, ?, 'False', 'False')",
-                              (str(self.user.id), f"EXPIRED-Removed-{self.user.id}", yesterday))
+            # Remove from MongoDB
+            from utils.mongodb_manager import mongo_manager
+            mongo_manager.delete_license(self.user.id)
+            mongo_manager.delete_user_credentials(self.user.id)
+            mongo_manager.delete_user_email(self.user.id)
 
             # Also clear cache in LicenseManager if it exists
             from utils.license_manager import LicenseManager
             if hasattr(LicenseManager, "_license_cache") and str(self.user.id) in LicenseManager._license_cache:
                 LicenseManager._license_cache.pop(str(self.user.id), None)
-
-            # Also remove from old tables
-            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (str(self.user.id),))
-            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (str(self.user.id),))
-            cursor.execute("DELETE FROM user_subscriptions WHERE user_id = ?", (str(self.user.id),))
-
-            conn.commit()
 
             # Remove subscription-specific roles but keep client role
             try:
@@ -351,8 +278,6 @@ class AdminPanelView(discord.ui.View):
         except Exception as e:
             print(f"Error updating user access: {e}")
             logging.error(f"Error removing access: {e}")
-        finally:
-            conn.close()
 
         embed = discord.Embed(
             title="Access Removed",
