@@ -57,73 +57,110 @@ class LicenseManager:
 
                 # Check if license has expired
                 if now > expiry_date:
-                    # Find the user in all guilds
                     user_id = int(owner_id)
+
+                    # Determine subscription type for display
+                    display_type = "Unknown"
+                    if key:
+                        if "LifetimeKey" in key:
+                            display_type = "Lifetime"
+                        elif "1Month" in key or "1month" in key:
+                            display_type = "1 Month"
+                        elif "14Days" in key or "14day" in key:
+                            display_type = "14 Days"
+                        elif "3Days" in key or "3day" in key:
+                            display_type = "3 Days"
+                        elif "1Day" in key or "1day" in key:
+                            display_type = "1 Day"
+
+                    # COMPLETELY REMOVE USER FROM DATABASE
+                    try:
+                        # Remove from MongoDB
+                        mongo_manager.delete_license(owner_id)
+                        mongo_manager.delete_user_credentials(owner_id)
+                        mongo_manager.delete_user_email(owner_id)
+
+                        # Clear from license cache
+                        if owner_id in self._license_cache:
+                            del self._license_cache[owner_id]
+
+                        logging.info(f"Completely removed user {owner_id} from database due to expired license")
+                    except Exception as db_error:
+                        logging.error(f"Error removing user {owner_id} from database: {db_error}")
+
+                    # Find the user in all guilds and remove roles
+                    member_found = False
                     for guild in self.bot.guilds:
                         # Get server-specific role ID if available
                         db = mongo_manager.get_database()
-                        server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
-
-                        role_id = None
-                        if server_config and server_config.get("client_id"):
-                            try:
-                                role_id = int(server_config["client_id"])
-                                logging.info(f"Found server-specific role ID: {role_id}")
-                            except (ValueError, TypeError):
-                                logging.warning(f"Invalid server-specific role ID for guild {guild.id}")
+                        if db:
+                            server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
+                            role_id = None
+                            if server_config and server_config.get("client_id"):
+                                try:
+                                    role_id = int(server_config["client_id"])
+                                except (ValueError, TypeError):
+                                    pass
 
                         if role_id is None:
                             role_id = default_role_id
-                            logging.info(f"Using default role ID from config: {role_id}")
 
                         # Find the member in this guild
                         member = guild.get_member(user_id)
                         if not member:
                             continue
 
-                        # Find the role
-                        role = discord.utils.get(guild.roles, id=role_id)
-                        if role and role in member.roles:
-                            # Remove the role
-                            try:
+                        member_found = True
+
+                        # Remove all relevant roles
+                        try:
+                            # Remove client role
+                            role = discord.utils.get(guild.roles, id=role_id)
+                            if role and role in member.roles:
                                 await member.remove_roles(role)
-                                logging.info(f"Removed role {role.name} from {member.name} in {guild.name} due to expired license")
+                                logging.info(f"Removed client role {role.name} from {member.name} due to expired license")
 
-                                # Also remove subscription-specific roles for expired subscriptions
-                                month_role = discord.utils.get(guild.roles, id=1372256426684317909)
-                                if month_role and month_role in member.roles:
-                                    await member.remove_roles(month_role)
-                                    logging.info(f"Removed 1 month role {month_role.name} from {member.name} due to expired license")
+                            # Remove subscription-specific roles
+                            month_role = discord.utils.get(guild.roles, id=1372256426684317909)
+                            if month_role and month_role in member.roles:
+                                await member.remove_roles(month_role)
+                                logging.info(f"Removed 1 month role from {member.name} due to expired license")
 
-                                # Determine subscription type for display
-                                display_type = "Unknown"
-                                if key:
-                                    if "LifetimeKey" in key:
-                                        display_type = "Lifetime"
-                                    elif "1Month" in key or "1month" in key:
-                                        display_type = "1 Month"
-                                    elif "14Days" in key or "14day" in key:
-                                        display_type = "14 Days"
-                                    elif "3Days" in key or "3day" in key:
-                                        display_type = "3 Days"
-                                    elif "1Day" in key or "1day" in key:
-                                        display_type = "1 Day"
+                            lifetime_role = discord.utils.get(guild.roles, id=1372256491729453168)
+                            if lifetime_role and lifetime_role in member.roles:
+                                await member.remove_roles(lifetime_role)
+                                logging.info(f"Removed lifetime role from {member.name} due to expired license")
 
+                        except Exception as role_error:
+                            logging.error(f"Error removing roles from {member.name}: {role_error}")
+
+                    # Send expiration notifications (only once, not per guild)
+                    if member_found:
+                        try:
+                            # Get the member object for notifications (from any guild)
+                            notification_member = None
+                            for guild in self.bot.guilds:
+                                member = guild.get_member(user_id)
+                                if member:
+                                    notification_member = member
+                                    break
+
+                            if notification_member:
                                 # Create DM embed
                                 dm_embed = discord.Embed(
                                     title="Your Subscription Has Expired",
-                                    description=f"Hello {member.mention},\n\nYour subscription has expired. We appreciate your support !\n\nIf you'd like to renew, click the button below.",
+                                    description=f"Hello {notification_member.mention},\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
                                     color=discord.Color.default()
                                 )
 
                                 # Create purchases channel embed
                                 purchases_embed = discord.Embed(
                                     title="Subscription Expired",
-                                    description=f"{member.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below !\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                                    description=f"{notification_member.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
                                     color=discord.Color.default()
                                 )
 
-                                # Create renewal button
+                                # Create renewal buttons
                                 dm_view = discord.ui.View()
                                 dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
 
@@ -132,21 +169,28 @@ class LicenseManager:
 
                                 # Try to DM the user
                                 try:
-                                    await member.send(embed=dm_embed, view=dm_view)
+                                    await notification_member.send(embed=dm_embed, view=dm_view)
+                                    logging.info(f"Sent expiration DM to {notification_member.name}")
                                 except:
-                                    logging.info(f"Could not DM {member.name} about expired license")
+                                    logging.info(f"Could not DM {notification_member.name} about expired license")
 
                                 # Send notification to Purchases channel
                                 try:
                                     purchases_channel = self.bot.get_channel(1374468080817803264)
                                     if purchases_channel:
-                                        await purchases_channel.send(content=member.mention, embed=purchases_embed, view=purchases_view)
-                                except Exception as channel_error:
-                                    logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
-                            except Exception as e:
-                                logging.error(f"Error removing role from {member.name}: {str(e)}")
-            except Exception as e:
-                logging.error(f"Error processing license for user {owner_id}: {str(e)}")
+                                        await purchases_channel.send(content=notification_member.mention, embed=purchases_embed, view=purchases_view)
+                                        logging.info(f"Sent expiration notification to purchases channel for {notification_member.name}")
+                                    except Exception as channel_error:
+                                        logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
+
+                        except Exception as notification_error:
+                            logging.error(f"Error sending expiration notifications: {notification_error}")
+
+                except Exception as e:
+                    logging.error(f"Error processing license for user {owner_id}: {str(e)}")
+
+        except Exception as e:
+            logging.error(f"Error in check_expired_licenses: {str(e)}")
 
     # Cache to store known valid licenses during deployment transitions
     _license_cache = {}
