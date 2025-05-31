@@ -190,7 +190,7 @@ class LicenseManager:
                     logging.error(f"Error processing license for user {owner_id}: {str(e)}")
 
         except Exception as e:
-            logging.error(f"Error in check_expired_licenses: {str(e)}")
+            logging.error(f"Error in _process_expired_licenses: {str(e)}")
 
     # Cache to store known valid licenses during deployment transitions
     _license_cache = {}
