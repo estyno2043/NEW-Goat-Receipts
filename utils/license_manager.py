@@ -1,9 +1,9 @@
 import discord
-import sqlite3
 from datetime import datetime, timedelta
 import asyncio
 import json
 import logging
+from utils.mongodb_manager import mongo_manager
 
 class LicenseManager:
     def __init__(self, bot):
@@ -36,33 +36,22 @@ class LicenseManager:
     async def _process_expired_licenses(self):
         """Check for expired licenses and remove roles."""
         # Get current time
-        now = datetime.now()
+        now = datetime.utcnow()
 
-        # Connect to database
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        # Get all licenses
-        cursor.execute("SELECT owner_id, expiry, key FROM licenses")
-        licenses = cursor.fetchall()
-        conn.close()
+        # Get all expired licenses from MongoDB
+        expired_licenses = mongo_manager.get_expired_licenses()
 
         # Load config to get the default role ID
         with open("config.json", "r") as f:
             config = json.load(f)
             default_role_id = int(config.get("Client_ID"))
 
-        for owner_id, expiry_str, key in licenses:
-            # Skip lifetime keys
-            if key and key.startswith("LifetimeKey"):
-                continue
+        for license_doc in expired_licenses:
+            owner_id = license_doc.get("owner_id")
+            expiry_str = license_doc.get("expiry")
+            key = license_doc.get("key", "")
 
             try:
-                # Skip entries with null expiry dates
-                if expiry_str is None:
-                    logging.info(f"Skipping license for user {owner_id} with null expiry date")
-                    continue
-                    
                 # Parse expiry date
                 expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
 
@@ -72,36 +61,20 @@ class LicenseManager:
                     user_id = int(owner_id)
                     for guild in self.bot.guilds:
                         # Get server-specific role ID if available
-                        conn = sqlite3.connect('data.db')
-                        cursor = conn.cursor()
-                        cursor.execute("SELECT client_id FROM server_configs WHERE guild_id = ?", (str(guild.id),))
-                        result = cursor.fetchone()
-                        conn.close()
+                        db = mongo_manager.get_database()
+                        server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
 
                         role_id = None
-                        if result and result[0] and result[0].strip():
+                        if server_config and server_config.get("client_id"):
                             try:
-                                role_id = int(result[0])
+                                role_id = int(server_config["client_id"])
                                 logging.info(f"Found server-specific role ID: {role_id}")
                             except (ValueError, TypeError):
-                                logging.warning(f"Invalid server-specific role ID in database for guild {guild.id}: {result[0]}")
-                                # Will fall back to default
+                                logging.warning(f"Invalid server-specific role ID for guild {guild.id}")
 
                         if role_id is None:
-                            # No server-specific role or invalid, try to get default from config
-                            with open("config.json", "r") as f:
-                                config = json.load(f)
-                                try:
-                                    default_role_id = int(config.get("Client_ID", 0))
-                                    if default_role_id == 0:
-                                        logging.warning(f"No default role ID found in config for guild {guild.id}")
-                                        continue
-                                    role_id = default_role_id
-                                    logging.info(f"Using default role ID from config: {role_id}")
-                                except (ValueError, TypeError):
-                                    logging.error(f"Invalid default role ID in config: {config.get('Client_ID')}")
-                                    continue
-
+                            role_id = default_role_id
+                            logging.info(f"Using default role ID from config: {role_id}")
 
                         # Find the member in this guild
                         member = guild.get_member(user_id)
@@ -117,7 +90,6 @@ class LicenseManager:
                                 logging.info(f"Removed role {role.name} from {member.name} in {guild.name} due to expired license")
 
                                 # Also remove subscription-specific roles for expired subscriptions
-                                # Remove 1 month role (but keep lifetime role as it shouldn't expire)
                                 month_role = discord.utils.get(guild.roles, id=1372256426684317909)
                                 if month_role and month_role in member.roles:
                                     await member.remove_roles(month_role)
@@ -128,7 +100,7 @@ class LicenseManager:
                                 if key:
                                     if "LifetimeKey" in key:
                                         display_type = "Lifetime"
-                                    elif "1Month" in key:
+                                    elif "1Month" in key or "1month" in key:
                                         display_type = "1 Month"
                                     elif "14Days" in key or "14day" in key:
                                         display_type = "14 Days"
@@ -143,28 +115,27 @@ class LicenseManager:
                                     description=f"Hello {member.mention},\n\nYour subscription has expired. We appreciate your support !\n\nIf you'd like to renew, click the button below.",
                                     color=discord.Color.default()
                                 )
-                                
+
                                 # Create purchases channel embed
                                 purchases_embed = discord.Embed(
                                     title="Subscription Expired",
                                     description=f"{member.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below !\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
                                     color=discord.Color.default()
                                 )
-                                
+
                                 # Create renewal button
                                 dm_view = discord.ui.View()
                                 dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-                                
+
                                 purchases_view = discord.ui.View()
                                 purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-                                
+
                                 # Try to DM the user
                                 try:
                                     await member.send(embed=dm_embed, view=dm_view)
                                 except:
-                                    # User may have DMs disabled, just log the info
                                     logging.info(f"Could not DM {member.name} about expired license")
-                                
+
                                 # Send notification to Purchases channel
                                 try:
                                     purchases_channel = self.bot.get_channel(1374468080817803264)
@@ -179,39 +150,19 @@ class LicenseManager:
 
     # Cache to store known valid licenses during deployment transitions
     _license_cache = {}
-    _last_cache_cleanup = datetime.now()
+    _last_cache_cleanup = datetime.utcnow()
     _cache_cleanup_interval = 3600  # Clean cache every hour
     _initialization_complete = False
     _cache_lock = asyncio.Lock()
 
     @staticmethod
     async def is_subscription_active(user_id):
-        """Check if a user has an active subscription with improved error handling and caching for deployments."""
+        """Check if a user has an active subscription using MongoDB."""
         logging.info(f"Checking subscription for user_id: {user_id}")
 
         # Check if user is in cache with valid license
-        current_time = datetime.now()
+        current_time = datetime.utcnow()
         user_id_str = str(user_id)
-        print(f"Checking license for user {user_id_str} at {current_time}")
-        
-        # Debug information to trace the license check
-        import traceback
-        stack = traceback.extract_stack()
-        caller = stack[-2]
-        logging.info(f"License check called from {caller.filename}:{caller.lineno}")
-
-        # If this is the first check after startup and cache is nearly empty,
-        # try to restore from backup before proceeding
-        if not LicenseManager._initialization_complete and len(LicenseManager._license_cache) < 5:
-            try:
-                async with LicenseManager._cache_lock:
-                    if not LicenseManager._initialization_complete:
-                        from utils.license_backup import LicenseBackup
-                        await LicenseBackup.restore_licenses_to_cache()
-                        LicenseManager._initialization_complete = True
-                        logging.info("License cache initialized from backup")
-            except Exception as e:
-                logging.error(f"Error initializing license cache: {str(e)}")
 
         # Clean up expired cache entries periodically
         if (current_time - LicenseManager._last_cache_cleanup).total_seconds() > LicenseManager._cache_cleanup_interval:
@@ -230,7 +181,7 @@ class LicenseManager:
             except Exception as e:
                 logging.error(f"Error cleaning license cache: {str(e)}")
 
-        # Check cache first (helps during deployment transitions)
+        # Check cache first
         if user_id_str in LicenseManager._license_cache:
             cache_expiry, is_lifetime = LicenseManager._license_cache[user_id_str]
             if is_lifetime or current_time < cache_expiry:
@@ -242,7 +193,6 @@ class LicenseManager:
         is_whitelisted = await Utils.is_whitelisted(user_id)
         if is_whitelisted:
             logging.info(f"User {user_id} is whitelisted - granting access")
-            # Cache whitelist status (1 year validity since they're whitelisted)
             LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=365), True)
             return True
 
@@ -252,7 +202,6 @@ class LicenseManager:
                 config = json.load(f)
                 if user_id_str == config.get("owner_id"):
                     logging.info(f"User {user_id} is the bot owner - granting access")
-                    # Cache owner status permanently
                     LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=3650), True)
                     return True
 
@@ -276,26 +225,22 @@ class LicenseManager:
                 if bot:
                     # Check for the user in all guilds
                     for guild in bot.guilds:
-                        # Try to get server-specific role ID
                         try:
-                            conn = sqlite3.connect('data.db')
-                            cursor = conn.cursor()
-                            cursor.execute("SELECT client_id FROM server_configs WHERE guild_id = ?", (str(guild.id),))
-                            result = cursor.fetchone()
-                            conn.close()
+                            # Try to get server-specific role ID from MongoDB
+                            db = mongo_manager.get_database()
+                            server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
 
                             guild_role_id = None
-                            if result and result[0] and result[0].strip():
+                            if server_config and server_config.get("client_id"):
                                 try:
-                                    guild_role_id = int(result[0])
+                                    guild_role_id = int(server_config["client_id"])
                                     logging.info(f"Found server-specific role ID: {guild_role_id}")
                                 except (ValueError, TypeError):
-                                    logging.warning(f"Invalid server-specific role ID in database for guild {guild.id}: {result[0]}")
+                                    logging.warning(f"Invalid server-specific role ID for guild {guild.id}")
 
                             if guild_role_id is None:
                                 guild_role_id = client_role_id
                                 logging.info(f"Using default role ID from config: {guild_role_id}")
-
 
                             # Check if user has the role in this guild
                             member = guild.get_member(int(user_id))
@@ -303,7 +248,6 @@ class LicenseManager:
                                 role = discord.utils.get(guild.roles, id=guild_role_id)
                                 if role and role in member.roles:
                                     logging.info(f"User {user_id} has client role in guild {guild.id}")
-                                    # Cache role-based access for 30 minutes (in case role is removed)
                                     LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=30), False)
                                     return True
                         except Exception as e:
@@ -311,172 +255,54 @@ class LicenseManager:
         except Exception as e:
             logging.error(f"Error checking config for owner: {str(e)}")
 
-        # Check if deployment is active or transitioning
-        import os
-        is_deployment = bool(os.environ.get("REPL_DEPLOYMENT_ID"))
-        is_starting = False
+        # Check MongoDB for license
         try:
-            # Check if bot started in last 5 minutes (fresh deployment)
-            uptime_file = ".bot_start_time"
-            if os.path.exists(uptime_file):
-                with open(uptime_file, "r") as f:
-                    start_time = datetime.fromisoformat(f.read().strip())
-                    is_starting = (current_time - start_time).total_seconds() < 300
-            else:
-                # If uptime file doesn't exist, create it and assume starting
-                with open(uptime_file, "w") as f:
-                    f.write(current_time.isoformat())
-                is_starting = True
-        except Exception as e:
-            logging.error(f"Error checking start time: {str(e)}")
-            is_starting = True  # Assume starting if error
+            license_doc = mongo_manager.get_license(user_id)
 
-        # Try multiple times to connect to the database, in case it's still initializing
-        max_attempts = 7 if is_starting else 3  # More attempts during startup
-        for attempt in range(max_attempts):
+            if not license_doc:
+                logging.info(f"No license found for user_id: {user_id}")
+                return False
+
+            expiry_str = license_doc.get("expiry")
+            key = license_doc.get("key", "")
+
+            # Check if license is explicitly marked as expired
+            if key and key.startswith("EXPIRED-"):
+                logging.info(f"Expired key found for user_id: {user_id}")
+                return {"active": False, "expired_date": expiry_str}
+
+            # Lifetime keys are always active
+            if key and ("LifetimeKey" in key or "lifetime" in key.lower() or "owner-key" in key):
+                logging.info(f"Lifetime key found for user_id: {user_id}")
+                LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=3650), True)
+                return True
+
+            # Check expiry date
             try:
-                # Use connection with improved settings and a longer timeout
-                with sqlite3.connect('data.db', timeout=120.0) as conn:  # Increased timeout
-                    # Set pragmas for better concurrency handling
-                    conn.execute("PRAGMA busy_timeout = 60000")  # Increased to 60 second timeout
-                    conn.execute("PRAGMA journal_mode = WAL")    # Write-Ahead Logging
-                    conn.execute("PRAGMA synchronous = NORMAL")  # Balance between speed and safety
-                    conn.execute("PRAGMA locking_mode = NORMAL") # Explicit locking mode
-
-                    cursor = conn.cursor()
-
-                    # Log the query for debugging
-                    logging.info(f"Checking license for user_id: {user_id} (attempt {attempt+1}/{max_attempts})")
-
-                    # Force file sync before query to ensure we're reading latest data
-                    if attempt > 0:
-                        conn.execute("PRAGMA wal_checkpoint(FULL)")
-
-                    # Try both string and integer user_id to be safer
-                    cursor.execute("SELECT expiry, key FROM licenses WHERE owner_id = ? OR owner_id = ?", 
-                                  (user_id_str, user_id))
-                    result = cursor.fetchone()
-
-                    if not result:
-                        # Try one more time with an explicit transaction
-                        conn.execute("BEGIN IMMEDIATE")
-                        cursor.execute("SELECT expiry, key FROM licenses WHERE owner_id = ? OR owner_id = ?", 
-                                      (user_id_str, user_id))
-                        result = cursor.fetchone()
-                        conn.commit()
-
-                        if not result:
-                            logging.info(f"No license found for user_id: {user_id}")
-                            if attempt == max_attempts - 1:
-                                # On the last attempt, check if any licenses exist at all
-                                # This helps diagnose database access issues
-                                cursor.execute("SELECT COUNT(*) FROM licenses")
-                                count = cursor.fetchone()[0]
-                                logging.warning(f"Final license check failed for {user_id}. Database has {count} total licenses.")
-                                # Only grant access during actual deployment or startup
-                                if is_deployment or is_starting:
-                                    logging.warning(f"Temporarily granting access for {user_id} - deployment: {is_deployment}, starting: {is_starting}")
-                                    # Cache for 15 minutes during deployment transitions
-                                    LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=15), False)
-                                    return {"active": True}
-                                # In normal operation, properly deny access
-                                logging.info(f"Access denied for user {user_id} - no valid license found")
-                                return False
-                            continue
-
-                    expiry_str, key = result
-
-                    # Check if license is explicitly marked as expired
-                    if key and key.startswith("EXPIRED-"):
-                        logging.info(f"Expired key found for user_id: {user_id}")
-                        return {"active": False, "expired_date": expiry_str}
-
-                    # Lifetime keys are always active
-                    if key and ("LifetimeKey" in key or "owner-key" in key):
-                        logging.info(f"Lifetime key found for user_id: {user_id}")
-                        # Cache lifetime keys
-                        LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=3650), True)
-                        return True
-
-                    # Check expiry date
-                    try:
-                        # Check if expiry_str is None or empty
-                        if not expiry_str:
-                            logging.warning(f"Empty expiry date for user_id {user_id}, treating as expired")
-                            return False
-                            
-                        expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
-                        is_active = current_time < expiry_date
-                        logging.info(f"License for user_id {user_id} active: {is_active}, expires: {expiry_str}")
-
-                        # Cache valid licenses
-                        if is_active:
-                            # Use actual expiry date with small buffer (1 hour)
-                            LicenseManager._license_cache[user_id_str] = (expiry_date - timedelta(hours=1), False)
-                            
-                            # Trigger a background backup if we've added a significant number of new entries
-                            # This ensures new licenses are persisted even if the bot restarts
-                            if len(LicenseManager._license_cache) % 10 == 0:  # Every 10 new licenses
-                                try:
-                                    from utils.license_backup import LicenseBackup
-                                    asyncio.create_task(LicenseBackup.backup_licenses())
-                                except Exception as backup_error:
-                                    logging.error(f"Error triggering backup after license update: {str(backup_error)}")
-                        else:
-                            # Return expired date information
-                            return {"active": False, "expired_date": expiry_str}
-
-                        return is_active
-                    except Exception as e:
-                        logging.warning(f"Error parsing expiry date for user_id {user_id}: {str(e)}")
-                        # More lenient - if we can't parse the date but have a key, consider it valid
-                        if key:
-                            # Cache for 1 day since we can't determine expiry
-                            LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=1), False)
-                            return True
-
-            except sqlite3.Error as e:
-                if "database is locked" in str(e) or "busy" in str(e).lower():
-                    logging.warning(f"Database is locked/busy, retrying (attempt {attempt+1}/{max_attempts}): {str(e)}")
-                else:
-                    logging.error(f"Database error checking license for user_id {user_id}: {str(e)}")
-
-                if attempt < max_attempts - 1:
-                    # Progressive backoff with randomization to prevent thundering herd
-                    import random
-                    retry_delay = (attempt+1)*2 + random.uniform(0, 1)  
-                    logging.info(f"Retrying in {retry_delay:.2f} seconds...")
-                    import asyncio
-                    await asyncio.sleep(retry_delay)
-                else:
-                    # On last attempt, temporarily grant access rather than blocking users
-                    logging.warning(f"All database attempts failed for user {user_id}, temporarily allowing access")
-                    # Special handling for deployment transitions - grant longer temp access
-                    cache_duration = timedelta(minutes=30) if (is_deployment or is_starting) else timedelta(minutes=5)
-                    LicenseManager._license_cache[user_id_str] = (current_time + cache_duration, False)
-                    return True
-            except Exception as e:
-                logging.error(f"Unexpected error checking license for user_id {user_id}: {str(e)}")
-                if attempt == max_attempts - 1:
-                    # Only grant access during deployment or startup
-                    if is_deployment or is_starting:
-                        cache_duration = timedelta(minutes=15)
-                        LicenseManager._license_cache[user_id_str] = (current_time + cache_duration, False)
-                        return {"active": True}
-                    # Properly deny access in normal operation
-                    logging.info(f"Access denied for user {user_id} - unexpected error during license check")
+                if not expiry_str:
+                    logging.warning(f"Empty expiry date for user_id {user_id}, treating as expired")
                     return False
 
-                retry_delay = (attempt+1)*1.5
-                await asyncio.sleep(retry_delay)
+                expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
+                is_active = current_time < expiry_date
+                logging.info(f"License for user_id {user_id} active: {is_active}, expires: {expiry_str}")
 
-        # This shouldn't be reached normally, but just in case
-        logging.warning(f"License check for user {user_id} fell through to default case")
-        # Only grant temporary access during deployment or startup
-        if is_deployment or is_starting:
-            # Cache for 10 minutes during uncertain times
-            LicenseManager._license_cache[user_id_str] = (current_time + timedelta(minutes=10), False)
-            return True
-        # Properly deny access in normal operation
-        logging.info(f"Access denied for user {user_id} - license check reached default case")
+                # Cache valid licenses
+                if is_active:
+                    LicenseManager._license_cache[user_id_str] = (expiry_date - timedelta(hours=1), False)
+                else:
+                    return {"active": False, "expired_date": expiry_str}
+
+                return is_active
+            except Exception as e:
+                logging.warning(f"Error parsing expiry date for user_id {user_id}: {str(e)}")
+                if key:
+                    LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=1), False)
+                    return True
+
+        except Exception as e:
+            logging.error(f"Error checking license in MongoDB for user_id {user_id}: {str(e)}")
+            return False
+
+        logging.info(f"Access denied for user {user_id} - no valid license found")
         return False

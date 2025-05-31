@@ -1,9 +1,9 @@
 import os
 import discord
 import random
-import sqlite3
 import datetime
 import json
+import logging
 from datetime import datetime, timedelta
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -33,57 +33,23 @@ try:
 except Exception as e:
     print(f"Failed to initialize receipt processing utilities: {e}")
 
-# Create a database to store user data
+# Setup MongoDB connection
 def setup_database():
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    # Table for user emails
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_emails (
-        user_id TEXT PRIMARY KEY,
-        email TEXT
-    )
-    ''')
-
-    # Table for user custom credentials
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_credentials (
-        user_id TEXT PRIMARY KEY,
-        name TEXT,
-        street TEXT,
-        city TEXT,
-        zip TEXT,
-        country TEXT,
-        is_random BOOLEAN DEFAULT 0
-    )
-    ''')
-
-    # Table for user subscriptions - now with unlimited access by default
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_subscriptions (
-        user_id TEXT PRIMARY KEY,
-        subscription_type TEXT DEFAULT 'Unlimited',
-        start_date TEXT,
-        end_date TEXT,
-        is_active BOOLEAN DEFAULT 1
-    )
-    ''')
-
-    # Table to store total number of brands available
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS system_config (
-        key TEXT PRIMARY KEY,
-        value TEXT
-    )
-    ''')
-
-    # Insert default value for total brands if not exists
-    cursor.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES (?, ?)", 
-                  ("total_brands", "100"))
-
-    conn.commit()
-    conn.close()
+    """Initialize MongoDB connection and collections"""
+    try:
+        from utils.mongodb_manager import mongo_manager
+        # Test the connection by getting the database
+        db = mongo_manager.get_database()
+        
+        # Insert default system config if not exists
+        system_config = db.system_config.find_one({"key": "total_brands"})
+        if not system_config:
+            db.system_config.insert_one({"key": "total_brands", "value": "100"})
+        
+        logging.info("MongoDB setup completed successfully")
+    except Exception as e:
+        logging.error(f"MongoDB setup failed: {e}")
+        raise
 
 # Generate random details for users
 def generate_random_details():
@@ -104,87 +70,18 @@ def generate_random_details():
 
 # Check if user has credentials and email set
 def check_user_setup(user_id):
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    # Check credentials
-    cursor.execute("SELECT * FROM user_credentials WHERE user_id = ?", (user_id,))
-    has_credentials = cursor.fetchone() is not None
-
-    # Check email
-    cursor.execute("SELECT * FROM user_emails WHERE user_id = ?", (user_id,))
-    has_email = cursor.fetchone() is not None
-
-    conn.close()
-
-    return has_credentials, has_email
+    from utils.db_utils import check_user_setup as mongo_check_user_setup
+    return mongo_check_user_setup(user_id)
 
 # Add or update user subscription
 def update_subscription(user_id, subscription_type="Unlimited", days=365):
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-
-    start_date = datetime.now()
-    end_date = start_date + timedelta(days=days)
-
-    # Format dates as strings
-    start_str = start_date.strftime("%Y-%m-%d")
-    end_str = end_date.strftime("%Y-%m-%d")
-
-    # Insert or update subscription
-    cursor.execute('''
-    INSERT OR REPLACE INTO user_subscriptions
-    (user_id, subscription_type, start_date, end_date, is_active)
-    VALUES (?, ?, ?, ?, 1)
-    ''', (user_id, subscription_type, start_str, end_str))
-
-    conn.commit()
-    conn.close()
+    from utils.db_utils import update_subscription as mongo_update_subscription
+    return mongo_update_subscription(user_id, subscription_type, days)
 
 # Get user subscription info
 def get_subscription(user_id):
-    try:
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        # Check if the licenses table has the required columns
-        try:
-            # First check licenses table for expiry and key
-            cursor.execute("SELECT key, expiry FROM licenses WHERE owner_id = ?", (str(user_id),))
-            license_data = cursor.fetchone()
-
-            if license_data:
-                key, expiry_str = license_data
-                # Check if lifetime key
-                if key and key.startswith("LifetimeKey"):
-                    return "Lifetime", "Lifetime"
-                else:
-                    return "Premium", expiry_str
-        except sqlite3.OperationalError as e:
-            # Handle missing columns
-            print(f"License table error: {e}")
-            # Continue to fallback method
-
-        # Check old subscriptions table as fallback
-        try:
-            cursor.execute("SELECT subscription_type, end_date FROM user_subscriptions WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-            if result:
-                return result[0], result[1]
-        except sqlite3.OperationalError:
-            # Table might not exist
-            pass
-
-        # Create default subscription if none exists
-        return "Default", "1 Year"
-    except Exception as e:
-        print(f"Error in get_subscription: {e}")
-        return "Default", "1 Year"
-    finally:
-        try:
-            conn.close()
-        except:
-            pass
+    from utils.db_utils import get_subscription as mongo_get_subscription
+    return mongo_get_subscription(user_id)
 
 # Get total brands count
 def get_total_brands():
@@ -226,24 +123,18 @@ class EmailForm(ui.Modal, title="Email Settings"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Save email to database using both methods for redundancy
+        # Save email to MongoDB
         from utils.db_utils import save_user_email
-
-        # Save to user_emails table
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)", (user_id, email))
-
-        # Also update licenses table if the user exists there
-        cursor.execute("SELECT 1 FROM licenses WHERE owner_id = ?", (user_id,))
-        if cursor.fetchone():
-            cursor.execute("UPDATE licenses SET email = ? WHERE owner_id = ?", (email, user_id))
-
-        conn.commit()
-        conn.close()
-
-        # Double-check with the utility function
-        save_user_email(user_id, email)
+        success = save_user_email(user_id, email)
+        
+        if not success:
+            embed = discord.Embed(
+                title="Error",
+                description="Failed to save email. Please try again later.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
         # Send success message to user
         success_embed = discord.Embed(
@@ -320,17 +211,26 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
     async def on_submit(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 
-        # Save custom info to database
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-        INSERT OR REPLACE INTO user_credentials 
-        (user_id, name, street, city, zip, country, is_random) 
-        VALUES (?, ?, ?, ?, ?, ?, 0)
-        ''', (user_id, self.name.value, self.street.value, self.city.value, 
-              self.zip_code.value, self.country.value))
-        conn.commit()
-        conn.close()
+        # Save custom info to MongoDB
+        from utils.db_utils import save_user_credentials
+        success = save_user_credentials(
+            user_id, 
+            self.name.value, 
+            self.street.value, 
+            self.city.value, 
+            self.zip_code.value, 
+            self.country.value, 
+            is_random=False
+        )
+        
+        if not success:
+            embed = discord.Embed(
+                title="Error",
+                description="Failed to save credentials. Please try again later.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
         # Send success message to the user
         success_embed = discord.Embed(
@@ -932,16 +832,26 @@ class CredentialsDropdownView(ui.View):
             # Generate random info
             name, street, city, zip_code, country = generate_random_details()
 
-            # Save to database
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute('''
-            INSERT OR REPLACE INTO user_credentials 
-            (user_id, name, street, city, zip, country, is_random) 
-            VALUES (?, ?, ?, ?, ?, ?, 1)
-            ''', (self.user_id, name, street, city, zip_code, country))
-            conn.commit()
-            conn.close()
+            # Save to MongoDB
+            from utils.db_utils import save_user_credentials
+            success = save_user_credentials(
+                self.user_id, 
+                name, 
+                street, 
+                city, 
+                zip_code, 
+                country, 
+                is_random=True
+            )
+            
+            if not success:
+                success_embed = discord.Embed(
+                    title="Error",
+                    description="Failed to save random information. Please try again later.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=success_embed, ephemeral=True)
+                return
 
             # Display random info to the user
             success_embed = discord.Embed(
@@ -978,13 +888,18 @@ class CredentialsDropdownView(ui.View):
                 await interaction.followup.send(embed=updated_embed, ephemeral=True)
 
         elif selected == "Clear Info":
-            # Clear user data
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM user_credentials WHERE user_id = ?", (self.user_id,))
-            cursor.execute("DELETE FROM user_emails WHERE user_id = ?", (self.user_id,))
-            conn.commit()
-            conn.close()
+            # Clear user data from MongoDB
+            from utils.db_utils import clear_user_data
+            success = clear_user_data(self.user_id)
+            
+            if not success:
+                success_embed = discord.Embed(
+                    title="Error",
+                    description="Failed to clear data. Please try again later.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=success_embed, ephemeral=True)
+                return
 
             # Send success message to the user
             success_embed = discord.Embed(
@@ -1679,11 +1594,6 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             subscription_type = result["subscription_type"]
             expiry_date = result["expiry_date"]
 
-            # Connect to database
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-
             # Generate license key based on subscription type
             key_prefix = subscription_type
             license_key = f"{key_prefix}-{user_id}"
@@ -1699,19 +1609,30 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 expiry_dt = datetime.strptime(expiry_date, '%d/%m/%Y %H:%M:%S')
                 end_date = expiry_dt.strftime('%Y-%m-%d')
 
-                # Add to guild_subscriptions table
-                cursor.execute('''
-                INSERT OR REPLACE INTO guild_subscriptions
-                (user_id, subscription_type, start_date, end_date, is_active)
-                VALUES (?, ?, ?, ?, 1)
-                ''', (user_id, guild_sub_type, datetime.now().strftime('%Y-%m-%d'), end_date))
+                # Create license data for MongoDB
+                license_data = {
+                    "key": license_key,
+                    "expiry": expiry_date,
+                    "subscription_type": guild_sub_type,
+                    "start_date": datetime.now().strftime('%Y-%m-%d'),
+                    "end_date": end_date,
+                    "is_active": True,
+                    "emailtf": "False",
+                    "credentialstf": "False"
+                }
 
-                # Also add to regular licenses for auth purposes
-                cursor.execute('''
-                INSERT OR REPLACE INTO licenses 
-                (owner_id, key, expiry, emailtf, credentialstf) 
-                VALUES (?, ?, ?, 'False', 'False')
-                ''', (user_id, license_key, expiry_date))
+                # Save to MongoDB
+                from utils.mongodb_manager import mongo_manager
+                success = mongo_manager.create_or_update_license(user_id, license_data)
+                
+                if not success:
+                    embed = discord.Embed(
+                        title="Error",
+                        description="Failed to save license to database. Please try again.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
 
                 # Update cache
                 from utils.license_manager import LicenseManager
@@ -1746,11 +1667,27 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                     print(f"Error sending guild notification: {e}")
             else:
                 # Regular subscription key
-                cursor.execute('''
-                INSERT OR REPLACE INTO licenses 
-                (owner_id, key, expiry, emailtf, credentialstf) 
-                VALUES (?, ?, ?, 'False', 'False')
-                ''', (user_id, license_key, expiry_date))
+                license_data = {
+                    "key": license_key,
+                    "expiry": expiry_date,
+                    "subscription_type": subscription_type,
+                    "is_active": True,
+                    "emailtf": "False",
+                    "credentialstf": "False"
+                }
+
+                # Save to MongoDB
+                from utils.mongodb_manager import mongo_manager
+                success = mongo_manager.create_or_update_license(user_id, license_data)
+                
+                if not success:
+                    embed = discord.Embed(
+                        title="Error",
+                        description="Failed to save license to database. Please try again.",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
 
                 # Update the LicenseManager cache to recognize this license immediately
                 from utils.license_manager import LicenseManager
@@ -1795,15 +1732,8 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 except Exception as e:
                     print(f"Error sending notification: {e}")
 
-            # Trigger a backup of licenses
-            try:
-                from utils.license_backup import LicenseBackup
-                self.bot.loop.create_task(LicenseBackup.backup_licenses())
-            except Exception as e:
-                print(f"Error backing up licenses: {e}")
-
-            conn.commit()
-            conn.close()
+            # Note: MongoDB operations are automatically committed
+            logging.info(f"Successfully created/updated license for user {user_id}")
 
             # Try to add client role and subscription-specific roles to the user
             try:

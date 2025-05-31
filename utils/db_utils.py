@@ -1,154 +1,24 @@
-
-import sqlite3
-import contextlib
-import threading
-import queue
-import time
-
-# Create a connection pool
-class ConnectionPool:
-    def __init__(self, max_connections=5, timeout=30.0):
-        self.max_connections = max_connections
-        self.timeout = timeout
-        self.connections = queue.Queue(maxsize=max_connections)
-        self.size = 0
-        self.lock = threading.Lock()
-
-    def get_connection(self):
-        try:
-            # Try to get an existing connection from the pool
-            return self.connections.get(block=False)
-        except queue.Empty:
-            # If the pool is empty but not at max size, create a new connection
-            with self.lock:
-                if self.size < self.max_connections:
-                    conn = sqlite3.connect('data.db', timeout=self.timeout)
-                    conn.row_factory = sqlite3.Row
-                    self.size += 1
-                    return conn
-
-            # If we've reached max connections, wait for one to become available
-            try:
-                return self.connections.get(block=True, timeout=self.timeout)
-            except queue.Empty:
-                raise sqlite3.OperationalError("Timeout waiting for database connection")
-
-    def return_connection(self, conn):
-        if conn:
-            try:
-                self.connections.put(conn, block=False)
-            except queue.Full:
-                # If the queue is full, close the connection
-                conn.close()
-                with self.lock:
-                    self.size -= 1
-
-# Create a global connection pool
-connection_pool = ConnectionPool(max_connections=10, timeout=60.0)
-
-@contextlib.contextmanager
-def get_db_connection():
-    """Context manager for database connections to prevent locking issues."""
-    conn = None
-    try:
-        conn = connection_pool.get_connection()
-        yield conn
-    finally:
-        if conn:
-            try:
-                conn.commit()
-            except Exception:
-                conn.rollback()
-            connection_pool.return_connection(conn)
-
-def execute_query(query, params=None, fetchone=False, fetchall=False):
-    """Execute a query with proper error handling and connection management.
-
-    Args:
-        query (str): The SQL query to execute
-        params (tuple, optional): Parameters for the query
-        fetchone (bool, optional): Whether to fetch one result
-        fetchall (bool, optional): Whether to fetch all results
-
-    Returns:
-        The query results if fetchone or fetchall is True, otherwise None
-    """
-    result = None
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-
-            # Start a transaction with retry logic
-            retry_count = 0
-            max_retries = 5  # Increased retry count
-            while retry_count < max_retries:
-                try:
-                    # Begin transaction explicitly
-                    conn.execute("BEGIN IMMEDIATE")
-
-                    if params:
-                        cursor.execute(query, params)
-                    else:
-                        cursor.execute(query)
-
-                    if fetchone:
-                        result = cursor.fetchone()
-                    elif fetchall:
-                        result = cursor.fetchall()
-                    else:
-                        conn.commit()
-
-                    # Transaction succeeded, break out of retry loop
-                    break
-                except sqlite3.OperationalError as e:
-                    # Handle both locked database and busy timeout errors
-                    if ("database is locked" in str(e) or "database is busy" in str(e)) and retry_count < max_retries - 1:
-                        print(f"Database locked/busy, retrying... (Attempt {retry_count + 1})")
-                        retry_count += 1
-                        # Wait with exponential backoff before retrying
-                        import time
-                        backoff_time = 0.5 * (2 ** retry_count)  # Exponential backoff
-                        print(f"Waiting {backoff_time:.2f} seconds before retry...")
-                        time.sleep(backoff_time)
-
-                        # Try rolling back the transaction
-                        try:
-                            conn.rollback()
-                        except Exception as rollback_error:
-                            print(f"Rollback failed: {rollback_error}")
-                    else:
-                        # If this was our last retry or some other error, re-raise
-                        print(f"Database operation failed after {retry_count} retries: {e}")
-                        raise
-
-        return result
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        # Re-raise the exception to let the caller handle it
-        raise
+import logging
+from utils.mongodb_manager import mongo_manager
 
 def save_user_email(user_id, email):
-    """Save user email to both database tables for redundancy"""
+    """Save user email to MongoDB"""
     try:
-        # Save to user_emails table
-        query1 = "INSERT OR REPLACE INTO user_emails (user_id, email) VALUES (?, ?)"
-        execute_query(query1, (str(user_id), email))
-        
-        # Also update licenses table if the user exists there
-        query2 = "SELECT 1 FROM licenses WHERE owner_id = ?"
-        result = execute_query(query2, (str(user_id),), fetchone=True)
-        
-        if result:
-            query3 = "UPDATE licenses SET email = ? WHERE owner_id = ?"
-            execute_query(query3, (email, str(user_id)))
-        
-        return True
+        success = mongo_manager.save_user_email(user_id, email)
+
+        # Also update license document if it exists
+        license_doc = mongo_manager.get_license(user_id)
+        if license_doc:
+            license_doc["email"] = email
+            mongo_manager.create_or_update_license(user_id, license_doc)
+
+        return success
     except Exception as e:
-        print(f"Error saving user email: {str(e)}")
+        logging.error(f"Error saving user email: {str(e)}")
         return False
 
 def get_user_details(user_id):
-    """Get user details from the database for receipt generation
+    """Get user details from MongoDB for receipt generation
 
     Args:
         user_id: The Discord user ID
@@ -157,27 +27,88 @@ def get_user_details(user_id):
         Tuple containing (name, street, city, zip, country, email) or None if not found
     """
     try:
-        # First check user_credentials table which contains the most up-to-date info
-        query1 = "SELECT name, street, city, zip as zipp, country FROM user_credentials WHERE user_id = ?"
-        cred_result = execute_query(query1, (str(user_id),), fetchone=True)
-        
-        # Get email from user_emails table
-        query2 = "SELECT email FROM user_emails WHERE user_id = ?"
-        email_result = execute_query(query2, (str(user_id),), fetchone=True)
-        
-        if cred_result and email_result:
-            email = email_result['email']
-            return (cred_result['name'], cred_result['street'], cred_result['city'], 
-                   cred_result['zipp'], cred_result['country'], email)
-        
-        # Fallback to licenses table if credentials not found in dedicated tables
-        query3 = "SELECT name, street, city, zipp, country, email FROM licenses WHERE owner_id = ?"
-        license_result = execute_query(query3, (str(user_id),), fetchone=True)
-        if license_result:
-            return (license_result['name'], license_result['street'], license_result['city'], 
-                   license_result['zipp'], license_result['country'], license_result['email'])
-        
-        return None
+        return mongo_manager.get_user_details(user_id)
     except Exception as e:
-        print(f"Error getting user details: {e}")
+        logging.error(f"Error getting user details: {e}")
         return None
+
+def check_user_setup(user_id):
+    """Check if user has both credentials and email set up"""
+    try:
+        return mongo_manager.check_user_setup(user_id)
+    except Exception as e:
+        logging.error(f"Error checking user setup: {e}")
+        return False, False
+
+def save_user_credentials(user_id, name, street, city, zip_code, country, is_random=False):
+    """Save user credentials to MongoDB"""
+    try:
+        return mongo_manager.save_user_credentials(user_id, name, street, city, zip_code, country, is_random)
+    except Exception as e:
+        logging.error(f"Error saving user credentials: {str(e)}")
+        return False
+
+def clear_user_data(user_id):
+    """Clear all user data from MongoDB"""
+    try:
+        return mongo_manager.clear_user_data(user_id)
+    except Exception as e:
+        logging.error(f"Error clearing user data: {str(e)}")
+        return False
+
+def get_user_email(user_id):
+    """Get user email from MongoDB"""
+    try:
+        return mongo_manager.get_user_email(user_id)
+    except Exception as e:
+        logging.error(f"Error getting user email: {e}")
+        return None
+
+def update_subscription(user_id, subscription_type="Unlimited", days=365):
+    """Add or update user subscription in MongoDB"""
+    try:
+        from datetime import datetime, timedelta
+
+        start_date = datetime.utcnow()
+        end_date = start_date + timedelta(days=days)
+
+        # Format dates as strings
+        start_str = start_date.strftime("%Y-%m-%d")
+        end_str = end_date.strftime("%Y-%m-%d")
+
+        # Create license data
+        license_data = {
+            "subscription_type": subscription_type,
+            "start_date": start_str,
+            "end_date": end_str,
+            "is_active": True,
+            "expiry": end_date.strftime('%d/%m/%Y %H:%M:%S'),
+            "key": f"{subscription_type}-{user_id}"
+        }
+
+        return mongo_manager.create_or_update_license(user_id, license_data)
+    except Exception as e:
+        logging.error(f"Error updating subscription: {str(e)}")
+        return False
+
+def get_subscription(user_id):
+    """Get user subscription info from MongoDB"""
+    try:
+        license_doc = mongo_manager.get_license(user_id)
+
+        if license_doc:
+            key = license_doc.get("key", "")
+            expiry_str = license_doc.get("expiry")
+
+            # Check if lifetime key
+            if key and ("LifetimeKey" in key or "lifetime" in key.lower()):
+                return "Lifetime", "Lifetime"
+            else:
+                subscription_type = license_doc.get("subscription_type", "Premium")
+                return subscription_type, expiry_str
+
+        # Default subscription if none exists
+        return "Default", "1 Year"
+    except Exception as e:
+        logging.error(f"Error in get_subscription: {e}")
+        return "Default", "1 Year"
