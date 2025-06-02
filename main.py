@@ -1064,17 +1064,42 @@ async def on_message(message):
 
         # Check if this channel is configured as an image channel for this guild
         try:
-            from utils.mongodb_manager import mongo_manager
-            db = mongo_manager.get_database()
-            if db is not None:
-                guild_config = db.guild_configs.find_one({"guild_id": guild_id})
+            # First try MongoDB
+            image_channel_found = False
+            try:
+                from utils.mongodb_manager import mongo_manager
+                db = mongo_manager.get_database()
+                if db is not None:
+                    guild_config = db.guild_configs.find_one({"guild_id": guild_id})
+                    if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
+                        image_channel_found = True
+                        print(f"Found MongoDB image channel config for guild {guild_id}, channel {channel_id}")
+            except Exception as mongo_e:
+                print(f"MongoDB check failed: {mongo_e}")
 
-                if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
-                    # This is a guild image channel, handle attachments
-                    for attachment in message.attachments:
-                        if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                            # Reply to the user's message with the image URL
-                            await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+            # If not found in MongoDB, try SQLite
+            if not image_channel_found:
+                try:
+                    import sqlite3
+                    conn = sqlite3.connect('data.db')
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+                    result = cursor.fetchone()
+                    conn.close()
+                    
+                    if result and str(channel_id) == str(result[0]):
+                        image_channel_found = True
+                        print(f"Found SQLite image channel config for guild {guild_id}, channel {channel_id}")
+                except Exception as sqlite_e:
+                    print(f"SQLite check failed: {sqlite_e}")
+
+            # If this is a configured image channel, handle attachments
+            if image_channel_found:
+                for attachment in message.attachments:
+                    if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                        # Reply to the user's message with the image URL
+                        await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+                        print(f"Replied with image URL: {attachment.url}")
         except Exception as e:
             print(f"Error checking guild image channel config: {e}")
 
