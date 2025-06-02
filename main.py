@@ -1896,6 +1896,30 @@ if os.getenv('REPLIT_DEPLOYMENT'):
     thread.daemon = True
     thread.start()
 
+# Load command modules
+async def load_extensions():
+    try:
+        await bot.load_extension('commands.admin_commands')
+        print("Loaded admin commands")
+    except Exception as e:
+        print(f"Failed to load admin commands: {e}")
+    
+    try:
+        await bot.load_extension('commands.guild_commands')
+        print("Loaded guild commands")
+    except Exception as e:
+        print(f"Failed to load guild commands: {e}")
+
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
+    await load_extensions()
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+
 # Run the bot
 # Try to get token from environment variables first, then fall back to config.json
 token = os.getenv('DISCORD_TOKEN')
