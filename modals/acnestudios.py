@@ -64,14 +64,11 @@ class acnemodal(ui.Modal, title="discord.gg/goatreceipt"):
         from addons.nextsteps import NextstepAcne
         owner_id = interaction.user.id 
 
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
-
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
+        
         if user_details:
-            name, street, city, zipp, country = user_details
+            name, street, city, zipp, country, email = user_details
 
             currency = self.currency.value
             Price = float(self.Price.value)
@@ -79,13 +76,7 @@ class acnemodal(ui.Modal, title="discord.gg/goatreceipt"):
             tax = float(self.tax.value)
             shipping = float(self.shipping.value)
 
-            # Update database with any changed information
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("UPDATE licenses SET name = ?, street = ?, city = ?, zipp = ?, country = ? WHERE owner_id = ?", 
-                          (name, street, city, zipp, country, str(owner_id)))
-            conn.commit()
-            conn.close()
+            
 
             from addons.nextsteps import NextstepAcne  # Ensure this import is handled if needed at the top or correctly here
 

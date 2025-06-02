@@ -45,7 +45,7 @@ class bapemodal(ui.Modal, title="discord.gg/goatreceipts"):
 
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
-        
+
         if user_details:
             name, street, city, zipp, country, email = user_details
 
@@ -60,7 +60,7 @@ class bapemodal(ui.Modal, title="discord.gg/goatreceipts"):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
 
-            
+
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
             await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepbape(owner_id), ephemeral=True)
 
@@ -129,10 +129,10 @@ class bapemodal2(ui.Modal, title="Bape Receipt"):
 
             if currencyff == "€":
                 currencyalp = "EUR"
-            
+
             if currencyff == "$":
                 currencyalp = "USD"
-            
+
             if currencyff == "£":
                 currencyalp = "GBP"
 
@@ -170,7 +170,7 @@ class bapemodal2(ui.Modal, title="Bape Receipt"):
 
             html_content = html_content.replace("{currency}", str(currencyff)) 
             html_content = html_content.replace("{totalprice}", str(total))
-            
+
 
             with open("receipt/updatedrecipies/updatedbape.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
@@ -179,7 +179,7 @@ class bapemodal2(ui.Modal, title="Bape Receipt"):
             subject = "Order #LE146-87-39111 confirmed"
             from emails.choise import choiseView
 
-                
+
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, Linkff)
             await interaction.edit_original_response(embed=embed, view=view)

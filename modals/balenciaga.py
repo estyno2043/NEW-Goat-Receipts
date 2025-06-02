@@ -61,7 +61,7 @@ class balenciagamodal(ui.Modal, title="discord.gg/goatreceipts"):
 
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
-        
+
         if user_details:
             name, street, city, zipp, country, email = user_details
 

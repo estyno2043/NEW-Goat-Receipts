@@ -61,7 +61,7 @@ class amazonmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
     async def on_submit(self, interaction: discord.Interaction):
         owner_id = interaction.user.id
-            
+
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
