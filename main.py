@@ -1959,6 +1959,15 @@ async def on_ready():
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
+    
+    # Start the license checker background task
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker background task started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
 
 # Run the bot
 # Try to get token from environment variables first, then fall back to config.json
