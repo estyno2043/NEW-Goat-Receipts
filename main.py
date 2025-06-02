@@ -833,13 +833,23 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
-    @ui.button(label="Help", style=discord.ButtonStyle.link, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
+    @ui.button(label="Help", style=discord.ButtonStyle.secondary, emoji="❓")
     async def help_button(self, interaction: discord.Interaction, button: ui.Button):
-        pass  # Link buttons don't need callbacks
+        embed = discord.Embed(
+            title="Help",
+            description="For assistance, please visit <#1339520924596043878>",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @ui.button(label="Brands", style=discord.ButtonStyle.link, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
+    @ui.button(label="Brands", style=discord.ButtonStyle.secondary, emoji="🛍️")
     async def brands_button(self, interaction: discord.Interaction, button: ui.Button):
-        pass  # Link buttons don't need callbacks
+        embed = discord.Embed(
+            title="Brands",
+            description="Check out all available brands at <#1339306570634236038>",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # View for the credentialsdropdown menu
 class CredentialsDropdownView(ui.View):
