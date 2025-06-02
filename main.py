@@ -384,13 +384,21 @@ class BrandSelectDropdown(ui.Select):
 
         # Check if user has both credentials and email set up
         has_credentials, has_email = check_user_setup(user_id)
+        
+        # Also verify the actual data exists
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(user_id)
+        
+        print(f"Debug - User {user_id}: has_credentials={has_credentials}, has_email={has_email}")
+        print(f"Debug - User {user_id}: user_details={user_details}")
 
-        if not has_credentials or not has_email:
+        if not has_credentials or not has_email or not user_details:
             embed = discord.Embed(
                 title="Setup Required",
                 description="Please complete your setup before generating receipts.\n\n" +
                             f"**Info**: {'True' if has_credentials else 'False'}\n" +
-                            f"**Email**: {'True' if has_email else 'False'}",
+                            f"**Email**: {'True' if has_email else 'False'}\n" +
+                            f"**Data Valid**: {'True' if user_details else 'False'}",
                 color=discord.Color.from_str("#c2ccf8")
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)

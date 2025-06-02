@@ -281,15 +281,26 @@ class MongoDBManager:
                 logging.warning(f"No email found for user {user_id}")
                 return None
             
-            user_details = (
-                credentials.get("name"),
-                credentials.get("street"),
-                credentials.get("city"),
-                credentials.get("zip"),
-                credentials.get("country"),
-                email
-            )
-            logging.info(f"Complete user details for {user_id}: {all(user_details)}")
+            # Ensure all required fields are present
+            name = credentials.get("name")
+            street = credentials.get("street") 
+            city = credentials.get("city")
+            zip_code = credentials.get("zip")
+            country = credentials.get("country")
+            
+            if not all([name, street, city, zip_code, country, email]):
+                missing_fields = []
+                if not name: missing_fields.append("name")
+                if not street: missing_fields.append("street")
+                if not city: missing_fields.append("city")
+                if not zip_code: missing_fields.append("zip")
+                if not country: missing_fields.append("country")
+                if not email: missing_fields.append("email")
+                logging.warning(f"Missing required fields for user {user_id}: {missing_fields}")
+                return None
+            
+            user_details = (name, street, city, zip_code, country, email)
+            logging.info(f"Complete user details for {user_id}: {user_details}")
             return user_details
         except Exception as e:
             logging.error(f"Error getting user details for {user_id}: {e}")

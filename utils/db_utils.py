@@ -86,7 +86,13 @@ def get_user_email(user_id):
 def get_user_details(user_id):
     """Get complete user details for receipt generation"""
     try:
-        return mongo_manager.get_user_details(user_id)
+        user_details = mongo_manager.get_user_details(user_id)
+        if user_details:
+            logging.info(f"Successfully retrieved user details for {user_id}")
+            return user_details
+        else:
+            logging.warning(f"No user details found for {user_id}")
+            return None
     except Exception as e:
         logging.error(f"Error getting user details: {e}")
         return None
