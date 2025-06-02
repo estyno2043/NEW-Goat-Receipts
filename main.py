@@ -736,11 +736,6 @@ class BrandSelectView(ui.View):
 
 # Menu view for the main menu
 class MenuView(ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=300)
-        self.user_id = user_id
-        self.last_interaction = datetime.now()
-        self.message = None
 
     async def interaction_check(self, interaction):
         # Update last interaction time on every interaction
@@ -833,23 +828,26 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
-    @ui.button(label="Help", style=discord.ButtonStyle.secondary, emoji="❓")
-    async def help_button(self, interaction: discord.Interaction, button: ui.Button):
-        embed = discord.Embed(
-            title="Help",
-            description="For assistance, please visit <#1339520924596043878>",
-            color=discord.Color.from_str("#c2ccf8")
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        self.last_interaction = datetime.now()
+        self.message = None
+        
+        # Add link buttons directly in __init__
+        help_button = discord.ui.Button(
+            label="Help", 
+            style=discord.ButtonStyle.link, 
+            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
         )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    @ui.button(label="Brands", style=discord.ButtonStyle.secondary, emoji="🛍️")
-    async def brands_button(self, interaction: discord.Interaction, button: ui.Button):
-        embed = discord.Embed(
-            title="Brands",
-            description="Check out all available brands at <#1339306570634236038>",
-            color=discord.Color.from_str("#c2ccf8")
+        brands_button = discord.ui.Button(
+            label="Brands", 
+            style=discord.ButtonStyle.link, 
+            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
         )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+        self.add_item(help_button)
+        self.add_item(brands_button)
 
 # View for the credentialsdropdown menu
 class CredentialsDropdownView(ui.View):
