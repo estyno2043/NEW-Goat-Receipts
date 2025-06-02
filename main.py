@@ -1062,36 +1062,51 @@ async def on_message(message):
         guild_id = str(message.guild.id)
         channel_id = message.channel.id
 
+        # Load config to get main guild ID
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                main_guild_id = config.get("guild_id", "1339298010169086072")
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            main_guild_id = "1339298010169086072"
+
         # Check if this channel is configured as an image channel for this guild
         try:
-            # First try MongoDB
             image_channel_found = False
-            try:
-                from utils.mongodb_manager import mongo_manager
-                db = mongo_manager.get_database()
-                if db is not None:
-                    guild_config = db.guild_configs.find_one({"guild_id": guild_id})
-                    if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
-                        image_channel_found = True
-                        print(f"Found MongoDB image channel config for guild {guild_id}, channel {channel_id}")
-            except Exception as mongo_e:
-                print(f"MongoDB check failed: {mongo_e}")
 
-            # If not found in MongoDB, try SQLite
-            if not image_channel_found:
+            # Special hardcoded configuration for main guild
+            if guild_id == main_guild_id and channel_id == 1375843777406570516:
+                image_channel_found = True
+                print(f"Using hardcoded main guild image channel config: {channel_id}")
+            else:
+                # First try MongoDB for other guilds
                 try:
-                    import sqlite3
-                    conn = sqlite3.connect('data.db')
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
-                    result = cursor.fetchone()
-                    conn.close()
-                    
-                    if result and str(channel_id) == str(result[0]):
-                        image_channel_found = True
-                        print(f"Found SQLite image channel config for guild {guild_id}, channel {channel_id}")
-                except Exception as sqlite_e:
-                    print(f"SQLite check failed: {sqlite_e}")
+                    from utils.mongodb_manager import mongo_manager
+                    db = mongo_manager.get_database()
+                    if db is not None:
+                        guild_config = db.guild_configs.find_one({"guild_id": guild_id})
+                        if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
+                            image_channel_found = True
+                            print(f"Found MongoDB image channel config for guild {guild_id}, channel {channel_id}")
+                except Exception as mongo_e:
+                    print(f"MongoDB check failed: {mongo_e}")
+
+                # If not found in MongoDB, try SQLite
+                if not image_channel_found:
+                    try:
+                        import sqlite3
+                        conn = sqlite3.connect('data.db')
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
+                        result = cursor.fetchone()
+                        conn.close()
+                        
+                        if result and str(channel_id) == str(result[0]):
+                            image_channel_found = True
+                            print(f"Found SQLite image channel config for guild {guild_id}, channel {channel_id}")
+                    except Exception as sqlite_e:
+                        print(f"SQLite check failed: {sqlite_e}")
 
             # If this is a configured image channel, handle attachments
             if image_channel_found:
