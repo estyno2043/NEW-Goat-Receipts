@@ -869,12 +869,17 @@ class CredentialsDropdownView(ui.View):
                 discord.SelectOption(
                     label="Random Info", 
                     description="Generate details automatically",
-                    emoji="🎲"
+                    emoji="🌐"
                 ),
                 discord.SelectOption(
                     label="Email Settings",
                     description="Set your email address",
                     emoji="📧"
+                ),
+                discord.SelectOption(
+                    label="Clear Info",
+                    description="Clear your saved information and email",
+                    emoji="🗑️"
                 )
             ]
         )
@@ -986,6 +991,57 @@ class CredentialsDropdownView(ui.View):
             # Show email form
             modal = EmailForm()
             await interaction.response.send_modal(modal)
+        elif choice == "Clear Info":
+            # Clear user's saved information and email
+            user_id = str(interaction.user.id)
+            
+            # Clear user data from MongoDB
+            from utils.db_utils import clear_user_data
+            success = clear_user_data(user_id)
+            
+            if success:
+                embed = discord.Embed(
+                    title="Information Cleared",
+                    description="Your saved information and email have been successfully cleared.",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                
+                # Update the credentials panel in real-time
+                try:
+                    # Get the original message that showed the credentials panel
+                    original_message = interaction.message
+                    
+                    if original_message:
+                        # Create updated credentials panel with refreshed data
+                        has_credentials, has_email = check_user_setup(user_id)
+                        
+                        # Create updated credentials panel
+                        updated_embed = discord.Embed(
+                            title="Credentials",
+                            description="Please make sure both options below are 'True'\n\n" +
+                                        "**Info**\n" +
+                                        f"{'True' if has_credentials else 'False'}\n\n" +
+                                        "**Email**\n" +
+                                        f"{'True' if has_email else 'False'}",
+                            color=discord.Color.from_str("#c2ccf8")
+                        )
+                        
+                        # Update the original credentials panel
+                        await original_message.edit(embed=updated_embed)
+                        print(f"Successfully updated credentials panel for user {user_id}")
+                    else:
+                        print(f"Could not find original message to update for user {user_id}")
+                        
+                except Exception as e:
+                    print(f"Failed to update credentials panel in real-time: {e}")
+            else:
+                embed = discord.Embed(
+                    title="Error",
+                    description="Failed to clear information. Please try again later.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.event
 async def on_message(message):
