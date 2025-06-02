@@ -41,7 +41,13 @@ class LicenseManager:
             now = datetime.utcnow()
 
             # Get all expired licenses from MongoDB
-            expired_licenses = mongo_manager.get_expired_licenses()
+            try:
+                expired_licenses = mongo_manager.get_expired_licenses()
+                if expired_licenses is None:
+                    expired_licenses = []
+            except Exception as e:
+                logging.error(f"Error getting expired licenses from MongoDB: {e}")
+                expired_licenses = []
 
             # Load config to get the default role ID
             with open("config.json", "r") as f:
@@ -94,15 +100,19 @@ class LicenseManager:
                         member_found = False
                         for guild in self.bot.guilds:
                             # Get server-specific role ID if available
-                            db = mongo_manager.get_database()
-                            if db:
-                                server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
+                            try:
+                                db = mongo_manager.get_database()
                                 role_id = None
-                                if server_config and server_config.get("client_id"):
-                                    try:
-                                        role_id = int(server_config["client_id"])
-                                    except (ValueError, TypeError):
-                                        pass
+                                if db is not None:
+                                    server_config = db.server_configs.find_one({"guild_id": str(guild.id)})
+                                    if server_config and server_config.get("client_id"):
+                                        try:
+                                            role_id = int(server_config["client_id"])
+                                        except (ValueError, TypeError):
+                                            pass
+                            except Exception as db_error:
+                                logging.error(f"Error accessing MongoDB for guild {guild.id}: {db_error}")
+                                role_id = None
 
                             if role_id is None:
                                 role_id = default_role_id
@@ -257,7 +267,7 @@ class LicenseManager:
         try:
             license_doc = mongo_manager.get_license(user_id)
 
-            if not license_doc:
+            if license_doc is None:
                 logging.info(f"No license found for user_id: {user_id}")
                 return False
 
