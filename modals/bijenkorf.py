@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 import random
@@ -55,7 +54,7 @@ class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
-        
+
         if user_details:
             name, street, city, zipp, country, email = user_details
 
@@ -69,7 +68,7 @@ class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
             print(f"    [{Colors.cyan}Scraping{lg}] Product Category: {productcategory}" + lg)
             print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {imageurl}" + lg)
             print(f"    [{Colors.cyan}Scraping{lg}] Order Date: {orderdate}" + lg)
-            
+
             # Try to scrape Bijenkorf page using proxy (but continue if it fails)
             try:
                 proxy_response = scrape_bijenkorf_with_proxy(imageurl)
@@ -77,7 +76,7 @@ class bijenkorfmodal(ui.Modal, title="discord.gg/goatreceipts"):
                     print(f"Successfully connected to Bijenkorf via proxy for product: {productname}")
             except Exception as proxy_error:
                 print(f"Proxy scraping failed for Bijenkorf product {productname}: {str(proxy_error)}")
-            
+
             print(f"[{Colors.green}Scraping DONE{lg}] Bijenkorf -> {interaction.user.id}" + lg)
             print()
 

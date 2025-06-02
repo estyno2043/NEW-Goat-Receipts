@@ -65,7 +65,7 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
@@ -73,7 +73,7 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
                 currency = self.currency.value
                 invoicedate = self.invoicedate.value
                 sizee = self.sizee.value if self.sizee.value else ""
-                
+
 
                 if not is_canadagoose_link(link):
                     embed = discord.Embed(title="Error - Invalid Canada Goose link", description="Please provide a valid Canada Goose link.")
@@ -81,7 +81,7 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
                     return
 
 
-                
+
                 embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
                 await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepcg(owner_id))
             else:
@@ -93,7 +93,7 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-       
+
 
 
 
@@ -101,7 +101,7 @@ class canadagoose(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
-    
+
     price = discord.ui.TextInput(label="Price without Currency", placeholder="1693", required=True)
     color = discord.ui.TextInput(label="Color", placeholder="BLACK", required=True)
 
@@ -158,13 +158,13 @@ class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
             # Find main image URL with better resolution
             # First try to find the high-resolution image
             main_image_url = None
-            
+
             # Try method 1: Look for product main image in meta tags
             meta_image = soup.find('meta', {'property': 'og:image'})
             if meta_image and meta_image.get('content'):
                 main_image_url = meta_image.get('content')
                 print(f"    [{Colors.cyan}Scraping{lg}] Meta Image URL: {main_image_url}" + lg)
-            
+
             # Try method 2: Find image in product gallery
             if not main_image_url:
                 gallery_images = soup.find_all('img', {'class': 'productImage'})
@@ -173,14 +173,14 @@ class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
                     # Ensure we get full size by removing size parameters
                     main_image_url = main_image_url.split('?')[0]
                     print(f"    [{Colors.cyan}Scraping{lg}] Gallery Image URL: {main_image_url}" + lg)
-            
+
             # Fallback to preload image if other methods failed
             if not main_image_url:
                 link_tag = soup.find('link', {'rel': 'preload', 'as': 'image'})
                 if link_tag and link_tag.get('href'):
                     main_image_url = link_tag['href']
                     print(f"    [{Colors.cyan}Scraping{lg}] Preload Image URL: {main_image_url}" + lg)
-            
+
             # Ensure we're using a high-resolution version
             if main_image_url and '?' in main_image_url:
                 main_image_url = main_image_url.split('?')[0]  # Remove any size restrictions in URL
@@ -222,7 +222,7 @@ class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
             from emails.choise import choiseView
             owner_id = interaction.user.id
 
-                
+
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, main_image_url, link)
             await interaction.edit_original_response(embed=embed, view=view)
