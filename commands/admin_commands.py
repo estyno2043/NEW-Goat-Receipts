@@ -244,8 +244,11 @@ class AdminPanelView(discord.ui.View):
             return
 
         try:
-            # Remove from MongoDB
+            # Get license information before deletion for notification
             from utils.mongodb_manager import mongo_manager
+            original_license = mongo_manager.get_license(self.user.id)
+            
+            # Remove from MongoDB
             mongo_manager.delete_license(self.user.id)
             mongo_manager.delete_user_credentials(self.user.id)
             mongo_manager.delete_user_email(self.user.id)
@@ -289,10 +292,10 @@ class AdminPanelView(discord.ui.View):
 
         # Send subscription expired notification to purchases channel
         try:
-            # Determine subscription type for display
+            # Determine subscription type for display using stored license info
             display_type = "Unknown"
-            if license_result:
-                original_key = license_result[0]
+            if original_license:
+                original_key = original_license.get("key", "")
                 if "LifetimeKey" in original_key:
                     display_type = "Lifetime"
                 elif "1Month" in original_key:
