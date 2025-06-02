@@ -752,7 +752,59 @@ class CredentialsDropdownView(ui.View):
                     emoji="📝"
                 ),
                 discord.SelectOption(
-                    label="Random Info",\n{attachment.url}\n```", mention_author=False)
+                    label="Random Info", 
+                    description="Generate details automatically",
+                    emoji="🎲"
+                ),
+                discord.SelectOption(
+                    label="Email Settings",
+                    description="Set your email address",
+                    emoji="📧"
+                )
+            ]
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        # Check if interaction is from panel owner
+        if interaction.user.id != int(self.user_id):
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            return
+
+        choice = self.values[0]
+        
+        if choice == "Custom Info":
+            # Show custom info form
+            modal = CustomInfoForm()
+            await interaction.response.send_modal(modal)
+        elif choice == "Random Info":
+            # Generate random details
+            name, street, city, zip_code, country = generate_random_details()
+            user_id = str(interaction.user.id)
+            
+            # Save random info to MongoDB
+            from utils.db_utils import save_user_credentials
+            success = save_user_credentials(
+                user_id, name, street, city, zip_code, country, is_random=True
+            )
+            
+            if success:
+                embed = discord.Embed(
+                    title="Random Details Generated",
+                    description=f"**Name**: {name}\n**Address**: {street}, {city}, {zip_code}\n**Country**: {country}",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                embed = discord.Embed(
+                    title="Error",
+                    description="Failed to save credentials. Please try again later.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        elif choice == "Email Settings":
+            # Show email form
+            modal = EmailForm()
+            await interaction.response.send_modal(modal)
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
