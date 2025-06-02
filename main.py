@@ -734,6 +734,114 @@ class BrandSelectView(ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
+# Menu view for the main menu
+class MenuView(ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=300)
+        self.user_id = user_id
+        self.last_interaction = datetime.now()
+        self.message = None
+
+    async def interaction_check(self, interaction):
+        # Update last interaction time on every interaction
+        self.last_interaction = datetime.now()
+        # Reset timeout on interaction
+        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
+        # Check if the interaction is from the original user
+        return interaction.user.id == int(self.user_id)
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The panel has timed out due to inactivity and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
+
+    @ui.button(label="Generate", style=discord.ButtonStyle.primary, emoji="🎯")
+    async def generate_button(self, interaction: discord.Interaction, button: ui.Button):
+        # Check if user has credentials and email
+        user_id = str(interaction.user.id)
+        has_credentials, has_email = check_user_setup(user_id)
+
+        if not has_credentials or not has_email:
+            embed = discord.Embed(
+                title="Setup Required",
+                description="Please complete your setup before generating receipts.\n\n" +
+                            f"**Info**: {'True' if has_credentials else 'False'}\n" +
+                            f"**Email**: {'True' if has_email else 'False'}",
+                color=discord.Color.from_str("#c2ccf8")
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Show generator panel
+        username = interaction.user.display_name
+        total_brands = get_total_brands()
+
+        # Calculate max pages
+        import os
+        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
+        total_count = len(modal_files)
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+
+        embed = discord.Embed(
+            title=f"{username}'s Panel",
+            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        view = BrandSelectView(user_id)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = interaction.message
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+    @ui.button(label="Credentials", style=discord.ButtonStyle.secondary, emoji="📋")
+    async def credentials_button(self, interaction: discord.Interaction, button: ui.Button):
+        user_id = str(interaction.user.id)
+        has_credentials, has_email = check_user_setup(user_id)
+
+        embed = discord.Embed(
+            title="Credentials",
+            description="Please make sure both options below are 'True'\n\n" +
+                        "**Info**\n" +
+                        f"{'True' if has_credentials else 'False'}\n\n" +
+                        "**Email**\n" +
+                        f"{'True' if has_email else 'False'}",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        view = CredentialsDropdownView(user_id)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = interaction.message
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
+
+    @ui.button(label="Close", style=discord.ButtonStyle.danger, emoji="❌")
+    async def close_button(self, interaction: discord.Interaction, button: ui.Button):
+        embed = discord.Embed(
+            title="Menu Closed",
+            description="The panel is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+        await interaction.response.edit_message(embed=embed, view=None)
+
 # View for the credentialsdropdown menu
 class CredentialsDropdownView(ui.View):
     def __init__(self, user_id):
@@ -742,7 +850,7 @@ class CredentialsDropdownView(ui.View):
         self.last_interaction = datetime.now()
         self.message = None
 
-        # Create dropdown menu (moved from on_timeout to init)
+        # Create dropdown menu
         self.dropdown = ui.Select(
             placeholder="Select an option to proceed...",
             options=[
@@ -763,14 +871,19 @@ class CredentialsDropdownView(ui.View):
                 )
             ]
         )
+        
+        # Set the callback for the dropdown
+        self.dropdown.callback = self.dropdown_callback
+        self.add_item(self.dropdown)
 
-    async def callback(self, interaction: discord.Interaction):
-        # Check if interaction is from panel owner
+    async def dropdown_callback(self, interaction: discord.Interaction):
+
+    # Check if interaction is from panel owner
         if interaction.user.id != int(self.user_id):
             await interaction.response.send_message("This is not your panel", ephemeral=True)
             return
 
-        choice = self.values[0]
+        choice = self.dropdown.values[0]
         
         if choice == "Custom Info":
             # Show custom info form
