@@ -25,22 +25,26 @@ class harrodsmodal(ui.Modal, title="discord.gg/goatreceipt"):
         from addons.nextsteps import NextstepHarrods
         owner_id = interaction.user.id 
 
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
-        
-        if user_details:
-            name, street, city, zipp, country, email = user_details
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+            
+            if user_details:
+                name, street, city, zipp, country, email = user_details
 
-            productname = self.productname.value
-            imagelink = self.imagelink.value
-            productsku = self.productsku.value
-            currency = self.currency.value
+                productname = self.productname.value
+                imagelink = self.imagelink.value
+                productsku = self.productsku.value
+                currency = self.currency.value
 
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepHarrods(owner_id))
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=NextstepHarrods(owner_id))
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class harrodsmodal2(ui.Modal, title="discord.gg/goatreceipt"):

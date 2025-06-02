@@ -37,11 +37,16 @@ class guapimodal(ui.Modal, title="Guapi Order - Step 1"):
         owner_id = interaction.user.id 
 
         # Get user details from database
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
-        
-        if user_details:
-            name, street, city, zipp, country, email = user_details
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+            
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+            else:
+                embed = discord.Embed(title="Error", description="User details not found. Please set up your credentials in settings.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
 
             # Validate the product link
             productlink = self.productlink.value

@@ -58,25 +58,27 @@ class grailedmodal(ui.Modal, title="discord.gg/goatreceipts"):
         from addons.nextsteps import NextstepGrailed
         owner_id = interaction.user.id 
 
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(owner_id)
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
 
-        if user_details:
-            name, street, city, zipp, country, email = user_details
+            if user_details:
+                name, street, city, zipp, country, email = user_details
 
-            brand = self.brand.value
-            productname = self.productname.value
-            imageurl = self.imageurl.value
-            size = self.size.value
+                brand = self.brand.value
+                productname = self.productname.value
+                imageurl = self.imageurl.value
+                size = self.size.value
 
+                embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
+                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGrailed(owner_id), ephemeral=False)
 
-
-            embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepGrailed(owner_id), ephemeral=False)
-
-        else:
-            # Handle case where no user details are found
-            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+            else:
+                # Handle case where no user details are found
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

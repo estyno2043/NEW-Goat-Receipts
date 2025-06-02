@@ -93,17 +93,23 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             return
 
         # Get shipping details from database
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(interaction.user.id)
+        try:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(interaction.user.id)
 
-        if user_details:
-            name, street, city, zipp, country, email = user_details
-        else:
-            # Fallback to default values if no user details found
-            street = "123 Example Street"
-            city = "London"
-            zipp = "SW1A 1AA"
-            country = "United Kingdom"
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+            else:
+                # Fallback to default values if no user details found
+                street = "123 Example Street"
+                city = "London"
+                zipp = "SW1A 1AA"
+                country = "United Kingdom"
+        except Exception as e:
+            # Handle case where no user details are found
+            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
 
         try:
             # Open and read the HTML template

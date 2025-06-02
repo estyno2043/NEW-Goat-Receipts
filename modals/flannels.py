@@ -69,7 +69,7 @@ class flannelsmodal(ui.Modal, title="Flannels Receipt"):
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
@@ -79,7 +79,7 @@ class flannelsmodal(ui.Modal, title="Flannels Receipt"):
                 delivery = float(self.delivery.value)
                 currency = self.currency.value
 
-                
+
                 embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
                 await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepFlannels(owner_id), ephemeral=False)
             else:
@@ -108,11 +108,19 @@ class flannelsmodal2(ui.Modal, title="Flannels Receipt"):
         owner_id = interaction.user.id 
 
         try:
+            # Get user details from database
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+
+            if not user_details:
+                raise Exception("User details not found")
+
+            name, street, city, zipp, country, email = user_details
 
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
             await interaction.response.edit_message(embed=embed, view=None)
 
-            
+
 
 
 
@@ -158,7 +166,7 @@ class flannelsmodal2(ui.Modal, title="Flannels Receipt"):
 
 
 
-                    
+
 
 
             fulltotal =  delivery + price
@@ -194,14 +202,14 @@ class flannelsmodal2(ui.Modal, title="Flannels Receipt"):
 
 
 
-            
 
 
 
 
 
 
-            
+
+
 
             with open("receipt/updatedrecipies/updatedflannels.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
@@ -210,7 +218,7 @@ class flannelsmodal2(ui.Modal, title="Flannels Receipt"):
             sender_email = "Flannels  <noreply@flannels.org>"
             subject = f"Flannels | Order Confirmation"
 
-                
+
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, brandname, image_url, link)
             await interaction.edit_original_response(embed=embed, view=view)

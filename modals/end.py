@@ -70,6 +70,10 @@ class endmodal(ui.Modal, title="discord.gg/goatreceipts"):
             
             if user_details:
                 name, street, city, zipp, country, email = user_details
+            else:
+                embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
 
             link = self.Link.value
             price = self.price.value
