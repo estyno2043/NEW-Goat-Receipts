@@ -48,6 +48,25 @@ def save_user_credentials(user_id, name, street, city, zip_code, country, is_ran
         logging.error(f"Error saving user credentials: {str(e)}")
         return False
 
+
+def validate_user_for_receipt(user_id):
+    """Validate if user has all required information for receipt generation"""
+    try:
+        user_details = get_user_details(user_id)
+        if user_details is None:
+            return False, "No user details found. Please ensure your information is set up."
+        
+        name, street, city, zip_code, country, email = user_details
+        
+        if not all([name, street, city, zip_code, country, email]):
+            return False, "Incomplete user information. Please update your credentials and email."
+        
+        return True, "User validation successful"
+    except Exception as e:
+        logging.error(f"Error validating user for receipt: {e}")
+        return False, f"Validation error: {str(e)}"
+
+
 def clear_user_data(user_id):
     """Clear all user data from MongoDB"""
     try:
@@ -63,6 +82,22 @@ def get_user_email(user_id):
     except Exception as e:
         logging.error(f"Error getting user email: {e}")
         return None
+
+def get_user_details(user_id):
+    """Get complete user details for receipt generation"""
+    try:
+        return mongo_manager.get_user_details(user_id)
+    except Exception as e:
+        logging.error(f"Error getting user details: {e}")
+        return None
+
+def check_user_setup(user_id):
+    """Check if user has both credentials and email set up"""
+    try:
+        return mongo_manager.check_user_setup(user_id)
+    except Exception as e:
+        logging.error(f"Error checking user setup: {e}")
+        return False, False
 
 def update_subscription(user_id, subscription_type="Unlimited", days=365):
     """Add or update user subscription in MongoDB"""

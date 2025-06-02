@@ -41,7 +41,7 @@ def setup_database():
         from utils.mongodb_manager import mongo_manager
         # Test the connection by getting the database
         db = mongo_manager.get_database()
-        
+
         if db is not None:
             # Insert default system config if not exists
             try:
@@ -50,7 +50,7 @@ def setup_database():
                     db.system_config.insert_one({"key": "total_brands", "value": "100"})
             except Exception as config_e:
                 logging.warning(f"Could not setup system config: {config_e}")
-            
+
             logging.info("MongoDB setup completed successfully")
         else:
             logging.warning("MongoDB connection failed, but bot will continue running with limited functionality")
@@ -136,7 +136,7 @@ class EmailForm(ui.Modal, title="Email Settings"):
         # Save email to MongoDB
         from utils.db_utils import save_user_email
         success = save_user_email(user_id, email)
-        
+
         if not success:
             embed = discord.Embed(
                 title="Error",
@@ -222,7 +222,7 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
         user_id = str(interaction.user.id)
 
         # Save custom info to MongoDB
-        from utils.db_utils import save_user_credentials
+        from utils.db_utils import save_user_credentials, clear_user_data, get_user_details, check_user_setup
         success = save_user_credentials(
             user_id, 
             self.name.value, 
@@ -232,7 +232,7 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
             self.country.value, 
             is_random=False
         )
-        
+
         if not success:
             embed = discord.Embed(
                 title="Error",
@@ -752,487 +752,7 @@ class CredentialsDropdownView(ui.View):
                     emoji="📝"
                 ),
                 discord.SelectOption(
-                    label="Random Info", 
-                    description="Generate random details",
-                    emoji="🌐"
-                ),
-                discord.SelectOption(
-                    label="Clear Info", 
-                    description="Remove all saved data",
-                    emoji="🗑️"
-                ),
-                discord.SelectOption(
-                    label="Email", 
-                    description="Update your email address",
-                    emoji="📧"
-                )
-            ]
-        )
-
-        self.dropdown.callback = self.dropdown_callback
-        self.add_item(self.dropdown)
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time on every interaction
-        self.last_interaction = datetime.now()
-        # Reset timeout on interaction
-        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        # Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            if self.message:
-                await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
-    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Create menu panel (with updated format)
-        subscription_type, end_date = get_subscription(self.user_id)
-
-        # Format subscription type for display
-        display_type = subscription_type
-        if subscription_type == "3day":
-            display_type = "3 Days"
-        elif subscription_type == "14day":
-            display_type = "14 Days"
-        elif subscription_type == "1month":
-            display_type = "1 Month"
-
-        embed = discord.Embed(
-            title="GOAT Menu",
-            description=(f"Hello <@{self.user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                        f"Hello <@{self.user_id}>, you have until `{end_date}` before your subscription ends.\n") +
-                        "-# pick an option below to continue\n\n" +
-                        "**Subscription Type**\n" +
-                        f"`{display_type}`\n\n" +
-                        "**Note**\n" +
-                        "-# please click \"Credentials\" and set your credentials before you try to generate",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
-
-    async def dropdown_callback(self, interaction: discord.Interaction):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        selected = self.dropdown.values[0]
-
-        if selected == "Custom Info":
-            # Show custom info form
-            await interaction.response.send_modal(CustomInfoForm())
-
-        elif selected == "Random Info":
-            # Generate random info
-            name, street, city, zip_code, country = generate_random_details()
-
-            # Save to MongoDB
-            from utils.db_utils import save_user_credentials
-            success = save_user_credentials(
-                self.user_id, 
-                name, 
-                street, 
-                city, 
-                zip_code, 
-                country, 
-                is_random=True
-            )
-            
-            if not success:
-                success_embed = discord.Embed(
-                    title="Error",
-                    description="Failed to save random information. Please try again later.",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=success_embed, ephemeral=True)
-                return
-
-            # Display random info to the user
-            success_embed = discord.Embed(
-                title="Success",
-                description=f"Randomized Information for <@{self.user_id}>.\n\n" +
-                            f"Name: {name}\n" +
-                            f"Street: {street}\n" +
-                            f"City: {city}\n" +
-                            f"ZIP: {zip_code}\n" +
-                            f"Country: {country}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-            await interaction.response.send_message(embed=success_embed, ephemeral=True)
-
-            # Update the credentials panel in real-time
-            has_credentials, has_email = check_user_setup(self.user_id)
-
-            # Create updated credentials panel
-            updated_embed = discord.Embed(
-                title="Credentials",
-                description="Please make sure both options below are 'True'\n\n" +
-                            "**Info**\n" +
-                            f"{'True' if has_credentials else 'False'}\n\n" +
-                            "**Email**\n" +
-                            f"{'True' if has_email else 'False'}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            # Try to update the original message, catch permission errors
-            try:
-                await interaction.message.edit(embed=updated_embed)
-            except discord.errors.Forbidden:
-                # Send as a new message instead if we can't edit the original
-                await interaction.followup.send(embed=updated_embed, ephemeral=True)
-
-        elif selected == "Clear Info":
-            # Clear user data from MongoDB
-            from utils.db_utils import clear_user_data
-            success = clear_user_data(self.user_id)
-            
-            if not success:
-                success_embed = discord.Embed(
-                    title="Error",
-                    description="Failed to clear data. Please try again later.",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=success_embed, ephemeral=True)
-                return
-
-            # Send success message to the user
-            success_embed = discord.Embed(
-                title="Success",
-                description="-# Your saved info has been cleared.",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-            await interaction.response.send_message(embed=success_embed, ephemeral=True)
-
-            # Update the credentials panel in real-time
-            has_credentials, has_email = check_user_setup(self.user_id)
-
-            # Create updated credentials panel with current status
-            updated_embed = discord.Embed(
-                title="Credentials",
-                description="Please make sure both options below are 'True'\n\n" +
-                            "**Info**\n" +
-                            f"{'True' if has_credentials else 'False'}\n\n" +
-                            "**Email**\n" +
-                            f"{'True' if has_email else 'False'}",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-
-            # Try to update the original message, catch permission errors
-            try:
-                await interaction.message.edit(embed=updated_embed)
-            except discord.errors.Forbidden:
-                # Send as a new message instead if we can't edit the original
-                await interaction.followup.send(embed=updated_embed, ephemeral=True)
-
-        elif selected == "Email":
-            # Show email form
-            await interaction.response.send_modal(EmailForm())
-
-# View for the credentials panel
-class CredentialsView(ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=180)  # Set timeout to 3 minutes
-        self.user_id = user_id
-        self.last_interaction = datetime.now()
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time on every interaction
-        self.last_interaction = datetime.now()
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        ## Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-    @ui.button(label="Go Back", style=discord.ButtonStyle.danger, custom_id="go_back")
-    async def go_back(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Create menu panel (with updated format)
-        subscription_type, end_date = get_subscription(self.user_id)
-
-        # Format subscription type for display
-        display_type = subscription_type
-        if subscription_type == "3day":
-            display_type = "3 Days"
-        elif subscription_type == "14day":
-            display_type = "14 Days"
-        elif subscription_type == "1month":
-            display_type = "1 Month"
-
-        embed = discord.Embed(
-            title="GOAT Menu",
-            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscriptionends.\n") +
-                        "-# pick an option below to continue\n\n" +
-                        "**Subscription Type**\n" +
-                        f"`{display_type}`\n\n" +
-                        "**Note**\n" +
-                        "-# please click \"Credentials\" and set your credentials before you try to generate",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        await interaction.response.edit_message(embed=embed, view=MenuView(self.user_id))
-
-# View for the main menu
-class MenuView(ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=180)  # Set timeout to 3 minutes
-        self.user_id = user_id
-        self.last_interaction = datetime.now()
-        self.message = None # Store the message object
-
-    async def interaction_check(self, interaction):
-        # Update last interaction time on everyinteraction
-        self.last_interaction = datetime.now()
-        ## Reset timeout on interaction
-        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
-        # Check if the interaction is from the original user
-        return interaction.user.id == int(self.user_id)
-
-    async def on_timeout(self):
-        # Create timeout embed
-        timeout_embed = discord.Embed(
-            title="Interaction Timeout",
-            description="The panel has timed out due to inactivity and is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Try to edit the message with the timeout embed
-        try:
-            if self.message:
-                await self.message.edit(embed=timeout_embed, view=None)
-        except Exception as e:
-            print(f"Error in timeout handling: {e}")
-
-        # Add URL buttons for Help and Brands
-        help_button = ui.Button(
-            label="Help", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
-        )
-        brands_button = ui.Button(
-            label="Brands", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
-        )
-        self.add_item(help_button)
-        self.add_item(brands_button)
-
-    @ui.button(label="Generate", style=discord.ButtonStyle.gray, custom_id="generate")
-    async def generate(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Check if user has credentials and email
-        has_credentials, has_email = check_user_setup(self.user_id)
-
-        if not has_credentials or not has_email:
-            embed = discord.Embed(
-                title="Setup Required",
-                description="**Note**\n-# Please click on \"Credentials\" button and set up your credentials before you try to generate.",
-                color=discord.Color.from_str("#c2ccf8")
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Create generator panel
-        username = interaction.user.display_name
-        total_brands = get_total_brands()
-
-        # Calculate max pages
-        import os
-        modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
-        total_count = len(modal_files)
-        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
-
-        embed = discord.Embed(
-            title=f"{username}'s Panel",
-            description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page 1/{max_pages if max_pages > 0 else 1}",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        view = BrandSelectView(self.user_id)
-        message = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
-
-        # Store the message for proper timeout handling
-        try:
-            # Get the message if it's not already available directly
-            if not message:
-                message = await interaction.original_response()
-            view.message = message
-        except Exception as e:
-            print(f"Failed to get message reference: {e}")
-
-    @ui.button(label="Credentials", style=discord.ButtonStyle.gray, custom_id="credentials")
-    async def credentials(self, interaction: discord.Interaction, button: ui.Button):
-        if interaction.user.id != int(self.user_id):
-            await interaction.response.send_message("This is not your menu!", ephemeral=True)
-            return
-
-        # Get user setup status
-        has_credentials, has_email = check_user_setup(self.user_id)
-
-        # Create credentials panel
-        embed = discord.Embed(
-            title="Credentials",
-            description="Please make sure both options below are 'True'\n\n" +
-                        "**Info**\n" +
-                        f"{'True' if has_credentials else 'False'}\n\n" +
-                        "**Email**\n" +
-                        f"{'True' if has_email else 'False'}",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-
-        # Create view and store message reference
-        view = CredentialsDropdownView(self.user_id)
-        await interaction.response.edit_message(embed=embed, view=view)
-
-        # Store message reference for proper timeout handling
-        try:
-            message = await interaction.original_response()
-            view.message = message
-        except Exception as e:
-            print(f"Failed to get message reference for credentials panel: {e}")
-
-    def __init__(self, user_id):
-        super().__init__(timeout=300)
-        self.user_id = user_id
-        self.message = None # Initialize message attribute
-
-        # Add URL buttons for Help and Brands
-        help_button = ui.Button(
-            label="Help", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339520924596043878"
-        )
-        self.add_item(help_button)
-
-        brands_button = ui.Button(
-            label="Brands", 
-            style=discord.ButtonStyle.gray, 
-            url="https://discord.com/channels/1339298010169086072/1339306570634236038"
-        )
-        self.add_item(brands_button)
-
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name} ({bot.user.id})')
-    print('------')
-
-    # Set up database
-    setup_database()
-
-    # Initialize license database tables if needed
-    import os
-    if os.path.exists('utils/db_init.py'):
-        from utils.db_init import init_db
-        init_db()
-
-    # Restore license cache from backup for faster startup validation
-    try:
-        from utils.license_backup import LicenseBackup
-        # Restore existing licenses to cache
-        await LicenseBackup.restore_licenses_to_cache()
-        # Start backup scheduler in background
-        bot.loop.create_task(LicenseBackup.start_backup_scheduler())
-        print("License backup system initialized")
-    except Exception as e:
-        print(f"Failed to initialize license backup system: {e}")
-
-    # Initialize license checker for expired subscriptions
-    try:
-        from utils.license_manager import LicenseManager
-        license_manager = LicenseManager(bot)
-        await license_manager.start_license_checker()
-        print("License checker started")
-    except Exception as e:
-        print(f"Failed to start license checker: {e}")
-
-    # Load admin commands - only once when bot starts
-    try:
-        if not os.path.exists('commands'):
-            os.makedirs('commands')
-        # Make sure __init__.py exists
-        if not os.path.exists('commands/__init__.py'):
-            with open('commands/__init__.py', 'w') as f:
-                f.write('# Initialize commands package\n')
-
-        # Load admin commands extension
-        await bot.load_extension('commands.admin_commands')
-        print("Admin commands loaded successfully")
-
-        # Load guild commands extension
-        await bot.load_extension('commands.guild_commands')
-        print("Guild commands loaded successfully")
-
-        # Sync commands with Discord
-        try:
-            synced = await bot.tree.sync()
-            print(f"Synced {len(synced)} command(s)")
-        except Exception as e:
-            print(f"Failed to sync commands: {e}")
-            import traceback
-            traceback.print_exc()
-    except Exception as e:
-        print(f"Failed to load commands: {e}")
-        # Print more detailed error information
-        import traceback
-        traceback.print_exc()
-
-@bot.event
-async def on_message(message):
-    # Ignore messages from the bot itself
-    if message.author == bot.user:
-        return
-
-    # Initialize and check message filter
-    from utils.message_filter import MessageFilter
-    message_filter = MessageFilter(bot)
-    was_filtered = await message_filter.check_message(message)
-    
-    # If message was filtered (deleted), don't process further
-    if was_filtered:
-        return
-
-    # Check if the message is in the image URL channel
-    if message.channel.id == 1375843777406570516:
-        # Check if the message has an attachment
-        if message.attachments:
-            for attachment in message.attachments:
-                if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                    # Reply to the user's message with the image URL
-                    await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+                    label="Random Info",\n{attachment.url}\n```", mention_author=False)
 
     # Check if message is in a guild-specific image channel
     elif message.guild and message.attachments:
@@ -1245,7 +765,7 @@ async def on_message(message):
             db = mongo_manager.get_database()
             if db is not None:
                 guild_config = db.guild_configs.find_one({"guild_id": guild_id})
-                
+
                 if guild_config and str(channel_id) == guild_config.get("image_channel_id"):
                     # This is a guild image channel, handle attachments
                     for attachment in message.attachments:
@@ -1301,7 +821,7 @@ async def generate_command(interaction: discord.Interaction):
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-                
+
             guild_config = db.guild_configs.find_one({"guild_id": guild_id})
 
             if not guild_config:
@@ -1378,7 +898,7 @@ async def generate_command(interaction: discord.Interaction):
                     if user_access_doc:
                         expiry_str = user_access_doc.get("expiry")
                         access_type = user_access_doc.get("access_type")
-                        
+
                         # Lifetime access is always valid
                         if access_type == "Lifetime":
                             has_access = True
@@ -1652,7 +1172,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 # Save to MongoDB
                 from utils.mongodb_manager import mongo_manager
                 success = mongo_manager.create_or_update_license(user_id, license_data)
-                
+
                 if not success:
                     embed = discord.Embed(
                         title="Error",
@@ -1707,7 +1227,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 # Save to MongoDB
                 from utils.mongodb_manager import mongo_manager
                 success = mongo_manager.create_or_update_license(user_id, license_data)
-                
+
                 if not success:
                     embed = discord.Embed(
                         title="Error",
@@ -1786,7 +1306,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                             if month_role:
                                 await self.interaction.user.add_roles(month_role)
                                 print(f"Added 1 month role {month_role.name} to {self.interaction.user.display_name}")
-                        
+
                         elif "lifetime" in subscription_type.lower():
                             # Add lifetime role (ID: 1372256491729453168)
                             lifetime_role = discord.utils.get(guild.roles, id=1372256491729453168)

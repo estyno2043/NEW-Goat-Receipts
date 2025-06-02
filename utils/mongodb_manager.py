@@ -269,15 +269,19 @@ class MongoDBManager:
         try:
             # Get credentials
             credentials = self.get_user_credentials(user_id)
+            logging.info(f"Retrieved credentials for user {user_id}: {credentials is not None}")
             if not credentials:
+                logging.warning(f"No credentials found for user {user_id}")
                 return None
             
             # Get email
             email = self.get_user_email(user_id)
+            logging.info(f"Retrieved email for user {user_id}: {email is not None}")
             if not email:
+                logging.warning(f"No email found for user {user_id}")
                 return None
             
-            return (
+            user_details = (
                 credentials.get("name"),
                 credentials.get("street"),
                 credentials.get("city"),
@@ -285,6 +289,8 @@ class MongoDBManager:
                 credentials.get("country"),
                 email
             )
+            logging.info(f"Complete user details for {user_id}: {all(user_details)}")
+            return user_details
         except Exception as e:
             logging.error(f"Error getting user details for {user_id}: {e}")
             return None
