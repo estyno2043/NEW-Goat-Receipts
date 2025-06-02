@@ -765,7 +765,7 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Error in timeout handling: {e}")
 
-    @ui.button(label="Generate", style=discord.ButtonStyle.primary, emoji="🎯")
+    @ui.button(label="Generate", style=discord.ButtonStyle.secondary)
     async def generate_button(self, interaction: discord.Interaction, button: ui.Button):
         # Check if user has credentials and email
         user_id = str(interaction.user.id)
@@ -808,7 +808,7 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
-    @ui.button(label="Credentials", style=discord.ButtonStyle.secondary, emoji="📋")
+    @ui.button(label="Credentials", style=discord.ButtonStyle.secondary)
     async def credentials_button(self, interaction: discord.Interaction, button: ui.Button):
         user_id = str(interaction.user.id)
         has_credentials, has_email = check_user_setup(user_id)
@@ -833,14 +833,13 @@ class MenuView(ui.View):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
-    @ui.button(label="Close", style=discord.ButtonStyle.danger, emoji="❌")
-    async def close_button(self, interaction: discord.Interaction, button: ui.Button):
-        embed = discord.Embed(
-            title="Menu Closed",
-            description="The panel is no longer active.",
-            color=discord.Color.from_str("#c2ccf8")
-        )
-        await interaction.response.edit_message(embed=embed, view=None)
+    @ui.button(label="Help", style=discord.ButtonStyle.link, url="https://discord.com/channels/1339298010169086072/1339520924596043878")
+    async def help_button(self, interaction: discord.Interaction, button: ui.Button):
+        pass  # Link buttons don't need callbacks
+
+    @ui.button(label="Brands", style=discord.ButtonStyle.link, url="https://discord.com/channels/1339298010169086072/1339306570634236038")
+    async def brands_button(self, interaction: discord.Interaction, button: ui.Button):
+        pass  # Link buttons don't need callbacks
 
 # View for the credentialsdropdown menu
 class CredentialsDropdownView(ui.View):
@@ -875,6 +874,67 @@ class CredentialsDropdownView(ui.View):
         # Set the callback for the dropdown
         self.dropdown.callback = self.dropdown_callback
         self.add_item(self.dropdown)
+
+    async def interaction_check(self, interaction):
+        # Update last interaction time on every interaction
+        self.last_interaction = datetime.now()
+        # Reset timeout on interaction
+        self._timeout_expiry = discord.utils.utcnow() + timedelta(seconds=self.timeout)
+        # Check if the interaction is from the original user
+        return interaction.user.id == int(self.user_id)
+
+    async def on_timeout(self):
+        # Create timeout embed
+        timeout_embed = discord.Embed(
+            title="Interaction Timeout",
+            description="The panel has timed out due to inactivity and is no longer active.",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        # Try to edit the message with the timeout embed
+        try:
+            if self.message:
+                await self.message.edit(embed=timeout_embed, view=None)
+        except Exception as e:
+            print(f"Error in timeout handling: {e}")
+
+    @ui.button(label="Back", style=discord.ButtonStyle.secondary, row=1)
+    async def back_button(self, interaction: discord.Interaction, button: ui.Button):
+        # Get subscription info for the menu
+        user_id = str(interaction.user.id)
+        subscription_type, end_date = get_subscription(user_id)
+
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+
+        # Create menu panel
+        embed = discord.Embed(
+            title="GOAT Menu",
+            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+                        f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+                        "-# pick an option below to continue\n\n" +
+                        "**Subscription Type**\n" +
+                        f"`{display_type}`\n\n" +
+                        "**Note**\n" +
+                        "-# please click \"Credentials\" and set your credentials before you try to generate",
+            color=discord.Color.from_str("#c2ccf8")
+        )
+
+        view = MenuView(user_id)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+        # Store message reference for proper timeout handling
+        try:
+            message = interaction.message
+            view.message = message
+        except Exception as e:
+            print(f"Failed to get message reference: {e}")
 
     async def dropdown_callback(self, interaction: discord.Interaction):
 
