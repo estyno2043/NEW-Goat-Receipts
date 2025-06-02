@@ -71,12 +71,11 @@ class suprememodal2(ui.Modal, title="Supreme Receipt"):
             # Generate random order number
             order_number = str(random.randint(100000, 999999))
 
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
-            name, street, city, zipp, country = user_details
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+            
+            if user_details:
+                name, street, city, zipp, country, email = user_details
 
             # Calculate total
             product_price_float = float(productprice)

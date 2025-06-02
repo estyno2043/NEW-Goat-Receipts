@@ -61,16 +61,11 @@ class uggmodal2(ui.Modal, title="UGG Receipt Generator (2/2)"):
             print()
 
             # Get user details from database
-            import sqlite3
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-            cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-            user_details = cursor.fetchone()
-
-            if not user_details:
-                raise Exception("User details not found")
-
-            name, street, city, zipp, country = user_details
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+            
+            if user_details:
+                name, street, city, zipp, country, email = user_details
 
             # Get form values
             productprice = self.productprice.value

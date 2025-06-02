@@ -261,6 +261,13 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
 
             owner_id = interaction.user.id
 
+            # Get user details from database
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(owner_id)
+
+            if user_details:
+                name, street, city, zipp, country, email = user_details
+
             # Final step - email choice
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name_value, image_url, link)
