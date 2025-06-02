@@ -55,12 +55,8 @@ class iStoresSecondModal(ui.Modal, title="iStores Order - Step 2"):
         owner_id = interaction.user.id
 
         # First retrieve user credentials from database
-        import sqlite3
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, street, city, zipp, country FROM licenses WHERE owner_id = ?", (str(owner_id),))
-        user_details = cursor.fetchone()
-        conn.close()
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(owner_id)
 
         # Check if user credentials exist
         if not user_details:
@@ -68,7 +64,7 @@ class iStoresSecondModal(ui.Modal, title="iStores Order - Step 2"):
             return
 
         # Unpack user details
-        name, street, city, zipp, country = user_details
+        name, street, city, zipp, country, email = user_details
 
         # Get values from the first modal using class attributes
         productname = istoresmodal.productname_value if hasattr(istoresmodal, 'productname_value') else "Epico Cleaning Kit for AirPods"
