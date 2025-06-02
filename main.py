@@ -806,8 +806,14 @@ class CredentialsDropdownView(ui.View):
             modal = EmailForm()
             await interaction.response.send_modal(modal)
 
+@bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+
     # Check if message is in a guild-specific image channel
-    elif message.guild and message.attachments:
+    if message.guild and message.attachments:
         guild_id = str(message.guild.id)
         channel_id = message.channel.id
 
