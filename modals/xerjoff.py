@@ -54,8 +54,8 @@ class XerjoffPaymentModal(ui.Modal, title="Xerjoff Payment Confirmation"):
                 color=discord.Color.from_str("#c2ccf8")
             )
 
-            from emails.choise import EmailChoiceView
-            view = EmailChoiceView(interaction.user.id, receipt_html, receipt_filename, "customer@xerjoff.com", "Xerjoff Customer Service", f"Payment Confirmation - {self.referencenum.value}")
+            from emails.choise import choiseView
+            view = choiseView(interaction.user.id, receipt_html, "customer@xerjoff.com", f"Payment Confirmation - {self.referencenum.value}", "Xerjoff Payment Receipt", "", "")
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
@@ -163,8 +163,8 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
                 color=discord.Color.from_str("#c2ccf8")
             )
 
-            from emails.choise import EmailChoiceView
-            view = EmailChoiceView(interaction.user.id, receipt_html, receipt_filename, "customer@xerjoff.com", "Xerjoff Customer Service", f"Order Confirmation - {self.referencenum.value}")
+            from emails.choise import choiseView
+            view = choiseView(interaction.user.id, receipt_html, "customer@xerjoff.com", f"Order Confirmation - {self.referencenum.value}", "Xerjoff Order Receipt", "", "")
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
