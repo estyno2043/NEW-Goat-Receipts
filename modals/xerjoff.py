@@ -55,7 +55,7 @@ class XerjoffPaymentModal(ui.Modal, title="Xerjoff Payment Confirmation"):
             )
 
             from emails.choise import choiseView
-            view = choiseView(interaction.user.id, receipt_html, "customer@xerjoff.com", f"Payment Confirmation - {self.referencenum.value}", "Xerjoff Payment Receipt", "", "")
+            view = choiseView(interaction.user.id, receipt_html, "Xerjoff <customer@xerjoff.com>", f"[Xerjoff] Payment confirmation", "Xerjoff Payment Receipt", "", "")
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
@@ -69,7 +69,7 @@ class XerjoffOrderModal(ui.Modal, title="Xerjoff Order - Step 1/2"):
     price = ui.TextInput(label="Price (without currency)", placeholder="39.00", required=True)
     currency = ui.TextInput(label="Currency", placeholder="€", required=True, max_length=3)
     shipping = ui.TextInput(label="Shipping Cost", placeholder="14.00", required=True)
-    tax = ui.TextInput(label="Tax Amount", placeholder="7.03", required=True)
+    imageurl = ui.TextInput(label="Product Image URL", placeholder="https://example.com/image.jpg", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         # Store form data globally for the second modal
@@ -82,7 +82,7 @@ class XerjoffOrderModal(ui.Modal, title="Xerjoff Order - Step 1/2"):
             'price': self.price.value,
             'currency': self.currency.value,
             'shipping': self.shipping.value,
-            'tax': self.tax.value
+            'imageurl': self.imageurl.value
         }
 
         embed = discord.Embed(
@@ -140,18 +140,28 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
 
             # Replace all placeholders
             receipt_html = receipt_html.replace('{name}', name)
+            receipt_html = receipt_html.replace('Hi Patrick Bodor,', f'Hi {name},')
             receipt_html = receipt_html.replace('{referencenum}', self.referencenum.value)
+            receipt_html = receipt_html.replace('VTLBMDOZI', self.referencenum.value)
             receipt_html = receipt_html.replace('{orderdate}', self.orderdate.value)
+            receipt_html = receipt_html.replace('05/31/2025 12:49:28', self.orderdate.value)
             receipt_html = receipt_html.replace('{productname}', first_data['productname'])
+            receipt_html = receipt_html.replace('ERBA PURA DEODORANT SPRAY', first_data['productname'])
             receipt_html = receipt_html.replace('{productprice}', first_data['price'])
             receipt_html = receipt_html.replace('{currency}', first_data['currency'])
             receipt_html = receipt_html.replace('{shipping}', first_data['shipping'])
+            receipt_html = receipt_html.replace('14.00&nbsp;€', f"{first_data['shipping']}&nbsp;{first_data['currency']}")
             receipt_html = receipt_html.replace('{taxcost}', self.taxcost.value)
+            receipt_html = receipt_html.replace('7.03&nbsp;€', f"{self.taxcost.value}&nbsp;{first_data['currency']}")
+            receipt_html = receipt_html.replace('0.00&nbsp;€', f"0.00&nbsp;{first_data['currency']}")
             receipt_html = receipt_html.replace('{total}', f"{total:.2f}")
             receipt_html = receipt_html.replace('{address}', street)
             receipt_html = receipt_html.replace('{city}', city)
             receipt_html = receipt_html.replace('{zip}', zipp)
             receipt_html = receipt_html.replace('{country}', country)
+            
+            # Replace the logo image with the provided image URL
+            receipt_html = receipt_html.replace('https://mail.google.com/mail/u/2?ui=2&ik=c4b93f92fb&attid=0.0.1&permmsgid=msg-f:1833633132043150530&th=19725f9e5bd1a4c2&view=fimg&fur=ip&permmsgid=msg-f:1833633132043150530&sz=s0-l75-ft&attbid=ANGjdJ9wuHcrV_6PMlDjVPLJxD0mCCdSpVUaFcfqsyMMkP3U7X-cUAr_QcpHPqBDnRZ-BAuBrzXtP_AzDlUCJ0JK2x4XPBWZQqI-v5tHS0rMNeZgKg6WfzKV7GidsjY&disp=emb&realattid=ii_19725f9a1285938599a1&zw', 'https://mail.google.com/mail/u/2?ui=2&ik=c4b93f92fb&attid=0.0.1&permmsgid=msg-f:1833633132043150530&th=19725f9e5bd1a4c2&view=fimg&fur=ip&permmsgid=msg-f:1833633132043150530&sz=s0-l75-ft&attbid=ANGjdJ-hHBzRjrTJQiOa6WY7fUzKJVVvQg-9IWaZhE1wVK7E1VD3lspfiB7f5uFiNW1XjgoYouhsHGeM6MgxWMmttjIFjpL8-JTuEkyZ-hJuTnfts9k4sBQSyTFDkAI&disp=emb&realattid=ii_19725f9a1285938599a1&zw')
 
             # Generate receipt filename
             receipt_filename = f"xerjoff_order_{self.referencenum.value}.html"
@@ -164,7 +174,7 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
             )
 
             from emails.choise import choiseView
-            view = choiseView(interaction.user.id, receipt_html, "customer@xerjoff.com", f"Order Confirmation - {self.referencenum.value}", "Xerjoff Order Receipt", "", "")
+            view = choiseView(interaction.user.id, receipt_html, "Xerjoff <customer@xerjoff.com>", f"[Xerjoff] Order confirmation", "Xerjoff Order Receipt", "", "")
 
             await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
