@@ -153,57 +153,66 @@ class LicenseManager:
                             except Exception as role_error:
                                 logging.error(f"Error removing roles from {member.name}: {role_error}")
 
-                        # Send expiration notifications (only once, not per guild)
-                        if member_found:
+                        # Send expiration notifications (always send, regardless of member_found status)
+                        try:
+                            # Get the member object for notifications (from any guild)
+                            notification_member = None
+                            for guild in self.bot.guilds:
+                                member = guild.get_member(user_id)
+                                if member:
+                                    notification_member = member
+                                    break
+
+                            # Create DM embed
+                            dm_embed = discord.Embed(
+                                title="Your Subscription Has Expired",
+                                description=f"Hello <@{user_id}>,\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
+                                color=discord.Color.default()
+                            )
+
+                            # Create purchases channel embed
+                            purchases_embed = discord.Embed(
+                                title="Subscription Expired",
+                                description=f"<@{user_id}>, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                                color=discord.Color.default()
+                            )
+
+                            # Create renewal buttons
+                            dm_view = discord.ui.View()
+                            dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+
+                            purchases_view = discord.ui.View()
+                            purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+
+                            # Try to DM the user (if member found in any guild)
+                            if notification_member:
+                                try:
+                                    await notification_member.send(embed=dm_embed, view=dm_view)
+                                    logging.info(f"Sent expiration DM to {notification_member.name}")
+                                except:
+                                    logging.info(f"Could not DM {notification_member.name} about expired license")
+                            else:
+                                # Try to get user object directly from bot
+                                try:
+                                    user = await self.bot.fetch_user(user_id)
+                                    if user:
+                                        await user.send(embed=dm_embed, view=dm_view)
+                                        logging.info(f"Sent expiration DM to {user.name} (fetched directly)")
+                                except:
+                                    logging.info(f"Could not DM user {user_id} about expired license")
+
+                            # Send notification to Purchases channel (always send)
                             try:
-                                # Get the member object for notifications (from any guild)
-                                notification_member = None
-                                for guild in self.bot.guilds:
-                                    member = guild.get_member(user_id)
-                                    if member:
-                                        notification_member = member
-                                        break
+                                purchases_channel = self.bot.get_channel(1374468080817803264)
+                                if purchases_channel:
+                                    mention_content = notification_member.mention if notification_member else f"<@{user_id}>"
+                                    await purchases_channel.send(content=mention_content, embed=purchases_embed, view=purchases_view)
+                                    logging.info(f"Sent expiration notification to purchases channel for user {user_id}")
+                            except Exception as channel_error:
+                                logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
 
-                                if notification_member:
-                                    # Create DM embed
-                                    dm_embed = discord.Embed(
-                                        title="Your Subscription Has Expired",
-                                        description=f"Hello {notification_member.mention},\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
-                                        color=discord.Color.default()
-                                    )
-
-                                    # Create purchases channel embed
-                                    purchases_embed = discord.Embed(
-                                        title="Subscription Expired",
-                                        description=f"{notification_member.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
-                                        color=discord.Color.default()
-                                    )
-
-                                    # Create renewal buttons
-                                    dm_view = discord.ui.View()
-                                    dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-
-                                    purchases_view = discord.ui.View()
-                                    purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-
-                                    # Try to DM the user
-                                    try:
-                                        await notification_member.send(embed=dm_embed, view=dm_view)
-                                        logging.info(f"Sent expiration DM to {notification_member.name}")
-                                    except:
-                                        logging.info(f"Could not DM {notification_member.name} about expired license")
-
-                                    # Send notification to Purchases channel
-                                    try:
-                                        purchases_channel = self.bot.get_channel(1374468080817803264)
-                                        if purchases_channel:
-                                            await purchases_channel.send(content=notification_member.mention, embed=purchases_embed, view=purchases_view)
-                                            logging.info(f"Sent expiration notification to purchases channel for {notification_member.name}")
-                                    except Exception as channel_error:
-                                        logging.error(f"Could not send expiry notification to Purchases channel: {channel_error}")
-
-                            except Exception as notification_error:
-                                logging.error(f"Error sending expiration notifications: {notification_error}")
+                        except Exception as notification_error:
+                            logging.error(f"Error sending expiration notifications: {notification_error}")
 
                 except Exception as e:
                     logging.error(f"Error processing license for user {owner_id}: {str(e)}")
