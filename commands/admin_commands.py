@@ -92,20 +92,13 @@ class SubscriptionOption(discord.ui.Select):
                 await self.user.add_roles(client_role)
                 print(f"Added client role to {self.user.display_name}")
 
-            # Add subscription-specific roles based on subscription type
-            if selected == "1_month":
-                # Add 1 month role
-                month_role = discord.utils.get(interaction.guild.roles, id=1372256426684317909)
-                if month_role:
-                    await self.user.add_roles(month_role)
-                    print(f"Added 1 month role to {self.user.display_name}")
-            
-            elif selected == "lifetime":
-                # Add lifetime role
-                lifetime_role = discord.utils.get(interaction.guild.roles, id=1372256491729453168)
-                if lifetime_role:
-                    await self.user.add_roles(lifetime_role)
-                    print(f"Added lifetime role to {self.user.display_name}")
+            # Add new unified role for 1 month and lifetime subscriptions
+            if selected == "1_month" or selected == "lifetime":
+                # Add the new role for both 1 month and lifetime users
+                new_role = discord.utils.get(interaction.guild.roles, id=1379183902266228876)
+                if new_role:
+                    await self.user.add_roles(new_role)
+                    print(f"Added new subscription role to {self.user.display_name}")
 
         except Exception as e:
             print(f"Error adding roles to user: {e}")
@@ -260,17 +253,22 @@ class AdminPanelView(discord.ui.View):
 
             # Remove subscription-specific roles but keep client role
             try:
-                # Remove 1 month role
+                # Remove new unified subscription role
+                new_role = discord.utils.get(interaction.guild.roles, id=1379183902266228876)
+                if new_role and new_role in self.user.roles:
+                    await self.user.remove_roles(new_role)
+                    logging.info(f"Removed subscription role from {self.user.name}")
+
+                # Also remove old roles in case they still exist
                 month_role = discord.utils.get(interaction.guild.roles, id=1372256426684317909)
                 if month_role and month_role in self.user.roles:
                     await self.user.remove_roles(month_role)
-                    logging.info(f"Removed 1 month role from {self.user.name}")
+                    logging.info(f"Removed old 1 month role from {self.user.name}")
 
-                # Remove lifetime role
                 lifetime_role = discord.utils.get(interaction.guild.roles, id=1372256491729453168)
                 if lifetime_role and lifetime_role in self.user.roles:
                     await self.user.remove_roles(lifetime_role)
-                    logging.info(f"Removed lifetime role from {self.user.name}")
+                    logging.info(f"Removed old lifetime role from {self.user.name}")
 
             except Exception as role_error:
                 logging.error(f"Error removing subscription roles: {role_error}")

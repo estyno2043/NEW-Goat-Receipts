@@ -132,16 +132,23 @@ class LicenseManager:
                                     await member.remove_roles(role)
                                     logging.info(f"Removed client role {role.name} from {member.name} due to expired license")
 
-                                # Remove subscription-specific roles
+                                # Remove new unified subscription role (only for 1 month users, not lifetime)
+                                if key and ("1Month" in key or "1month" in key):
+                                    new_role = discord.utils.get(guild.roles, id=1379183902266228876)
+                                    if new_role and new_role in member.roles:
+                                        await member.remove_roles(new_role)
+                                        logging.info(f"Removed subscription role from {member.name} due to expired 1 month license")
+
+                                # Remove old subscription-specific roles for backward compatibility
                                 month_role = discord.utils.get(guild.roles, id=1372256426684317909)
                                 if month_role and month_role in member.roles:
                                     await member.remove_roles(month_role)
-                                    logging.info(f"Removed 1 month role from {member.name} due to expired license")
+                                    logging.info(f"Removed old 1 month role from {member.name} due to expired license")
 
                                 lifetime_role = discord.utils.get(guild.roles, id=1372256491729453168)
                                 if lifetime_role and lifetime_role in member.roles:
                                     await member.remove_roles(lifetime_role)
-                                    logging.info(f"Removed lifetime role from {member.name} due to expired license")
+                                    logging.info(f"Removed old lifetime role from {member.name} due to expired license")
 
                             except Exception as role_error:
                                 logging.error(f"Error removing roles from {member.name}: {role_error}")
