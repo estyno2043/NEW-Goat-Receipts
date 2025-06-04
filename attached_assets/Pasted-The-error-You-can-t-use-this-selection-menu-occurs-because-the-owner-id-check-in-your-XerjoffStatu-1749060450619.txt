@@ -1,0 +1,56 @@
+The error "You can't use this selection menu" occurs because the owner_id check in your XerjoffStatusView class is failing. Let's fix this issue:
+
+Problem Analysis:
+In your xerjoffmodal class, you're accepting an optional owner_id parameter
+
+When the modal is submitted, it calls get_xerjoff_view() with either the provided owner_id or the interaction user's ID
+
+However, the selection menu in XerjoffStatusView only works for the owner_id that was passed to it
+
+Solution:
+The issue is likely in how you're initializing the xerjoffmodal. Here are the fixes needed:
+
+First, make sure you're passing the correct owner_id when creating the modal. In your main bot code where you create the modal, you should do:
+
+python
+# When creating the modal from your main bot code
+modal = xerjoffmodal(owner_id=interaction.user.id)
+await interaction.response.send_modal(modal)
+Alternatively, you can modify the XerjoffStatusView to be more flexible. Here's an updated version:
+
+python
+class XerjoffStatusView(ui.View):
+    def __init__(self, owner_id=None):
+        super().__init__(timeout=300)
+        self.owner_id = owner_id or interaction.user.id  # Fallback to interaction user
+
+    @ui.select(
+        placeholder="Choose receipt type...",
+        options=[
+            discord.SelectOption(label="Order Confirmation", value="ordered", description=""),
+            discord.SelectOption(label="Payment Confirmation", value="payment", description="")
+        ]
+    )
+    async def status_select(self, interaction: discord.Interaction, select: ui.Select):
+        if self.owner_id and interaction.user.id != self.owner_id:
+            await interaction.response.send_message("You can't use this selection menu.", ephemeral=True)
+            return
+        # Rest of your code...
+Additional Checks:
+Make sure you're not accidentally reusing the same view instance for multiple users
+
+Verify that the interaction user ID matches what you expect by adding debug prints:
+
+python
+print(f"Owner ID: {self.owner_id}, Interaction User ID: {interaction.user.id}")
+Best Practice:
+Instead of storing the owner_id in the modal/view, you might want to always use the interaction user's ID directly, since these components should generally only be used by the user who triggered them:
+
+python
+async def status_select(self, interaction: discord.Interaction, select: ui.Select):
+    # No owner_id check needed since the view is ephemeral
+    if select.values[0] == "payment":
+        await interaction.response.send_modal(XerjoffPaymentModal())
+    elif select.values[0] == "ordered":
+        await interaction.response.send_modal(XerjoffOrderModal())
+This would simplify your code and prevent the permission issues you're experiencing.

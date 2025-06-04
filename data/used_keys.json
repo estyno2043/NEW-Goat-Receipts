@@ -131,5 +131,12 @@
         "redeemed": true,
         "redeemed_by": "509766378601971714",
         "redeemed_at": "2025-06-04 17:47:27"
+    },
+    "JM7428HFNCMOFK2A": {
+        "subscription_type": "3day",
+        "generated_at": "2025-05-25 21:36:07",
+        "redeemed": true,
+        "redeemed_by": "700003498791665705",
+        "redeemed_at": "2025-06-04 18:04:02"
     }
 }
