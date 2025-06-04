@@ -204,8 +204,10 @@ class xerjoffmodal(ui.Modal, title="Xerjoff Receipt Generator"):
         super().__init__()
 
     async def on_submit(self, interaction: discord.Interaction):
-        # This shouldn't be called directly
-        pass
+        # Show the status selection view instead
+        owner_id = interaction.user.id
+        embed, view = get_xerjoff_view(owner_id)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 def get_xerjoff_view(owner_id):
     """Return the status selection view for Xerjoff"""
