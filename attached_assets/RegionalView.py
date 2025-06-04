@@ -264,11 +264,7 @@ class PaginatedDropdown(discord.ui.Select):
         selected_brand = self.values[0]
         modal_function = dict(self.all_options).get(selected_brand)
         if callable(modal_function):
-            # Special handling for Xerjoff to pass owner_id
-            if selected_brand == "Xerjoff":
-                modal_instance = modal_function(self.owner_id)
-            else:
-                modal_instance = modal_function()
+            modal_instance = modal_function()
             await interaction.response.send_modal(modal_instance)
         else:
             await interaction.response.send_message("Error: Modal function not available.", ephemeral=True)
