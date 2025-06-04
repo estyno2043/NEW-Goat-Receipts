@@ -15,7 +15,7 @@ class XerjoffStatusModal(ui.Modal, title="Xerjoff Receipt Type"):
         pass
 
 class XerjoffStatusView(ui.View):
-    def __init__(self, owner_id):
+    def __init__(self, owner_id=None):
         super().__init__(timeout=300)
         self.owner_id = owner_id
 
@@ -27,6 +27,10 @@ class XerjoffStatusView(ui.View):
         ]
     )
     async def status_select(self, interaction: discord.Interaction, select: ui.Select):
+        # If no owner_id was set, use the current interaction user
+        if self.owner_id is None:
+            self.owner_id = interaction.user.id
+        
         if interaction.user.id != self.owner_id:
             await interaction.response.send_message("You can't use this selection menu.", ephemeral=True)
             return
@@ -206,7 +210,7 @@ class xerjoffmodal(ui.Modal, title="Xerjoff Receipt Generator"):
 
     async def on_submit(self, interaction: discord.Interaction):
         # Show the status selection view instead
-        owner_id = self.owner_id or interaction.user.id
+        owner_id = self.owner_id if self.owner_id is not None else interaction.user.id
         embed, view = get_xerjoff_view(owner_id)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
