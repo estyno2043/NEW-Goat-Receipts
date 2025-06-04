@@ -473,15 +473,15 @@ class BrandSelectDropdown(ui.Select):
                         await interaction.response.send_message(f"Error loading The North Face modal: {str(e)}", ephemeral=True)
                         return
                 elif brand == "Xerjoff" or brand.lower() == "xerjoff":
-                    # Special handling for Xerjoff - show status selection view instead of modal
+                    # Special handling for Xerjoff - use the main modal
                     try:
-                        from modals.xerjoff import get_xerjoff_view
-                        embed, view = get_xerjoff_view(user_id)
-                        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                        from modals.xerjoff import xerjoffmodal
+                        modal = xerjoffmodal()
+                        await interaction.response.send_modal(modal)
                         return
                     except Exception as e:
-                        print(f"Error loading Xerjoff view: {str(e)}")
-                        await interaction.response.send_message(f"Error loading Xerjoff: {str(e)}", ephemeral=True)
+                        print(f"Error loading Xerjoff modal: {str(e)}")
+                        await interaction.response.send_message(f"Error loading Xerjoff modal: {str(e)}", ephemeral=True)
                         return
                 elif brand == "Zalandous" or brand.lower() == "zalandous":
                     # Ensure the modal is properly loaded
