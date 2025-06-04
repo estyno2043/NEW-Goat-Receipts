@@ -82,6 +82,7 @@ from modals.vinted import vintedmodal #Import for Vinted modal
 from modals.houseoffrasers import houseoffrasermodal #Import for House of Fraser modal
 from addons.nextsteps import NextstepHouseOfFraser
 from modals.samsung import SamsungModal as samsungmodal
+from modals.xerjoff import xerjoffmodal
 
 conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
@@ -191,6 +192,7 @@ all_brands = {
     'Trapstar': trapstarmodal,
     'UGG': uggmodal,
     'Vinted': vintedmodal,
+    'Xerjoff': xerjoffmodal,
     'Zalando DE': zalandodemodal,
     'Zalando US': zalandomodal,
     'Zara': zaramodal,
