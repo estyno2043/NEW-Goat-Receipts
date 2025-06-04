@@ -22,8 +22,8 @@ class XerjoffStatusView(ui.View):
     @ui.select(
         placeholder="Choose receipt type...",
         options=[
-            discord.SelectOption(label="Order Confirmation", value="ordered", description="Generate order confirmation"),
-            discord.SelectOption(label="Payment Confirmation", value="payment", description="Generate payment confirmation")
+            discord.SelectOption(label="Order Confirmation", value="ordered", description=""),
+            discord.SelectOption(label="Payment Confirmation", value="payment", description="")
         ]
     )
     async def status_select(self, interaction: discord.Interaction, select: ui.Select):
