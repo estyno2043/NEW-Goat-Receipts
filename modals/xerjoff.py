@@ -69,7 +69,6 @@ class XerjoffOrderModal(ui.Modal, title="Xerjoff Order - Step 1/2"):
     price = ui.TextInput(label="Price (without currency)", placeholder="39.00", required=True)
     currency = ui.TextInput(label="Currency", placeholder="€", required=True, max_length=3)
     shipping = ui.TextInput(label="Shipping Cost", placeholder="14.00", required=True)
-    imageurl = ui.TextInput(label="Product Image URL", placeholder="https://example.com/image.jpg", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         # Store form data globally for the second modal
@@ -81,8 +80,7 @@ class XerjoffOrderModal(ui.Modal, title="Xerjoff Order - Step 1/2"):
             'productname': self.productname.value,
             'price': self.price.value,
             'currency': self.currency.value,
-            'shipping': self.shipping.value,
-            'imageurl': self.imageurl.value
+            'shipping': self.shipping.value
         }
 
         embed = discord.Embed(
@@ -156,8 +154,7 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
             receipt_html = receipt_html.replace('{zip}', zipp)
             receipt_html = receipt_html.replace('{country}', country)
             
-            # Replace the logo image with the provided image URL
-            receipt_html = receipt_html.replace('https://mail.google.com/mail/u/2?ui=2&ik=c4b93f92fb&attid=0.0.1&permmsgid=msg-f:1833633132043150530&th=19725f9e5bd1a4c2&view=fimg&fur=ip&permmsgid=msg-f:1833633132043150530&sz=s0-l75-ft&attbid=ANGjdJ9wuHcrV_6PMlDjVPLJxD0mCCdSpVUaFcfqsyMMkP3U7X-cUAr_QcpHPqBDnRZ-BAuBrzXtP_AzDlUCJ0JK2x4XPBWZQqI-v5tHS0rMNeZgKg6WfzKV7GidsjY&disp=emb&realattid=ii_19725f9a1285938599a1&zw', 'https://mail.google.com/mail/u/2?ui=2&ik=c4b93f92fb&attid=0.0.1&permmsgid=msg-f:1833633132043150530&th=19725f9e5bd1a4c2&view=fimg&fur=ip&permmsgid=msg-f:1833633132043150530&sz=s0-l75-ft&attbid=ANGjdJ-hHBzRjrTJQiOa6WY7fUzKJVVvQg-9IWaZhE1wVK7E1VD3lspfiB7f5uFiNW1XjgoYouhsHGeM6MgxWMmttjIFjpL8-JTuEkyZ-hJuTnfts9k4sBQSyTFDkAI&disp=emb&realattid=ii_19725f9a1285938599a1&zw')
+            
 
             # Generate receipt filename
             receipt_filename = f"xerjoff_order_{self.referencenum.value}.html"
