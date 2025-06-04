@@ -200,4 +200,4 @@ class xerjoffmodal(ui.Modal, title="Xerjoff Receipt Generator"):
             description="Choose the type of receipt you want to generate:",
             color=discord.Color.from_str("#c2ccf8")
         )
-        await interaction.response.send_message(embed=embed, view=XerjoffStatusView(), ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=XerjoffStatusView(), ephemeral=False)
