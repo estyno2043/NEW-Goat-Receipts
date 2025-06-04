@@ -180,6 +180,14 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
 
 # Main modal class for compatibility
 class xerjoffmodal(ui.Modal, title="Xerjoff Receipt Generator"):
+    # Add a dummy text input to make the modal valid
+    dummy_field = ui.TextInput(
+        label="Press Submit to Continue",
+        placeholder="Just click Submit below to proceed...",
+        required=False,
+        default="Continue"
+    )
+    
     async def on_submit(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title="Xerjoff Receipt Generator",
