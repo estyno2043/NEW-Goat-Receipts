@@ -484,7 +484,7 @@ class DropdownView(discord.ui.View):
                 current_page = 5
             elif new_region == "US6":
                 current_page = 6
-                
+
             # For DE region, remove Previous and Next buttons
             if new_region == "DE":
                 # Remove navigation buttons for German view
@@ -1642,6 +1642,9 @@ async def handle_button_click(interaction: discord.Interaction, custom_id: str):
         elif custom_id == "houseoffraser":
             from modals.houseoffrasers import houseoffrasermodal
             await interaction.response.send_modal(houseoffrasermodal())
+        elif custom_id == "xerjoff":
+            from modals.xerjoff import xerjoffmodal
+            await interaction.response.send_modal(xerjoffmodal(interaction.user.id))
         else:
             await interaction.response.send_message("Invalid button ID.", ephemeral=True)
     else:

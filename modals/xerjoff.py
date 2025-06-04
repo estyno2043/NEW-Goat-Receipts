@@ -200,12 +200,13 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
 
 # Main modal class for compatibility
 class xerjoffmodal(ui.Modal, title="Xerjoff Receipt Generator"):
-    def __init__(self):
+    def __init__(self, owner_id=None):
         super().__init__()
+        self.owner_id = owner_id
 
     async def on_submit(self, interaction: discord.Interaction):
         # Show the status selection view instead
-        owner_id = interaction.user.id
+        owner_id = self.owner_id or interaction.user.id
         embed, view = get_xerjoff_view(owner_id)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
