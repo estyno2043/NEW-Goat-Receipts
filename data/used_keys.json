@@ -124,5 +124,12 @@
         "redeemed": true,
         "redeemed_by": "1339295766828552365",
         "redeemed_at": "2025-06-04 06:16:28"
+    },
+    "BM0Q1OWH9X1UDYF6": {
+        "subscription_type": "lifetime",
+        "generated_at": "2025-05-25 21:34:19",
+        "redeemed": true,
+        "redeemed_by": "509766378601971714",
+        "redeemed_at": "2025-06-04 17:47:27"
     }
 }
