@@ -1647,7 +1647,7 @@ async def handle_button_click(interaction: discord.Interaction, custom_id: str):
             await interaction.response.send_modal(houseoffrasermodal())
         elif custom_id == "xerjoff":
             from modals.xerjoff import xerjoffmodal
-            await interaction.response.send_modal(xerjoffmodal(interaction.user.id))
+            await interaction.response.send_modal(xerjoffmodal())
         else:
             await interaction.response.send_message("Invalid button ID.", ephemeral=True)
     else:
