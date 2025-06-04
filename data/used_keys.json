@@ -103,5 +103,26 @@
         "redeemed": true,
         "redeemed_by": "1196929363581603881",
         "redeemed_at": "2025-05-25 21:56:43"
+    },
+    "6BZCD7FZYOG83XBB": {
+        "subscription_type": "1month",
+        "generated_at": "2025-06-04 06:14:57",
+        "redeemed": true,
+        "redeemed_by": "1339295766828552365",
+        "redeemed_at": "2025-06-04 06:15:14"
+    },
+    "KK6MA45EQIX6BFD9": {
+        "subscription_type": "lifetime",
+        "generated_at": "2025-06-04 06:14:53",
+        "redeemed": true,
+        "redeemed_by": "1339295766828552365",
+        "redeemed_at": "2025-06-04 06:15:43"
+    },
+    "RDXBU896EUK0T04S": {
+        "subscription_type": "lifetime",
+        "generated_at": "2025-06-04 06:14:53",
+        "redeemed": true,
+        "redeemed_by": "1339295766828552365",
+        "redeemed_at": "2025-06-04 06:16:28"
     }
 }
