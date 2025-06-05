@@ -189,22 +189,45 @@ class AdminPanelView(discord.ui.View):
                 zip_code = user_credentials.get("zip", "Not set")
                 country = user_credentials.get("country", "Not set")
 
-            # Check if it's a lifetime key
-            if key and "LifetimeKey" in key:
-                subscription_status = "Lifetime"
-                remaining_days = "∞"
-            else:
-                try:
-                    expiry_date = datetime.strptime(expiry_str, "%d/%m/%Y %H:%M:%S")
-                    current_date = datetime.now()
-                    remaining_days = (expiry_date - current_date).days
-                    subscription_status = f"Expires: {expiry_str} ({remaining_days} days remaining)"
-                except:
-                    subscription_status = "Unknown"
-                    remaining_days = "?"
+            # Check subscription type and guild access
+            guild_access = "No Guild Access"
+            subscription_status = "Unknown"
+            remaining_days = "?"
+
+            if key:
+                # Check for guild subscriptions
+                if "guild_lifetime" in key.lower():
+                    guild_access = "Guild Lifetime"
+                    subscription_status = "Guild Lifetime"
+                    remaining_days = "∞"
+                elif "guild_30days" in key.lower():
+                    guild_access = "Guild 30 Days"
+                    try:
+                        expiry_date = datetime.strptime(expiry_str, "%d/%m/%Y %H:%M:%S")
+                        current_date = datetime.now()
+                        remaining_days = (expiry_date - current_date).days
+                        subscription_status = f"Guild 30 Days - Expires: {expiry_str} ({remaining_days} days remaining)"
+                    except:
+                        subscription_status = "Guild 30 Days - Unknown expiry"
+                        remaining_days = "?"
+                # Check for regular lifetime key
+                elif "LifetimeKey" in key or "lifetime" in key.lower():
+                    subscription_status = "Lifetime"
+                    remaining_days = "∞"
+                # Regular subscription
+                else:
+                    try:
+                        expiry_date = datetime.strptime(expiry_str, "%d/%m/%Y %H:%M:%S")
+                        current_date = datetime.now()
+                        remaining_days = (expiry_date - current_date).days
+                        subscription_status = f"Expires: {expiry_str} ({remaining_days} days remaining)"
+                    except:
+                        subscription_status = "Unknown"
+                        remaining_days = "?"
 
             embed.add_field(name="User", value=f"{self.user.mention} ({self.user.id})", inline=False)
             embed.add_field(name="Subscription", value=subscription_status, inline=False)
+            embed.add_field(name="Guild Access", value=guild_access, inline=False)
             embed.add_field(name="Email", value=email or "Not set", inline=False)
 
             # Add personal info if available
