@@ -1308,16 +1308,22 @@ async def generate_command(interaction: discord.Interaction):
         # Check if user has credentials and email using guild-aware checker
         if not is_main_guild:
             has_credentials, has_email = GuildLicenseChecker.check_user_setup_guild(user_id, guild_id)
+            subscription_type, end_date = await GuildLicenseChecker.get_guild_subscription_info(user_id, guild_id)
         else:
             has_credentials, has_email = check_user_setup(user_id)
+            subscription_type, end_date = get_subscription(user_id)
+
+        # Check if access was removed (indicated by specific subscription types)
+        if subscription_type in ["Access Removed", "License Removed", "No Access"]:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Your access to this server has been removed by an administrator. Please contact a server admin if you believe this is an error.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
         if not has_credentials or not has_email:
-            # Show menu panel for new users - use guild-specific subscription info
-            if not is_main_guild:
-                subscription_type, end_date = await GuildLicenseChecker.get_guild_subscription_info(user_id, guild_id)
-            else:
-                subscription_type, end_date = get_subscription(user_id)
-
             # Format subscription type for display
             display_type = subscription_type
             if subscription_type == "3day":

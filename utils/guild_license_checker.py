@@ -30,6 +30,31 @@ class GuildLicenseChecker:
             server_access = mongo_manager.get_server_access(guild_id, user_id)
             logging.info(f"Server access for {user_id} in {guild_id}: {server_access}")
             
+            # Check for guild-specific user license first (more specific)
+            guild_license = mongo_manager.get_guild_user_license(guild_id, user_id)
+            logging.info(f"Guild license for {user_id} in {guild_id}: {guild_license}")
+            
+            # If both records exist, we need to check if access was removed
+            # When access is removed, both records should be deleted, so if neither exists, access was removed
+            if not server_access and not guild_license:
+                # Check if the user ever had access by looking for any trace in credentials or email
+                user_credentials = mongo_manager.get_user_credentials(user_id)
+                user_email = mongo_manager.get_user_email(user_id)
+                user_license = mongo_manager.get_license(user_id)
+                
+                # If user has no credentials, email, or license, they likely had access removed
+                if not user_credentials and not user_email and not user_license:
+                    logging.info(f"User {user_id} appears to have had access removed in guild {guild_id} (all data cleared)")
+                    return False, {
+                        "type": "access_removed",
+                        "message": "Your access has been removed from this server"
+                    }
+                else:
+                    # User never had access in this guild
+                    logging.info(f"No access found for user {user_id} in guild {guild_id}")
+                    return False, {"type": "no_access"}
+            
+            # Process server access if it exists
             if server_access:
                 expiry_str = server_access.get("expiry")
                 access_type = server_access.get("access_type")
@@ -86,10 +111,7 @@ class GuildLicenseChecker:
                     except Exception as e:
                         logging.error(f"Error parsing expiry date: {e}")
             
-            # Check for guild-specific user license
-            guild_license = mongo_manager.get_guild_user_license(guild_id, user_id)
-            logging.info(f"Guild license for {user_id} in {guild_id}: {guild_license}")
-            
+            # Process guild license if it exists
             if guild_license:
                 expiry_str = guild_license.get("expiry")
                 subscription_type = guild_license.get("subscription_type", "Unknown")
@@ -135,8 +157,8 @@ class GuildLicenseChecker:
                     except Exception as e:
                         logging.error(f"Error parsing guild license expiry: {e}")
             
-            # No access found
-            logging.info(f"No access found for user {user_id} in guild {guild_id}")
+            # No valid access found
+            logging.info(f"No valid access found for user {user_id} in guild {guild_id}")
             return False, {"type": "no_access"}
             
         except Exception as e:
@@ -150,6 +172,22 @@ class GuildLicenseChecker:
         Returns: (subscription_type: str, end_date: str)
         """
         try:
+            # Check if user has any access using the same logic as check_guild_access
+            has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, {})
+            
+            if not has_access:
+                # Check the type of denial
+                if access_info.get("type") == "access_removed":
+                    return "Access Removed", "Removed by Admin"
+                elif access_info.get("type") == "license_removed":
+                    return "License Removed", "Removed by Admin"
+                elif access_info.get("type") == "expired":
+                    return "Expired", access_info.get("expiry", "Unknown")
+                elif access_info.get("type") == "expired_license":
+                    return "Expired License", access_info.get("expiry", "Unknown")
+                else:
+                    return "No Access", "N/A"
+            
             # Check server access first
             server_access = mongo_manager.get_server_access(guild_id, user_id)
             
@@ -214,8 +252,8 @@ class GuildLicenseChecker:
                     except Exception:
                         return subscription_type, expiry_str
             
-            # No guild-specific access found
-            return "Default", "N/A"
+            # No guild-specific access found but access check passed (role-based access)
+            return "Role Access", "Via Role"
             
         except Exception as e:
             logging.error(f"Error getting guild subscription info for user {user_id} in guild {guild_id}: {e}")
