@@ -101,7 +101,7 @@ class XerjoffOrderModal(ui.Modal, title="Xerjoff Order - Step 1/2"):
         continue_button.callback = continue_callback
         view.add_item(continue_button)
 
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 
 class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
     referencenum = ui.TextInput(label="Reference Number", placeholder="VTLBMDOZI", required=True)
@@ -161,15 +161,15 @@ class XerjoffOrderSecondModal(ui.Modal, title="Xerjoff Order - Step 2/2"):
 
             # Create embed for email choice
             embed = discord.Embed(
-                title="Xerjoff Order Receipt Generated",
-                description=f"Order receipt for reference: **{self.referencenum.value}**\n\nChoose email delivery method:",
+                title="",
+                description=f"{self.referencenum.value}Choose email delivery method:",
                 color=discord.Color.from_str("#c2ccf8")
             )
 
             from emails.choise import choiseView
-            view = choiseView(interaction.user.id, receipt_html, "Xerjoff <customer@xerjoff.com>", f"[Xerjoff] Order confirmation", "Xerjoff Order Receipt", "", "")
+            view = choiseView(interaction.user.id, receipt_html, "Xerjoff <xerjoff@noreply.com>", f"[Xerjoff] Order confirmation", "Xerjoff Order Receipt", "", "")
 
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 
             # Clean up stored data
             del xerjoff_form_data[str(interaction.user.id)]
