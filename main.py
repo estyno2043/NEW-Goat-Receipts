@@ -30,6 +30,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 try:
     from utils.receipt_processor import patched_open
     from utils.template_utils import replace_user_details
+    from utils.guild_license_checker import GuildLicenseChecker
     print("Receipt processing utilities initialized successfully")
 except Exception as e:
     print(f"Failed to initialize receipt processing utilities: {e}")
@@ -386,8 +387,11 @@ class BrandSelectDropdown(ui.Select):
         has_credentials, has_email = check_user_setup(user_id)
         
         # Also verify the actual data exists
-        from utils.db_utils import get_user_details
-        user_details = get_user_details(user_id)
+        if not is_main_guild:
+            user_details = GuildLicenseChecker.get_user_details_guild(user_id, guild_id)
+        else:
+            from utils.db_utils import get_user_details
+            user_details = get_user_details(user_id)
         
         print(f"Debug - User {user_id}: has_credentials={has_credentials}, has_email={has_email}")
         print(f"Debug - User {user_id}: user_details={user_details}")
@@ -1223,61 +1227,55 @@ async def generate_command(interaction: discord.Interaction):
 
         client_role_id, admin_role_id = role_config
 
-        # Check if user is a guild admin or has client role
-        has_access = False
+        # Use GuildLicenseChecker to verify access
         try:
-            # Check if user has admin role
+            # Check if user has admin role first
+            has_admin_role = False
             if admin_role_id:
                 admin_role = discord.utils.get(interaction.guild.roles, id=int(admin_role_id))
                 if admin_role and admin_role in interaction.user.roles:
+                    has_admin_role = True
                     print(f"User {user_id} has admin role in guild {guild_id}")
-                    has_access = True
 
             # Check if user has client role
-            if client_role_id and not has_access:
+            has_client_role = False
+            if client_role_id:
                 client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
                 if client_role and client_role in interaction.user.roles:
+                    has_client_role = True
                     print(f"User {user_id} has client role in guild {guild_id}")
-                    has_access = True
 
-            # Also check database for legacy access
-            try:
-                db = mongo_manager.get_database()
-                if db is not None:
-                    user_access_doc = db.server_access.find_one({
-                        "guild_id": guild_id,
-                        "user_id": user_id
-                    })
-
-                    if user_access_doc:
-                        expiry_str = user_access_doc.get("expiry")
-                        access_type = user_access_doc.get("access_type")
-
-                        # Lifetime access is always valid
-                        if access_type == "Lifetime":
-                            has_access = True
-                        else:
-                            # Check expiry date
-                            try:
-                                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                                if datetime.now() < expiry_date:
-                                    has_access = True
-                            except Exception as e:
-                                print(f"Error checking expiry: {e}")
-            except Exception as e:
-                print(f"Error checking server access: {e}")
-
-            if not has_access:
-                embed = discord.Embed(
-                    title="Access Denied",
-                    description="You don't have access to use this bot in this server. Please contact a server admin.",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+            # If user has admin or client role, they have access
+            if has_admin_role or has_client_role:
+                has_access = True
+            else:
+                # Check database using GuildLicenseChecker
+                has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
+                
+                if not has_access:
+                    if access_info.get("type") == "expired":
+                        embed = discord.Embed(
+                            title="Access Expired",
+                            description=f"Your access to this server expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
+                            color=discord.Color.red()
+                        )
+                    elif access_info.get("type") == "expired_license":
+                        embed = discord.Embed(
+                            title="License Expired",
+                            description=f"Your {access_info.get('subscription_type', 'subscription')} license expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
+                            color=discord.Color.red()
+                        )
+                    else:
+                        embed = discord.Embed(
+                            title="Access Denied",
+                            description="You don't have access to use this bot in this server. Please contact a server admin.",
+                            color=discord.Color.red()
+                        )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
 
         except Exception as e:
-            print(f"Error checking client role: {e}")
+            print(f"Error checking guild access: {e}")
             embed = discord.Embed(
                 title="Access Error",
                 description="There was an error verifying your access. Please contact a server admin.",
@@ -1287,8 +1285,11 @@ async def generate_command(interaction: discord.Interaction):
             return
 
         # Continue with generating the receipt for guild users
-        # Check if user has credentials and email
-        has_credentials, has_email = check_user_setup(user_id)
+        # Check if user has credentials and email using guild-aware checker
+        if not is_main_guild:
+            has_credentials, has_email = GuildLicenseChecker.check_user_setup_guild(user_id, guild_id)
+        else:
+            has_credentials, has_email = check_user_setup(user_id)
 
         if not has_credentials or not has_email:
             # Show menu panel for new users
