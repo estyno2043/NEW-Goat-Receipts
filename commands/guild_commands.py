@@ -90,41 +90,33 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
             client_role_id = int(self.client_role.value.strip())
             image_channel_id = int(self.image_channel.value.strip())
 
-            # Save to database
-            conn = sqlite3.connect('data.db')
-            cursor = conn.cursor()
-
-            # Check if already configured
-            cursor.execute("SELECT * FROM guild_configs WHERE guild_id = ?", (str(interaction.guild.id),))
-            existing_config = cursor.fetchone()
-
-            if existing_config:
-                # Update existing configuration
-                cursor.execute('''
-                UPDATE guild_configs 
-                SET generate_channel_id = ?, admin_role_id = ?, client_role_id = ?, image_channel_id = ?
-                WHERE guild_id = ?
-                ''', (str(generate_channel_id), str(admin_role_id), str(client_role_id), 
-                      str(image_channel_id), str(interaction.guild.id)))
-            else:
-                # Create new configuration
-                cursor.execute('''
-                INSERT INTO guild_configs 
-                (guild_id, owner_id, generate_channel_id, admin_role_id, client_role_id, image_channel_id)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ''', (str(interaction.guild.id), str(interaction.user.id), str(generate_channel_id),
-                     str(admin_role_id), str(client_role_id), str(image_channel_id)))
-
-            conn.commit()
-            conn.close()
-
-            # Send success message
-            embed = discord.Embed(
-                title="Success",
-                description="-# Information saved successfully!",
-                color=discord.Color.from_str("#c2ccf8")
+            # Save to MongoDB
+            from utils.mongodb_manager import mongo_manager
+            
+            success = mongo_manager.save_guild_config(
+                interaction.guild.id,
+                interaction.user.id,
+                generate_channel_id,
+                admin_role_id,
+                client_role_id,
+                image_channel_id
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+            if success:
+                # Send success message
+                embed = discord.Embed(
+                    title="Success",
+                    description="-# Information saved successfully!",
+                    color=discord.Color.from_str("#c2ccf8")
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                embed = discord.Embed(
+                    title="Error",
+                    description="Failed to save configuration to database.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
 
         except ValueError:
             # Handle invalid IDs
@@ -173,17 +165,13 @@ class GuildCommands(commands.Cog):
             logging.error(f"Error checking owner status: {e}")
 
         # Check if user has guild admin role
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT admin_role_id FROM guild_configs WHERE guild_id = ?", 
-                      (str(interaction.guild.id),))
-        result = cursor.fetchone()
-        conn.close()
+        from utils.mongodb_manager import mongo_manager
+        guild_config = mongo_manager.get_guild_config(interaction.guild.id)
 
-        if not result:
+        if not guild_config:
             return False
 
-        admin_role_id = int(result[0])
+        admin_role_id = int(guild_config.get("admin_role_id"))
         admin_role = discord.utils.get(interaction.guild.roles, id=admin_role_id)
 
         if admin_role and admin_role in interaction.user.roles:
@@ -193,32 +181,39 @@ class GuildCommands(commands.Cog):
 
     async def has_guild_subscription(self, user_id):
         """Check if a user has an active guild subscription"""
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT subscription_type, end_date FROM guild_subscriptions WHERE user_id = ? AND is_active = 1", 
-                      (str(user_id),))
-        result = cursor.fetchone()
-        conn.close()
-
-        if not result:
-            return False
-
-        subscription_type, end_date = result
-
-        # Lifetime subscriptions are always valid
-        if subscription_type.lower() == "lifetime":
-            return True
-
-        # Check if subscription is still valid
         try:
-            expiry_date = datetime.strptime(end_date, "%Y-%m-%d")
-            if datetime.now() < expiry_date:
+            from utils.mongodb_manager import mongo_manager
+            
+            # Get user's license from MongoDB
+            license_doc = mongo_manager.get_license(user_id)
+            
+            if not license_doc:
+                return False
+                
+            key = license_doc.get("key", "")
+            expiry_str = license_doc.get("expiry")
+            
+            # Check if it's a guild subscription key
+            if not (key and ("guild" in key.lower() or "guild_30days" in key or "guild_lifetime" in key)):
+                return False
+                
+            # Check if it's a lifetime guild subscription
+            if "guild_lifetime" in key or "lifetime" in key.lower():
                 return True
+                
+            # Check expiry for time-limited guild subscriptions
+            if expiry_str:
+                try:
+                    expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
+                    return datetime.now() < expiry_date
+                except Exception as e:
+                    logging.error(f"Error parsing expiry date: {e}")
+                    
+            return False
+            
         except Exception as e:
-            logging.error(f"Error checking subscription expiry: {e}")
-
-        return False
+            logging.error(f"Error checking guild subscription: {e}")
+            return False
 
     @app_commands.command(name="configure_guild", description="Configure the bot for your guild")
     async def configure_guild(self, interaction: discord.Interaction):
@@ -324,27 +319,20 @@ class GuildCommands(commands.Cog):
             return
 
         # Get guild configuration
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT generate_channel_id, client_role_id 
-        FROM guild_configs 
-        WHERE guild_id = ?
-        """, (str(interaction.guild.id),))
+        from utils.mongodb_manager import mongo_manager
+        guild_config = mongo_manager.get_guild_config(interaction.guild.id)
 
-        config = cursor.fetchone()
-
-        if not config:
+        if not guild_config:
             embed = discord.Embed(
                 title="Error",
                 description="This server has not been configured yet. Please use `/configure_guild` first.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            conn.close()
             return
 
-        generate_channel_id, client_role_id = config
+        generate_channel_id = guild_config.get("generate_channel_id")
+        client_role_id = guild_config.get("client_role_id")
 
         # Calculate expiry date
         if days == 0:
@@ -356,18 +344,29 @@ class GuildCommands(commands.Cog):
             expiry_date = datetime.now() + timedelta(days=days)
             access_type = f"{days} Days"
 
-        # Add or update user access
+        # Add or update user access in MongoDB
         expiry_str = expiry_date.strftime("%Y-%m-%d %H:%M:%S")
 
-        cursor.execute("""
-        INSERT OR REPLACE INTO server_access
-        (guild_id, user_id, added_by, access_type, expiry, added_at)
-        VALUES (?, ?, ?, ?, ?, datetime('now'))
-        """, (str(interaction.guild.id), str(user.id), str(interaction.user.id), 
-              access_type, expiry_str))
+        # Save server access record
+        mongo_manager.save_server_access(
+            interaction.guild.id,
+            user.id,
+            interaction.user.id,
+            access_type,
+            expiry_str
+        )
 
-        conn.commit()
-        conn.close()
+        # Create guild-specific license for the user
+        license_data = {
+            "key": f"guild-access-{interaction.guild.id}-{user.id}",
+            "expiry": expiry_date.strftime('%d/%m/%Y %H:%M:%S'),
+            "subscription_type": access_type.lower().replace(" ", ""),
+            "redeemed": True,
+            "redeemed_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+            "granted_by": str(interaction.user.id)
+        }
+        
+        mongo_manager.save_guild_user_license(interaction.guild.id, user.id, license_data)
 
         # Try to add client role to the user
         try:

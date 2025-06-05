@@ -71,9 +71,9 @@ class SubscriptionOption(discord.ui.Select):
             "emailtf": "False",
             "credentialstf": "False"
         }
-        
+
         success = mongo_manager.create_or_update_license(self.user.id, license_data)
-        
+
         if not success:
             await interaction.response.send_message("Failed to save license to database. Please try again.", ephemeral=True)
             return
@@ -166,14 +166,14 @@ class AdminPanelView(discord.ui.View):
             key = license_doc.get("key", "")
             expiry_str = license_doc.get("expiry", "")
             email = user_email or "Not set"
-            
+
             # Get user credentials
             name = "Not set"
             street = "Not set"
             city = "Not set"
             zip_code = "Not set"
             country = "Not set"
-            
+
             if user_credentials:
                 name = user_credentials.get("name", "Not set")
                 street = user_credentials.get("street", "Not set")
@@ -208,7 +208,7 @@ class AdminPanelView(discord.ui.View):
         else:
             embed.add_field(name="Status", value="No license information found for this user.", inline=False)
 
-        
+
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @discord.ui.button(label="Add Access", style=discord.ButtonStyle.gray)
@@ -240,7 +240,7 @@ class AdminPanelView(discord.ui.View):
             # Get license information before deletion for notification
             from utils.mongodb_manager import mongo_manager
             original_license = mongo_manager.get_license(self.user.id)
-            
+
             # Remove from MongoDB
             mongo_manager.delete_license(self.user.id)
             mongo_manager.delete_user_credentials(self.user.id)
@@ -311,28 +311,28 @@ class AdminPanelView(discord.ui.View):
                 description=f"Hello {self.user.mention},\n\nYour subscription has expired. We appreciate your support!\n\nIf you'd like to renew, click the button below.",
                 color=discord.Color.default()
             )
-            
+
             # Create purchases channel embed
             purchases_embed = discord.Embed(
                 title="Subscription Expired",
                 description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
                 color=discord.Color.default()
             )
-            
+
             # Create renewal buttons
             dm_view = discord.ui.View()
             dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-            
+
             purchases_view = discord.ui.View()
             purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-            
+
             # Try to DM the user
             try:
                 await self.user.send(embed=dm_embed, view=dm_view)
                 logging.info(f"Sent expiration DM to {self.user.name}")
             except:
                 logging.info(f"Could not DM {self.user.name} about access removal")
-            
+
             # Send notification to Purchases channel
             try:
                 purchases_channel = interaction.client.get_channel(1374468080817803264)
@@ -341,7 +341,7 @@ class AdminPanelView(discord.ui.View):
                     logging.info(f"Sent expiration notification to purchases channel for {self.user.name}")
             except Exception as channel_error:
                 logging.error(f"Could not send access removal notification to Purchases channel: {channel_error}")
-                
+
         except Exception as notification_error:
             logging.error(f"Error sending subscription expiration notifications: {notification_error}")
 
@@ -395,19 +395,109 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Create the admin panel view
-        view = AdminPanelView(interaction.user.id, user)
+        # Create a modal for selecting subscription type and setting expiry
+        class EditModal(discord.ui.Modal, title='Edit Subscription'):
+            subscription_type = discord.ui.Select(
+                placeholder="Select subscription type...",
+                options=[
+                    discord.SelectOption(label="3 Days", value="3day"),
+                    discord.SelectOption(label="14 Days", value="14day"),
+                    discord.SelectOption(label="1 Month", value="1month"),
+                    discord.SelectOption(label="Lifetime", value="lifetime"),
+                    discord.SelectOption(label="Guild 30 Days", value="guild_30days"),
+                    discord.SelectOption(label="Guild Lifetime", value="guild_lifetime"),
+                ]
+            )
 
-        # Send response with panel
-        embed = discord.Embed(
-            title=f"Admin Panel | User Connected: {user.display_name}",
-            description="Select an option below to use the Panel",
-            color=discord.Color.blue()
-        )
+            async def on_submit(self, interaction: discord.Interaction):
+                subscription_type = self.subscription_type.values[0]
 
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                from utils.mongodb_manager import mongo_manager
+                old_license = mongo_manager.get_license(user.id)  # Fetch old license
 
-    
+                if subscription_type == "3day":
+                    new_expiry = datetime.now() + timedelta(days=3)
+                    new_key = f"3Days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                elif subscription_type == "14day":
+                    new_expiry = datetime.now() + timedelta(days=14)
+                    new_key = f"14Days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                elif subscription_type == "1month":
+                    new_expiry = datetime.now() + timedelta(days=30)
+                    new_key = f"1Month-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                elif subscription_type == "lifetime":
+                    new_expiry = datetime.now() + timedelta(days=36500)  # 100 years for lifetime
+                    new_key = f"LifetimeKey-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                elif subscription_type == "guild_30days":
+                    new_expiry = datetime.now() + timedelta(days=30)
+                    new_key = f"guild_30days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                elif subscription_type == "guild_lifetime":
+                    new_expiry = datetime.now() + timedelta(days=36500)  # 100 years for lifetime
+                    new_key = f"guild_lifetime-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                else:
+                    await interaction.response.send_message("Invalid subscription type selected.", ephemeral=True)
+                    return
+
+                expiry_str = new_expiry.strftime('%d/%m/%Y %H:%M:%S')
+
+                license_data = {
+                    "key": new_key,
+                    "expiry": expiry_str,
+                    "subscription_type": subscription_type,
+                    "is_active": True,
+                    "emailtf": "False",
+                    "credentialstf": "False"
+                }
+
+                success = mongo_manager.create_or_update_license(user.id, license_data)
+
+                if not success:
+                    await interaction.response.send_message("Failed to save license to database. Please try again.", ephemeral=True)
+                    return
+
+                # Send confirmation message
+                embed = discord.Embed(
+                    title="Subscription Updated",
+                    description=f"Successfully updated {user.mention} to `{subscription_type}` with expiry {expiry_str}.",
+                    color=discord.Color.green()
+                )
+
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+
+                # Send purchase notification to Purchases channel (like key redemption)
+                try:
+                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    if purchases_channel:
+                        # Create notification embed
+                        notification_embed = discord.Embed(
+                            title="Subscription Updated",
+                            description=f"{user.mention}, your subscription has been updated. Check below\n\n"
+                                        f"**Subscription Type**\n"
+                                        f"`{subscription_type}`\n",
+                            color=discord.Color.green()
+                        )
+
+                        await purchases_channel.send(content=user.mention, embed=notification_embed)
+
+                        # Send DM to user
+                        try:
+                            await user.send(embed=notification_embed)
+                        except:
+                            print(f"Could not send DM to {user.display_name}")
+                except Exception as e:
+                    print(f"Error sending purchase notification: {e}")
+
+                # Clear cache for the user
+                from utils.license_manager import LicenseManager
+                await LicenseManager.invalidate_cache(user.id)
+                if hasattr(LicenseManager, "_license_cache") and str(user.id) in LicenseManager._license_cache:
+                    LicenseManager._license_cache.pop(str(user.id), None)
+
+                #Log change
+                logging.info(f"Admin {interaction.user.name} updated {user.name}'s license to {subscription_type}")
+
+        # Open the modal
+        modal = EditModal()
+        await interaction.response.send_modal(modal)
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))

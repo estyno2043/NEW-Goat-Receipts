@@ -35,33 +35,50 @@ async def check_permission(interaction: discord.Interaction):
 
     # Check if user has the appropriate client role
     if interaction.guild:
-        # Check for server-specific client role first
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
+        # Check for guild-specific access first
+        from utils.mongodb_manager import mongo_manager
+        
         try:
-            # First check if server has a specific configuration
-            cursor.execute("SELECT client_id FROM server_configs WHERE guild_id = ?", (str(interaction.guild.id),))
-            result = cursor.fetchone()
-
-            server_has_config = result is not None
-
-            # Determine the correct role ID to check
-            if server_has_config and result[0]:
-                # Use server-specific role from config
-                try:
-                    client_role_id = int(result[0])
-                    # Find and check the role
-                    client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
-                    if client_role and client_role in interaction.user.roles:
-                        print(f"User {interaction.user.id} ({interaction.user.name}) has server-specific role {client_role_id}")
-                        return True
-                    # If we get here, user doesn't have the configured role
-                except (ValueError, TypeError):
-                    # Invalid role ID in database, will fall back to default
-                    print(f"Invalid server-specific role ID for guild {interaction.guild.id}")
-                    pass
-
+            # Check if this guild has configuration
+            guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+            
+            if guild_config:
+                # This is a configured guild, check for guild-specific access
+                
+                # Check if user has server access in this guild
+                server_access = mongo_manager.get_server_access(interaction.guild.id, interaction.user.id)
+                if server_access:
+                    # Check if access is still valid
+                    expiry_str = server_access.get("expiry")
+                    access_type = server_access.get("access_type")
+                    
+                    if access_type == "Lifetime":
+                        # Check for client role
+                        try:
+                            client_role_id = int(guild_config.get("client_role_id"))
+                            client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
+                            if client_role and client_role in interaction.user.roles:
+                                return True
+                        except (ValueError, TypeError):
+                            pass
+                    else:
+                        try:
+                            expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                            if datetime.now() < expiry_date:
+                                # Check for client role
+                                try:
+                                    client_role_id = int(guild_config.get("client_role_id"))
+                                    client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
+                                    if client_role and client_role in interaction.user.roles:
+                                        return True
+                                except (ValueError, TypeError):
+                                    pass
+                        except Exception:
+                            pass
+                
+                # Guild has config but user doesn't have access
+                return False
+            
             # Check if this is the main guild
             if str(interaction.guild.id) == main_guild_id:
                 # Use the main guild client role from config
@@ -74,22 +91,9 @@ async def check_permission(interaction: discord.Interaction):
                 except (ValueError, TypeError):
                     # Invalid role ID in config
                     pass
-
-            # If we get to this point and server has a configuration, 
-            # but user doesn't have the required role - deny access
-            if server_has_config:
-                print(f"User {interaction.user.id} denied access: server has config but user lacks required role")
-                # If in chat, send a direct message about lacking access
-                try:
-                    if not interaction.response.is_done():
-                        await interaction.response.send_message("You do not have access.", ephemeral=True)
-                except Exception:
-                    pass
-                return False
+                    
         except Exception as e:
             print(f"Error checking role permissions: {e}")
-        finally:
-            conn.close()
 
     return False
 

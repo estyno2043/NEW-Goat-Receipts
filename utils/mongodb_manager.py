@@ -67,6 +67,12 @@ class MongoDBManager:
             self._db.licenses.create_index("owner_id", unique=True)
             self._db.user_credentials.create_index("user_id", unique=True)
             self._db.user_emails.create_index("user_id", unique=True)
+            # Guild-specific indexes
+            self._db.guild_configs.create_index("guild_id", unique=True)
+            self._db.guild_user_licenses.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
+            self._db.guild_user_credentials.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
+            self._db.guild_user_emails.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
+            self._db.server_access.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
             logging.info("MongoDB indexes created successfully")
         except Exception as e:
             logging.warning(f"Error creating indexes: {e}")
@@ -325,6 +331,194 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error clearing user data for {user_id}: {e}")
             return False
+    
+    # Guild configuration operations
+    def save_guild_config(self, guild_id, owner_id, generate_channel_id, admin_role_id, client_role_id, image_channel_id):
+        """Save guild configuration to MongoDB"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            config_data = {
+                "guild_id": str(guild_id),
+                "owner_id": str(owner_id),
+                "generate_channel_id": str(generate_channel_id),
+                "admin_role_id": str(admin_role_id),
+                "client_role_id": str(client_role_id),
+                "image_channel_id": str(image_channel_id),
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            
+            result = db.guild_configs.update_one(
+                {"guild_id": str(guild_id)},
+                {"$set": config_data},
+                upsert=True
+            )
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error saving guild config for {guild_id}: {e}")
+            return False
+    
+    def get_guild_config(self, guild_id):
+        """Get guild configuration from MongoDB"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+            return db.guild_configs.find_one({"guild_id": str(guild_id)})
+        except Exception as e:
+            logging.error(f"Error getting guild config for {guild_id}: {e}")
+            return None
+    
+    # Guild user operations (separate from main guild)
+    def save_guild_user_license(self, guild_id, user_id, license_data):
+        """Save license for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            license_data.update({
+                "guild_id": str(guild_id),
+                "user_id": str(user_id),
+                "updated_at": datetime.utcnow()
+            })
+            
+            result = db.guild_user_licenses.update_one(
+                {"guild_id": str(guild_id), "user_id": str(user_id)},
+                {"$set": license_data},
+                upsert=True
+            )
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error saving guild user license for {guild_id}/{user_id}: {e}")
+            return False
+    
+    def get_guild_user_license(self, guild_id, user_id):
+        """Get license for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+            return db.guild_user_licenses.find_one({"guild_id": str(guild_id), "user_id": str(user_id)})
+        except Exception as e:
+            logging.error(f"Error getting guild user license for {guild_id}/{user_id}: {e}")
+            return None
+    
+    def save_guild_user_credentials(self, guild_id, user_id, name, street, city, zip_code, country, is_random=False):
+        """Save credentials for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            credentials_data = {
+                "guild_id": str(guild_id),
+                "user_id": str(user_id),
+                "name": name,
+                "street": street,
+                "city": city,
+                "zip": zip_code,
+                "country": country,
+                "is_random": is_random,
+                "updated_at": datetime.utcnow()
+            }
+            
+            result = db.guild_user_credentials.update_one(
+                {"guild_id": str(guild_id), "user_id": str(user_id)},
+                {"$set": credentials_data},
+                upsert=True
+            )
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error saving guild user credentials for {guild_id}/{user_id}: {e}")
+            return False
+    
+    def get_guild_user_credentials(self, guild_id, user_id):
+        """Get credentials for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+            return db.guild_user_credentials.find_one({"guild_id": str(guild_id), "user_id": str(user_id)})
+        except Exception as e:
+            logging.error(f"Error getting guild user credentials for {guild_id}/{user_id}: {e}")
+            return None
+    
+    def save_guild_user_email(self, guild_id, user_id, email):
+        """Save email for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            email_data = {
+                "guild_id": str(guild_id),
+                "user_id": str(user_id),
+                "email": email,
+                "updated_at": datetime.utcnow()
+            }
+            
+            result = db.guild_user_emails.update_one(
+                {"guild_id": str(guild_id), "user_id": str(user_id)},
+                {"$set": email_data},
+                upsert=True
+            )
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error saving guild user email for {guild_id}/{user_id}: {e}")
+            return False
+    
+    def get_guild_user_email(self, guild_id, user_id):
+        """Get email for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+            email_doc = db.guild_user_emails.find_one({"guild_id": str(guild_id), "user_id": str(user_id)})
+            return email_doc.get("email") if email_doc else None
+        except Exception as e:
+            logging.error(f"Error getting guild user email for {guild_id}/{user_id}: {e}")
+            return None
+    
+    def save_server_access(self, guild_id, user_id, added_by, access_type, expiry):
+        """Save server access record"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            access_data = {
+                "guild_id": str(guild_id),
+                "user_id": str(user_id),
+                "added_by": str(added_by),
+                "access_type": access_type,
+                "expiry": expiry,
+                "added_at": datetime.utcnow()
+            }
+            
+            result = db.server_access.update_one(
+                {"guild_id": str(guild_id), "user_id": str(user_id)},
+                {"$set": access_data},
+                upsert=True
+            )
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error saving server access for {guild_id}/{user_id}: {e}")
+            return False
+    
+    def get_server_access(self, guild_id, user_id):
+        """Get server access record"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+            return db.server_access.find_one({"guild_id": str(guild_id), "user_id": str(user_id)})
+        except Exception as e:
+            logging.error(f"Error getting server access for {guild_id}/{user_id}: {e}")
+            return None
 
 # Create global instance
 mongo_manager = MongoDBManager()
