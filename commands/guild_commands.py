@@ -92,7 +92,7 @@ class GuildConfigModal(ui.Modal, title="Guild Configuration"):
 
             # Save to MongoDB
             from utils.mongodb_manager import mongo_manager
-            
+
             success = mongo_manager.save_guild_config(
                 interaction.guild.id,
                 interaction.user.id,
@@ -183,24 +183,24 @@ class GuildCommands(commands.Cog):
         """Check if a user has an active guild subscription"""
         try:
             from utils.mongodb_manager import mongo_manager
-            
+
             # Get user's license from MongoDB
             license_doc = mongo_manager.get_license(user_id)
-            
+
             if not license_doc:
                 return False
-                
+
             key = license_doc.get("key", "")
             expiry_str = license_doc.get("expiry")
-            
+
             # Check if it's a guild subscription key
             if not (key and ("guild" in key.lower() or "guild_30days" in key or "guild_lifetime" in key)):
                 return False
-                
+
             # Check if it's a lifetime guild subscription
             if "guild_lifetime" in key or "lifetime" in key.lower():
                 return True
-                
+
             # Check expiry for time-limited guild subscriptions
             if expiry_str:
                 try:
@@ -208,9 +208,9 @@ class GuildCommands(commands.Cog):
                     return datetime.now() < expiry_date
                 except Exception as e:
                     logging.error(f"Error parsing expiry date: {e}")
-                    
+
             return False
-            
+
         except Exception as e:
             logging.error(f"Error checking guild subscription: {e}")
             return False
@@ -365,7 +365,7 @@ class GuildCommands(commands.Cog):
             "redeemed_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
             "granted_by": str(interaction.user.id)
         }
-        
+
         mongo_manager.save_guild_user_license(interaction.guild.id, user.id, license_data)
 
         # Try to add client role to the user
@@ -420,7 +420,7 @@ class GuildCommands(commands.Cog):
 
         # Check guild-specific license
         guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
-        
+
         if not guild_license:
             embed = discord.Embed(
                 title="No Access",
@@ -433,11 +433,11 @@ class GuildCommands(commands.Cog):
         try:
             expiry_str = guild_license.get("expiry")
             access_type = guild_license.get("subscription_type", "Unknown")
-            
+
             if expiry_str:
                 expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
                 current_date = datetime.now()
-                
+
                 if current_date > expiry_date:
                     embed = discord.Embed(
                         title="Access Expired",
@@ -449,12 +449,12 @@ class GuildCommands(commands.Cog):
                     days_left = time_left.days
                     hours_left = time_left.seconds // 3600
                     minutes_left = (time_left.seconds % 3600) // 60
-                    
+
                     if "lifetime" in access_type.lower():
                         time_display = "Lifetime Access"
                     else:
                         time_display = f"{days_left} days, {hours_left} hours, {minutes_left} minutes"
-                    
+
                     embed = discord.Embed(
                         title="Time Remaining",
                         description=f"**User:** {user.mention}\n**Access Type:** {access_type}\n**Time Left:** {time_display}\n**Expires:** {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
@@ -509,7 +509,7 @@ class GuildCommands(commands.Cog):
 
         # Check if user has guild access
         guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
-        
+
         if not guild_license:
             embed = discord.Embed(
                 title="No Access Found",
@@ -522,7 +522,7 @@ class GuildCommands(commands.Cog):
         try:
             # Remove guild-specific license
             mongo_manager.delete_guild_user_license(interaction.guild.id, user.id)
-            
+
             # Remove server access record
             mongo_manager.delete_server_access(interaction.guild.id, user.id)
 

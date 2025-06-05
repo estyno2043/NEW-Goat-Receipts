@@ -1245,34 +1245,33 @@ async def generate_command(interaction: discord.Interaction):
                     has_client_role = True
                     print(f"User {user_id} has client role in guild {guild_id}")
 
-            # If user has admin or client role, they have access
+            # Check database using GuildLicenseChecker for all users (including those with roles)
+            has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
+            
+            # If user has admin or client role, they have access regardless of database status
             if has_admin_role or has_client_role:
                 has_access = True
-            else:
-                # Check database using GuildLicenseChecker
-                has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
-                
-                if not has_access:
-                    if access_info.get("type") == "expired":
-                        embed = discord.Embed(
-                            title="Access Expired",
-                            description=f"Your access to this server expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
-                            color=discord.Color.red()
-                        )
-                    elif access_info.get("type") == "expired_license":
-                        embed = discord.Embed(
-                            title="License Expired",
-                            description=f"Your {access_info.get('subscription_type', 'subscription')} license expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
-                            color=discord.Color.red()
-                        )
-                    else:
-                        embed = discord.Embed(
-                            title="Access Denied",
-                            description="You don't have access to use this bot in this server. Please contact a server admin.",
-                            color=discord.Color.red()
-                        )
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
+            elif not has_access:
+                if access_info.get("type") == "expired":
+                    embed = discord.Embed(
+                        title="Access Expired",
+                        description=f"Your access to this server expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
+                        color=discord.Color.red()
+                    )
+                elif access_info.get("type") == "expired_license":
+                    embed = discord.Embed(
+                        title="License Expired",
+                        description=f"Your {access_info.get('subscription_type', 'subscription')} license expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
+                        color=discord.Color.red()
+                    )
+                else:
+                    embed = discord.Embed(
+                        title="Access Denied",
+                        description="You don't have access to use this bot in this server. Please contact a server admin.",
+                        color=discord.Color.red()
+                    )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
 
         except Exception as e:
             print(f"Error checking guild access: {e}")

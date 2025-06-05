@@ -44,8 +44,21 @@ class GuildLicenseChecker:
                 # Check expiry date for time-limited access
                 if expiry_str:
                     try:
-                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                        if datetime.now() < expiry_date:
+                        # Try multiple date formats
+                        expiry_date = None
+                        formats_to_try = [
+                            "%Y-%m-%d %H:%M:%S",  # MongoDB format
+                            "%d/%m/%Y %H:%M:%S"   # Legacy format
+                        ]
+                        
+                        for date_format in formats_to_try:
+                            try:
+                                expiry_date = datetime.strptime(expiry_str, date_format)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if expiry_date and datetime.now() < expiry_date:
                             return True, {
                                 "type": "server_access",
                                 "access_type": access_type,
@@ -70,8 +83,21 @@ class GuildLicenseChecker:
                 
                 if expiry_str:
                     try:
-                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                        if datetime.now() < expiry_date:
+                        # Try multiple date formats
+                        expiry_date = None
+                        formats_to_try = [
+                            "%Y-%m-%d %H:%M:%S",  # MongoDB format
+                            "%d/%m/%Y %H:%M:%S"   # Legacy format
+                        ]
+                        
+                        for date_format in formats_to_try:
+                            try:
+                                expiry_date = datetime.strptime(expiry_str, date_format)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if expiry_date and datetime.now() < expiry_date:
                             return True, {
                                 "type": "guild_license",
                                 "subscription_type": subscription_type,
@@ -111,8 +137,24 @@ class GuildLicenseChecker:
                     return "Lifetime", "Never"
                 elif expiry_str:
                     try:
-                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                        return access_type, expiry_date.strftime("%d/%m/%Y %H:%M:%S")
+                        # Try multiple date formats
+                        expiry_date = None
+                        formats_to_try = [
+                            "%Y-%m-%d %H:%M:%S",  # MongoDB format
+                            "%d/%m/%Y %H:%M:%S"   # Legacy format
+                        ]
+                        
+                        for date_format in formats_to_try:
+                            try:
+                                expiry_date = datetime.strptime(expiry_str, date_format)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if expiry_date:
+                            return access_type, expiry_date.strftime("%d/%m/%Y %H:%M:%S")
+                        else:
+                            return access_type, expiry_str
                     except Exception:
                         return access_type, expiry_str
             
@@ -127,8 +169,24 @@ class GuildLicenseChecker:
                     return subscription_type, "Never"
                 elif expiry_str:
                     try:
-                        expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                        return subscription_type, expiry_date.strftime("%d/%m/%Y %H:%M:%S")
+                        # Try multiple date formats
+                        expiry_date = None
+                        formats_to_try = [
+                            "%Y-%m-%d %H:%M:%S",  # MongoDB format
+                            "%d/%m/%Y %H:%M:%S"   # Legacy format
+                        ]
+                        
+                        for date_format in formats_to_try:
+                            try:
+                                expiry_date = datetime.strptime(expiry_str, date_format)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if expiry_date:
+                            return subscription_type, expiry_date.strftime("%d/%m/%Y %H:%M:%S")
+                        else:
+                            return subscription_type, expiry_str
                     except Exception:
                         return subscription_type, expiry_str
             
