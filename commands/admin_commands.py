@@ -16,7 +16,9 @@ class SubscriptionOption(discord.ui.Select):
             discord.SelectOption(label="3 Days", description="Add 3 days of access", value="3_days"),
             discord.SelectOption(label="14 Days", description="Add 14 days of access", value="14_days"),
             discord.SelectOption(label="1 Month", description="Add 30 days of access", value="1_month"),
-            discord.SelectOption(label="Lifetime", description="Add lifetime access", value="lifetime")
+            discord.SelectOption(label="Lifetime", description="Add lifetime access", value="lifetime"),
+            discord.SelectOption(label="Guild 30 Days", description="Add 30 days guild access", value="guild_30days"),
+            discord.SelectOption(label="Guild Lifetime", description="Add lifetime guild access", value="guild_lifetime")
         ]
         super().__init__(placeholder="Select subscription duration...", options=options, min_values=1, max_values=1)
 
@@ -33,7 +35,9 @@ class SubscriptionOption(discord.ui.Select):
             "3_days": ("3 Days", 3),
             "14_days": ("14 Days", 14),
             "1_month": ("1 Month", 30),
-            "lifetime": ("Lifetime", 0)  # 0 means lifetime
+            "lifetime": ("Lifetime", 0),  # 0 means lifetime
+            "guild_30days": ("Guild 30 Days", 30),
+            "guild_lifetime": ("Guild Lifetime", 0)  # 0 means lifetime
         }
 
         subscription_type, days = subscription_data[selected]
@@ -48,6 +52,10 @@ class SubscriptionOption(discord.ui.Select):
             key_prefix = "1Month"
         elif selected == "lifetime":
             key_prefix = "LifetimeKey"
+        elif selected == "guild_30days":
+            key_prefix = "guild_30days"
+        elif selected == "guild_lifetime":
+            key_prefix = "guild_lifetime"
 
         # Generate unique key
         license_key = f"{key_prefix}-{self.user.id}"
@@ -92,9 +100,9 @@ class SubscriptionOption(discord.ui.Select):
                 await self.user.add_roles(client_role)
                 print(f"Added client role to {self.user.display_name}")
 
-            # Add new unified role for 1 month and lifetime subscriptions
-            if selected == "1_month" or selected == "lifetime":
-                # Add the new role for both 1 month and lifetime users
+            # Add new unified role for 1 month, lifetime, and guild subscriptions
+            if selected in ["1_month", "lifetime", "guild_30days", "guild_lifetime"]:
+                # Add the new role for all premium subscription types
                 new_role = discord.utils.get(interaction.guild.roles, id=1379183902266228876)
                 if new_role:
                     await self.user.add_roles(new_role)
@@ -395,109 +403,17 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Create a modal for selecting subscription type and setting expiry
-        class EditModal(discord.ui.Modal, title='Edit Subscription'):
-            subscription_type = discord.ui.Select(
-                placeholder="Select subscription type...",
-                options=[
-                    discord.SelectOption(label="3 Days", value="3day"),
-                    discord.SelectOption(label="14 Days", value="14day"),
-                    discord.SelectOption(label="1 Month", value="1month"),
-                    discord.SelectOption(label="Lifetime", value="lifetime"),
-                    discord.SelectOption(label="Guild 30 Days", value="guild_30days"),
-                    discord.SelectOption(label="Guild Lifetime", value="guild_lifetime"),
-                ]
-            )
+        # Create admin panel embed
+        embed = discord.Embed(
+            title="Admin Panel",
+            description=f"Managing user: {user.mention} ({user.display_name})",
+            color=discord.Color.blue()
+        )
 
-            async def on_submit(self, interaction: discord.Interaction):
-                subscription_type = self.subscription_type.values[0]
-
-                from utils.mongodb_manager import mongo_manager
-                old_license = mongo_manager.get_license(user.id)  # Fetch old license
-
-                if subscription_type == "3day":
-                    new_expiry = datetime.now() + timedelta(days=3)
-                    new_key = f"3Days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                elif subscription_type == "14day":
-                    new_expiry = datetime.now() + timedelta(days=14)
-                    new_key = f"14Days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                elif subscription_type == "1month":
-                    new_expiry = datetime.now() + timedelta(days=30)
-                    new_key = f"1Month-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                elif subscription_type == "lifetime":
-                    new_expiry = datetime.now() + timedelta(days=36500)  # 100 years for lifetime
-                    new_key = f"LifetimeKey-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                elif subscription_type == "guild_30days":
-                    new_expiry = datetime.now() + timedelta(days=30)
-                    new_key = f"guild_30days-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                elif subscription_type == "guild_lifetime":
-                    new_expiry = datetime.now() + timedelta(days=36500)  # 100 years for lifetime
-                    new_key = f"guild_lifetime-{interaction.user.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                else:
-                    await interaction.response.send_message("Invalid subscription type selected.", ephemeral=True)
-                    return
-
-                expiry_str = new_expiry.strftime('%d/%m/%Y %H:%M:%S')
-
-                license_data = {
-                    "key": new_key,
-                    "expiry": expiry_str,
-                    "subscription_type": subscription_type,
-                    "is_active": True,
-                    "emailtf": "False",
-                    "credentialstf": "False"
-                }
-
-                success = mongo_manager.create_or_update_license(user.id, license_data)
-
-                if not success:
-                    await interaction.response.send_message("Failed to save license to database. Please try again.", ephemeral=True)
-                    return
-
-                # Send confirmation message
-                embed = discord.Embed(
-                    title="Subscription Updated",
-                    description=f"Successfully updated {user.mention} to `{subscription_type}` with expiry {expiry_str}.",
-                    color=discord.Color.green()
-                )
-
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-
-                # Send purchase notification to Purchases channel (like key redemption)
-                try:
-                    purchases_channel = interaction.client.get_channel(1374468080817803264)
-                    if purchases_channel:
-                        # Create notification embed
-                        notification_embed = discord.Embed(
-                            title="Subscription Updated",
-                            description=f"{user.mention}, your subscription has been updated. Check below\n\n"
-                                        f"**Subscription Type**\n"
-                                        f"`{subscription_type}`\n",
-                            color=discord.Color.green()
-                        )
-
-                        await purchases_channel.send(content=user.mention, embed=notification_embed)
-
-                        # Send DM to user
-                        try:
-                            await user.send(embed=notification_embed)
-                        except:
-                            print(f"Could not send DM to {user.display_name}")
-                except Exception as e:
-                    print(f"Error sending purchase notification: {e}")
-
-                # Clear cache for the user
-                from utils.license_manager import LicenseManager
-                await LicenseManager.invalidate_cache(user.id)
-                if hasattr(LicenseManager, "_license_cache") and str(user.id) in LicenseManager._license_cache:
-                    LicenseManager._license_cache.pop(str(user.id), None)
-
-                #Log change
-                logging.info(f"Admin {interaction.user.name} updated {user.name}'s license to {subscription_type}")
-
-        # Open the modal
-        modal = EditModal()
-        await interaction.response.send_modal(modal)
+        # Create the admin panel view
+        view = AdminPanelView(interaction.user.id, user)
+        
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
