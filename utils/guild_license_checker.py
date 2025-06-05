@@ -13,21 +13,22 @@ class GuildLicenseChecker:
         Returns: (has_access: bool, access_info: dict)
         """
         try:
+            from utils.mongodb_manager import mongo_manager
+            
+            # Check if MongoDB is available
+            db = mongo_manager.get_database()
+            if db is None:
+                logging.error(f"MongoDB unavailable when checking guild access for {user_id} in {guild_id}")
+                return False, {"type": "database_error", "message": "Database unavailable"}
+            
             client_role_id = guild_config.get("client_role_id")
             admin_role_id = guild_config.get("admin_role_id")
             
-            # Check if user has admin role (admins always have access)
-            if admin_role_id:
-                # This check will be done by the calling function with actual role objects
-                pass
-            
-            # Check if user has client role
-            if client_role_id:
-                # This check will be done by the calling function with actual role objects
-                pass
+            logging.info(f"Checking guild access for user {user_id} in guild {guild_id}")
             
             # Check database for legacy access or guild-specific licenses
             server_access = mongo_manager.get_server_access(guild_id, user_id)
+            logging.info(f"Server access for {user_id} in {guild_id}: {server_access}")
             
             if server_access:
                 expiry_str = server_access.get("expiry")
@@ -35,6 +36,7 @@ class GuildLicenseChecker:
                 
                 # Lifetime access is always valid
                 if access_type == "Lifetime":
+                    logging.info(f"User {user_id} has lifetime access in guild {guild_id}")
                     return True, {
                         "type": "server_access",
                         "access_type": access_type,
@@ -59,6 +61,7 @@ class GuildLicenseChecker:
                                 continue
                         
                         if expiry_date and datetime.now() < expiry_date:
+                            logging.info(f"User {user_id} has valid access until {expiry_date} in guild {guild_id}")
                             return True, {
                                 "type": "server_access",
                                 "access_type": access_type,
@@ -66,6 +69,7 @@ class GuildLicenseChecker:
                             }
                         else:
                             # Access expired
+                            logging.info(f"User {user_id} access expired on {expiry_date} in guild {guild_id}")
                             return False, {
                                 "type": "expired",
                                 "access_type": access_type,
@@ -76,6 +80,7 @@ class GuildLicenseChecker:
             
             # Check for guild-specific user license
             guild_license = mongo_manager.get_guild_user_license(guild_id, user_id)
+            logging.info(f"Guild license for {user_id} in {guild_id}: {guild_license}")
             
             if guild_license:
                 expiry_str = guild_license.get("expiry")
@@ -98,12 +103,14 @@ class GuildLicenseChecker:
                                 continue
                         
                         if expiry_date and datetime.now() < expiry_date:
+                            logging.info(f"User {user_id} has valid guild license until {expiry_date} in guild {guild_id}")
                             return True, {
                                 "type": "guild_license",
                                 "subscription_type": subscription_type,
                                 "expiry": expiry_str
                             }
                         else:
+                            logging.info(f"User {user_id} guild license expired on {expiry_date} in guild {guild_id}")
                             return False, {
                                 "type": "expired_license",
                                 "subscription_type": subscription_type,
@@ -113,6 +120,7 @@ class GuildLicenseChecker:
                         logging.error(f"Error parsing guild license expiry: {e}")
             
             # No access found
+            logging.info(f"No access found for user {user_id} in guild {guild_id}")
             return False, {"type": "no_access"}
             
         except Exception as e:

@@ -418,10 +418,11 @@ class GuildCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Check guild-specific license
+        # Check both server access and guild-specific license
+        server_access = mongo_manager.get_server_access(interaction.guild.id, user.id)
         guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
 
-        if not guild_license:
+        if not server_access and not guild_license:
             embed = discord.Embed(
                 title="No Access",
                 description=f"{user.mention} does not have access in this guild.",
@@ -430,35 +431,58 @@ class GuildCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
+        # Prioritize server_access if it exists, otherwise use guild_license
+        access_record = server_access if server_access else guild_license
+
         try:
-            expiry_str = guild_license.get("expiry")
-            access_type = guild_license.get("subscription_type", "Unknown")
+            expiry_str = access_record.get("expiry")
+            access_type = access_record.get("access_type") or access_record.get("subscription_type", "Unknown")
 
             if expiry_str:
-                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
-                current_date = datetime.now()
+                # Try multiple date formats
+                expiry_date = None
+                formats_to_try = [
+                    "%Y-%m-%d %H:%M:%S",  # MongoDB format
+                    "%d/%m/%Y %H:%M:%S"   # Legacy format
+                ]
+                
+                for date_format in formats_to_try:
+                    try:
+                        expiry_date = datetime.strptime(expiry_str, date_format)
+                        break
+                    except ValueError:
+                        continue
 
-                if current_date > expiry_date:
-                    embed = discord.Embed(
-                        title="Access Expired",
-                        description=f"{user.mention}'s access expired on {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
-                        color=discord.Color.red()
-                    )
-                else:
-                    time_left = expiry_date - current_date
-                    days_left = time_left.days
-                    hours_left = time_left.seconds // 3600
-                    minutes_left = (time_left.seconds % 3600) // 60
+                if expiry_date:
+                    current_date = datetime.now()
 
-                    if "lifetime" in access_type.lower():
-                        time_display = "Lifetime Access"
+                    if current_date > expiry_date:
+                        embed = discord.Embed(
+                            title="Access Expired",
+                            description=f"{user.mention}'s access expired on {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
+                            color=discord.Color.red()
+                        )
                     else:
-                        time_display = f"{days_left} days, {hours_left} hours, {minutes_left} minutes"
+                        time_left = expiry_date - current_date
+                        days_left = time_left.days
+                        hours_left = time_left.seconds // 3600
+                        minutes_left = (time_left.seconds % 3600) // 60
 
+                        if "lifetime" in access_type.lower():
+                            time_display = "Lifetime Access"
+                        else:
+                            time_display = f"{days_left} days, {hours_left} hours, {minutes_left} minutes"
+
+                        embed = discord.Embed(
+                            title="Time Remaining",
+                            description=f"**User:** {user.mention}\n**Access Type:** {access_type}\n**Time Left:** {time_display}\n**Expires:** {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
+                            color=discord.Color.green()
+                        )
+                else:
                     embed = discord.Embed(
-                        title="Time Remaining",
-                        description=f"**User:** {user.mention}\n**Access Type:** {access_type}\n**Time Left:** {time_display}\n**Expires:** {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
-                        color=discord.Color.green()
+                        title="Error",
+                        description="Could not parse expiry date format for this user.",
+                        color=discord.Color.red()
                     )
             else:
                 embed = discord.Embed(
@@ -507,10 +531,11 @@ class GuildCommands(commands.Cog):
 
         client_role_id = guild_config.get("client_role_id")
 
-        # Check if user has guild access
+        # Check if user has guild access (either server access or guild license)
+        server_access = mongo_manager.get_server_access(interaction.guild.id, user.id)
         guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
 
-        if not guild_license:
+        if not server_access and not guild_license:
             embed = discord.Embed(
                 title="No Access Found",
                 description=f"{user.mention} does not have access in this guild.",

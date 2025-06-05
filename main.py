@@ -1245,13 +1245,16 @@ async def generate_command(interaction: discord.Interaction):
                     has_client_role = True
                     print(f"User {user_id} has client role in guild {guild_id}")
 
-            # Check database using GuildLicenseChecker for all users (including those with roles)
+            # Check database using GuildLicenseChecker
             has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
+            print(f"Database access check for {user_id} in {guild_id}: has_access={has_access}, info={access_info}")
             
             # If user has admin or client role, they have access regardless of database status
             if has_admin_role or has_client_role:
                 has_access = True
+                print(f"User {user_id} granted access via role in guild {guild_id}")
             elif not has_access:
+                # Handle different access denial scenarios
                 if access_info.get("type") == "expired":
                     embed = discord.Embed(
                         title="Access Expired",
@@ -1264,10 +1267,16 @@ async def generate_command(interaction: discord.Interaction):
                         description=f"Your {access_info.get('subscription_type', 'subscription')} license expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
                         color=discord.Color.red()
                     )
+                elif access_info.get("type") == "database_error":
+                    embed = discord.Embed(
+                        title="Database Error",
+                        description="There was a database error checking your access. Please try again later or contact a server admin.",
+                        color=discord.Color.red()
+                    )
                 else:
                     embed = discord.Embed(
                         title="Access Denied",
-                        description="You don't have access to use this bot in this server. Please contact a server admin.",
+                        description="You don't have access to use this bot in this server. Please contact a server admin to grant you access.",
                         color=discord.Color.red()
                     )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -1291,8 +1300,11 @@ async def generate_command(interaction: discord.Interaction):
             has_credentials, has_email = check_user_setup(user_id)
 
         if not has_credentials or not has_email:
-            # Show menu panel for new users
-            subscription_type, end_date = get_subscription(user_id)
+            # Show menu panel for new users - use guild-specific subscription info
+            if not is_main_guild:
+                subscription_type, end_date = await GuildLicenseChecker.get_guild_subscription_info(user_id, guild_id)
+            else:
+                subscription_type, end_date = get_subscription(user_id)
 
             # Format subscription type for display
             display_type = subscription_type
