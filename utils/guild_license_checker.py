@@ -34,6 +34,14 @@ class GuildLicenseChecker:
                 expiry_str = server_access.get("expiry")
                 access_type = server_access.get("access_type")
                 
+                # Check if access was explicitly removed (access_type could be "removed" or similar)
+                if access_type and access_type.lower() == "removed":
+                    logging.info(f"User {user_id} access was explicitly removed in guild {guild_id}")
+                    return False, {
+                        "type": "access_removed",
+                        "message": "Your access has been removed from this server"
+                    }
+                
                 # Lifetime access is always valid
                 if access_type == "Lifetime":
                     logging.info(f"User {user_id} has lifetime access in guild {guild_id}")
@@ -85,6 +93,14 @@ class GuildLicenseChecker:
             if guild_license:
                 expiry_str = guild_license.get("expiry")
                 subscription_type = guild_license.get("subscription_type", "Unknown")
+                
+                # Check if license was explicitly removed
+                if subscription_type and subscription_type.lower() == "removed":
+                    logging.info(f"User {user_id} guild license was explicitly removed in guild {guild_id}")
+                    return False, {
+                        "type": "license_removed",
+                        "message": "Your license has been removed from this server"
+                    }
                 
                 if expiry_str:
                     try:

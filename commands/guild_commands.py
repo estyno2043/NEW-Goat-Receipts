@@ -551,6 +551,22 @@ class GuildCommands(commands.Cog):
             # Remove server access record
             mongo_manager.delete_server_access(interaction.guild.id, user.id)
 
+            # Clear user's main credentials and email to prevent access
+            mongo_manager.delete_user_credentials(user.id)
+            mongo_manager.delete_user_email(user.id)
+            
+            # Also clear the main user license to ensure complete access removal
+            mongo_manager.delete_license(user.id)
+            
+            # Update license manager cache to remove cached license
+            try:
+                from utils.license_manager import LicenseManager
+                if hasattr(LicenseManager, '_license_cache') and str(user.id) in LicenseManager._license_cache:
+                    del LicenseManager._license_cache[str(user.id)]
+                    logging.info(f"Cleared license cache for user {user.id}")
+            except Exception as cache_error:
+                logging.warning(f"Could not clear license cache for user {user.id}: {cache_error}")
+
             # Remove client role
             try:
                 client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
@@ -562,7 +578,7 @@ class GuildCommands(commands.Cog):
 
             embed = discord.Embed(
                 title="Access Removed",
-                description=f"Successfully removed guild access for {user.mention}.",
+                description=f"Successfully removed guild access for {user.mention}.\n\n**Note:** User's credentials and license have been completely cleared to prevent further access.",
                 color=discord.Color.green()
             )
 
@@ -572,7 +588,7 @@ class GuildCommands(commands.Cog):
             try:
                 dm_embed = discord.Embed(
                     title="Guild Access Removed",
-                    description=f"Your access to **{interaction.guild.name}** has been removed by an administrator.",
+                    description=f"Your access to **{interaction.guild.name}** has been removed by an administrator.\n\nYour credentials and license have been cleared.",
                     color=discord.Color.orange()
                 )
                 await user.send(embed=dm_embed)

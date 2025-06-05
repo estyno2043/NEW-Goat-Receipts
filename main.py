@@ -1267,6 +1267,18 @@ async def generate_command(interaction: discord.Interaction):
                         description=f"Your {access_info.get('subscription_type', 'subscription')} license expired on {access_info.get('expiry', 'unknown date')}. Please contact a server admin.",
                         color=discord.Color.red()
                     )
+                elif access_info.get("type") == "access_removed":
+                    embed = discord.Embed(
+                        title="Access Removed",
+                        description="Your access to this server has been removed by an administrator. Please contact a server admin if you believe this is an error.",
+                        color=discord.Color.red()
+                    )
+                elif access_info.get("type") == "license_removed":
+                    embed = discord.Embed(
+                        title="License Removed",
+                        description="Your license for this server has been removed by an administrator. Please contact a server admin if you believe this is an error.",
+                        color=discord.Color.red()
+                    )
                 elif access_info.get("type") == "database_error":
                     embed = discord.Embed(
                         title="Database Error",
