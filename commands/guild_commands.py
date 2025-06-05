@@ -390,5 +390,178 @@ class GuildCommands(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="timeleft", description="Check how much time a user has left in this guild")
+    @app_commands.describe(user="The user to check time remaining for")
+    async def timeleft(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if user is a guild admin
+        is_admin = await self.is_guild_admin(interaction)
+
+        if not is_admin:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You must have the admin role to use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Get guild configuration
+        from utils.mongodb_manager import mongo_manager
+        guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+
+        if not guild_config:
+            embed = discord.Embed(
+                title="Error",
+                description="This server has not been configured yet. Please use `/configure_guild` first.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Check guild-specific license
+        guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
+        
+        if not guild_license:
+            embed = discord.Embed(
+                title="No Access",
+                description=f"{user.mention} does not have access in this guild.",
+                color=discord.Color.orange()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        try:
+            expiry_str = guild_license.get("expiry")
+            access_type = guild_license.get("subscription_type", "Unknown")
+            
+            if expiry_str:
+                expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                current_date = datetime.now()
+                
+                if current_date > expiry_date:
+                    embed = discord.Embed(
+                        title="Access Expired",
+                        description=f"{user.mention}'s access expired on {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
+                        color=discord.Color.red()
+                    )
+                else:
+                    time_left = expiry_date - current_date
+                    days_left = time_left.days
+                    hours_left = time_left.seconds // 3600
+                    minutes_left = (time_left.seconds % 3600) // 60
+                    
+                    if "lifetime" in access_type.lower():
+                        time_display = "Lifetime Access"
+                    else:
+                        time_display = f"{days_left} days, {hours_left} hours, {minutes_left} minutes"
+                    
+                    embed = discord.Embed(
+                        title="Time Remaining",
+                        description=f"**User:** {user.mention}\n**Access Type:** {access_type}\n**Time Left:** {time_display}\n**Expires:** {expiry_date.strftime('%d/%m/%Y %H:%M:%S')}",
+                        color=discord.Color.green()
+                    )
+            else:
+                embed = discord.Embed(
+                    title="Error",
+                    description="Could not determine expiry time for this user.",
+                    color=discord.Color.red()
+                )
+
+        except Exception as e:
+            logging.error(f"Error checking time left for user {user.id}: {e}")
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while checking user access: {str(e)}",
+                color=discord.Color.red()
+            )
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="remove_access", description="Remove access for a user in this guild")
+    @app_commands.describe(user="The user to remove access from")
+    async def remove_access(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if user is a guild admin
+        is_admin = await self.is_guild_admin(interaction)
+
+        if not is_admin:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="You must have the admin role to use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Get guild configuration
+        from utils.mongodb_manager import mongo_manager
+        guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+
+        if not guild_config:
+            embed = discord.Embed(
+                title="Error",
+                description="This server has not been configured yet. Please use `/configure_guild` first.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        client_role_id = guild_config.get("client_role_id")
+
+        # Check if user has guild access
+        guild_license = mongo_manager.get_guild_user_license(interaction.guild.id, user.id)
+        
+        if not guild_license:
+            embed = discord.Embed(
+                title="No Access Found",
+                description=f"{user.mention} does not have access in this guild.",
+                color=discord.Color.orange()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        try:
+            # Remove guild-specific license
+            mongo_manager.delete_guild_user_license(interaction.guild.id, user.id)
+            
+            # Remove server access record
+            mongo_manager.delete_server_access(interaction.guild.id, user.id)
+
+            # Remove client role
+            try:
+                client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+                if client_role and client_role in user.roles:
+                    await user.remove_roles(client_role)
+                    logging.info(f"Removed client role from {user.name} in guild {interaction.guild.id}")
+            except Exception as role_error:
+                logging.error(f"Error removing client role: {role_error}")
+
+            embed = discord.Embed(
+                title="Access Removed",
+                description=f"Successfully removed guild access for {user.mention}.",
+                color=discord.Color.green()
+            )
+
+            await interaction.response.send_message(embed=embed)
+
+            # Try to DM the user
+            try:
+                dm_embed = discord.Embed(
+                    title="Guild Access Removed",
+                    description=f"Your access to **{interaction.guild.name}** has been removed by an administrator.",
+                    color=discord.Color.orange()
+                )
+                await user.send(embed=dm_embed)
+            except:
+                logging.info(f"Could not DM {user.name} about access removal")
+
+        except Exception as e:
+            logging.error(f"Error removing guild access for user {user.id}: {e}")
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while removing access: {str(e)}",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(GuildCommands(bot))

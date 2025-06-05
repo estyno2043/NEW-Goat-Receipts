@@ -407,6 +407,38 @@ class MongoDBManager:
             logging.error(f"Error getting guild user license for {guild_id}/{user_id}: {e}")
             return None
     
+    def delete_guild_user_license(self, guild_id, user_id):
+        """Delete license for a user in a specific guild"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            result = db.guild_user_licenses.delete_one({
+                "guild_id": str(guild_id), 
+                "user_id": str(user_id)
+            })
+            return result.deleted_count > 0
+        except Exception as e:
+            logging.error(f"Error deleting guild user license for {guild_id}/{user_id}: {e}")
+            return False
+    
+    def delete_server_access(self, guild_id, user_id):
+        """Delete server access record for a user"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+                
+            result = db.server_access.delete_one({
+                "guild_id": str(guild_id), 
+                "user_id": str(user_id)
+            })
+            return result.deleted_count > 0
+        except Exception as e:
+            logging.error(f"Error deleting server access for {guild_id}/{user_id}: {e}")
+            return False None
+    
     def save_guild_user_credentials(self, guild_id, user_id, name, street, city, zip_code, country, is_random=False):
         """Save credentials for a user in a specific guild"""
         try:
