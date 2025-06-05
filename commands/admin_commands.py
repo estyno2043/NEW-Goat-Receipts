@@ -397,24 +397,20 @@ class AdminCommands(commands.Cog):
 
         # Create a modal for selecting subscription type and setting expiry
         class EditModal(discord.ui.Modal, title='Edit Subscription'):
-            subscription_type = discord.ui.TextInput(
-                label="Subscription Type",
-                placeholder="Enter: 3day, 14day, 1month, lifetime, guild_30days, guild_lifetime",
-                required=True,
-                max_length=20
+            subscription_type = discord.ui.Select(
+                placeholder="Select subscription type...",
+                options=[
+                    discord.SelectOption(label="3 Days", value="3day"),
+                    discord.SelectOption(label="14 Days", value="14day"),
+                    discord.SelectOption(label="1 Month", value="1month"),
+                    discord.SelectOption(label="Lifetime", value="lifetime"),
+                    discord.SelectOption(label="Guild 30 Days", value="guild_30days"),
+                    discord.SelectOption(label="Guild Lifetime", value="guild_lifetime"),
+                ]
             )
 
             async def on_submit(self, interaction: discord.Interaction):
-                subscription_type = self.subscription_type.value.lower().strip()
-                
-                # Validate subscription type
-                valid_types = ["3day", "14day", "1month", "lifetime", "guild_30days", "guild_lifetime"]
-                if subscription_type not in valid_types:
-                    await interaction.response.send_message(
-                        f"Invalid subscription type. Valid options are: {', '.join(valid_types)}", 
-                        ephemeral=True
-                    )
-                    return
+                subscription_type = self.subscription_type.values[0]
 
                 from utils.mongodb_manager import mongo_manager
                 old_license = mongo_manager.get_license(user.id)  # Fetch old license
