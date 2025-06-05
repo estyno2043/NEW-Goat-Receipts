@@ -437,7 +437,7 @@ class MongoDBManager:
             return result.deleted_count > 0
         except Exception as e:
             logging.error(f"Error deleting server access for {guild_id}/{user_id}: {e}")
-            return False None
+            return False
     
     def save_guild_user_credentials(self, guild_id, user_id, name, street, city, zip_code, country, is_random=False):
         """Save credentials for a user in a specific guild"""
