@@ -1,4 +1,3 @@
-
 class ReceiptTemplate:
     def __init__(self, name, template_id, description, preview_url):
         self.name = name

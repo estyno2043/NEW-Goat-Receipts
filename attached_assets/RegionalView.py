@@ -38,6 +38,7 @@ from modals.gallerydept import gallerydeptmodal
 from modals.goat import goat
 from modals.grailed import grailedmodal
 from modals.jdsports import jdsportsmodal
+from modals.jomashop import jomashopmodal
 from modals.legitapp import legitappmodal
 from modals.loropiana import loromodal
 from modals.maisonmargiela import maisonmodal
@@ -168,6 +169,7 @@ all_brands = {
     'House of Fraser': houseoffrasermodal,
     'iStores': istoresmodal,
     'JD Sports': jdsportsmodal,
+    'Jomashop': jomashopmodal,
     'Kick Game': kickgamemodal,
     'Legit App': legitappmodal,
     'Loro Piana': loromodal,
@@ -716,6 +718,7 @@ class RegionSelectionView(discord.ui.View):
 
             # Get server-specific client ID/role ID
             VIP_ROLE_ID = get_client_id(interaction.guild.id if interaction.guild else None)
+```python
             user_roles_ids = [role.id for role in interaction.user.roles]
 
             embed = None
@@ -1285,6 +1288,7 @@ brands_usa4 = [
     ('Hermès', lambda: HermesModal()),
     ('iStores', lambda: istoresmodal()),
     ('JD Sports', lambda: jdsportsmodal()),
+    ('Jomashop', lambda: jomashopmodal()),
     ('Kick Game', lambda: kickgamemodal()),
     ('Legit App', lambda: legitappmodal())
 ]
@@ -1683,3 +1687,65 @@ brands_auth = [create_brand_lambda(brand) for brand in all_brand_keys[65:] if cr
 
 # Filter out any None values that might be causing issues
 brands_auth = [brand for brand in brands_auth if brand is not None]
+
+# The modal itself.
+class jomashopmodal(Modal):
+    def __init__(self):
+        super().__init__(title="Jomashop Order")
+        self.add_item(discord.ui.TextInput(label="Product Name", placeholder="Enter product name", style=discord.TextStyle.short, required=True))
+        self.add_item(discord.ui.TextInput(label="Product Price", placeholder="Enter product price", style=discord.TextStyle.short, required=True))
+        self.add_item(discord.ui.TextInput(label="Shipping Cost", placeholder="Enter shipping cost", style=discord.TextStyle.short, required=True))
+        self.add_item(discord.ui.TextInput(label="Image Link", placeholder="Enter image link", style=discord.TextStyle.long, required=True))
+
+    async def callback(self, interaction: discord.Interaction):
+        productname = self.children[0].value
+        productprice = self.children[1].value
+        shippingcost = self.children[2].value
+        imagelink = self.children[3].value
+
+        # Email selection
+        email_select = discord.ui.Select(
+            placeholder="Choose email type",
+            options=[
+                discord.SelectOption(label="Normal Email", value="normal"),
+                discord.SelectOption(label="Spoofed Email", value="spoofed")
+            ]
+        )
+
+        async def email_callback(email_interaction: discord.Interaction):
+            email_type = email_select.values[0]
+
+            # Order number (always a random number)
+            order_number = random.randint(916920830, 916920839)
+
+            # Billing & Shipping address
+            name = "John Doe"  # Replace with user's name
+            address = "123 Main St"  # Replace with user's address
+            zip_code = "12345"  # Replace with user's zip code
+            city = "Anytown"  # Replace with user's city
+            country = "USA"  # Replace with user's country
+
+            billing_shipping_address = f"{name} {address} {zip_code} {city} {country}"
+
+            # Construct the embed
+            embed = discord.Embed(title="Jomashop Order Confirmation", color=discord.Color.blue())
+            embed.add_field(name="Order #", value=order_number, inline=False)
+            embed.add_field(name="Billing & Shipping", value=billing_shipping_address, inline=False)
+            embed.add_field(name="Items Ordered", value=productname, inline=False)
+            embed.set_thumbnail(url=imagelink)
+            embed.add_field(name="Product Price", value=f"${productprice}", inline=False)
+            embed.add_field(name="Shipping", value=f"${shippingcost}", inline=False)
+            embed.add_field(name="Total", value=f"${float(productprice) + float(shippingcost)}", inline=False)
+
+            # Send email (replace with actual implementation)
+            email = "user@example.com"  # Replace with user's email
+            if email_type == "spoofed":
+                email = "no-reply@jomashop.com"
+
+            await email_interaction.response.send_message(f"Order confirmation sent to {email} (Spoofed: {email_type == 'spoofed'})", ephemeral=True)
+
+        email_select.callback = email_callback
+        email_view = discord.ui.View()
+        email_view.add_item(email_select)
+
+        await interaction.response.send_message(embed=embed, view=email_view, ephemeral=True)
