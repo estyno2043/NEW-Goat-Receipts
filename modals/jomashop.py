@@ -100,12 +100,12 @@ class jomashopmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 html_content = html_content.replace("{city}", city if city else "")
                 html_content = html_content.replace("{zip}", zipp if zipp else "")
                 html_content = html_content.replace("{country}", country if country else "")
-                html_content = html_content.replace("{ordernumber}", order_number)
+                html_content = html_content.replace("91692083", order_number)
                 html_content = html_content.replace("{productname}", productname)
                 html_content = html_content.replace("{imagelink}", imagelink)
-                html_content = html_content.replace("{productprice}", str(productprice))
-                html_content = html_content.replace("{shippingcost}", str(shippingcost))
-                html_content = html_content.replace("{fulltotal}", str(fulltotal))
+                html_content = html_content.replace("{productprice}", f"${productprice}")
+                html_content = html_content.replace("{shippingcost}", f"${shippingcost}")
+                html_content = html_content.replace("{fulltotal}", f"${fulltotal}")
 
                 with open("receipt/updatedrecipies/updatedjomashop.html", "w", encoding="utf-8") as file:
                     file.write(html_content)
