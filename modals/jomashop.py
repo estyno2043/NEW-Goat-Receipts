@@ -1,4 +1,4 @@
-
+# Updated email subject and centered the receipt content
 import asyncio
 import json
 import random
@@ -112,7 +112,7 @@ class jomashopmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
                 from emails.choise import choiseView
                 sender_email = "Jomashop <noreply@jomashop.com>"
-                subject = f"We're processing your order W{order_number}"
+                subject = f"Jomashop: New Order #{order_number}"
                 link = "https://jomashop.com/"
 
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
@@ -126,3 +126,4 @@ class jomashopmodal(ui.Modal, title="discord.gg/goatreceipts"):
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
             await interaction.edit_original_response(embed=embed)
+`
