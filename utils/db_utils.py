@@ -153,9 +153,8 @@ def get_subscription(user_id):
     except Exception as e:
         logging.error(f"Error in get_subscription: {e}")
         return "Default", "1 Year"
-```
 
-```python
+python
 import logging
 from utils.mongodb_manager import mongo_manager
 
@@ -311,9 +310,9 @@ def get_subscription(user_id):
     except Exception as e:
         logging.error(f"Error in get_subscription: {e}")
         return "Default", "1 Year"
-```
 
-```python
+
+python
 import logging
 from utils.mongodb_manager import mongo_manager
 
@@ -461,9 +460,9 @@ def get_subscription(user_id):
     except Exception as e:
         logging.error(f"Error in get_subscription: {e}")
         return "Default", "1 Year"
-```
 
-```python
+
+python
 import logging
 from utils.mongodb_manager import mongo_manager
 
@@ -611,9 +610,9 @@ def get_subscription(user_id):
     except Exception as e:
         logging.error(f"Error in get_subscription: {e}")
         return "Default", "1 Year"
-```
 
-```python
+
+python
 import logging
 from utils.mongodb_manager import mongo_manager
 
@@ -761,6 +760,4 @@ def get_subscription(user_id):
     except Exception as e:
         logging.error(f"Error in get_subscription: {e}")
         return "Default", "1 Year"
-```
 
-Applying the changes to the original code:
