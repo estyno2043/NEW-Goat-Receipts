@@ -1141,6 +1141,14 @@ async def generate_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     guild_id = str(interaction.guild.id if interaction.guild else "0")
 
+    # Check if user is rate limited
+    from utils.mongodb_manager import mongo_manager
+    is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
+    
+    if is_limited:
+        await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
+        return
+
     # Load config to get main guild ID
     try:
         with open("config.json", "r") as f:
@@ -1882,6 +1890,14 @@ async def menu_command(interaction: discord.Interaction):
         return
 
     user_id = str(interaction.user.id)
+
+    # Check if user is rate limited
+    from utils.mongodb_manager import mongo_manager
+    is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
+    
+    if is_limited:
+        await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
+        return
 
     # Check if user has a valid license
     from utils.license_manager import LicenseManager

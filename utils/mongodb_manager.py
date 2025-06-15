@@ -1,4 +1,3 @@
-
 import os
 import logging
 from datetime import datetime, timedelta
@@ -11,22 +10,22 @@ class MongoDBManager:
     _instance = None
     _client = None
     _db = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(MongoDBManager, cls).__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
         if self._client is None:
             self.connect()
-    
+
     def connect(self):
         """Establish connection to MongoDB"""
         try:
             # MongoDB connection string with credentials and SSL configuration
             uri = "mongodb+srv://kuboestok:oPb8iDVVzRwKe1RX@cluster0.gxc5mt1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true&tlsAllowInvalidCertificates=true"
-            
+
             # Create client with additional SSL options for Replit compatibility
             self._client = MongoClient(
                 uri, 
@@ -39,18 +38,18 @@ class MongoDBManager:
                 maxPoolSize=10,
                 retryWrites=True
             )
-            
+
             # Test connection with timeout
             self._client.admin.command('ping')
             print("✅ Successfully connected to MongoDB")
             logging.info("Successfully connected to MongoDB!")
-            
+
             # Select database
             self._db = self._client.goat_receipts
-            
+
             # Create indexes for better performance
             self._create_indexes()
-            
+
         except Exception as e:
             print("❌ MongoDB connection failed:")
             print(e)
@@ -59,7 +58,7 @@ class MongoDBManager:
             # We'll handle MongoDB operations with proper error checking
             self._client = None
             self._db = None
-    
+
     def _create_indexes(self):
         """Create database indexes for better performance"""
         try:
@@ -76,18 +75,18 @@ class MongoDBManager:
             logging.info("MongoDB indexes created successfully")
         except Exception as e:
             logging.warning(f"Error creating indexes: {e}")
-    
+
     def get_database(self):
         """Get database instance"""
         if self._db is None:
             self.connect()
-        
+
         # If still None after connection attempt, return None
         if self._db is None:
             logging.warning("MongoDB database is not available")
             return None
         return self._db
-    
+
     def close_connection(self):
         """Close MongoDB connection"""
         if self._client:
@@ -107,7 +106,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting license for user {user_id}: {e}")
             return None
-    
+
     def create_or_update_license(self, user_id, license_data):
         """Create or update license for a user"""
         try:
@@ -116,7 +115,7 @@ class MongoDBManager:
                 return False
             license_data["owner_id"] = str(user_id)
             license_data["updated_at"] = datetime.utcnow()
-            
+
             result = db.licenses.update_one(
                 {"owner_id": str(user_id)},
                 {"$set": license_data},
@@ -126,7 +125,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error creating/updating license for user {user_id}: {e}")
             return False
-    
+
     def delete_license(self, user_id):
         """Delete license for a user"""
         try:
@@ -136,7 +135,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error deleting license for user {user_id}: {e}")
             return False
-    
+
     def get_all_licenses(self):
         """Get all licenses"""
         try:
@@ -145,23 +144,23 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting all licenses: {e}")
             return []
-    
+
     def get_expired_licenses(self):
         """Get expired licenses"""
         try:
             db = self.get_database()
             current_time = datetime.utcnow()
-            
+
             # Find licenses that have expired
             expired_licenses = []
             for license_doc in db.licenses.find():
                 expiry_str = license_doc.get("expiry")
                 key = license_doc.get("key", "")
-                
+
                 # Skip lifetime keys
                 if key and ("LifetimeKey" in key or "lifetime" in key.lower()):
                     continue
-                
+
                 if expiry_str:
                     try:
                         expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
@@ -169,12 +168,12 @@ class MongoDBManager:
                             expired_licenses.append(license_doc)
                     except ValueError:
                         continue
-                        
+
             return expired_licenses
         except Exception as e:
             logging.error(f"Error getting expired licenses: {e}")
             return []
-    
+
     # User credentials operations
     def get_user_credentials(self, user_id):
         """Get user credentials"""
@@ -186,7 +185,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting credentials for user {user_id}: {e}")
             return None
-    
+
     def save_user_credentials(self, user_id, name, street, city, zip_code, country, is_random=False):
         """Save user credentials"""
         try:
@@ -203,7 +202,7 @@ class MongoDBManager:
                 "is_random": is_random,
                 "updated_at": datetime.utcnow()
             }
-            
+
             result = db.user_credentials.update_one(
                 {"user_id": str(user_id)},
                 {"$set": credentials_data},
@@ -213,7 +212,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving credentials for user {user_id}: {e}")
             return False
-    
+
     def delete_user_credentials(self, user_id):
         """Delete user credentials"""
         try:
@@ -223,7 +222,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error deleting credentials for user {user_id}: {e}")
             return False
-    
+
     # User email operations
     def get_user_email(self, user_id):
         """Get user email"""
@@ -236,7 +235,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting email for user {user_id}: {e}")
             return None
-    
+
     def save_user_email(self, user_id, email):
         """Save user email"""
         try:
@@ -248,7 +247,7 @@ class MongoDBManager:
                 "email": email,
                 "updated_at": datetime.utcnow()
             }
-            
+
             result = db.user_emails.update_one(
                 {"user_id": str(user_id)},
                 {"$set": email_data},
@@ -258,7 +257,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving email for user {user_id}: {e}")
             return False
-    
+
     def delete_user_email(self, user_id):
         """Delete user email"""
         try:
@@ -268,7 +267,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error deleting email for user {user_id}: {e}")
             return False
-    
+
     # Combined operations
     def get_user_details(self, user_id):
         """Get complete user details for receipt generation"""
@@ -279,21 +278,21 @@ class MongoDBManager:
             if not credentials:
                 logging.warning(f"No credentials found for user {user_id}")
                 return None
-            
+
             # Get email
             email = self.get_user_email(user_id)
             logging.info(f"Retrieved email for user {user_id}: {email is not None}")
             if not email:
                 logging.warning(f"No email found for user {user_id}")
                 return None
-            
+
             # Ensure all required fields are present
             name = credentials.get("name")
             street = credentials.get("street") 
             city = credentials.get("city")
             zip_code = credentials.get("zip")
             country = credentials.get("country")
-            
+
             if not all([name, street, city, zip_code, country, email]):
                 missing_fields = []
                 if not name: missing_fields.append("name")
@@ -304,14 +303,14 @@ class MongoDBManager:
                 if not email: missing_fields.append("email")
                 logging.warning(f"Missing required fields for user {user_id}: {missing_fields}")
                 return None
-            
+
             user_details = (name, street, city, zip_code, country, email)
             logging.info(f"Complete user details for {user_id}: {user_details}")
             return user_details
         except Exception as e:
             logging.error(f"Error getting user details for {user_id}: {e}")
             return None
-    
+
     def check_user_setup(self, user_id):
         """Check if user has both credentials and email set up"""
         try:
@@ -321,17 +320,84 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error checking user setup for {user_id}: {e}")
             return False, False
-    
+
     def clear_user_data(self, user_id):
-        """Clear all user data (credentials and email)"""
+        """Clear all user data"""
         try:
-            creds_deleted = self.delete_user_credentials(user_id)
-            email_deleted = self.delete_user_email(user_id)
-            return creds_deleted or email_deleted
+            db = self.get_database()
+            if db is None:
+                return False
+
+            # Clear from all collections
+            db.user_credentials.delete_many({"user_id": str(user_id)})
+            db.user_emails.delete_many({"user_id": str(user_id)})
+            db.licenses.delete_many({"user_id": str(user_id)})
+
+            return True
         except Exception as e:
-            logging.error(f"Error clearing user data for {user_id}: {e}")
+            logging.error(f"Error clearing user data: {e}")
             return False
-    
+
+    def set_user_rate_limit(self, user_id, rate_limit_data):
+        """Set rate limit for a user"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            # Update or insert rate limit record
+            result = db.rate_limits.update_one(
+                {"user_id": str(user_id)},
+                {"$set": rate_limit_data},
+                upsert=True
+            )
+
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error setting rate limit: {e}")
+            return False
+
+    def check_user_rate_limit(self, user_id):
+        """Check if user is currently rate limited"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            from datetime import datetime
+            current_time = datetime.now()
+
+            rate_limit = db.rate_limits.find_one({"user_id": str(user_id)})
+
+            if rate_limit:
+                limit_expiry_str = rate_limit.get("limit_expiry")
+                if limit_expiry_str:
+                    limit_expiry = datetime.fromisoformat(limit_expiry_str)
+                    if current_time < limit_expiry:
+                        return True, limit_expiry
+                    else:
+                        # Rate limit expired, remove it
+                        db.rate_limits.delete_one({"user_id": str(user_id)})
+                        return False, None
+
+            return False, None
+        except Exception as e:
+            logging.error(f"Error checking rate limit: {e}")
+            return False, None
+
+    def remove_user_rate_limit(self, user_id):
+        """Remove rate limit for a user"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            result = db.rate_limits.delete_one({"user_id": str(user_id)})
+            return result.acknowledged
+        except Exception as e:
+            logging.error(f"Error removing rate limit: {e}")
+            return False
+
     # Guild configuration operations
     def save_guild_config(self, guild_id, owner_id, generate_channel_id, admin_role_id, client_role_id, image_channel_id):
         """Save guild configuration to MongoDB"""
@@ -339,7 +405,7 @@ class MongoDBManager:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             config_data = {
                 "guild_id": str(guild_id),
                 "owner_id": str(owner_id),
@@ -350,7 +416,7 @@ class MongoDBManager:
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow()
             }
-            
+
             result = db.guild_configs.update_one(
                 {"guild_id": str(guild_id)},
                 {"$set": config_data},
@@ -360,7 +426,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving guild config for {guild_id}: {e}")
             return False
-    
+
     def get_guild_config(self, guild_id):
         """Get guild configuration from MongoDB"""
         try:
@@ -371,7 +437,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting guild config for {guild_id}: {e}")
             return None
-    
+
     # Guild user operations (separate from main guild)
     def save_guild_user_license(self, guild_id, user_id, license_data):
         """Save license for a user in a specific guild"""
@@ -379,13 +445,13 @@ class MongoDBManager:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             license_data.update({
                 "guild_id": str(guild_id),
                 "user_id": str(user_id),
                 "updated_at": datetime.utcnow()
             })
-            
+
             result = db.guild_user_licenses.update_one(
                 {"guild_id": str(guild_id), "user_id": str(user_id)},
                 {"$set": license_data},
@@ -395,7 +461,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving guild user license for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def get_guild_user_license(self, guild_id, user_id):
         """Get license for a user in a specific guild"""
         try:
@@ -406,14 +472,14 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting guild user license for {guild_id}/{user_id}: {e}")
             return None
-    
+
     def delete_guild_user_license(self, guild_id, user_id):
         """Delete license for a user in a specific guild"""
         try:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             result = db.guild_user_licenses.delete_one({
                 "guild_id": str(guild_id), 
                 "user_id": str(user_id)
@@ -422,14 +488,14 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error deleting guild user license for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def delete_server_access(self, guild_id, user_id):
         """Delete server access record for a user"""
         try:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             result = db.server_access.delete_one({
                 "guild_id": str(guild_id), 
                 "user_id": str(user_id)
@@ -438,14 +504,14 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error deleting server access for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def save_guild_user_credentials(self, guild_id, user_id, name, street, city, zip_code, country, is_random=False):
         """Save credentials for a user in a specific guild"""
         try:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             credentials_data = {
                 "guild_id": str(guild_id),
                 "user_id": str(user_id),
@@ -457,7 +523,7 @@ class MongoDBManager:
                 "is_random": is_random,
                 "updated_at": datetime.utcnow()
             }
-            
+
             result = db.guild_user_credentials.update_one(
                 {"guild_id": str(guild_id), "user_id": str(user_id)},
                 {"$set": credentials_data},
@@ -467,7 +533,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving guild user credentials for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def get_guild_user_credentials(self, guild_id, user_id):
         """Get credentials for a user in a specific guild"""
         try:
@@ -478,21 +544,21 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting guild user credentials for {guild_id}/{user_id}: {e}")
             return None
-    
+
     def save_guild_user_email(self, guild_id, user_id, email):
         """Save email for a user in a specific guild"""
         try:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             email_data = {
                 "guild_id": str(guild_id),
                 "user_id": str(user_id),
                 "email": email,
                 "updated_at": datetime.utcnow()
             }
-            
+
             result = db.guild_user_emails.update_one(
                 {"guild_id": str(guild_id), "user_id": str(user_id)},
                 {"$set": email_data},
@@ -502,7 +568,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving guild user email for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def get_guild_user_email(self, guild_id, user_id):
         """Get email for a user in a specific guild"""
         try:
@@ -514,14 +580,14 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error getting guild user email for {guild_id}/{user_id}: {e}")
             return None
-    
+
     def save_server_access(self, guild_id, user_id, added_by, access_type, expiry):
         """Save server access record"""
         try:
             db = self.get_database()
             if db is None:
                 return False
-                
+
             access_data = {
                 "guild_id": str(guild_id),
                 "user_id": str(user_id),
@@ -530,7 +596,7 @@ class MongoDBManager:
                 "expiry": expiry,
                 "added_at": datetime.utcnow()
             }
-            
+
             result = db.server_access.update_one(
                 {"guild_id": str(guild_id), "user_id": str(user_id)},
                 {"$set": access_data},
@@ -540,7 +606,7 @@ class MongoDBManager:
         except Exception as e:
             logging.error(f"Error saving server access for {guild_id}/{user_id}: {e}")
             return False
-    
+
     def get_server_access(self, guild_id, user_id):
         """Get server access record"""
         try:

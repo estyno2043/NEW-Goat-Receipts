@@ -410,6 +410,91 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @app_commands.command(name="limit", description="Apply 11-hour rate limit to a user (Owner only)")
+    async def limit(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if the command invoker is the bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 1339295766828552365))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Apply 11-hour rate limit using MongoDB
+        from utils.mongodb_manager import mongo_manager
+        from datetime import datetime, timedelta
+
+        # Set limit expiry to 11 hours from now
+        limit_expiry = datetime.now() + timedelta(hours=11)
+
+        # Save rate limit to MongoDB
+        rate_limit_data = {
+            "user_id": str(user.id),
+            "limited_by": str(interaction.user.id),
+            "limit_start": datetime.now().isoformat(),
+            "limit_expiry": limit_expiry.isoformat(),
+            "reason": "Rate limited by owner"
+        }
+
+        success = mongo_manager.set_user_rate_limit(user.id, rate_limit_data)
+
+        if success:
+            embed = discord.Embed(
+                title="Rate Limit Applied",
+                description=f"Successfully applied 11-hour rate limit to {user.mention}.\nThey will be unable to use `/generate` or `/menu` until {limit_expiry.strftime('%d/%m/%Y %H:%M:%S')}",
+                color=discord.Color.orange()
+            )
+        else:
+            embed = discord.Embed(
+                title="Error",
+                description="Failed to apply rate limit. Please try again.",
+                color=discord.Color.red()
+            )
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="unlimit", description="Remove rate limit from a user (Owner only)")
+    async def unlimit(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if the command invoker is the bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 1339295766828552365))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Remove rate limit using MongoDB
+        from utils.mongodb_manager import mongo_manager
+
+        success = mongo_manager.remove_user_rate_limit(user.id)
+
+        if success:
+            embed = discord.Embed(
+                title="Rate Limit Removed",
+                description=f"Successfully removed rate limit from {user.mention}.\nThey can now use `/generate` and `/menu` commands normally.",
+                color=discord.Color.green()
+            )
+        else:
+            embed = discord.Embed(
+                title="Error",
+                description="Failed to remove rate limit or user was not rate limited.",
+                color=discord.Color.red()
+            )
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
     @app_commands.command(name="edit", description="Admin panel to edit user subscription and details")
     async def edit(self, interaction: discord.Interaction, user: discord.Member):
         # Check if the command invoker is the bot owner
@@ -435,7 +520,7 @@ class AdminCommands(commands.Cog):
 
         # Create the admin panel view
         view = AdminPanelView(interaction.user.id, user)
-        
+
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def setup(bot):
