@@ -48,14 +48,14 @@ lg = Colors.light_gray
 
 
 def is_jd_link(link):
-
-    jd_pattern = re.compile(r'^https?://(www\.)?jdsports\.co\.uk(/.*)?$')
+    # Accept JD Sports links from various countries
+    jd_pattern = re.compile(r'^https?://(www\.)?jdsports\.(co\.uk|com|de|fr|es|it|nl|be|ie|dk|se|no|fi|au|my|sg)(/.*)?$')
 
     return bool(jd_pattern.match(link))
 
 
 class jdsportsmodal(ui.Modal, title="discord.gg/goatreceipt"):
-    Linkff = discord.ui.TextInput(label="Link", placeholder="jdsports.co.uk Link", required=True)
+    Linkff = discord.ui.TextInput(label="Link", placeholder="JD Sports Link (any country)", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)
     delivery = discord.ui.TextInput(label="Order Date", placeholder="Ex. 24/04/2024", required=True)
@@ -79,7 +79,7 @@ class jdsportsmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
             if not is_jd_link(Linkff):
-                embed = discord.Embed(title="Error - Invalid JD Sports link", description="Please provide a valid JD Sports link.")
+                embed = discord.Embed(title="Error - Invalid JD Sports link", description="Please provide a valid JD Sports link from any supported country domain.")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
 
