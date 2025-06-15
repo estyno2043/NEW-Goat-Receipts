@@ -150,9 +150,13 @@ class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
 
                 product_name = gtm_data_json["ecommerce"]["detail"]["products"][0]["name"]
                 #product_id = gtm_data_json["ecommerce"]["detail"]["products"][0]["id"]
-                price = gtm_data_json["ecommerce"]["detail"]["products"][0]["price"]
+                scraped_price = gtm_data_json["ecommerce"]["detail"]["products"][0]["price"]
 
                 print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+            else:
+                # Fallback if scraping fails
+                product_name = "Canada Goose Product"
+                print(f"    [{Colors.cyan}Scraping{lg}] Could not extract product name, using fallback" + lg)
 
 
             # Find main image URL with better resolution
@@ -185,6 +189,10 @@ class canadagoose2(ui.Modal, title="Canada Goose Receipt"):
             if main_image_url and '?' in main_image_url:
                 main_image_url = main_image_url.split('?')[0]  # Remove any size restrictions in URL
 
+            # Fallback image if no image URL found
+            if not main_image_url:
+                main_image_url = "https://images.canadagoose.com/image/upload/w_480,c_scale,f_auto,q_auto/v1700415479/product-image/2048M_63.jpg"
+                print(f"    [{Colors.cyan}Scraping{lg}] Using fallback image URL" + lg)
 
             print(f"[{Colors.green}Scraping DONE{lg}] CANADA GOOSE -> {interaction.user.id}" + lg)
             print()
