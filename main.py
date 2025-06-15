@@ -134,16 +134,24 @@ class EmailForm(ui.Modal, title="Email Settings"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Save email to MongoDB
-        from utils.db_utils import save_user_email
-        success = save_user_email(user_id, email)
+        # Save email to MongoDB with 7-day restriction check
+        from utils.mongodb_manager import mongo_manager
+        result = mongo_manager.save_user_email(user_id, email)
 
-        if not success:
-            embed = discord.Embed(
-                title="Error",
-                description="Failed to save email. Please try again later.",
-                color=discord.Color.red()
-            )
+        if not result.get("success"):
+            if result.get("error") == "email_change_restricted":
+                days_remaining = result.get("days_remaining", 0)
+                embed = discord.Embed(
+                    title="Email Change Restricted",
+                    description=f"You can only change your email once every 7 days. Please wait {days_remaining} more day(s) before changing your email again.\n\n-# This restriction prevents receipt sharing between accounts.",
+                    color=discord.Color.orange()
+                )
+            else:
+                embed = discord.Embed(
+                    title="Error",
+                    description="Failed to save email. Please try again later.",
+                    color=discord.Color.red()
+                )
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
@@ -1015,17 +1023,17 @@ class CredentialsDropdownView(ui.View):
             modal = EmailForm()
             await interaction.response.send_modal(modal)
         elif choice == "Clear Info":
-            # Clear user's saved information and email
+            # Clear user's saved information but keep email
             user_id = str(interaction.user.id)
             
-            # Clear user data from MongoDB
-            from utils.db_utils import clear_user_data
-            success = clear_user_data(user_id)
+            # Clear only user credentials from MongoDB
+            from utils.mongodb_manager import mongo_manager
+            success = mongo_manager.clear_user_credentials_only(user_id)
             
             if success:
                 embed = discord.Embed(
                     title="Information Cleared",
-                    description="Your saved information and email have been successfully cleared.",
+                    description="Your saved personal information (name, address, etc.) has been successfully cleared.\n\n-# Your email address has been kept and is still saved.",
                     color=discord.Color.from_str("#c2ccf8")
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)

@@ -242,6 +242,17 @@ class MongoDBManager:
             db = self.get_database()
             if db is None:
                 return False
+            
+            # Check if user already has an email and if it's within 7 days
+            existing_email = db.user_emails.find_one({"user_id": str(user_id)})
+            if existing_email:
+                last_updated = existing_email.get("updated_at")
+                if last_updated:
+                    # Calculate days since last update
+                    time_diff = datetime.utcnow() - last_updated
+                    if time_diff.days < 7:
+                        return {"success": False, "error": "email_change_restricted", "days_remaining": 7 - time_diff.days}
+            
             email_data = {
                 "user_id": str(user_id),
                 "email": email,
@@ -253,10 +264,10 @@ class MongoDBManager:
                 {"$set": email_data},
                 upsert=True
             )
-            return result.acknowledged
+            return {"success": result.acknowledged}
         except Exception as e:
             logging.error(f"Error saving email for user {user_id}: {e}")
-            return False
+            return {"success": False, "error": "database_error"}
 
     def delete_user_email(self, user_id):
         """Delete user email"""
@@ -336,6 +347,21 @@ class MongoDBManager:
             return True
         except Exception as e:
             logging.error(f"Error clearing user data: {e}")
+            return False
+
+    def clear_user_credentials_only(self, user_id):
+        """Clear only user credentials (not email)"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            # Clear only credentials, keep email
+            db.user_credentials.delete_many({"user_id": str(user_id)})
+
+            return True
+        except Exception as e:
+            logging.error(f"Error clearing user credentials: {e}")
             return False
 
     def set_user_rate_limit(self, user_id, rate_limit_data):
