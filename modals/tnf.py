@@ -211,7 +211,7 @@ class tnfmodal2(ui.Modal, title="The North Face Receipt"):
 
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, Linkff)
-            await interaction.edit_original_response(embed=embed, view=view, ephemeral=True)
+            await interaction.edit_original_response(embed=embed, view=view)
 
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
