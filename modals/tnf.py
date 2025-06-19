@@ -49,7 +49,7 @@ lg = Colors.light_gray
 
 
 def is_tnf_link(link):
-    tnf_pattern = re.compile(r'^https?://(www\.)?thenorthface\.co\.uk/.+')
+    tnf_pattern = re.compile(r'^https?://(www\.)?thenorthface\.(com|co\.uk|de|fr|it|es|ca|com\.au|jp|kr|cn)/.+')
 
     return bool(tnf_pattern.match(link))
 
