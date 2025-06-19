@@ -74,7 +74,6 @@ class tnfmodal(ui.Modal, title="discord.gg/goatreceipts"):
             Linkff = self.Linkff.value
             currencyff = self.currencyff.value
             Priceff = self.Priceff.value
-            name = self.name.value
             deliverydate = self.deliverydate.value
 
             if not is_tnf_link(Linkff):
