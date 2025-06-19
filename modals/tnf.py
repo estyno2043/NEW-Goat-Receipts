@@ -138,13 +138,32 @@ class tnfmodal2(ui.Modal, title="The North Face Receipt"):
                 product_name = None
                 pname = soup.find('div', {'class': 'product-info product-info-js'})
                 if pname:
-                    product_name = pname.find('h1', {'class': 'product-content-info-name product-info-js'}).text.strip()
-                    print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                    product_name_element = pname.find('h1', {'class': 'product-content-info-name product-info-js'})
+                    if product_name_element:
+                        product_name = product_name_element.text.strip()
+                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                
+                # If product name not found with first method, try alternative methods
+                if not product_name:
+                    # Try og:title meta tag
+                    og_title = soup.find('meta', {'property': 'og:title'})
+                    if og_title and og_title.get('content'):
+                        product_name = og_title['content']
+                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name (from og:title): {product_name}" + lg)
+                    else:
+                        # Fallback to a generic name
+                        product_name = "The North Face Product"
+                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: Using fallback name" + lg)
 
-
-
-                image_url = soup.find('meta', {'property': 'og:image'})['content']
-                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
+                image_url = None
+                og_image = soup.find('meta', {'property': 'og:image'})
+                if og_image and og_image.get('content'):
+                    image_url = og_image['content']
+                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
+                else:
+                    # Fallback image URL
+                    image_url = "https://via.placeholder.com/300x300?text=The+North+Face"
+                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: Using fallback image" + lg)
 
                 print(f"[{Colors.green}Scraping DONE{lg}] THE NORTH FACE -> {interaction.user.id}" + lg)
                 print()
