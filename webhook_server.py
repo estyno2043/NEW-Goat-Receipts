@@ -155,5 +155,28 @@ def check_access(user_id):
         logging.error(f"Error checking access: {str(e)}")
         return jsonify({'error': f'Failed to check access: {str(e)}'}), 500
 
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({
+        'status': 'GOAT Receipts Webhook Server',
+        'endpoints': {
+            'health': '/api/health',
+            'grant_access': '/api/grant-access (POST)',
+            'check_access': '/api/check-access/<user_id> (GET)'
+        }
+    }), 200
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        'error': 'Endpoint not found',
+        'available_endpoints': {
+            'root': '/',
+            'health': '/api/health',
+            'grant_access': '/api/grant-access (POST)',
+            'check_access': '/api/check-access/<user_id> (GET)'
+        }
+    }), 404
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
