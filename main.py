@@ -1994,6 +1994,19 @@ if os.getenv('REPLIT_DEPLOYMENT'):
     thread.daemon = True
     thread.start()
 
+# Start webhook server for invite tracker integration
+def run_webhook_server():
+    try:
+        from webhook_server import app
+        app.run(host='0.0.0.0', port=5000, debug=False)
+    except Exception as e:
+        print(f"Failed to start webhook server: {e}")
+
+webhook_thread = threading.Thread(target=run_webhook_server)
+webhook_thread.daemon = True
+webhook_thread.start()
+print("Webhook server started on port 5000")
+
 # Load command modules
 async def load_extensions():
     try:
