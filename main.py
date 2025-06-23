@@ -95,6 +95,46 @@ async def handle_access_granted_notification(notification):
         # Try to get the guild
         guild = bot.get_guild(int(guild_id))
         
+        # Load config to get main guild ID and purchases channel
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                main_guild_id = config.get("guild_id", "1339298010169086072")
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            main_guild_id = "1339298010169086072"
+        
+        # Check if this is for the main guild
+        is_main_guild = (str(guild_id) == main_guild_id)
+        
+        # Send notification to the main guild's purchases channel
+        try:
+            main_guild = bot.get_guild(int(main_guild_id))
+            if main_guild:
+                # Use the hardcoded purchases channel ID
+                purchases_channel = main_guild.get_channel(1374468080817803264)
+                
+                if purchases_channel:
+                    # Create "thank you for purchasing" style notification
+                    embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{f'<@{user_id}>' if user else username}, your subscription has been updated. Check below\n"
+                                  f"-# Run command /generate in <#1374468007472009216> to continue\n\n"
+                                  f"**Subscription Type**\n"
+                                  f"`{access_duration} Day{'s' if access_duration != 1 else ''} (Invite Reward)`\n\n"
+                                  f"**Server Access**\n"
+                                  f"`{guild_name}`\n\n"
+                                  f"- Please consider leaving a review at <#1339306483816337510>",
+                        color=discord.Color.green()
+                    )
+                    
+                    await purchases_channel.send(content=f"<@{user_id}>" if user else username, embed=embed)
+                    logging.info(f"Sent invite reward notification to purchases channel for user {user_id}")
+                else:
+                    logging.warning(f"Purchases channel not found in main guild")
+        except Exception as e:
+            logging.error(f"Error sending notification to main guild purchases channel: {e}")
+        
         # Send DM to user
         if user:
             try:
@@ -123,10 +163,10 @@ async def handle_access_granted_notification(notification):
             except Exception as e:
                 logging.error(f"Error sending DM to user {user_id}: {e}")
         
-        # Send notification to purchases channel if configured
-        if guild:
+        # Also send notification to the target guild if it's not the main guild
+        if not is_main_guild and guild:
             try:
-                # Look for a purchases/notifications channel
+                # Look for a purchases/notifications channel in the target guild
                 purchases_channel = None
                 for channel in guild.text_channels:
                     if any(name in channel.name.lower() for name in ['purchase', 'notification', 'access', 'grant']):
@@ -135,8 +175,8 @@ async def handle_access_granted_notification(notification):
                 
                 if purchases_channel:
                     embed = discord.Embed(
-                        title="✅ Access Granted",
-                        description=f"**{username}** has been granted access via {source}",
+                        title="✅ Access Granted via Invite Tracker",
+                        description=f"**{username}** has been granted access via invite rewards",
                         color=discord.Color.blue()
                     )
                     embed.add_field(
@@ -152,7 +192,7 @@ async def handle_access_granted_notification(notification):
                     embed.set_footer(text=f"Granted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     
                     await purchases_channel.send(embed=embed)
-                    logging.info(f"Sent purchase notification to {purchases_channel.name}")
+                    logging.info(f"Sent guild notification to {purchases_channel.name}")
                 
             except Exception as e:
                 logging.error(f"Error sending guild notification: {e}")

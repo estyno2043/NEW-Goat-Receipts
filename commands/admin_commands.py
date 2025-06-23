@@ -713,4 +713,28 @@ async def check_license_command(ctx, user: discord.Member = None):
     with open("config.json", "r") as f:
         import json
         config = json.load(f)
-        owner_id =
+        owner_id = config.get("owner_id", "0")
+
+    if str(ctx.author.id) != owner_id:
+        await ctx.send("You don't have permission to use this command.")
+        return
+
+    if user is None:
+        user = ctx.author
+
+    # Check license status
+    from utils.license_manager import LicenseManager
+    license_status = await LicenseManager.is_subscription_active(str(user.id))
+
+    embed = discord.Embed(
+        title=f"License Status for {user.display_name}",
+        color=discord.Color.green() if license_status else discord.Color.red()
+    )
+    
+    embed.add_field(
+        name="Status", 
+        value="Active" if license_status else "Inactive/Expired", 
+        inline=False
+    )
+    
+    await ctx.send(embed=embed)
