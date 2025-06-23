@@ -1,3 +1,4 @@
+# Applying the provided changes to the original code, focusing on webhook notification and edit command functionality.
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -523,6 +524,155 @@ class AdminCommands(commands.Cog):
 
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
+    async def get_user_info(self, user_id):
+        """Get comprehensive user information from all sources"""
+        info = {
+            'license': None,
+            'credentials': None,
+            'email': None,
+            'subscription_active': False,
+            'guild_access': {}
+        }
+
+        try:
+            # Get license info
+            from utils.mongodb_manager import mongo_manager
+            license_doc = mongo_manager.get_license(user_id)
+            if license_doc:
+                info['license'] = license_doc
+
+            # Get user details (credentials + email)
+            user_details = mongo_manager.get_user_details(user_id)
+            if user_details:
+                name, street, city, zip_code, country, email = user_details
+                info['credentials'] = {
+                    'name': name,
+                    'street': street,
+                    'city': city,
+                    'zip': zip_code,
+                    'country': country
+                }
+                info['email'] = email
+
+            # Check subscription status
+            from utils.license_manager import LicenseManager
+            info['subscription_active'] = await LicenseManager.is_subscription_active(user_id)
+
+            # Get guild-specific access (including webhook-granted access)
+            db = mongo_manager.get_database()
+            if db:
+                # Check all server access records
+                server_access_records = list(db.server_access.find({"user_id": str(user_id)}))
+                for record in server_access_records:
+                    guild_id = record.get('guild_id')
+                    if guild_id:
+                        info['guild_access'][guild_id] = {
+                            'access_type': record.get('access_type'),
+                            'expiry': record.get('expiry'),
+                            'added_by': record.get('added_by', 'system'),
+                            'added_at': record.get('added_at'),
+                            'source': 'webhook' if record.get('added_by') == 'system' else 'manual'
+                        }
+
+                # Also check guild-specific licenses
+                guild_licenses = list(db.guild_user_licenses.find({"user_id": str(user_id)}))
+                for record in guild_licenses:
+                    guild_id = record.get('guild_id')
+                    license_data = record.get('license_data', {})
+                    if guild_id and license_data:
+                        if guild_id not in info['guild_access']:
+                            info['guild_access'][guild_id] = {}
+                        info['guild_access'][guild_id].update({
+                            'license_type': license_data.get('subscription_type'),
+                            'license_expiry': license_data.get('expiry'),
+                            'granted_by': license_data.get('granted_by'),
+                            'source': 'license'
+                        })
+
+        except Exception as e:
+            logging.error(f"Error getting user info for {user_id}: {e}")
+
+        return info
+
+    @app_commands.command(name="userinfo", description="Get comprehensive information for a user")
+    async def userinfo(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if the command invoker is the bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 1339295766828552365))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Get user information
+        user_id = str(user.id)
+        user_info = await self.get_user_info(user_id)
+
+        # Create embed
+        embed = discord.Embed(
+            title=f"User Information for {user.name}",
+            color=discord.Color.blue()
+        )
+
+        # License Information
+        if user_info['license']:
+            license_data = user_info['license']
+            embed.add_field(name="License Key", value=license_data.get('key', 'N/A'), inline=False)
+            embed.add_field(name="Expiry", value=license_data.get('expiry', 'N/A'), inline=False)
+        else:
+            embed.add_field(name="License", value="No license found", inline=False)
+
+        # Personal Information
+        if user_info['credentials']:
+            credentials = user_info['credentials']
+            personal_info = (
+                f"Name: {credentials.get('name', 'N/A')}\n"
+                f"Street: {credentials.get('street', 'N/A')}\n"
+                f"City: {credentials.get('city', 'N/A')}\n"
+                f"ZIP: {credentials.get('zip', 'N/A')}\n"
+                f"Country: {credentials.get('country', 'N/A')}"
+            )
+            embed.add_field(name="Personal Information", value=personal_info, inline=False)
+        else:
+            embed.add_field(name="Personal Information", value="No details found", inline=False)
+
+        # Guild Access Information
+        if user_info['guild_access']:
+            guild_access_text = ""
+            for guild_id, access_data in user_info['guild_access'].items():
+                try:
+                    guild = self.bot.get_guild(int(guild_id))
+                    guild_name = guild.name if guild else f"Guild {guild_id}"
+                    access_type = access_data.get('access_type', 'Unknown')
+                    expiry = access_data.get('expiry', 'Unknown')
+                    source = access_data.get('source', 'unknown')
+                    added_by = access_data.get('added_by', 'Unknown')
+
+                    source_text = ""
+                    if source == 'webhook':
+                        source_text = " (via invite tracker)"
+                    elif source == 'manual':
+                        source_text = f" (by <@{added_by}>)"
+                    elif source == 'license':
+                        source_text = " (license key)"
+
+                    guild_access_text += f"**{guild_name}**: {access_type} (expires: {expiry}){source_text}\n"
+                except:
+                    guild_access_text += f"**Guild {guild_id}**: {access_data.get('access_type', 'Unknown')}\n"
+
+            embed.add_field(name="Guild Access", value=guild_access_text[:1024], inline=False)
+
+        # Subscription Status
+        embed.add_field(name="Subscription Active", value=str(user_info['subscription_active']), inline=False)
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
 
@@ -563,144 +713,4 @@ async def check_license_command(ctx, user: discord.Member = None):
     with open("config.json", "r") as f:
         import json
         config = json.load(f)
-        owner_id = config.get("owner_id", "0")
-
-    is_admin = str(ctx.author.id) == owner_id
-
-    if not is_admin:
-        # Check if user has admin role
-        guild_id = str(ctx.guild.id)
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT admin_role_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
-        result = cursor.fetchone()
-        conn.close()
-
-        if result and result[0]:
-            admin_role = discord.utils.get(ctx.guild.roles, id=int(result[0]))
-            if admin_role and admin_role in ctx.author.roles:
-                is_admin = True
-
-    if not is_admin:
-        await ctx.send("You don't have permission to use this command.")
-        return
-
-    # If no user specified, check the command user
-    target_user = user or ctx.author
-
-    # Perform license check
-    from utils.license_manager import LicenseManager
-    license_status = await LicenseManager.is_subscription_active(target_user.id)
-
-    # Check role status
-    client_role_id = int(config.get("Client_ID", 0))
-    has_role = False
-    if client_role_id > 0:
-        client_role = discord.utils.get(ctx.guild.roles, id=client_role_id)
-        if client_role and client_role in target_user.roles:
-            has_role = True
-
-    # Check database directly
-    conn = sqlite3.connect('data.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT expiry, key FROM licenses WHERE owner_id = ?", (str(target_user.id),))
-    db_result = cursor.fetchone()
-    conn.close()
-
-    # Create response embed
-    embed = discord.Embed(
-        title=f"License Status for {target_user.display_name}",
-        description=f"User ID: {target_user.id}",
-        color=discord.Color.from_str("#c2ccf8")
-    )
-
-    embed.add_field(
-        name="License Manager Check",
-        value=f"Status: {'Active' if license_status else 'Inactive'}\nResult Type: {type(license_status).__name__}",
-        inline=False
-    )
-
-    embed.add_field(
-        name="Client Role",
-        value=f"Has Role: {'Yes' if has_role else 'No'}\nRole ID: {client_role_id}",
-        inline=False
-    )
-
-    if db_result:
-        expiry, key = db_result
-        embed.add_field(
-            name="Database Record",
-            value=f"Expiry: {expiry}\nKey: {key[:5]}{'*' * 10 if key else ''}",
-            inline=False
-        )
-    else:
-        embed.add_field(
-            name="Database Record",
-            value="No license found in database",
-            inline=False
-        )
-
-    await ctx.send(embed=embed)
-
-from discord.ext import commands
-import discord
-import sqlite3
-from datetime import datetime, timedelta
-
-class LicenseManager:
-    _license_cache = {}  # Class-level cache
-
-    @staticmethod
-    async def is_subscription_active(user_id):
-        """
-        Checks if a user's subscription is active.
-
-        First, it checks the cache. If not in cache, it queries the database,
-        updates the cache, and then returns the result.
-        """
-        if user_id in LicenseManager._license_cache:
-            return LicenseManager._license_cache[user_id]
-
-        is_active = await LicenseManager._check_license_from_db(user_id)
-        LicenseManager._license_cache[user_id] = is_active  # Update cache
-        return is_active
-
-    @staticmethod
-    async def _check_license_from_db(user_id):
-        """
-        Internal method to check the user's license status in the database.
-        """
-        conn = sqlite3.connect('data.db')
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT expiry, key FROM licenses WHERE owner_id = ?", (str(user_id),))
-        result = cursor.fetchone()
-
-        if not result:
-            conn.close()
-            return False
-
-        expiry_str, key = result
-
-        if key and "EXPIRED-" in key:
-            conn.close()
-            return False
-
-        try:
-            expiry_date = datetime.strptime(expiry_str, "%d/%m/%Y %H:%M:%S")
-            is_active = datetime.now() < expiry_date
-            conn.close()
-            return is_active
-        except ValueError:
-            # Handle cases where the date format might be incorrect
-            conn.close()
-            return False
-
-    @staticmethod
-    async def invalidate_cache(user_id):
-        """
-        Invalidates the cache for a specific user, forcing a database refresh
-        on the next check.
-        """
-        if user_id in LicenseManager._license_cache:
-            del LicenseManager._license_cache[user_id]
+        owner_id =

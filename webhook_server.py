@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 import json
@@ -14,33 +13,33 @@ logging.basicConfig(level=logging.INFO)
 def grant_access():
     try:
         data = request.get_json()
-        
+
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-        
+
         user_id = data.get('userId')
         username = data.get('username')
         guild_id = data.get('guildId')
         guild_name = data.get('guildName')
         access_duration = data.get('accessDuration', 1)  # Default 1 day
         timestamp = data.get('timestamp')
-        
+
         if not user_id or not guild_id:
             return jsonify({'error': 'Missing required fields: userId, guildId'}), 400
-        
+
         logging.info(f"Granting {access_duration} days access to user {user_id} in guild {guild_id}")
-        
+
         # Calculate expiry date
         expiry_date = datetime.now() + timedelta(days=access_duration)
         expiry_str = expiry_date.strftime('%Y-%m-%d %H:%M:%S')
-        
+
         # Check if this is the main guild or a configured guild
         with open("config.json", "r") as f:
             config = json.load(f)
             main_guild_id = config.get("guild_id", "1339298010169086072")
-        
+
         is_main_guild = (str(guild_id) == main_guild_id)
-        
+
         if is_main_guild:
             # For main guild, create a license
             license_data = {
@@ -53,9 +52,9 @@ def grant_access():
                 "granted_by": "invite_tracker",
                 "granted_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             }
-            
+
             success = mongo_manager.create_or_update_license(user_id, license_data)
-            
+
             if not success:
                 return jsonify({'error': 'Failed to create license'}), 500
         else:
@@ -67,10 +66,10 @@ def grant_access():
                 f"{access_duration} Days",
                 expiry_str
             )
-            
+
             if not success:
                 return jsonify({'error': 'Failed to save server access'}), 500
-            
+
             # Also create guild-specific license
             license_data = {
                 "key": f"invite-guild-{guild_id}-{user_id}-{timestamp}",
@@ -80,11 +79,11 @@ def grant_access():
                 "redeemed_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
                 "granted_by": "invite_tracker"
             }
-            
+
             mongo_manager.save_guild_user_license(guild_id, user_id, license_data)
-        
+
         logging.info(f"Successfully granted access to user {user_id}")
-        
+
         return jsonify({
             'success': True,
             'message': f'Access granted for {access_duration} days',
@@ -92,7 +91,7 @@ def grant_access():
             'userId': user_id,
             'guildId': guild_id
         }), 200
-        
+
     except Exception as e:
         logging.error(f"Error granting access: {str(e)}")
         return jsonify({'error': f'Failed to grant access: {str(e)}'}), 500
@@ -106,17 +105,17 @@ def check_access(user_id):
     """Check if a user has active access"""
     try:
         guild_id = request.args.get('guildId')
-        
+
         if not guild_id:
             return jsonify({'error': 'guildId parameter required'}), 400
-        
+
         # Check if this is the main guild
         with open("config.json", "r") as f:
             config = json.load(f)
             main_guild_id = config.get("guild_id", "1339298010169086072")
-        
+
         is_main_guild = (str(guild_id) == main_guild_id)
-        
+
         if is_main_guild:
             # Check main guild license
             license_doc = mongo_manager.get_license(user_id)
@@ -149,9 +148,9 @@ def check_access(user_id):
                             }), 200
                     except ValueError:
                         pass
-        
+
         return jsonify({'hasAccess': False}), 200
-        
+
     except Exception as e:
         logging.error(f"Error checking access: {str(e)}")
         return jsonify({'error': f'Failed to check access: {str(e)}'}), 500
