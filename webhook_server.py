@@ -18,16 +18,20 @@ def grant_access():
             return jsonify({'error': 'No data provided'}), 400
 
         user_id = data.get('userId')
-        username = data.get('username')
+        username = data.get('username', 'Unknown User')
         guild_id = data.get('guildId')
-        guild_name = data.get('guildName')
+        guild_name = data.get('guildName', 'Unknown Guild')
         access_duration = data.get('accessDuration', 1)  # Default 1 day
-        timestamp = data.get('timestamp')
+        timestamp = data.get('timestamp', str(int(datetime.now().timestamp())))
+        source = data.get('source', 'invite-tracker')
 
         if not user_id or not guild_id:
             return jsonify({'error': 'Missing required fields: userId, guildId'}), 400
 
-        logging.info(f"Granting {access_duration} days access to user {user_id} in guild {guild_id}")
+        if not access_duration or access_duration <= 0:
+            return jsonify({'error': 'Invalid accessDuration'}), 400
+
+        logging.info(f"Granting {access_duration} days access to user {user_id} ({username}) in guild {guild_id} ({guild_name})")
 
         # Calculate expiry date
         expiry_date = datetime.now() + timedelta(days=access_duration)
@@ -49,8 +53,10 @@ def grant_access():
                 "is_active": True,
                 "emailtf": "False",
                 "credentialstf": "False",
-                "granted_by": "invite_tracker",
-                "granted_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+                "granted_by": source,
+                "granted_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+                "username": username,
+                "guild_name": guild_name
             }
 
             success = mongo_manager.create_or_update_license(user_id, license_data)
@@ -62,7 +68,7 @@ def grant_access():
             success = mongo_manager.save_server_access(
                 guild_id,
                 user_id,
-                "invite_tracker",
+                source,
                 f"{access_duration} Days",
                 expiry_str
             )
@@ -77,10 +83,50 @@ def grant_access():
                 "subscription_type": f"{access_duration}day",
                 "redeemed": True,
                 "redeemed_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
-                "granted_by": "invite_tracker"
+                "granted_by": source,
+                "username": username,
+                "guild_name": guild_name
             }
 
             mongo_manager.save_guild_user_license(guild_id, user_id, license_data)
+
+        # Send notification (similar to purchase notifications)
+        try:
+            import asyncio
+            import discord
+            from utils.mongodb_manager import mongo_manager as db_manager
+            
+            # Try to get bot instance and send notification
+            def send_notification():
+                try:
+                    # This will be handled by the bot's notification system
+                    # Store notification data for the bot to pick up
+                    notification_data = {
+                        "type": "access_granted",
+                        "user_id": str(user_id),
+                        "username": username,
+                        "guild_id": str(guild_id),
+                        "guild_name": guild_name,
+                        "access_duration": access_duration,
+                        "expiry_date": expiry_date.isoformat(),
+                        "source": source,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    
+                    # Store in database for bot to process
+                    db = db_manager.get_database()
+                    if db:
+                        db.notifications.insert_one(notification_data)
+                        logging.info(f"Notification queued for user {user_id}")
+                    
+                except Exception as e:
+                    logging.error(f"Error queuing notification: {e}")
+            
+            send_notification()
+            
+        except Exception as e:
+            logging.warning(f"Could not send notification: {e}")
+            # Don't fail the request if notification fails
 
         logging.info(f"Successfully granted access to user {user_id}")
 
@@ -89,7 +135,10 @@ def grant_access():
             'message': f'Access granted for {access_duration} days',
             'expiryDate': expiry_date.isoformat(),
             'userId': user_id,
-            'guildId': guild_id
+            'guildId': guild_id,
+            'username': username,
+            'guildName': guild_name,
+            'expiresAt': expiry_date.isoformat()
         }), 200
 
     except Exception as e:

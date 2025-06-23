@@ -36,6 +36,160 @@ except Exception as e:
     print(f"Failed to initialize receipt processing utilities: {e}")
 
 # Setup MongoDB connection
+from utils.mongodb_manager import mongo_manager
+
+# Background task to process notifications
+async def process_notifications():
+    """Background task to process webhook notifications"""
+    await bot.wait_until_ready()
+    
+    while not bot.is_closed():
+        try:
+            db = mongo_manager.get_database()
+            if db:
+                # Get pending notifications
+                notifications = list(db.notifications.find({"processed": {"$ne": True}}).limit(10))
+                
+                for notification in notifications:
+                    try:
+                        if notification.get("type") == "access_granted":
+                            await handle_access_granted_notification(notification)
+                        
+                        # Mark as processed
+                        db.notifications.update_one(
+                            {"_id": notification["_id"]},
+                            {"$set": {"processed": True, "processed_at": datetime.utcnow()}}
+                        )
+                        
+                    except Exception as e:
+                        logging.error(f"Error processing notification {notification.get('_id')}: {e}")
+                        # Mark as failed
+                        db.notifications.update_one(
+                            {"_id": notification["_id"]},
+                            {"$set": {"processed": True, "failed": True, "error": str(e)}}
+                        )
+            
+        except Exception as e:
+            logging.error(f"Error in notification processor: {e}")
+        
+        await asyncio.sleep(5)  # Check every 5 seconds
+
+async def handle_access_granted_notification(notification):
+    """Handle access granted notifications"""
+    try:
+        user_id = notification.get("user_id")
+        username = notification.get("username", "Unknown User")
+        guild_id = notification.get("guild_id")
+        guild_name = notification.get("guild_name", "Unknown Guild")
+        access_duration = notification.get("access_duration", 1)
+        source = notification.get("source", "invite-tracker")
+        
+        # Try to get the user
+        user = bot.get_user(int(user_id))
+        if not user:
+            try:
+                user = await bot.fetch_user(int(user_id))
+            except:
+                user = None
+        
+        # Try to get the guild
+        guild = bot.get_guild(int(guild_id))
+        
+        # Send DM to user
+        if user:
+            try:
+                embed = discord.Embed(
+                    title="🎉 Thank You for Your Purchase!",
+                    description=f"Your {access_duration}-day access to **{guild_name}** has been activated!",
+                    color=discord.Color.green()
+                )
+                embed.add_field(
+                    name="Access Details",
+                    value=f"• **Duration:** {access_duration} days\n• **Server:** {guild_name}\n• **Source:** {source}",
+                    inline=False
+                )
+                embed.add_field(
+                    name="What's Next?",
+                    value="You can now use the receipt generator bot commands in the server. Enjoy your access!",
+                    inline=False
+                )
+                embed.set_footer(text="Thank you for your business!")
+                
+                await user.send(embed=embed)
+                logging.info(f"Sent thank you DM to user {user_id}")
+                
+            except discord.Forbidden:
+                logging.warning(f"Could not send DM to user {user_id} - DMs disabled")
+            except Exception as e:
+                logging.error(f"Error sending DM to user {user_id}: {e}")
+        
+        # Send notification to purchases channel if configured
+        if guild:
+            try:
+                # Look for a purchases/notifications channel
+                purchases_channel = None
+                for channel in guild.text_channels:
+                    if any(name in channel.name.lower() for name in ['purchase', 'notification', 'access', 'grant']):
+                        purchases_channel = channel
+                        break
+                
+                if purchases_channel:
+                    embed = discord.Embed(
+                        title="✅ Access Granted",
+                        description=f"**{username}** has been granted access via {source}",
+                        color=discord.Color.blue()
+                    )
+                    embed.add_field(
+                        name="User Details",
+                        value=f"• **User:** <@{user_id}> ({username})\n• **User ID:** {user_id}",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="Access Details",
+                        value=f"• **Duration:** {access_duration} days\n• **Source:** {source}\n• **Guild:** {guild_name}",
+                        inline=False
+                    )
+                    embed.set_footer(text=f"Granted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                    
+                    await purchases_channel.send(embed=embed)
+                    logging.info(f"Sent purchase notification to {purchases_channel.name}")
+                
+            except Exception as e:
+                logging.error(f"Error sending guild notification: {e}")
+        
+    except Exception as e:
+        logging.error(f"Error handling access granted notification: {e}")
+
+# Start notification processor
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
+    
+    # Load commands
+    try:
+        await bot.load_extension("commands.admin_commands")
+        print('Loaded admin commands')
+    except Exception as e:
+        print(f'Failed to load admin commands: {e}')
+    
+    try:
+        await bot.load_extension("commands.guild_commands")
+        print('Loaded guild commands')
+    except Exception as e:
+        print(f'Failed to load guild commands: {e}')
+    
+    # Sync commands
+    try:
+        synced = await bot.tree.sync()
+        print(f'Synced {len(synced)} command(s)')
+    except Exception as e:
+        print(f'Failed to sync commands: {e}')
+    
+    # Start background tasks
+    bot.loop.create_task(process_notifications())
+    print("Notification processor started")
+
+# Setup MongoDB connection
 def setup_database():
     """Initialize MongoDB connection and collections"""
     try:
