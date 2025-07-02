@@ -431,15 +431,28 @@ class MongoDBManager:
             if db is None:
                 return False
 
-            # Remove any existing email change restrictions
-            result = db.user_emails.update_one(
-                {"user_id": str(user_id)},
-                {"$unset": {"last_email_change": "", "email_changes_count": ""}},
-                upsert=False
-            )
-
-            logging.info(f"Reset email change limit for user {user_id}")
-            return True
+            # Check if user has an email record
+            existing_email = db.user_emails.find_one({"user_id": str(user_id)})
+            
+            if existing_email:
+                # Reset the updated_at timestamp to allow immediate email change
+                # Set it to 8 days ago to bypass the 7-day restriction
+                from datetime import datetime, timedelta
+                reset_date = datetime.utcnow() - timedelta(days=8)
+                
+                result = db.user_emails.update_one(
+                    {"user_id": str(user_id)},
+                    {"$set": {"updated_at": reset_date}},
+                    upsert=False
+                )
+                
+                logging.info(f"Reset email change limit for user {user_id} - set updated_at to {reset_date}")
+                return result.acknowledged
+            else:
+                # No email record exists, so no restriction to reset
+                logging.info(f"No email record found for user {user_id} - no restriction to reset")
+                return True
+                
         except Exception as e:
             logging.error(f"Error resetting email change limit: {e}")
             return False
