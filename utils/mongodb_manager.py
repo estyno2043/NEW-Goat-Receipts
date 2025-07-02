@@ -242,7 +242,7 @@ class MongoDBManager:
             db = self.get_database()
             if db is None:
                 return False
-            
+
             # Check if user already has an email and if it's within 7 days
             existing_email = db.user_emails.find_one({"user_id": str(user_id)})
             if existing_email:
@@ -252,7 +252,7 @@ class MongoDBManager:
                     time_diff = datetime.utcnow() - last_updated
                     if time_diff.days < 7:
                         return {"success": False, "error": "email_change_restricted", "days_remaining": 7 - time_diff.days}
-            
+
             email_data = {
                 "user_id": str(user_id),
                 "email": email,
@@ -419,9 +419,29 @@ class MongoDBManager:
                 return False
 
             result = db.rate_limits.delete_one({"user_id": str(user_id)})
-            return result.acknowledged
+            return result.deleted_count > 0
         except Exception as e:
             logging.error(f"Error removing rate limit: {e}")
+            return False
+
+    def reset_email_change_limit(self, user_id):
+        """Reset email change limitation for a user, allowing them to change email once"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            # Remove any existing email change restrictions
+            result = db.user_emails.update_one(
+                {"user_id": str(user_id)},
+                {"$unset": {"last_email_change": "", "email_changes_count": ""}},
+                upsert=False
+            )
+
+            logging.info(f"Reset email change limit for user {user_id}")
+            return True
+        except Exception as e:
+            logging.error(f"Error resetting email change limit: {e}")
             return False
 
     # Guild configuration operations

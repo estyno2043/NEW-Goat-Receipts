@@ -479,12 +479,21 @@ class AdminCommands(commands.Cog):
         # Remove rate limit using MongoDB
         from utils.mongodb_manager import mongo_manager
 
-        success = mongo_manager.remove_user_rate_limit(user.id)
+        rate_limit_success = mongo_manager.remove_user_rate_limit(user.id)
+        
+        # Also reset email change limitation
+        email_limit_success = mongo_manager.reset_email_change_limit(user.id)
 
-        if success:
+        if rate_limit_success:
+            description = f"Successfully removed rate limit from {user.mention}.\nThey can now use `/generate` and `/menu` commands normally."
+            if email_limit_success:
+                description += "\nEmail change limitation has also been reset - they can change their email once."
+            else:
+                description += "\nNote: Email limitation reset failed or user had no email restrictions."
+            
             embed = discord.Embed(
-                title="Rate Limit Removed",
-                description=f"Successfully removed rate limit from {user.mention}.\nThey can now use `/generate` and `/menu` commands normally.",
+                title="Limits Removed",
+                description=description,
                 color=discord.Color.green()
             )
         else:
