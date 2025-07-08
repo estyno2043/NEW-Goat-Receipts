@@ -54,7 +54,7 @@ class synaworldmodal(ui.Modal, title="Synaworld Order - Step 1"):
                     else:
                         await button_interaction.response.send_message("This button is not for you!", ephemeral=True)
 
-            await interaction.response.send_message(embed=embed, view=NextStepButton(), ephemeral=True)
+            await interaction.response.send_message(embed=embed, view=NextStepButton(), ephemeral=False)
 
             print()
             print(f"[{Colors.green}Product Info{lg}] Synaworld -> {interaction.user.id} ({interaction.user})" + lg)
@@ -67,7 +67,7 @@ class synaworldmodal(ui.Modal, title="Synaworld Order - Step 1"):
                 description="You don't have a saved license. Please run `/settings` first.",
                 color=0xFF0000
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
 class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
@@ -80,7 +80,7 @@ class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
 
         try:
             embed = discord.Embed(title="Under Process...", description="Processing your receipt...", color=0x1e1f22)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
 
             # Store shipping cost and image link
             shippingcost = self.shippingcost.value
@@ -126,7 +126,7 @@ class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
             # Replace customer information
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
                 html_content = html_content.replace("{name}", name)
