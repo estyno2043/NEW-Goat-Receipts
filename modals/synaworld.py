@@ -50,7 +50,7 @@ class synaworldmodal(ui.Modal, title="Synaworld Order - Step 1"):
                 async def continue_button(self, button_interaction: discord.Interaction, button: discord.ui.Button):
                     if button_interaction.user.id == owner_id:
                         second_modal = synaworldmodal2()
-                        await button_interaction.response.send_modal(second_modal, ephemeral=False)
+                        await button_interaction.response.send_modal(second_modal)
                     else:
                         await button_interaction.response.send_message("This button is not for you!", ephemeral=True)
 
