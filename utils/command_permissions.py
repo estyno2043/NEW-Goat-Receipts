@@ -97,6 +97,60 @@ async def check_permission(interaction: discord.Interaction):
 
     return False
 
+async def check_channel_permission(interaction: discord.Interaction, command_name: str = None):
+    """
+    Check if a command can be used in the current channel for configured guilds.
+    
+    Returns:
+    - True if command can be used in this channel
+    - False if command is restricted to another channel
+    """
+    # Load config
+    with open("config.json", "r") as f:
+        config = json.load(f)
+
+    main_guild_id = config.get("guild_id")
+    owner_id = config.get("owner_id")
+
+    # Always allow bot owner
+    if str(interaction.user.id) == owner_id:
+        return True
+
+    # Check if user is whitelisted
+    from utils.utils import Utils
+    if await Utils.is_whitelisted(interaction.user.id):
+        return True
+
+    if interaction.guild:
+        from utils.mongodb_manager import mongo_manager
+        
+        try:
+            # Check if this guild has configuration
+            guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+            
+            if guild_config:
+                # This is a configured guild, check channel restrictions
+                generate_channel_id = int(guild_config.get("generate_channel_id", 0))
+                
+                # Commands that should be restricted to generate channel in guild servers
+                restricted_commands = ["generate", "menu"]
+                
+                if command_name in restricted_commands:
+                    if interaction.channel_id != generate_channel_id:
+                        return False
+                
+                return True
+            
+            # If this is the main guild, no channel restrictions
+            if str(interaction.guild.id) == main_guild_id:
+                return True
+                
+        except Exception as e:
+            print(f"Error checking channel permissions: {e}")
+            return True
+
+    return True
+
 def admin_only():
     """
     Decorator to make a command visible only to admins and whitelisted users.

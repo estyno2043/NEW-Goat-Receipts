@@ -42,25 +42,25 @@ from utils.mongodb_manager import mongo_manager
 async def process_notifications():
     """Background task to process webhook notifications"""
     await bot.wait_until_ready()
-    
+
     while not bot.is_closed():
         try:
             db = mongo_manager.get_database()
             if db:
                 # Get pending notifications
                 notifications = list(db.notifications.find({"processed": {"$ne": True}}).limit(10))
-                
+
                 for notification in notifications:
                     try:
                         if notification.get("type") == "access_granted":
                             await handle_access_granted_notification(notification)
-                        
+
                         # Mark as processed
                         db.notifications.update_one(
                             {"_id": notification["_id"]},
                             {"$set": {"processed": True, "processed_at": datetime.utcnow()}}
                         )
-                        
+
                     except Exception as e:
                         logging.error(f"Error processing notification {notification.get('_id')}: {e}")
                         # Mark as failed
@@ -68,10 +68,10 @@ async def process_notifications():
                             {"_id": notification["_id"]},
                             {"$set": {"processed": True, "failed": True, "error": str(e)}}
                         )
-            
+
         except Exception as e:
             logging.error(f"Error in notification processor: {e}")
-        
+
         await asyncio.sleep(5)  # Check every 5 seconds
 
 async def handle_access_granted_notification(notification):
@@ -83,7 +83,7 @@ async def handle_access_granted_notification(notification):
         guild_name = notification.get("guild_name", "Unknown Guild")
         access_duration = notification.get("access_duration", 1)
         source = notification.get("source", "invite-tracker")
-        
+
         # Try to get the user
         user = bot.get_user(int(user_id))
         if not user:
@@ -91,10 +91,10 @@ async def handle_access_granted_notification(notification):
                 user = await bot.fetch_user(int(user_id))
             except:
                 user = None
-        
+
         # Try to get the guild
         guild = bot.get_guild(int(guild_id))
-        
+
         # Load config to get main guild ID and purchases channel
         try:
             with open("config.json", "r") as f:
@@ -103,17 +103,17 @@ async def handle_access_granted_notification(notification):
         except Exception as e:
             print(f"Error loading config: {e}")
             main_guild_id = "1339298010169086072"
-        
+
         # Check if this is for the main guild
         is_main_guild = (str(guild_id) == main_guild_id)
-        
+
         # Send notification to the main guild's purchases channel
         try:
             main_guild = bot.get_guild(int(main_guild_id))
             if main_guild:
                 # Use the hardcoded purchases channel ID
                 purchases_channel = main_guild.get_channel(1374468080817803264)
-                
+
                 if purchases_channel:
                     # Create "thank you for purchasing" style notification
                     embed = discord.Embed(
@@ -127,14 +127,14 @@ async def handle_access_granted_notification(notification):
                                   f"- Please consider leaving a review at <#1339306483816337510>",
                         color=discord.Color.green()
                     )
-                    
+
                     await purchases_channel.send(content=f"<@{user_id}>" if user else username, embed=embed)
                     logging.info(f"Sent invite reward notification to purchases channel for user {user_id}")
                 else:
                     logging.warning(f"Purchases channel not found in main guild")
         except Exception as e:
             logging.error(f"Error sending notification to main guild purchases channel: {e}")
-        
+
         # Send DM to user
         if user:
             try:
@@ -154,15 +154,15 @@ async def handle_access_granted_notification(notification):
                     inline=False
                 )
                 embed.set_footer(text="Thank you for your business!")
-                
+
                 await user.send(embed=embed)
                 logging.info(f"Sent thank you DM to user {user_id}")
-                
+
             except discord.Forbidden:
                 logging.warning(f"Could not send DM to user {user_id} - DMs disabled")
             except Exception as e:
                 logging.error(f"Error sending DM to user {user_id}: {e}")
-        
+
         # Also send notification to the target guild if it's not the main guild
         if not is_main_guild and guild:
             try:
@@ -172,7 +172,7 @@ async def handle_access_granted_notification(notification):
                     if any(name in channel.name.lower() for name in ['purchase', 'notification', 'access', 'grant']):
                         purchases_channel = channel
                         break
-                
+
                 if purchases_channel:
                     embed = discord.Embed(
                         title="✅ Access Granted via Invite Tracker",
@@ -190,13 +190,13 @@ async def handle_access_granted_notification(notification):
                         inline=False
                     )
                     embed.set_footer(text=f"Granted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                    
+
                     await purchases_channel.send(embed=embed)
                     logging.info(f"Sent guild notification to {purchases_channel.name}")
-                
+
             except Exception as e:
                 logging.error(f"Error sending guild notification: {e}")
-        
+
     except Exception as e:
         logging.error(f"Error handling access granted notification: {e}")
 
@@ -204,27 +204,27 @@ async def handle_access_granted_notification(notification):
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
-    
+
     # Load commands
     try:
         await bot.load_extension("commands.admin_commands")
         print('Loaded admin commands')
     except Exception as e:
         print(f'Failed to load admin commands: {e}')
-    
+
     try:
         await bot.load_extension("commands.guild_commands")
         print('Loaded guild commands')
     except Exception as e:
         print(f'Failed to load guild commands: {e}')
-    
+
     # Sync commands
     try:
         synced = await bot.tree.sync()
         print(f'Synced {len(synced)} command(s)')
     except Exception as e:
         print(f'Failed to sync commands: {e}')
-    
+
     # Start background tasks
     bot.loop.create_task(process_notifications())
     print("Notification processor started")
@@ -587,14 +587,14 @@ class BrandSelectDropdown(ui.Select):
 
         # Check if user has both credentials and email set up
         has_credentials, has_email = check_user_setup(user_id)
-        
+
         # Also verify the actual data exists
         if not is_main_guild:
             user_details = GuildLicenseChecker.get_user_details_guild(user_id, guild_id)
         else:
             from utils.db_utils import get_user_details
             user_details = get_user_details(user_id)
-        
+
         print(f"Debug - User {user_id}: has_credentials={has_credentials}, has_email={has_email}")
         print(f"Debug - User {user_id}: user_details={user_details}")
 
@@ -1058,7 +1058,7 @@ class MenuView(ui.View):
         self.user_id = user_id
         self.last_interaction = datetime.now()
         self.message = None
-        
+
         # Add link buttons directly in __init__
         help_button = discord.ui.Button(
             label="Help", 
@@ -1070,7 +1070,7 @@ class MenuView(ui.View):
             style=discord.ButtonStyle.link, 
             url="https://discord.com/channels/1339298010169086072/1339306570634236038"
         )
-        
+
         self.add_item(help_button)
         self.add_item(brands_button)
 
@@ -1108,7 +1108,7 @@ class CredentialsDropdownView(ui.View):
                 )
             ]
         )
-        
+
         # Set the callback for the dropdown
         self.dropdown.callback = self.dropdown_callback
         self.add_item(self.dropdown)
@@ -1182,7 +1182,7 @@ class CredentialsDropdownView(ui.View):
             return
 
         choice = self.dropdown.values[0]
-        
+
         if choice == "Custom Info":
             # Show custom info form
             modal = CustomInfoForm()
@@ -1191,13 +1191,13 @@ class CredentialsDropdownView(ui.View):
             # Generate random details
             name, street, city, zip_code, country = generate_random_details()
             user_id = str(interaction.user.id)
-            
+
             # Save random info to MongoDB
             from utils.db_utils import save_user_credentials
             success = save_user_credentials(
                 user_id, name, street, city, zip_code, country, is_random=True
             )
-            
+
             if success:
                 embed = discord.Embed(
                     title="Random Details Generated",
@@ -1219,11 +1219,11 @@ class CredentialsDropdownView(ui.View):
         elif choice == "Clear Info":
             # Clear user's saved information but keep email
             user_id = str(interaction.user.id)
-            
+
             # Clear only user credentials from MongoDB
             from utils.mongodb_manager import mongo_manager
             success = mongo_manager.clear_user_credentials_only(user_id)
-            
+
             if success:
                 embed = discord.Embed(
                     title="Information Cleared",
@@ -1231,16 +1231,16 @@ class CredentialsDropdownView(ui.View):
                     color=discord.Color.from_str("#c2ccf8")
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
-                
+
                 # Update the credentials panel in real-time
                 try:
                     # Get the original message that showed the credentials panel
                     original_message = interaction.message
-                    
+
                     if original_message:
                         # Create updated credentials panel with refreshed data
                         has_credentials, has_email = check_user_setup(user_id)
-                        
+
                         # Create updated credentials panel
                         updated_embed = discord.Embed(
                             title="Credentials",
@@ -1251,13 +1251,13 @@ class CredentialsDropdownView(ui.View):
                                         f"{'True' if has_email else 'False'}",
                             color=discord.Color.from_str("#c2ccf8")
                         )
-                        
+
                         # Update the original credentials panel
                         await original_message.edit(embed=updated_embed)
                         print(f"Successfully updated credentials panel for user {user_id}")
                     else:
                         print(f"Could not find original message to update for user {user_id}")
-                        
+
                 except Exception as e:
                     print(f"Failed to update credentials panel in real-time: {e}")
             else:
@@ -1318,7 +1318,7 @@ async def on_message(message):
                         cursor.execute("SELECT image_channel_id FROM guild_configs WHERE guild_id = ?", (guild_id,))
                         result = cursor.fetchone()
                         conn.close()
-                        
+
                         if result and str(channel_id) == str(result[0]):
                             image_channel_found = True
                             print(f"Found SQLite image channel config for guild {guild_id}, channel {channel_id}")
@@ -1346,7 +1346,7 @@ async def generate_command(interaction: discord.Interaction):
     # Check if user is rate limited
     from utils.mongodb_manager import mongo_manager
     is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
-    
+
     if is_limited:
         await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
         return
@@ -1458,7 +1458,7 @@ async def generate_command(interaction: discord.Interaction):
             # Check database using GuildLicenseChecker
             has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
             print(f"Database access check for {user_id} in {guild_id}: has_access={has_access}, info={access_info}")
-            
+
             # If user has admin or client role, they have access regardless of database status
             if has_admin_role or has_client_role:
                 has_access = True
@@ -2080,23 +2080,45 @@ async def keygen_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="menu", description="Open the GOAT Receipts menu")
 async def menu_command(interaction: discord.Interaction):
-    # Check if command is used in the allowed channel
-    allowed_channel_id = 1374468007472009216
-    if interaction.channel_id != allowed_channel_id:
+    user_id = str(interaction.user.id)
+
+    # Check if user has a valid license
+    from utils.license_manager import LicenseManager
+
+    if not await LicenseManager.is_subscription_active(interaction.user.id):
         embed = discord.Embed(
-            title="Command Restricted",
-            description=f"This command can only be used in <#{allowed_channel_id}>",
+            title="Invalid License",
+            description="Please use `/redeem` to activate your license first.",
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
+            return
 
-    user_id = str(interaction.user.id)
+        # Check channel permissions for guild servers
+        from utils.command_permissions import check_channel_permission
+
+        if not await check_channel_permission(interaction, "menu"):
+            # Get the correct channel ID to show in error message
+            try:
+                from utils.mongodb_manager import mongo_manager
+                guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+
+                if guild_config:
+                    generate_channel_id = int(guild_config.get("generate_channel_id", 0))
+                    embed = discord.Embed(
+                        title="Command Restricted",
+                        description=f"This command can only be used in <#{generate_channel_id}>",
+                        color=discord.Color.red()
+                    )
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except Exception:
+                pass
 
     # Check if user is rate limited
     from utils.mongodb_manager import mongo_manager
     is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
-    
+
     if is_limited:
         await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
         return
@@ -2208,7 +2230,7 @@ async def load_extensions():
         print("Loaded admin commands")
     except Exception as e:
         print(f"Failed to load admin commands: {e}")
-    
+
     try:
         await bot.load_extension('commands.guild_commands')
         print("Loaded guild commands")
@@ -2224,7 +2246,7 @@ async def on_ready():
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
-    
+
     # Start the license checker background task
     try:
         from utils.license_manager import LicenseManager
