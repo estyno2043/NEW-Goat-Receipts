@@ -152,7 +152,7 @@ class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
                 color=0x1e1f22
             )
             view = choiseView(owner_id, html_content, sender_email, subject, productname, imageurl, link)
-            await interaction.edit_original_response(embed=embed, view=view, ephemeral=True)
+            await interaction.edit_original_response(embed=embed, view=view)
 
         except Exception as e:
             embed = discord.Embed(
