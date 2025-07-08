@@ -2092,28 +2092,28 @@ async def menu_command(interaction: discord.Interaction):
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+        return
 
-        # Check channel permissions for guild servers
-        from utils.command_permissions import check_channel_permission
+    # Check channel permissions for guild servers
+    from utils.command_permissions import check_channel_permission
 
-        if not await check_channel_permission(interaction, "menu"):
-            # Get the correct channel ID to show in error message
-            try:
-                from utils.mongodb_manager import mongo_manager
-                guild_config = mongo_manager.get_guild_config(interaction.guild.id)
+    if not await check_channel_permission(interaction, "menu"):
+        # Get the correct channel ID to show in error message
+        try:
+            from utils.mongodb_manager import mongo_manager
+            guild_config = mongo_manager.get_guild_config(interaction.guild.id)
 
-                if guild_config:
-                    generate_channel_id = int(guild_config.get("generate_channel_id", 0))
-                    embed = discord.Embed(
-                        title="Command Restricted",
-                        description=f"This command can only be used in <#{generate_channel_id}>",
-                        color=discord.Color.red()
-                    )
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except Exception:
-                pass
+            if guild_config:
+                generate_channel_id = int(guild_config.get("generate_channel_id", 0))
+                embed = discord.Embed(
+                    title="Command Restricted",
+                    description=f"This command can only be used in <#{generate_channel_id}>",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+        except Exception:
+            pass
 
     # Check if user is rate limited
     from utils.mongodb_manager import mongo_manager
