@@ -59,7 +59,7 @@ class suprememodal2(ui.Modal, title="Supreme Receipt"):
 
         try:
             embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
-            await interaction.response.edit_message(embed=embed, view=None, ephemeral=True)
+            await interaction.response.edit_message(embed=embed, view=None)
 
             with open("receipt/supreme.html", "r", encoding="utf-8") as file:
                 html_content = file.read()
@@ -105,8 +105,8 @@ class suprememodal2(ui.Modal, title="Supreme Receipt"):
 
             embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
             view = choiseView(owner_id, html_content, sender_email, subject, productname, "", "")
-            await interaction.edit_original_response(embed=embed, view=view, ephemeral=True)
+            await interaction.edit_original_response(embed=embed, view=view)
 
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-            await interaction.edit_original_response(embed=embed, ephemeral=True)
+            await interaction.edit_original_response(embed=embed)
