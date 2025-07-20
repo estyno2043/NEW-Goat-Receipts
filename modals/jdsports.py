@@ -48,10 +48,8 @@ lg = Colors.light_gray
 
 
 def is_jd_link(link):
-    # Accept JD Sports links from various countries
-    jd_pattern = re.compile(r'^https?://(www\.)?jdsports\.(co\.uk|com|de|fr|es|it|nl|be|ie|dk|se|no|fi|au|my|sg)(/.*)?$')
-
-    return bool(jd_pattern.match(link))
+    # Accept all valid URLs
+    return True
 
 
 class jdsportsmodal(ui.Modal, title="discord.gg/goatreceipt"):
