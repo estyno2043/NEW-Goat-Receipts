@@ -38,6 +38,10 @@ except Exception as e:
 # Setup MongoDB connection
 from utils.mongodb_manager import mongo_manager
 
+# Initialize message filter
+from utils.message_filter import MessageFilter
+message_filter = None
+
 # Background task to process notifications
 async def process_notifications():
     """Background task to process webhook notifications"""
@@ -203,7 +207,12 @@ async def handle_access_granted_notification(notification):
 # Start notification processor
 @bot.event
 async def on_ready():
+    global message_filter
     print(f'{bot.user} has connected to Discord!')
+
+    # Initialize message filter
+    message_filter = MessageFilter(bot)
+    print("Message filter initialized")
 
     # Load commands
     try:
@@ -1273,6 +1282,16 @@ async def on_message(message):
     # Ignore messages from the bot itself
     if message.author == bot.user:
         return
+
+    # Apply message filter first
+    if message_filter:
+        try:
+            was_filtered = await message_filter.check_message(message)
+            if was_filtered:
+                # Message was deleted by filter, don't process further
+                return
+        except Exception as e:
+            print(f"Error in message filter: {e}")
 
     # Check if message is in a guild-specific image channel
     if message.guild and message.attachments:
