@@ -113,17 +113,36 @@ class jdsportsmodal(ui.Modal, title="discord.gg/goatreceipt"):
                     print(f"[{Colors.green}START Scraping{lg}] JD SPORTS -> {interaction.user.id} ({interaction.user})" + lg)
 
 
-                    product_name_element = soup.find('h1', {'itemprop': 'name'})
-                    if product_name_element:
-                        product_name = product_name_element.text.strip()
-                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                    try:
+                        product_name_element = soup.find('h1', {'itemprop': 'name'})
+                        if product_name_element:
+                            product_name = product_name_element.text.strip()
+                            print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                        else:
+                            product_name = "JD Sports Product"
+                            print(f"    [{Colors.yellow}Warning{lg}] Could not find product name, using default" + lg)
+                    except Exception as name_error:
+                        product_name = "JD Sports Product"
+                        print(f"    [{Colors.yellow}Warning{lg}] Product name scraping failed: {str(name_error)}, using default" + lg)
 
 
 
-                    first_img_element = soup.find('li', {'class': 'tap-zoom'}).find('img')
-                    if first_img_element:
-                        first_img_link = first_img_element['src']
-                        print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {first_img_link}" + lg)
+                    try:
+                        first_img_element = soup.find('li', {'class': 'tap-zoom'})
+                        if first_img_element:
+                            img_tag = first_img_element.find('img')
+                            if img_tag and 'src' in img_tag.attrs:
+                                first_img_link = img_tag['src']
+                                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {first_img_link}" + lg)
+                            else:
+                                first_img_link = "https://via.placeholder.com/300x300?text=JD+Sports"
+                                print(f"    [{Colors.yellow}Warning{lg}] Could not find image src, using placeholder" + lg)
+                        else:
+                            first_img_link = "https://via.placeholder.com/300x300?text=JD+Sports"
+                            print(f"    [{Colors.yellow}Warning{lg}] Could not find tap-zoom element, using placeholder" + lg)
+                    except Exception as img_error:
+                        first_img_link = "https://via.placeholder.com/300x300?text=JD+Sports"
+                        print(f"    [{Colors.yellow}Warning{lg}] Image scraping failed: {str(img_error)}, using placeholder" + lg)
 
                     print(f"[{Colors.green}Scraping DONE{lg}] JD SPORTS -> {interaction.user.id}" + lg)
                     print()
