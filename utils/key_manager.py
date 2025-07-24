@@ -6,11 +6,20 @@ import string
 import sqlite3
 from datetime import datetime, timedelta
 import logging
+import requests
 
 class KeyManager:
     def __init__(self):
         self.valid_keys_file = 'data/valid_keys.json'
         self.used_keys_file = 'data/used_keys.json'
+        # Load Gumroad access token from config
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                self.gumroad_access_token = config.get("gumroad_access_token", "zy0rmCAkk8sOsCdUkdKdbWSFVXxegwxNiYPVZcdIROg")
+        except Exception as e:
+            logging.error(f"Error loading config: {str(e)}")
+            self.gumroad_access_token = "zy0rmCAkk8sOsCdUkdKdbWSFVXxegwxNiYPVZcdIROg"
 
         # Create data directory if it doesn't exist
         os.makedirs('data', exist_ok=True)
@@ -77,31 +86,50 @@ class KeyManager:
         return keys
 
     def redeem_key(self, key, user_id):
-        """Redeem a license key and return subscription details if valid"""
-        valid_keys = self._load_keys(self.valid_keys_file)
-        used_keys = self._load_keys(self.used_keys_file)
+        """Redeem a license key using Gumroad API verification"""
+        try:
+            # First check if key was already used locally
+            used_keys = self._load_keys(self.used_keys_file)
+            if key in used_keys:
+                return {
+                    "success": False,
+                    "error": "already_used",
+                    "redeemed_by": used_keys[key].get("redeemed_by", "Unknown"),
+                    "redeemed_at": used_keys[key].get("redeemed_at", "Unknown")
+                }
 
-        # Check if key exists in valid keys
-        if key in valid_keys:
-            subscription_info = valid_keys[key]
+            # Verify key with Gumroad API
+            verification_result = self._verify_gumroad_key(key)
+            
+            if not verification_result["success"]:
+                return {
+                    "success": False,
+                    "error": "invalid_key"
+                }
 
-            # Move key from valid to used keys
+            # Determine subscription type from product name
+            product_name = verification_result.get("product_name", "").lower()
+            subscription_type = self._determine_subscription_type(product_name)
+            
+            if not subscription_type:
+                return {
+                    "success": False,
+                    "error": "unknown_product"
+                }
+
+            # Mark key as used locally
             used_keys[key] = {
-                **subscription_info,
+                "subscription_type": subscription_type,
                 "redeemed_by": str(user_id),
                 "redeemed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "redeemed": True
+                "redeemed": True,
+                "product_name": verification_result.get("product_name", "Unknown Product"),
+                "gumroad_verified": True
             }
-
-            # Remove from valid keys
-            del valid_keys[key]
-
-            # Save changes
-            self._save_keys(self.valid_keys_file, valid_keys)
+            
             self._save_keys(self.used_keys_file, used_keys)
 
             # Calculate expiry date based on subscription type
-            subscription_type = subscription_info["subscription_type"]
             expiry_date = self._calculate_expiry(subscription_type)
 
             return {
@@ -110,19 +138,11 @@ class KeyManager:
                 "expiry_date": expiry_date.strftime('%d/%m/%Y %H:%M:%S')
             }
 
-        # Check if key was already used
-        elif key in used_keys:
+        except Exception as e:
+            logging.error(f"Error redeeming Gumroad key: {str(e)}")
             return {
                 "success": False,
-                "error": "already_used",
-                "redeemed_by": used_keys[key].get("redeemed_by", "Unknown"),
-                "redeemed_at": used_keys[key].get("redeemed_at", "Unknown")
-            }
-
-        else:
-            return {
-                "success": False,
-                "error": "invalid_key"
+                "error": "verification_failed"
             }
 
     def _generate_unique_key(self, existing_keys, length=16):
@@ -168,3 +188,91 @@ class KeyManager:
         else:
             # Default to 1 day
             return now + timedelta(days=1)
+
+
+    def _verify_gumroad_key(self, license_key):
+        """Verify license key with Gumroad API"""
+        try:
+            # Get all products first to find the correct product_id
+            products = self._get_gumroad_products()
+            
+            for product in products:
+                product_id = product.get("id")
+                if not product_id:
+                    continue
+                
+                # Try to verify the key with this product
+                url = "https://api.gumroad.com/v2/licenses/verify"
+                headers = {
+                    "Authorization": f"Bearer {self.gumroad_access_token}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+                
+                data = {
+                    "product_id": product_id,
+                    "license_key": license_key,
+                    "increment_uses_count": "true"
+                }
+                
+                response = requests.post(url, headers=headers, data=data)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("success", False):
+                        return {
+                            "success": True,
+                            "product_name": product.get("name", "Unknown Product"),
+                            "product_id": product_id,
+                            "license_data": result
+                        }
+            
+            # If no product matched, the key is invalid
+            return {"success": False, "error": "invalid_key"}
+            
+        except Exception as e:
+            logging.error(f"Error verifying Gumroad key: {str(e)}")
+            return {"success": False, "error": "api_error"}
+
+    def _get_gumroad_products(self):
+        """Get all products from Gumroad"""
+        try:
+            url = "https://api.gumroad.com/v2/products"
+            headers = {
+                "Authorization": f"Bearer {self.gumroad_access_token}"
+            }
+            
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                result = response.json()
+                return result.get("products", [])
+            else:
+                logging.error(f"Failed to get Gumroad products: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            logging.error(f"Error getting Gumroad products: {str(e)}")
+            return []
+
+    def _determine_subscription_type(self, product_name):
+        """Determine subscription type from product name"""
+        product_name = product_name.lower()
+        
+        # Map product names to subscription types
+        if "3 day" in product_name or "3day" in product_name or "3-day" in product_name:
+            return "3day"
+        elif "14 day" in product_name or "14day" in product_name or "14-day" in product_name or "2 week" in product_name:
+            return "14day"
+        elif "1 month" in product_name or "1month" in product_name or "1-month" in product_name or "30 day" in product_name:
+            return "1month"
+        elif "lifetime" in product_name or "permanent" in product_name or "forever" in product_name:
+            return "lifetime"
+        elif "1 day" in product_name or "1day" in product_name or "1-day" in product_name:
+            return "1day"
+        else:
+            # Default fallback - try to extract from common patterns
+            if "day" in product_name:
+                return "3day"  # Default to 3 days for day-based plans
+            elif "month" in product_name:
+                return "1month"  # Default to 1 month for month-based plans
+            else:
+                return None  # Unknown product type

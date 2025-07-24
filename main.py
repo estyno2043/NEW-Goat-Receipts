@@ -1711,10 +1711,10 @@ async def generate_command(interaction: discord.Interaction):
 class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
     license_key = ui.TextInput(
         label="License Key",
-        placeholder="Enter your unique license key",
+        placeholder="Enter your Gumroad license key (e.g., 6F0E4C97-B72A4E69-A11BF6C4-AF6517E7)",
         required=True,
-        min_length=16,
-        max_length=16
+        min_length=30,
+        max_length=50
     )
 
     def __init__(self):
@@ -1918,6 +1918,18 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                 embed = discord.Embed(
                     title="Key Already Used",
                     description="This license key has already been redeemed.",
+                    color=discord.Color.red()
+                )
+            elif result["error"] == "verification_failed":
+                embed = discord.Embed(
+                    title="Verification Failed",
+                    description="Unable to verify the license key with Gumroad. Please try again later or contact support.",
+                    color=discord.Color.red()
+                )
+            elif result["error"] == "unknown_product":
+                embed = discord.Embed(
+                    title="Unknown Product",
+                    description="The license key is valid but the product type could not be determined. Please contact support.",
                     color=discord.Color.red()
                 )
             else:
