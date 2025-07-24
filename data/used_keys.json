@@ -152,5 +152,21 @@
         "redeemed": true,
         "redeemed_by": "756221546439245844",
         "redeemed_at": "2025-07-08 16:12:10"
+    },
+    "22079E75-55D0407D-B55A3345-E2C72590": {
+        "subscription_type": "3day",
+        "redeemed_by": "1339295766828552365",
+        "redeemed_at": "2025-07-24 12:05:05",
+        "redeemed": true,
+        "product_name": "GOAT Receipts 3 day Plan",
+        "gumroad_verified": true
+    },
+    "BF0F7AFA-3FF243C5-BE5182E4-27711241": {
+        "subscription_type": "1month",
+        "redeemed_by": "1339295766828552365",
+        "redeemed_at": "2025-07-24 12:17:24",
+        "redeemed": true,
+        "product_name": "GOAT 1-month subscription",
+        "gumroad_verified": true
     }
 }
