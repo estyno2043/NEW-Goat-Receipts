@@ -12,14 +12,24 @@ class KeyManager:
     def __init__(self):
         self.valid_keys_file = 'data/valid_keys.json'
         self.used_keys_file = 'data/used_keys.json'
-        # Load Gumroad access token from config
-        try:
-            with open("config.json", "r") as f:
-                config = json.load(f)
-                self.gumroad_access_token = config.get("gumroad_access_token", "zy0rmCAkk8sOsCdUkdKdbWSFVXxegwxNiYPVZcdIROg")
-        except Exception as e:
-            logging.error(f"Error loading config: {str(e)}")
-            self.gumroad_access_token = "zy0rmCAkk8sOsCdUkdKdbWSFVXxegwxNiYPVZcdIROg"
+        # Load Gumroad access token from environment variables (Replit Secrets)
+        import os
+        self.gumroad_access_token = os.getenv("GUMROAD_ACCESS_TOKEN")
+        
+        if not self.gumroad_access_token:
+            logging.error("GUMROAD_ACCESS_TOKEN not found in environment variables")
+            # Fallback to config.json for backward compatibility
+            try:
+                with open("config.json", "r") as f:
+                    config = json.load(f)
+                    self.gumroad_access_token = config.get("gumroad_access_token")
+                    if self.gumroad_access_token:
+                        logging.warning("Using Gumroad token from config.json - consider moving to Secrets")
+            except Exception as e:
+                logging.error(f"Error loading config: {str(e)}")
+            
+            if not self.gumroad_access_token:
+                logging.error("No Gumroad access token found in environment variables or config.json")
 
         # Create data directory if it doesn't exist
         os.makedirs('data', exist_ok=True)
