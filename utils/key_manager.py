@@ -100,7 +100,7 @@ class KeyManager:
 
             # Verify key with Gumroad API
             verification_result = self._verify_gumroad_key(key)
-            
+
             if not verification_result["success"]:
                 return {
                     "success": False,
@@ -110,7 +110,7 @@ class KeyManager:
             # Determine subscription type from product name
             product_name = verification_result.get("product_name", "").lower()
             subscription_type = self._determine_subscription_type(product_name)
-            
+
             if not subscription_type:
                 return {
                     "success": False,
@@ -126,7 +126,7 @@ class KeyManager:
                 "product_name": verification_result.get("product_name", "Unknown Product"),
                 "gumroad_verified": True
             }
-            
+
             self._save_keys(self.used_keys_file, used_keys)
 
             # Calculate expiry date based on subscription type
@@ -195,27 +195,27 @@ class KeyManager:
         try:
             # Get all products first to find the correct product_id
             products = self._get_gumroad_products()
-            
+
             for product in products:
                 product_id = product.get("id")
                 if not product_id:
                     continue
-                
+
                 # Try to verify the key with this product
                 url = "https://api.gumroad.com/v2/licenses/verify"
                 headers = {
                     "Authorization": f"Bearer {self.gumroad_access_token}",
                     "Content-Type": "application/x-www-form-urlencoded"
                 }
-                
+
                 data = {
                     "product_id": product_id,
                     "license_key": license_key,
                     "increment_uses_count": "true"
                 }
-                
+
                 response = requests.post(url, headers=headers, data=data)
-                
+
                 if response.status_code == 200:
                     result = response.json()
                     if result.get("success", False):
@@ -225,10 +225,10 @@ class KeyManager:
                             "product_id": product_id,
                             "license_data": result
                         }
-            
+
             # If no product matched, the key is invalid
             return {"success": False, "error": "invalid_key"}
-            
+
         except Exception as e:
             logging.error(f"Error verifying Gumroad key: {str(e)}")
             return {"success": False, "error": "api_error"}
@@ -240,7 +240,7 @@ class KeyManager:
             headers = {
                 "Authorization": f"Bearer {self.gumroad_access_token}"
             }
-            
+
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 result = response.json()
@@ -248,7 +248,7 @@ class KeyManager:
             else:
                 logging.error(f"Failed to get Gumroad products: {response.status_code}")
                 return []
-                
+
         except Exception as e:
             logging.error(f"Error getting Gumroad products: {str(e)}")
             return []
@@ -256,7 +256,7 @@ class KeyManager:
     def _determine_subscription_type(self, product_name):
         """Determine subscription type from product name"""
         product_name = product_name.lower()
-        
+
         # Map product names to subscription types
         if "3 day" in product_name or "3day" in product_name or "3-day" in product_name:
             return "3day"
@@ -276,3 +276,44 @@ class KeyManager:
                 return "1month"  # Default to 1 month for month-based plans
             else:
                 return None  # Unknown product type
+
+    def _migrate_used_keys_to_mongo(self):
+        """Migrate existing used keys from local file to MongoDB"""
+        try:
+            # Check if local used keys file exists
+            if not os.path.exists(self.used_keys_file):
+                return
+
+            used_keys = self._load_keys(self.used_keys_file)
+            if not used_keys:
+                return
+
+            from utils.mongodb_manager import mongo_manager
+            db = mongo_manager.get_database()
+            if db is None:
+                return
+
+            migrated_count = 0
+            for key, key_data in used_keys.items():
+                # Check if key already exists in MongoDB
+                if not self._is_key_used_in_mongo(key):
+                    # Add the key field to the data
+                    key_data["key"] = key
+                    key_data["created_at"] = datetime.utcnow()
+
+                    try:
+                        db.used_keys.insert_one(key_data)
+                        migrated_count += 1
+                    except Exception as e:
+                        logging.error(f"Error migrating key {key}: {str(e)}")
+
+            if migrated_count > 0:
+                logging.info(f"Successfully migrated {migrated_count} used keys to MongoDB")
+
+                # Optionally backup and clear local file after successful migration
+                backup_file = f"{self.used_keys_file}.backup"
+                os.rename(self.used_keys_file, backup_file)
+                logging.info(f"Local used keys file backed up to {backup_file}")
+
+        except Exception as e:
+            logging.error(f"Error during used keys migration: {str(e)}")

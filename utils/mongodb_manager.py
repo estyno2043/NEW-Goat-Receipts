@@ -72,6 +72,8 @@ class MongoDBManager:
             self._db.guild_user_credentials.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
             self._db.guild_user_emails.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
             self._db.server_access.create_index([("guild_id", 1), ("user_id", 1)], unique=True)
+            # Used keys index
+            self._db.used_keys.create_index("key", unique=True)
             logging.info("MongoDB indexes created successfully")
         except Exception as e:
             logging.warning(f"Error creating indexes: {e}")
