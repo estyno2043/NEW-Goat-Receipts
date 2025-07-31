@@ -284,22 +284,32 @@ class choiseView(discord.ui.View):
 
             if user_email:
                 # Send normal email
-                await SendNormal.send_email(user_email, self.receipt_html, self.sender_email, self.subject)
+                result = await SendNormal.send_email(user_email, self.receipt_html, self.sender_email, self.subject)
 
-                # Update original message with success embed
-                embed = discord.Embed(
-                    title="Email Sent", 
-                    description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
-                    color=0x2ecc71
-                )
-                if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
-                    try:
-                        embed.set_thumbnail(url=self.image_url)
-                    except Exception as img_error:
-                        print(f"Error setting success thumbnail: {str(img_error)}")
-                        # Continue without the thumbnail if there's an error
+                # Check if email was sent successfully
+                if "successfully" in result.lower():
+                    # Update original message with success embed
+                    embed = discord.Embed(
+                        title="Email Sent", 
+                        description=f"{interaction.user.mention}, kindly check your Inbox/Spam folder\n-# » {self.item_desc}", 
+                        color=0x2ecc71
+                    )
+                    if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
+                        try:
+                            embed.set_thumbnail(url=self.image_url)
+                        except Exception as img_error:
+                            print(f"Error setting success thumbnail: {str(img_error)}")
+                            # Continue without the thumbnail if there's an error
 
-                await interaction.edit_original_response(embed=embed, view=None)
+                    await interaction.edit_original_response(embed=embed, view=None)
+                else:
+                    # Show error message
+                    error_embed = discord.Embed(
+                        title="Email Failed", 
+                        description=f"Failed to send email: {result}", 
+                        color=0xe74c3c
+                    )
+                    await interaction.edit_original_response(embed=error_embed, view=None)
 
                 # Add receipt after successful email sending
                 #rate_limiter.add_receipt(self.owner_id) # Removed rate limiter
