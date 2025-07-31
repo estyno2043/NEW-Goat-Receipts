@@ -9,8 +9,8 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
     """Send an email with normal delivery method"""
     try:
         # Default email for most brands
-        gmail_user = "ord3rnotification@gmail.com"
-        gmail_app_password = "fony ponb naxr nlaj"
+        gmail_user = "goatreceiptss@gmail.com"
+        gmail_app_password = "wvgf ehnr cyek dvun"
 
         # Specific email addresses for certain brands
         if "apple" in sender_email.lower():
