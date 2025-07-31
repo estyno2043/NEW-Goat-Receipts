@@ -5,6 +5,30 @@ from email.mime.multipart import MIMEMultipart
 import discord
 import sqlite3
 
+def format_sender_display_name(sender_email):
+    """Format sender email to show brand name properly"""
+    if '<' in sender_email and '>' in sender_email:
+        # Already properly formatted like "Brand Name <email@domain.com>"
+        return sender_email
+    
+    # Extract domain and create display name
+    if '@' in sender_email:
+        domain = sender_email.split('@')[1]
+        if domain == 'amazon.com':
+            return f"Amazon.com <{sender_email}>"
+        elif domain == 'apple.com':
+            return f"Apple <{sender_email}>"
+        elif domain == 'stockx.com':
+            return f"StockX <{sender_email}>"
+        elif domain == 'nike.com':
+            return f"Nike <{sender_email}>"
+        else:
+            # Capitalize first letter of domain for generic cases
+            brand_name = domain.split('.')[0].capitalize()
+            return f"{brand_name} <{sender_email}>"
+    
+    return sender_email
+
 async def send_email_normal(recipient_email, html_content, sender_email, subject):
     """Send an email with normal delivery method"""
     try:
@@ -26,14 +50,20 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
         print(f"Attempting to send email from {gmail_user} to {recipient_email}")
         print(f"Subject: {subject}")
 
+        # Format sender email to show brand name properly
+        formatted_sender = format_sender_display_name(sender_email)
+        
         # Create message
         message = MIMEMultipart()
-        message['From'] = sender_email
+        message['From'] = formatted_sender
         message['To'] = recipient_email
         message['Subject'] = subject
 
         # Add Reply-To header to improve deliverability
         message['Reply-To'] = gmail_user
+        
+        # Set the Sender header to the actual Gmail account for authentication
+        message['Sender'] = gmail_user
 
         # Add additional headers to reduce spam probability
         message['X-Priority'] = '1'
