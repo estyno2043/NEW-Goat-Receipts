@@ -1312,7 +1312,7 @@ async def on_message(message):
             image_channel_found = False
 
             # Special hardcoded configuration for main guild
-            if guild_id == main_guild_id and channel_id == 1375843777406570516:
+            if guild_id == main_guild_id and channel_id == 1350414860508463204:
                 image_channel_found = True
                 print(f"Using hardcoded main guild image channel config: {channel_id}")
             else:
@@ -1812,7 +1812,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                                        f"**Subscription Type**\n"
                                        f"`Guild`\n\n"
                                        f"**Consider leaving a review !**\n"
-                                       f"Please consider leaving a review at <#1339306483816337510>",
+                                       f"Please consider leaving a review at <#1350413086074474558>",
                             color=discord.Color.green()
                         )
 
