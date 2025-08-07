@@ -128,7 +128,7 @@ async def handle_access_granted_notification(notification):
                                   f"`{access_duration} Day{'s' if access_duration != 1 else ''} (Invite Reward)`\n\n"
                                   f"**Server Access**\n"
                                   f"`{guild_name}`\n\n"
-                                  f"- Please consider leaving a review at <#1339306483816337510>",
+                                  f"- Please consider leaving a review at <#1350413086074474558>",
                         color=discord.Color.green()
                     )
 
@@ -1878,7 +1878,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                                       f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
                                       f"**Subscription Type**\n"
                                       f"`{display_type}`\n\n"
-                                      f"- Please consider leaving a review at ⁠<#1339306483816337510>",
+                                      f"- Please consider leaving a review at <#1350413086074474558>",
                             color=discord.Color.green()
                         )
 

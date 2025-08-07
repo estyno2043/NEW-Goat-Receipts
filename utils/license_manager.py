@@ -173,7 +173,7 @@ class LicenseManager:
                             # Create purchases channel embed
                             purchases_embed = discord.Embed(
                                 title="Subscription Expired",
-                                description=f"<@{user_id}>, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                                description=f"<@{user_id}>, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1350413086074474558>",
                                 color=discord.Color.default()
                             )
 
