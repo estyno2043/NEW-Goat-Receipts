@@ -758,7 +758,7 @@ class AdminCommands(commands.Cog):
         try:
             embed = discord.Embed(
                 title="🎉 Lite Subscription Complete!",
-                description=f"You have successfully used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at goatreceipts.com",
+                description=f"You have successfully used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
                 color=discord.Color.green()
             )
             await user.send(embed=embed)

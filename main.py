@@ -968,7 +968,7 @@ class BrandSelectView(ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
-# Menu view for the main menu
+# View for the main menu
 class MenuView(ui.View):
 
     async def interaction_check(self, interaction):
@@ -1810,7 +1810,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             key_prefix = subscription_type
             license_key = f"{key_prefix}-{user_id}"
 
-            # Check if this is a guild subscription
+            # Check if this is a guild key
             is_guild_key = subscription_type.startswith("guild_")
 
             if is_guild_key:
@@ -2163,7 +2163,7 @@ async def redeem_command(interaction: discord.Interaction):
     # Send the public panel message
     embed = discord.Embed(
         title="Redeem License Key",
-        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1350417131644125226> and open ticket describing your issue!",
+        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1350413411455995904> and open ticket describing your issue!",
         color=discord.Color.green()
     )
 
