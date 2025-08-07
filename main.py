@@ -1610,7 +1610,6 @@ async def generate_command(interaction: discord.Interaction):
                 view.message = message
             except Exception as e:
                 print(f"Failed to get message reference: {e}")
-            return
     else:
         # In main guild, check license normally
         try:
@@ -1803,7 +1802,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Notification message for guild subscription
                 try:
-                    purchases_channel = interaction.client.get_channel(1350413411455995904)
+                    purchases_channel = interaction.client.get_channel(1402938227962417222)
                     if purchases_channel:
                         # Create guild subscription notification
                         guild_embed = discord.Embed(

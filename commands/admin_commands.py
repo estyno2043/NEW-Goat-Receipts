@@ -128,7 +128,7 @@ class SubscriptionOption(discord.ui.Select):
 
         # Send purchase notification to Purchases channel (like key redemption)
         try:
-            purchases_channel = interaction.client.get_channel(1374468080817803264)
+            purchases_channel = interaction.client.get_channel(1402938227962417222)
             if purchases_channel:
                 # Create notification embed
                 notification_embed = discord.Embed(
@@ -367,7 +367,7 @@ class AdminPanelView(discord.ui.View):
 
             # Send notification to Purchases channel
             try:
-                purchases_channel = interaction.client.get_channel(1374468080817803264)
+                purchases_channel = interaction.client.get_channel(1402938227962417222)
                 if purchases_channel:
                     await purchases_channel.send(content=self.user.mention, embed=purchases_embed, view=purchases_view)
                     logging.info(f"Sent expiration notification to purchases channel for {self.user.name}")
@@ -480,7 +480,7 @@ class AdminCommands(commands.Cog):
         from utils.mongodb_manager import mongo_manager
 
         rate_limit_success = mongo_manager.remove_user_rate_limit(user.id)
-        
+
         # Also reset email change limitation
         email_limit_success = mongo_manager.reset_email_change_limit(user.id)
 
@@ -490,7 +490,7 @@ class AdminCommands(commands.Cog):
                 description += "\nEmail change limitation has also been reset - they can change their email once."
             else:
                 description += "\nNote: Email limitation reset failed or user had no email restrictions."
-            
+
             embed = discord.Embed(
                 title="Limits Removed",
                 description=description,
@@ -739,11 +739,11 @@ async def check_license_command(ctx, user: discord.Member = None):
         title=f"License Status for {user.display_name}",
         color=discord.Color.green() if license_status else discord.Color.red()
     )
-    
+
     embed.add_field(
-        name="Status", 
-        value="Active" if license_status else "Inactive/Expired", 
+        name="Status",
+        value="Active" if license_status else "Inactive/Expired",
         inline=False
     )
-    
+
     await ctx.send(embed=embed)
