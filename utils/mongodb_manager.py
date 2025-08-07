@@ -207,6 +207,22 @@ class MongoDBManager:
             logging.error(f"Error getting receipt usage: {str(e)}")
             return None
 
+    def update_lite_receipt_count(self, user_id, receipt_count):
+        """Update receipt count for lite subscription users"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            result = db.licenses.update_one(
+                {"owner_id": str(user_id)},
+                {"$set": {"receipt_count": receipt_count}}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            logging.error(f"Error updating lite receipt count: {str(e)}")
+            return False
+
     # User credentials operations
     def get_user_credentials(self, user_id):
         """Get user credentials"""
