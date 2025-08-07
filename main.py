@@ -103,10 +103,10 @@ async def handle_access_granted_notification(notification):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1339298010169086072")
+                main_guild_id = config.get("guild_id", "1340782147799089327")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1339298010169086072"
+            main_guild_id = "1340782147799089327"
 
         # Check if this is for the main guild
         is_main_guild = (str(guild_id) == main_guild_id)
@@ -123,7 +123,7 @@ async def handle_access_granted_notification(notification):
                     embed = discord.Embed(
                         title="Thank you for purchasing",
                         description=f"{f'<@{user_id}>' if user else username}, your subscription has been updated. Check below\n"
-                                  f"-# Run command /generate in <#1374468007472009216> to continue\n\n"
+                                  f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
                                   f"**Subscription Type**\n"
                                   f"`{access_duration} Day{'s' if access_duration != 1 else ''} (Invite Reward)`\n\n"
                                   f"**Server Access**\n"
@@ -400,9 +400,9 @@ class EmailForm(ui.Modal, title="Email Settings"):
             try:
                 for channel in interaction.guild.text_channels:
                     async for message in channel.history(limit=25):
-                        if (message.author == interaction.client.user and 
-                            message.embeds and 
-                            len(message.embeds) > 0 and 
+                        if (message.author == interaction.client.user and
+                            message.embeds and
+                            len(message.embeds) > 0 and
                             message.embeds[0].title == "Credentials"):
 
                             # Update found credentials panel
@@ -436,12 +436,12 @@ class CustomInfoForm(ui.Modal, title="Set up your Information"):
         # Save custom info to MongoDB
         from utils.db_utils import save_user_credentials, clear_user_data, get_user_details, check_user_setup
         success = save_user_credentials(
-            user_id, 
-            self.name.value, 
-            self.street.value, 
-            self.city.value, 
-            self.zip_code.value, 
-            self.country.value, 
+            user_id,
+            self.name.value,
+            self.street.value,
+            self.city.value,
+            self.zip_code.value,
+            self.country.value,
             is_random=False
         )
 
@@ -574,10 +574,10 @@ class BrandSelectDropdown(ui.Select):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1339298010169086072")
+                main_guild_id = config.get("guild_id", "1340782147799089327")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1339298010169086072"
+            main_guild_id = "1340782147799089327"
 
         # Check if this is a guild-specific instance
         is_main_guild = (guild_id == main_guild_id)
@@ -1070,13 +1070,13 @@ class MenuView(ui.View):
 
         # Add link buttons directly in __init__
         help_button = discord.ui.Button(
-            label="Help", 
-            style=discord.ButtonStyle.link, 
+            label="Help",
+            style=discord.ButtonStyle.link,
             url="https://discord.com/channels/1339298010169086072/1339520924596043878"
         )
         brands_button = discord.ui.Button(
-            label="Brands", 
-            style=discord.ButtonStyle.link, 
+            label="Brands",
+            style=discord.ButtonStyle.link,
             url="https://discord.com/channels/1339298010169086072/1339306570634236038"
         )
 
@@ -1096,12 +1096,12 @@ class CredentialsDropdownView(ui.View):
             placeholder="Select an option to proceed...",
             options=[
                 discord.SelectOption(
-                    label="Custom Info", 
+                    label="Custom Info",
                     description="Enter your details manually",
                     emoji="📝"
                 ),
                 discord.SelectOption(
-                    label="Random Info", 
+                    label="Random Info",
                     description="Generate details automatically",
                     emoji="🌐"
                 ),
@@ -1302,10 +1302,10 @@ async def on_message(message):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1339298010169086072")
+                main_guild_id = config.get("guild_id", "1340782147799089327")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1339298010169086072"
+            main_guild_id = "1340782147799089327"
 
         # Check if this channel is configured as an image channel for this guild
         try:
@@ -1374,12 +1374,12 @@ async def generate_command(interaction: discord.Interaction):
     try:
         with open("config.json", "r") as f:
             config = json.load(f)
-            main_guild_id = config.get("guild_id", "1339298010169086072")
-            main_channel_id = 1374468007472009216
+            main_guild_id = config.get("guild_id", "1340782147799089327")
+            main_channel_id = 1350413411455995904
     except Exception as e:
         print(f"Error loading config: {e}")
-        main_guild_id = "1339298010169086072"
-        main_channel_id = 1374468007472009216
+        main_guild_id = "1340782147799089327"
+        main_channel_id = 1350413411455995904
 
     # Check if this is a guild-specific or main guild request
     is_main_guild = (guild_id == main_guild_id)
@@ -1685,7 +1685,7 @@ async def generate_command(interaction: discord.Interaction):
                         f"`{display_type}`\n\n" +
                         "**Note**\n" +
                         "-# please click \"Credentials\" and set your credentials before you try to generate",
-        color=discord.Color.from_str("#c2ccf8")
+            color=discord.Color.from_str("#c2ccf8")
         )
 
         # Create and send the menu view
@@ -1803,13 +1803,13 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Notification message for guild subscription
                 try:
-                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    purchases_channel = interaction.client.get_channel(1350413411455995904)
                     if purchases_channel:
                         # Create guild subscription notification
                         guild_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your guild subscription has been updated. Check below\n"
-                                       f"-# Run command /configure_guild in <#1374468007472009216> to continue\n\n"
+                                       f"-# Run command /configure_guild in <#1350413411455995904> to continue\n\n"
                                        f"**Subscription Type**\n"
                                        f"`Guild`\n\n"
                                        f"**Consider leaving a review !**\n"
@@ -1861,7 +1861,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Send notification to Purchases channel
                 try:
-                    purchases_channel = interaction.client.get_channel(1374468080817803264)
+                    purchases_channel = interaction.client.get_channel(1350413411455995904)
                     if purchases_channel:
                         # Clean up subscription type display
                         display_type = subscription_type
@@ -1876,7 +1876,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                         notification_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
-                                      f"-# Run command /generate in <#1374468007472009216> to continue\n\n"
+                                      f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
                                       f"**Subscription Type**\n"
                                       f"`{display_type}`\n\n"
                                       f"- Please consider leaving a review at ⁠<#1339306483816337510>",
@@ -1966,8 +1966,8 @@ class RedeemKeyView(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(
-        label="Redeem", 
-        style=discord.ButtonStyle.primary, 
+        label="Redeem",
+        style=discord.ButtonStyle.primary,
         emoji="<:discordkey:1372312945521856633>",
         custom_id="redeem_key_button"
     )
@@ -2113,16 +2113,12 @@ async def keygen_command(interaction: discord.Interaction):
 async def menu_command(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
 
-    # Check if user has a valid license
-    from utils.license_manager import LicenseManager
+    # Check if user is rate limited
+    from utils.mongodb_manager import mongo_manager
+    is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
 
-    if not await LicenseManager.is_subscription_active(interaction.user.id):
-        embed = discord.Embed(
-            title="Invalid License",
-            description="Please use `/redeem` to activate your license first.",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    if is_limited:
+        await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
         return
 
     # Check channel permissions for guild servers
@@ -2146,50 +2142,15 @@ async def menu_command(interaction: discord.Interaction):
         except Exception:
             pass
 
-    # Check if user is rate limited
-    from utils.mongodb_manager import mongo_manager
-    is_limited, limit_expiry = mongo_manager.check_user_rate_limit(user_id)
-
-    if is_limited:
-        await interaction.response.send_message("-# **Oops... looks like you've made more than enough receipts for today, try again in 11 hours**", ephemeral=True)
-        return
-
     # Check if user has a valid license
     from utils.license_manager import LicenseManager
-    license_status = await LicenseManager.is_subscription_active(user_id)
 
-    # Handle different return types - could be bool or dict
-    is_active = False
-    if isinstance(license_status, dict):
-        is_active = license_status.get("active", False)
-    else:
-        is_active = bool(license_status)
-
-    if not is_active:
-        # Check if it's an expired license with expiry date (if license_status is dict)
-        if isinstance(license_status, dict) and "expired_date" in license_status:
-            expired_date = license_status["expired_date"]
-            embed = discord.Embed(
-                title="Subscription Expired",
-                description=f"Your subscription expired on `{expired_date}`. Please renew your subscription to continue using our services.",
-                color=discord.Color.red()
-            )
-
-            # Create a view with a "Renew" button that redirects to goatreceipts.com
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
-
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-            return
-        else:
-            # User never had a license
-            embed = discord.Embed(
-                title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+    if not await LicenseManager.is_subscription_active(interaction.user.id):
+        embed = discord.Embed(
+            title="Invalid License",
+            description="Please use `/redeem` to activate your license first.",
+            color=discord.Color.red()
+        )
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
