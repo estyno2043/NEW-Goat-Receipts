@@ -120,16 +120,49 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
                             # If user has used all receipts, send completion message
                             if receipt_usage['used'] >= receipt_usage['max']:
                                 try:
+                                    import asyncio
                                     import discord
-                                    from main import bot
-                                    user = await bot.fetch_user(int(user_id))
-                                    if user:
-                                        embed = discord.Embed(
-                                            title="Lite Subscription Complete",
-                                            description=f"You have successfully used all **{receipt_usage['max']}** receipts from your Lite subscription!\n\n**Please consider:**\n• Leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nThank you for using our service!",
-                                            color=discord.Color.green()
-                                        )
-                                        await user.send(embed=embed)
+                                    
+                                    # Get bot instance from the current event loop
+                                    def send_completion_dm():
+                                        try:
+                                            import discord
+                                            from discord.ext import commands
+                                            
+                                            # Find the bot instance in the current context
+                                            loop = asyncio.get_event_loop()
+                                            for task in asyncio.all_tasks(loop):
+                                                try:
+                                                    if hasattr(task, '_coro') and hasattr(task._coro, 'cr_frame'):
+                                                        frame = task._coro.cr_frame
+                                                        while frame:
+                                                            if 'bot' in frame.f_locals and hasattr(frame.f_locals['bot'], 'fetch_user'):
+                                                                bot = frame.f_locals['bot']
+                                                                
+                                                                async def send_dm():
+                                                                    try:
+                                                                        user = await bot.fetch_user(int(user_id))
+                                                                        if user:
+                                                                            embed = discord.Embed(
+                                                                                title="🎉 Lite Subscription Complete!",
+                                                                                description=f"You have successfully used all **{receipt_usage['max']}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at goatreceipts.com",
+                                                                                color=discord.Color.green()
+                                                                            )
+                                                                            await user.send(embed=embed)
+                                                                            print(f"Sent lite completion DM to user {user_id}")
+                                                                    except Exception as e:
+                                                                        print(f"Error sending lite completion DM: {e}")
+                                                                
+                                                                # Schedule the DM to be sent
+                                                                asyncio.create_task(send_dm())
+                                                                return
+                                                            frame = frame.f_back
+                                                except:
+                                                    continue
+                                        except:
+                                            pass
+                                    
+                                    send_completion_dm()
                                 except Exception as dm_error:
                                     print(f"Could not send completion DM: {dm_error}")
                 

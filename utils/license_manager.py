@@ -305,12 +305,12 @@ class LicenseManager:
                 return True
 
             # Check lite subscription receipt limits
-            if subscription_type == "lite":
+            if subscription_type == "lite" or subscription_type == "litesubscription":
                 receipt_count = license_doc.get("receipt_count", 0)
                 max_receipts = license_doc.get("max_receipts", 7)
                 if receipt_count >= max_receipts:
                     logging.info(f"Lite subscription for user_id {user_id} has reached receipt limit")
-                    return {"active": False, "lite_exhausted": True, "used": receipt_count, "max": max_receipts}
+                    return False
 
             # Check expiry date
             try:

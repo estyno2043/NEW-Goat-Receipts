@@ -1612,47 +1612,32 @@ async def generate_command(interaction: discord.Interaction):
                 print(f"Failed to get message reference: {e}")
     else:
         # In main guild, check license normally
-        try:
-            # Check if user has a valid license
-            from utils.license_manager import LicenseManager
-            license_status = await LicenseManager.is_subscription_active(user_id)
+        # Check if user has a valid license
+        from utils.license_manager import LicenseManager
+        license_status = await LicenseManager.is_subscription_active(user_id)
 
-            # Handle different return types - could be bool or dict
-            is_active = False
-            if isinstance(license_status, dict):
-                is_active = license_status.get("active", False)
-            else:
-                is_active = bool(license_status)
-
-            if not is_active:
-                # Check if it's an expired license with expiry date (if license_status is dict)
-                if isinstance(license_status, dict) and "expired_date" in license_status:
-                    expired_date = license_status["expired_date"]
+        if not license_status:
+            # Check if it's a lite subscription that's exhausted
+            from utils.mongodb_manager import mongo_manager
+            license_doc = mongo_manager.get_license(user_id)
+            if license_doc and (license_doc.get("subscription_type") == "lite" or license_doc.get("subscription_type") == "litesubscription"):
+                receipt_count = license_doc.get("receipt_count", 0)
+                max_receipts = license_doc.get("max_receipts", 7)
+                if receipt_count >= max_receipts:
                     embed = discord.Embed(
-                        title="Subscription Expired",
-                        description=f"Your subscription expired on `{expired_date}`. Please renew your subscription below to continue using our services.",
-                        color=discord.Color.red()
+                        title="Lite Subscription Complete",
+                        description=f"You have used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at goatreceipts.com",
+                        color=discord.Color.orange()
                     )
-
-                    # Create a view with a "Renew" button that redirects to goatreceipts.com
                     view = discord.ui.View()
-                    view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+                    view.add_item(discord.ui.Button(label="Upgrade", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
                     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-                else:
-                    # User never had a license
-                    embed = discord.Embed(
-                        title="Access Denied",
-                        description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
-                        color=discord.Color.red()
-                    )
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-        except Exception as e:
-            print(f"Error checking license for {user_id}: {e}")
-            # Always deny access if there's any error
+                    return
+
+            # User never had a license or it's expired
             embed = discord.Embed(
                 title="Access Denied",
-                description="There was an error checking your subscription. Please try again later or contact support.",
+                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -2277,6 +2262,51 @@ async def menu_command(interaction: discord.Interaction):
     )
 
     await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
+
+# Add the /endlite command
+@bot.tree.command(name="endlite", description="Manually end a user's Lite subscription (Owner only)")
+async def endlite_command(interaction: discord.Interaction, user: discord.User):
+    # Check if the user invoking the command is the bot owner
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = config.get("owner_id", "0")
+
+    if str(interaction.user.id) != owner_id:
+        await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        return
+
+    user_id = str(user.id)
+
+    # Check if the target user has a Lite subscription
+    from utils.mongodb_manager import mongo_manager
+    license_doc = mongo_manager.get_license(user_id)
+
+    if not license_doc or not (license_doc.get("subscription_type") == "lite" or license_doc.get("subscription_type") == "litesubscription"):
+        await interaction.response.send_message(f"{user.mention} does not have a Lite subscription.", ephemeral=True)
+        return
+
+    # Set receipt count to max to effectively end their Lite subscription
+    max_receipts = license_doc.get("max_receipts", 7)
+    updated = mongo_manager.update_lite_receipt_count(user_id, max_receipts)
+
+    if updated:
+        # Send a DM to the user informing them
+        try:
+            dm_embed = discord.Embed(
+                title="Lite Subscription Ended",
+                description=f"Your Lite subscription has been manually ended by an administrator. You have used all **{max_receipts}** receipts available.\n\nThank you for using our service!",
+                color=discord.Color.orange()
+            )
+            await user.send(embed=dm_embed)
+        except discord.Forbidden:
+            logging.warning(f"Could not send DM to user {user.id} - DMs disabled")
+        except Exception as e:
+            logging.error(f"Error sending DM to user {user.id}: {e}")
+
+        await interaction.response.send_message(f"Successfully ended Lite subscription for {user.mention}.", ephemeral=True)
+    else:
+        await interaction.response.send_message(f"Failed to end Lite subscription for {user.mention}.", ephemeral=True)
 
 # Load the token
 token = os.getenv('DISCORD_TOKEN')

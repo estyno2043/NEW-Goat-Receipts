@@ -712,6 +712,82 @@ class AdminCommands(commands.Cog):
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+    @app_commands.command(name="endlite", description="End a user's lite subscription and send completion message (Owner only)")
+    async def endlite(self, interaction: discord.Interaction, user: discord.Member):
+        # Check if the command invoker is the bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 1339295766828552365))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        user_id = str(user.id)
+
+        # Check if user has lite subscription
+        from utils.mongodb_manager import mongo_manager
+        license_doc = mongo_manager.get_license(user_id)
+
+        if not license_doc or (license_doc.get("subscription_type") != "lite" and license_doc.get("subscription_type") != "litesubscription"):
+            embed = discord.Embed(
+                title="Error",
+                description=f"{user.mention} does not have a Lite subscription.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Set receipt count to maximum to exhaust the subscription
+        max_receipts = license_doc.get("max_receipts", 7)
+
+        # Update the receipt count to max
+        db = mongo_manager.get_database()
+        if db:
+            db.licenses.update_one(
+                {"owner_id": user_id},
+                {"$set": {"receipt_count": max_receipts}}
+            )
+
+        # Send completion DM to user
+        try:
+            embed = discord.Embed(
+                title="🎉 Lite Subscription Complete!",
+                description=f"You have successfully used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at goatreceipts.com",
+                color=discord.Color.green()
+            )
+            await user.send(embed=embed)
+
+            # Confirm to admin
+            admin_embed = discord.Embed(
+                title="Lite Subscription Ended",
+                description=f"Successfully ended {user.mention}'s Lite subscription and sent completion DM.",
+                color=discord.Color.green()
+            )
+            await interaction.response.send_message(embed=admin_embed, ephemeral=True)
+
+        except discord.Forbidden:
+            # User has DMs disabled, still confirm the action
+            admin_embed = discord.Embed(
+                title="Lite Subscription Ended",
+                description=f"Successfully ended {user.mention}'s Lite subscription, but could not send DM (user has DMs disabled).",
+                color=discord.Color.orange()
+            )
+            await interaction.response.send_message(embed=admin_embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(
+                title="Error",
+                description=f"Failed to end lite subscription: {str(e)}",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
 
