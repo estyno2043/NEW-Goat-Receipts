@@ -1725,6 +1725,73 @@ async def generate_command(interaction: discord.Interaction):
         except Exception as e:
             print(f"Failed to get message reference: {e}")
 
+# Simple HTTP server for health checks
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Bot is running!')
+
+def run_http_server():
+    server = HTTPServer(('0.0.0.0', 8080), SimpleHTTPRequestHandler)
+    print('Starting HTTP server on port 8080')
+    server.serve_forever()
+
+# Start HTTP server in a separate thread
+if os.getenv('REPLIT_DEPLOYMENT'):
+    print("Deployment detected, starting HTTP server")
+    thread = threading.Thread(target=run_http_server)
+    thread.daemon = True
+    thread.start()
+
+# Start webhook server for invite tracker integration
+def run_webhook_server():
+    try:
+        from webhook_server import app
+        app.run(host='0.0.0.0', port=5000, debug=False)
+    except Exception as e:
+        print(f"Failed to start webhook server: {e}")
+
+webhook_thread = threading.Thread(target=run_webhook_server)
+webhook_thread.daemon = True
+webhook_thread.start()
+print("Webhook server started on port 5000")
+
+# Load command modules
+async def load_extensions():
+    try:
+        await bot.load_extension('commands.admin_commands')
+        print("Loaded admin commands")
+    except Exception as e:
+        print(f"Failed to load admin commands: {e}")
+
+    try:
+        await bot.load_extension('commands.guild_commands')
+        print("Loaded guild commands")
+    except Exception as e:
+        print(f"Failed to load guild commands: {e}")
+
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
+    await load_extensions()
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+
+    # Start the license checker background task
+    try:
+        from utils.license_manager import LicenseManager
+        license_manager = LicenseManager(bot)
+        await license_manager.start_license_checker()
+        print("License checker background task started")
+    except Exception as e:
+        print(f"Failed to start license checker: {e}")
+
 # License key redemption form
 class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
     license_key = ui.TextInput(
@@ -1836,11 +1903,30 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                     "credentialstf": "False"
                 }
 
-                # Save to MongoDB
-                from utils.mongodb_manager import mongo_manager
-                success = mongo_manager.create_or_update_license(user_id, license_data)
+                # Create license in MongoDB
+                try:
+                    license_data = {
+                        "subscription_type": subscription_type,
+                        "start_date": datetime.now().strftime("%Y-%m-%d"),
+                        "end_date": expiry_date,
+                        "is_active": True,
+                        "expiry": expiry_date,
+                        "key": license_key
+                    }
 
-                if not success:
+                    # Add receipt count for lite subscription
+                    if subscription_type == "lite":
+                        license_data["receipt_count"] = 0
+                        license_data["max_receipts"] = 7
+
+                    # Use MongoDB manager to create/update license
+                    from utils.mongodb_manager import mongo_manager
+                    success = mongo_manager.create_or_update_license(user_id, license_data)
+
+                    if not success:
+                        raise Exception("Failed to create license in MongoDB")
+                except Exception as e:
+                    logging.error(f"Failed to create license for user {user_id}: {e}")
                     embed = discord.Embed(
                         title="Error",
                         description="Failed to save license to database. Please try again.",
@@ -2010,6 +2096,11 @@ class KeygenTypeSelect(discord.ui.Select):
                 label="Guild Lifetime",
                 description="Generate keys for lifetime guild subscriptions",
                 value="guild_lifetime"
+            ),
+            discord.SelectOption(
+                label="Lite",
+                description="Generate keys for the Lite Subscription (7 receipts)",
+                value="lite"
             )
         ]
         super().__init__(placeholder="Select subscription type...", options=options)
@@ -2180,90 +2271,23 @@ async def menu_command(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
 
-# Simple HTTP server for health checks
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Bot is running!')
-
-def run_http_server():
-    server = HTTPServer(('0.0.0.0', 8080), SimpleHTTPRequestHandler)
-    print('Starting HTTP server on port 8080')
-    server.serve_forever()
-
-# Start HTTP server in a separate thread
-if os.getenv('REPLIT_DEPLOYMENT'):
-    print("Deployment detected, starting HTTP server")
-    thread = threading.Thread(target=run_http_server)
-    thread.daemon = True
-    thread.start()
-
-# Start webhook server for invite tracker integration
-def run_webhook_server():
-    try:
-        from webhook_server import app
-        app.run(host='0.0.0.0', port=5000, debug=False)
-    except Exception as e:
-        print(f"Failed to start webhook server: {e}")
-
-webhook_thread = threading.Thread(target=run_webhook_server)
-webhook_thread.daemon = True
-webhook_thread.start()
-print("Webhook server started on port 5000")
-
-# Load command modules
-async def load_extensions():
-    try:
-        await bot.load_extension('commands.admin_commands')
-        print("Loaded admin commands")
-    except Exception as e:
-        print(f"Failed to load admin commands: {e}")
-
-    try:
-        await bot.load_extension('commands.guild_commands')
-        print("Loaded guild commands")
-    except Exception as e:
-        print(f"Failed to load guild commands: {e}")
-
-@bot.event
-async def on_ready():
-    print(f'{bot.user} has connected to Discord!')
-    await load_extensions()
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-
-    # Start the license checker background task
-    try:
-        from utils.license_manager import LicenseManager
-        license_manager = LicenseManager(bot)
-        await license_manager.start_license_checker()
-        print("License checker background task started")
-    except Exception as e:
-        print(f"Failed to start license checker: {e}")
-
-# Run the bot
-# Try to get token from environment variables first, then fall back to config.json
+# Load the token
 token = os.getenv('DISCORD_TOKEN')
-if token:
-    print("Using Discord token from environment variables")
-else:
+if not token:
     try:
         with open("config.json", "r") as f:
             config = json.load(f)
             token = config.get("bot_token")
-            if token:
-                print("Using Discord token from config.json")
-    except Exception as e:
-        print(f"Error loading token from config: {e}")
+    except FileNotFoundError:
+        print("config.json not found. Please ensure it exists.")
+        exit(1)
+    except json.JSONDecodeError:
+        print("Error decoding config.json. Please ensure it's valid JSON.")
+        exit(1)
 
 if not token:
-    print("ERROR: No Discord bot token found. Please set the DISCORD_TOKEN environment variable or update config.json")
+    print("Discord token not found. Please set DISCORD_TOKEN environment variable or provide it in config.json.")
     exit(1)
 
+# Run the bot
 bot.run(token)

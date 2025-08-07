@@ -289,6 +289,7 @@ class LicenseManager:
 
             expiry_str = license_doc.get("expiry")
             key = license_doc.get("key", "")
+            subscription_type = license_doc.get("subscription_type", "")
 
             # Check if license is explicitly marked as expired
             if key and key.startswith("EXPIRED-"):
@@ -300,6 +301,14 @@ class LicenseManager:
                 logging.info(f"Lifetime key found for user_id: {user_id}")
                 LicenseManager._license_cache[user_id_str] = (current_time + timedelta(days=3650), True)
                 return True
+
+            # Check lite subscription receipt limits
+            if subscription_type == "lite":
+                receipt_count = license_doc.get("receipt_count", 0)
+                max_receipts = license_doc.get("max_receipts", 7)
+                if receipt_count >= max_receipts:
+                    logging.info(f"Lite subscription for user_id {user_id} has reached receipt limit")
+                    return {"active": False, "lite_exhausted": True, "used": receipt_count, "max": max_receipts}
 
             # Check expiry date
             try:

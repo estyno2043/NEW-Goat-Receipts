@@ -148,33 +148,64 @@ class MongoDBManager:
             return []
 
     def get_expired_licenses(self):
-        """Get expired licenses"""
+        """Get all expired licenses from MongoDB"""
         try:
             db = self.get_database()
+            if db is None:
+                return []
+
             current_time = datetime.utcnow()
 
             # Find licenses that have expired
             expired_licenses = []
             for license_doc in db.licenses.find():
                 expiry_str = license_doc.get("expiry")
-                key = license_doc.get("key", "")
-
-                # Skip lifetime keys
-                if key and ("LifetimeKey" in key or "lifetime" in key.lower()):
-                    continue
-
                 if expiry_str:
                     try:
                         expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
                         if current_time > expiry_date:
                             expired_licenses.append(license_doc)
                     except ValueError:
-                        continue
+                        # Invalid date format, consider it expired
+                        expired_licenses.append(license_doc)
 
             return expired_licenses
         except Exception as e:
-            logging.error(f"Error getting expired licenses: {e}")
+            logging.error(f"Error getting expired licenses: {str(e)}")
             return []
+
+    def increment_receipt_count(self, user_id):
+        """Increment receipt count for lite subscription users"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return False
+
+            result = db.licenses.update_one(
+                {"owner_id": str(user_id)},
+                {"$inc": {"receipt_count": 1}}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            logging.error(f"Error incrementing receipt count: {str(e)}")
+            return False
+
+    def get_receipt_usage(self, user_id):
+        """Get receipt usage for lite subscription users"""
+        try:
+            db = self.get_database()
+            if db is None:
+                return None
+
+            license_doc = db.licenses.find_one({"owner_id": str(user_id)})
+            if license_doc:
+                receipt_count = license_doc.get("receipt_count", 0)
+                max_receipts = license_doc.get("max_receipts", 0)
+                return {"used": receipt_count, "max": max_receipts}
+            return None
+        except Exception as e:
+            logging.error(f"Error getting receipt usage: {str(e)}")
+            return None
 
     # User credentials operations
     def get_user_credentials(self, user_id):
@@ -435,26 +466,26 @@ class MongoDBManager:
 
             # Check if user has an email record
             existing_email = db.user_emails.find_one({"user_id": str(user_id)})
-            
+
             if existing_email:
                 # Reset the updated_at timestamp to allow immediate email change
                 # Set it to 8 days ago to bypass the 7-day restriction
                 from datetime import datetime, timedelta
                 reset_date = datetime.utcnow() - timedelta(days=8)
-                
+
                 result = db.user_emails.update_one(
                     {"user_id": str(user_id)},
                     {"$set": {"updated_at": reset_date}},
                     upsert=False
                 )
-                
+
                 logging.info(f"Reset email change limit for user {user_id} - set updated_at to {reset_date}")
                 return result.acknowledged
             else:
                 # No email record exists, so no restriction to reset
                 logging.info(f"No email record found for user {user_id} - no restriction to reset")
                 return True
-                
+
         except Exception as e:
             logging.error(f"Error resetting email change limit: {e}")
             return False

@@ -87,6 +87,57 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
         server.quit()
         print("Email sent successfully!")
 
+        # Check if user has a lite subscription and increment receipt count
+        try:
+            from utils.mongodb_manager import mongo_manager
+            license_doc = mongo_manager.get_license(recipient_email.split('@')[0] if '@' in recipient_email else None)
+            
+            # Try to find user by checking if this is a receipt generation (look for user in calling context)
+            import inspect
+            frame = inspect.currentframe()
+            try:
+                # Look through the call stack to find user_id
+                user_id = None
+                for i in range(10):  # Check up to 10 frames back
+                    frame = frame.f_back
+                    if frame is None:
+                        break
+                    if 'user_id' in frame.f_locals:
+                        user_id = frame.f_locals['user_id']
+                        break
+                    elif 'interaction' in frame.f_locals and hasattr(frame.f_locals['interaction'], 'user'):
+                        user_id = str(frame.f_locals['interaction'].user.id)
+                        break
+                
+                if user_id:
+                    license_doc = mongo_manager.get_license(user_id)
+                    if license_doc and license_doc.get("subscription_type") == "lite":
+                        mongo_manager.increment_receipt_count(user_id)
+                        receipt_usage = mongo_manager.get_receipt_usage(user_id)
+                        if receipt_usage:
+                            print(f"Lite subscription: {receipt_usage['used']}/{receipt_usage['max']} receipts used")
+                            
+                            # If user has used all receipts, send completion message
+                            if receipt_usage['used'] >= receipt_usage['max']:
+                                try:
+                                    import discord
+                                    from main import bot
+                                    user = await bot.fetch_user(int(user_id))
+                                    if user:
+                                        embed = discord.Embed(
+                                            title="Lite Subscription Complete",
+                                            description=f"You have successfully used all **{receipt_usage['max']}** receipts from your Lite subscription!\n\n**Please consider:**\n• Leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nThank you for using our service!",
+                                            color=discord.Color.green()
+                                        )
+                                        await user.send(embed=embed)
+                                except Exception as dm_error:
+                                    print(f"Could not send completion DM: {dm_error}")
+                
+            finally:
+                del frame
+        except Exception as e:
+            print(f"Error tracking lite subscription usage: {e}")
+
         return "Email sent successfully"
     except smtplib.SMTPAuthenticationError as e:
         error_msg = f"Authentication failed: {str(e)}. Check app password and 2FA settings."

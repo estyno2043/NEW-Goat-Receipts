@@ -19,7 +19,8 @@ class SubscriptionOption(discord.ui.Select):
             discord.SelectOption(label="1 Month", description="Add 30 days of access", value="1_month"),
             discord.SelectOption(label="Lifetime", description="Add lifetime access", value="lifetime"),
             discord.SelectOption(label="Guild 30 Days", description="Add 30 days guild access", value="guild_30days"),
-            discord.SelectOption(label="Guild Lifetime", description="Add lifetime guild access", value="guild_lifetime")
+            discord.SelectOption(label="Guild Lifetime", description="Add lifetime guild access", value="guild_lifetime"),
+            discord.SelectOption(label="Lite Subscription", description="Generate up to 7 receipts", value="lite") # Added Lite Subscription option
         ]
         super().__init__(placeholder="Select subscription duration...", options=options, min_values=1, max_values=1)
 
@@ -38,7 +39,8 @@ class SubscriptionOption(discord.ui.Select):
             "1_month": ("1 Month", 30),
             "lifetime": ("Lifetime", 0),  # 0 means lifetime
             "guild_30days": ("Guild 30 Days", 30),
-            "guild_lifetime": ("Guild Lifetime", 0)  # 0 means lifetime
+            "guild_lifetime": ("Guild Lifetime", 0),  # 0 means lifetime
+            "lite": ("Lite Subscription", 0) # Lite subscription does not have a time limit, but a receipt limit
         }
 
         subscription_type, days = subscription_data[selected]
@@ -57,6 +59,8 @@ class SubscriptionOption(discord.ui.Select):
             key_prefix = "guild_30days"
         elif selected == "guild_lifetime":
             key_prefix = "guild_lifetime"
+        elif selected == "lite":
+            key_prefix = "LiteKey" # Prefix for Lite Subscription keys
 
         # Generate unique key
         license_key = f"{key_prefix}-{self.user.id}"
@@ -66,20 +70,29 @@ class SubscriptionOption(discord.ui.Select):
             expiry_date = datetime.now() + timedelta(days=days)
             expiry_str = expiry_date.strftime('%d/%m/%Y %H:%M:%S')
         else:
-            # For lifetime, set a far future date
-            expiry_date = datetime.now() + timedelta(days=3650)  # ~10 years
-            expiry_str = expiry_date.strftime('%d/%m/%Y %H:%M:%S')
+            # For lifetime and Lite Subscription, set a far future date or handle differently
+            if selected == "lifetime" or selected == "guild_lifetime":
+                expiry_date = datetime.now() + timedelta(days=3650)  # ~10 years
+                expiry_str = expiry_date.strftime('%d/%m/%Y %H:%M:%S')
+            else: # For Lite Subscription, expiry is not the primary limiter
+                expiry_str = "N/A" # Indicate no specific expiry date
 
         # Save to MongoDB
         from utils.mongodb_manager import mongo_manager
         license_data = {
-            "key": license_key,
-            "expiry": expiry_str,
-            "subscription_type": subscription_type,
+            "subscription_type": subscription_type.replace(" ", "").lower(),
+            "start_date": datetime.now().strftime("%Y-%m-%d"),
+            "end_date": expiry_str,
             "is_active": True,
-            "emailtf": "False",
-            "credentialstf": "False"
+            "expiry": expiry_str,
+            "key": license_key
         }
+
+        # Add receipt tracking for lite subscription
+        if selected == "lite":
+            license_data["receipt_count"] = 0
+            license_data["max_receipts"] = 7
+
 
         success = mongo_manager.create_or_update_license(self.user.id, license_data)
 
@@ -215,6 +228,12 @@ class AdminPanelView(discord.ui.View):
                 elif "LifetimeKey" in key or "lifetime" in key.lower():
                     subscription_status = "Lifetime"
                     remaining_days = "∞"
+                # Lite subscription
+                elif "LiteKey" in key or "lite" in key.lower():
+                    receipt_count = license_doc.get("receipt_count", 0)
+                    max_receipts = license_doc.get("max_receipts", 7)
+                    subscription_status = f"Lite Subscription - Receipts used: {receipt_count}/{max_receipts}"
+                    remaining_days = f"{max_receipts - receipt_count} remaining"
                 # Regular subscription
                 else:
                     try:
@@ -336,6 +355,8 @@ class AdminPanelView(discord.ui.View):
                     display_type = "3 Days"
                 elif "1Day" in original_key or "1day" in original_key:
                     display_type = "1 Day"
+                elif "LiteKey" in original_key:
+                    display_type = "Lite Subscription"
 
             # Create DM embed
             dm_embed = discord.Embed(
@@ -347,7 +368,7 @@ class AdminPanelView(discord.ui.View):
             # Create purchases channel embed
             purchases_embed = discord.Embed(
                 title="Subscription Expired",
-                description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1339306483816337510>",
+                description=f"{self.user.mention}, your subscription has expired. Thank you for purchasing.\n-# Consider renewing below!\n\n**Subscription Type**\n`{display_type}`\n\nPlease consider leaving a review at <#1350413086074474558>",
                 color=discord.Color.default()
             )
 
@@ -439,7 +460,7 @@ class AdminCommands(commands.Cog):
             "user_id": str(user.id),
             "limited_by": str(interaction.user.id),
             "limit_start": datetime.now().isoformat(),
-            "limit_expiry": limit_expiry.isoformat(),
+            "limit_end": limit_expiry.isoformat(), # Changed to limit_end for clarity
             "reason": "Rate limited by owner"
         }
 
@@ -634,6 +655,11 @@ class AdminCommands(commands.Cog):
             license_data = user_info['license']
             embed.add_field(name="License Key", value=license_data.get('key', 'N/A'), inline=False)
             embed.add_field(name="Expiry", value=license_data.get('expiry', 'N/A'), inline=False)
+            # Display Lite Subscription specific info
+            if license_data.get('subscription_type') == 'litesubscription':
+                receipt_count = license_data.get('receipt_count', 0)
+                max_receipts = license_data.get('max_receipts', 7)
+                embed.add_field(name="Receipts Used", value=f"{receipt_count}/{max_receipts}", inline=False)
         else:
             embed.add_field(name="License", value="No license found", inline=False)
 

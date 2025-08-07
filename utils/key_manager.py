@@ -184,7 +184,9 @@ class KeyManager:
         now = datetime.now()
 
         # Handle both formats (with and without "day" suffix)
-        if subscription_type == "3day" or subscription_type == "3days" or subscription_type == "3_days":
+        if subscription_type == "lite":
+            return now + timedelta(days=30)  # 30 days for lite subscription
+        elif subscription_type == "3day" or subscription_type == "3days" or subscription_type == "3_days":
             return now + timedelta(days=3)
         elif subscription_type == "14day" or subscription_type == "14days" or subscription_type == "14_days":
             return now + timedelta(days=14)
@@ -268,7 +270,9 @@ class KeyManager:
         product_name = product_name.lower()
 
         # Map product names to subscription types
-        if "3 day" in product_name or "3day" in product_name or "3-day" in product_name:
+        if "lite" in product_name or "7 receipt" in product_name:
+            return "lite"
+        elif "3 day" in product_name or "3day" in product_name or "3-day" in product_name:
             return "3day"
         elif "14 day" in product_name or "14day" in product_name or "14-day" in product_name or "2 week" in product_name:
             return "14day"
