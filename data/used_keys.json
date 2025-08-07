@@ -168,5 +168,13 @@
         "redeemed": true,
         "product_name": "GOAT 1-month subscription",
         "gumroad_verified": true
+    },
+    "DF5CB505-6B5744A1-B90F5ACD-2F74031B": {
+        "subscription_type": "lite",
+        "redeemed_by": "1392897052924444845",
+        "redeemed_at": "2025-08-07 17:39:05",
+        "redeemed": true,
+        "product_name": "Lite Subscription ",
+        "gumroad_verified": true
     }
 }
