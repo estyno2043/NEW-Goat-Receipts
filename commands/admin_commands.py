@@ -104,7 +104,7 @@ class SubscriptionOption(discord.ui.Select):
             # Add new unified role for 1 month, lifetime, and guild subscriptions
             if selected in ["1_month", "lifetime", "guild_30days", "guild_lifetime"]:
                 # Add the new role for all premium subscription types
-                new_role = discord.utils.get(interaction.guild.roles, id=1379183902266228876)
+                new_role = discord.utils.get(interaction.guild.roles, id=1402941054243831888)
                 if new_role:
                     await self.user.add_roles(new_role)
                     print(f"Added new subscription role to {self.user.display_name}")
@@ -286,7 +286,7 @@ class AdminPanelView(discord.ui.View):
             # Remove subscription-specific roles but keep client role
             try:
                 # Remove new unified subscription role
-                new_role = discord.utils.get(interaction.guild.roles, id=1379183902266228876)
+                new_role = discord.utils.get(interaction.guild.roles, id=1402941054243831888)
                 if new_role and new_role in self.user.roles:
                     await self.user.remove_roles(new_role)
                     logging.info(f"Removed subscription role from {self.user.name}")
