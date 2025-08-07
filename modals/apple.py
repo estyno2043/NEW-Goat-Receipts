@@ -57,10 +57,12 @@ class applemodal(ui.Modal, title="discord.gg/goatreceipts"):
 
     async def on_submit(self, interaction: discord.Interaction):
         global Price, currency, name, orderdate, street , city, zipp, country
-        from addons.nextsteps import NextstepApple
         owner_id = interaction.user.id 
 
         try:
+            # Respond immediately to prevent timeout
+            await interaction.response.defer(ephemeral=False)
+            
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
 
@@ -71,15 +73,25 @@ class applemodal(ui.Modal, title="discord.gg/goatreceipts"):
                 Price = float(self.Price.value)
                 orderdate = self.orderdate.value
 
+                # Import NextstepApple after deferring to avoid timeout
+                from addons.nextsteps import NextstepApple
+                
                 embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
-                await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=NextstepApple(owner_id), ephemeral=False)
+                await interaction.followup.send(content=f"{interaction.user.mention}",embed=embed, view=NextstepApple(owner_id), ephemeral=False)
             else:
                 # Handle case where no user details are found
                 embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            try:
+                if not interaction.response.is_done():
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                else:
+                    await interaction.followup.send(embed=embed, ephemeral=True)
+            except:
+                pass  # If we can't send error message, just log it
+            print(f"Error in Apple modal: {str(e)}")
 
 
 
