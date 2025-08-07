@@ -214,18 +214,17 @@ async def on_ready():
     message_filter = MessageFilter(bot)
     print("Message filter initialized")
 
-    # Load commands
+    # Load command extensions
     try:
+        # Load admin commands
         await bot.load_extension("commands.admin_commands")
-        print('Loaded admin commands')
-    except Exception as e:
-        print(f'Failed to load admin commands: {e}')
+        print("Loaded admin commands")
 
-    try:
+        # Load guild commands
         await bot.load_extension("commands.guild_commands")
-        print('Loaded guild commands')
+        print("Loaded guild commands")
     except Exception as e:
-        print(f'Failed to load guild commands: {e}')
+        print(f"Failed to load commands: {e}")
 
     # Sync commands
     try:
