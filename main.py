@@ -1626,18 +1626,18 @@ async def generate_command(interaction: discord.Interaction):
                 if receipt_count >= max_receipts:
                     embed = discord.Embed(
                         title="Lite Subscription Complete",
-                        description=f"You have used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at goatreceipts.com",
+                        description=f"You have used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
                         color=discord.Color.orange()
                     )
                     view = discord.ui.View()
-                    view.add_item(discord.ui.Button(label="Upgrade", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+                    view.add_item(discord.ui.Button(label="Upgrade", style=discord.ButtonStyle.link, url="https://goatreceipts.net"))
                     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
                     return
 
             # User never had a license or it's expired
             embed = discord.Embed(
                 title="Access Denied",
-                description="You need to buy a **[subscription](https://goatreceipts.com)** to use our services\n-# Be aware that it costs us money to run the bot.",
+                description="You need to buy a **[subscription](https://goatreceipts.net)** to use our services\n-# Be aware that it costs us money to run the bot.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)

@@ -378,10 +378,10 @@ class AdminPanelView(discord.ui.View):
 
             # Create renewal buttons
             dm_view = discord.ui.View()
-            dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+            dm_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.net"))
 
             purchases_view = discord.ui.View()
-            purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.com"))
+            purchases_view.add_item(discord.ui.Button(label="Renew", style=discord.ButtonStyle.link, url="https://goatreceipts.net"))
 
             # Try to DM the user
             try:
