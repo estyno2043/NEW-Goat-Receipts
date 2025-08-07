@@ -2262,50 +2262,7 @@ async def menu_command(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, view=MenuView(user_id), ephemeral=False)
 
-# Add the /endlite command
-@bot.tree.command(name="endlite", description="Manually end a user's Lite subscription (Owner only)")
-async def endlite_command(interaction: discord.Interaction, user: discord.User):
-    # Check if the user invoking the command is the bot owner
-    with open("config.json", "r") as f:
-        import json
-        config = json.load(f)
-        owner_id = config.get("owner_id", "0")
 
-    if str(interaction.user.id) != owner_id:
-        await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-        return
-
-    user_id = str(user.id)
-
-    # Check if the target user has a Lite subscription
-    from utils.mongodb_manager import mongo_manager
-    license_doc = mongo_manager.get_license(user_id)
-
-    if not license_doc or not (license_doc.get("subscription_type") == "lite" or license_doc.get("subscription_type") == "litesubscription"):
-        await interaction.response.send_message(f"{user.mention} does not have a Lite subscription.", ephemeral=True)
-        return
-
-    # Set receipt count to max to effectively end their Lite subscription
-    max_receipts = license_doc.get("max_receipts", 7)
-    updated = mongo_manager.update_lite_receipt_count(user_id, max_receipts)
-
-    if updated:
-        # Send a DM to the user informing them
-        try:
-            dm_embed = discord.Embed(
-                title="Lite Subscription Ended",
-                description=f"Your Lite subscription has been manually ended by an administrator. You have used all **{max_receipts}** receipts available.\n\nThank you for using our service!",
-                color=discord.Color.orange()
-            )
-            await user.send(embed=dm_embed)
-        except discord.Forbidden:
-            logging.warning(f"Could not send DM to user {user.id} - DMs disabled")
-        except Exception as e:
-            logging.error(f"Error sending DM to user {user.id}: {e}")
-
-        await interaction.response.send_message(f"Successfully ended Lite subscription for {user.mention}.", ephemeral=True)
-    else:
-        await interaction.response.send_message(f"Failed to end Lite subscription for {user.mention}.", ephemeral=True)
 
 # Load the token
 token = os.getenv('DISCORD_TOKEN')
