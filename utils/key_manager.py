@@ -190,6 +190,8 @@ class KeyManager:
             return now + timedelta(days=3)
         elif subscription_type == "14day" or subscription_type == "14days" or subscription_type == "14_days":
             return now + timedelta(days=14)
+        elif subscription_type == "3month" or subscription_type == "3months" or subscription_type == "3_months":
+            return now + timedelta(days=90)
         elif subscription_type == "1month" or subscription_type == "1_month":
             return now + timedelta(days=30)
         elif subscription_type == "guild_30days" or subscription_type == "guild30":
@@ -276,6 +278,8 @@ class KeyManager:
             return "3day"
         elif "14 day" in product_name or "14day" in product_name or "14-day" in product_name or "2 week" in product_name:
             return "14day"
+        elif "3 month" in product_name or "3month" in product_name or "3-month" in product_name or "90 day" in product_name:
+            return "3month"
         elif "1 month" in product_name or "1month" in product_name or "1-month" in product_name or "30 day" in product_name:
             return "1month"
         elif "lifetime" in product_name or "permanent" in product_name or "forever" in product_name:

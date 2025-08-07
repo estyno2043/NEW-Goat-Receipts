@@ -17,6 +17,7 @@ class SubscriptionOption(discord.ui.Select):
             discord.SelectOption(label="3 Days", description="Add 3 days of access", value="3_days"),
             discord.SelectOption(label="14 Days", description="Add 14 days of access", value="14_days"),
             discord.SelectOption(label="1 Month", description="Add 30 days of access", value="1_month"),
+            discord.SelectOption(label="3 Months", description="Add 90 days of access", value="3_months"),
             discord.SelectOption(label="Lifetime", description="Add lifetime access", value="lifetime"),
             discord.SelectOption(label="Guild 30 Days", description="Add 30 days guild access", value="guild_30days"),
             discord.SelectOption(label="Guild Lifetime", description="Add lifetime guild access", value="guild_lifetime"),
@@ -37,6 +38,7 @@ class SubscriptionOption(discord.ui.Select):
             "3_days": ("3 Days", 3),
             "14_days": ("14 Days", 14),
             "1_month": ("1 Month", 30),
+            "3_months": ("3 Months", 90),
             "lifetime": ("Lifetime", 0),  # 0 means lifetime
             "guild_30days": ("Guild 30 Days", 30),
             "guild_lifetime": ("Guild Lifetime", 0),  # 0 means lifetime
@@ -53,6 +55,8 @@ class SubscriptionOption(discord.ui.Select):
             key_prefix = "14Days"
         elif selected == "1_month":
             key_prefix = "1Month"
+        elif selected == "3_months":
+            key_prefix = "3Months"
         elif selected == "lifetime":
             key_prefix = "LifetimeKey"
         elif selected == "guild_30days":
@@ -112,8 +116,8 @@ class SubscriptionOption(discord.ui.Select):
                 await self.user.add_roles(client_role)
                 print(f"Added client role to {self.user.display_name}")
 
-            # Add new unified role for 1 month, lifetime, and guild subscriptions
-            if selected in ["1_month", "lifetime", "guild_30days", "guild_lifetime"]:
+            # Add new unified role for 1 month, 3 months, lifetime, and guild subscriptions
+            if selected in ["1_month", "3_months", "lifetime", "guild_30days", "guild_lifetime"]:
                 # Add the new role for all premium subscription types
                 new_role = discord.utils.get(interaction.guild.roles, id=1402941054243831888)
                 if new_role:
@@ -349,6 +353,8 @@ class AdminPanelView(discord.ui.View):
                     display_type = "1 Month"
                 elif "14Days" in original_key or "14day" in original_key:
                     display_type = "14 Days"
+                elif "3Months" in original_key or "3month" in original_key:
+                    display_type = "3 Months"
                 elif "3Days" in original_key or "3day" in original_key:
                     display_type = "3 Days"
                 elif "1Day" in original_key or "1day" in original_key:

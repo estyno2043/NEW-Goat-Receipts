@@ -72,6 +72,8 @@ class LicenseManager:
                         if key:
                             if "LifetimeKey" in key:
                                 display_type = "Lifetime"
+                            elif "3Months" in key or "3month" in key:
+                                display_type = "3 Months"
                             elif "1Month" in key or "1month" in key:
                                 display_type = "1 Month"
                             elif "14Days" in key or "14day" in key:
@@ -132,12 +134,12 @@ class LicenseManager:
                                     await member.remove_roles(role)
                                     logging.info(f"Removed client role {role.name} from {member.name} due to expired license")
 
-                                # Remove new unified subscription role (only for 1 month users, not lifetime)
-                                if key and ("1Month" in key or "1month" in key):
+                                # Remove new unified subscription role (for 1 month and 3 month users, not lifetime)
+                                if key and (("1Month" in key or "1month" in key) or ("3Months" in key or "3month" in key)):
                                     new_role = discord.utils.get(guild.roles, id=1402941054243831888)
                                     if new_role and new_role in member.roles:
                                         await member.remove_roles(new_role)
-                                        logging.info(f"Removed subscription role from {member.name} due to expired 1 month license")
+                                        logging.info(f"Removed subscription role from {member.name} due to expired subscription")
 
                                 # Remove old subscription-specific roles for backward compatibility
                                 month_role = discord.utils.get(guild.roles, id=1372256426684317909)
