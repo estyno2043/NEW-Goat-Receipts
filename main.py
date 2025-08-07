@@ -116,7 +116,7 @@ async def handle_access_granted_notification(notification):
             main_guild = bot.get_guild(int(main_guild_id))
             if main_guild:
                 # Use the hardcoded purchases channel ID
-                purchases_channel = main_guild.get_channel(1374468080817803264)
+                purchases_channel = main_guild.get_channel(1402938227962417222)
 
                 if purchases_channel:
                     # Create "thank you for purchasing" style notification
@@ -1860,7 +1860,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Send notification to Purchases channel
                 try:
-                    purchases_channel = interaction.client.get_channel(1350413411455995904)
+                    purchases_channel = interaction.client.get_channel(1402938227962417222)
                     if purchases_channel:
                         # Clean up subscription type display
                         display_type = subscription_type
