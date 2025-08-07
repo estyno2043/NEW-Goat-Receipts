@@ -102,10 +102,8 @@ class SubscriptionOption(discord.ui.Select):
 
         # Try to add client role to the user
         try:
-            # Load role ID from config
-            with open("config.json", "r") as f:
-                config = json.load(f)
-                client_role_id = int(config.get("Client_ID", 1339305923545403442))
+            # Use the specific client role ID for manual access addition
+            client_role_id = 1350410798899531778
 
             # Get the client role
             client_role = discord.utils.get(interaction.guild.roles, id=client_role_id)
