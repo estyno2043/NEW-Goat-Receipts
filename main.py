@@ -1348,8 +1348,8 @@ async def on_message(message):
             if image_channel_found:
                 for attachment in message.attachments:
                     if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                        # Reply to the user's message with the image URL
-                        await message.reply(f"```\n{attachment.url}\n```", mention_author=False)
+                        # Reply to the user's message with the image URL and tag them
+                        await message.reply(f"{message.author.mention} ```\n{attachment.url}\n```", mention_author=False)
                         print(f"Replied with image URL: {attachment.url}")
         except Exception as e:
             print(f"Error checking guild image channel config: {e}")
