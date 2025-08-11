@@ -445,7 +445,7 @@ class GuildCommands(commands.Cog):
                     "%Y-%m-%d %H:%M:%S",  # MongoDB format
                     "%d/%m/%Y %H:%M:%S"   # Legacy format
                 ]
-                
+
                 for date_format in formats_to_try:
                     try:
                         expiry_date = datetime.strptime(expiry_str, date_format)
@@ -554,10 +554,10 @@ class GuildCommands(commands.Cog):
             # Clear user's main credentials and email to prevent access
             mongo_manager.delete_user_credentials(user.id)
             mongo_manager.delete_user_email(user.id)
-            
+
             # Also clear the main user license to ensure complete access removal
             mongo_manager.delete_license(user.id)
-            
+
             # Update license manager cache to remove cached license
             try:
                 from utils.license_manager import LicenseManager
