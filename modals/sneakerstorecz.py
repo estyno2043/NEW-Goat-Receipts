@@ -1,4 +1,3 @@
-
 import discord
 from discord import ui
 import random
@@ -18,7 +17,7 @@ class SneakerStoreCZModal(ui.Modal, title="SneakerStore CZ - Step 1"):
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
@@ -91,7 +90,18 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
             html_content = html_content.replace("{city}", first_data['city'])
             html_content = html_content.replace("{zipp}", first_data['zipp'])
             html_content = html_content.replace("{country}", first_data['country'])
-            html_content = html_content.replace("{imagelink}", self.imagelink.value)
+            
+            # Replace the image source with the user's image and add proper sizing
+            image_tag = f'<img src="{self.imagelink.value}" alt=" " class="CToWUd" data-bit="iit" style="width:80px;height:80px;object-fit:cover;">'
+
+            # Find and replace the entire image tag to ensure proper sizing
+            import re
+            img_pattern = re.compile(r'<img[^>]*src="{imagelink}"[^>]*>')
+            html_content = img_pattern.sub(image_tag, html_content)
+
+            # Also handle the direct replacement as fallback
+            html_content = html_content.replace('{imagelink}', self.imagelink.value)
+
             html_content = html_content.replace("{productid}", first_data['productid'])
             html_content = html_content.replace("{productname}", first_data['productname'])
             html_content = html_content.replace("{productsize}", self.productsize.value)
