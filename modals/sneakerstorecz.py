@@ -105,27 +105,16 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
             with open("receipt/updatedrecipies/updatedsneakerstorecz.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
 
-            # Send email
-            from emails.normal import send_email_normal
+            # Prepare email choice panel
+            from emails.choise import choiseView
             sender_email = "info@sneakerstore.cz"
             subject = f"SneakerStore objednávka [{self.ordernumber.value}]"
+            owner_id = interaction.user.id
+            link = "https://www.sneakerstore.cz/"
 
-            result = await send_email_normal(first_data['email'], html_content, sender_email, subject)
-
-            if "successfully" in result.lower():
-                embed = discord.Embed(
-                    title="✅ Receipt Sent Successfully!",
-                    description=f"Your SneakerStore CZ receipt has been sent to **{first_data['email']}**",
-                    color=discord.Color.green()
-                )
-            else:
-                embed = discord.Embed(
-                    title="❌ Error Sending Receipt",
-                    description=f"Failed to send receipt: {result}",
-                    color=discord.Color.red()
-                )
-
-            await interaction.edit_original_response(embed=embed)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            view = choiseView(owner_id, html_content, sender_email, subject, first_data['productname'], self.imagelink.value, link)
+            await interaction.edit_original_response(embed=embed, view=view)
 
             # Clean up stored data
             if owner_id in sneakerstorecz_form_data:
