@@ -5,11 +5,11 @@ import random
 from addons.nextsteps import NextstepSneakerStoreCZ
 
 class SneakerStoreCZModal(ui.Modal, title="SneakerStore CZ - Step 1"):
-    productname = discord.ui.TextInput(label="Product Name", placeholder="Yeezy Slide Slate Grey", required=True)
-    productid = discord.ui.TextInput(label="Product ID", placeholder="2620/46", required=True)
-    pricecost = discord.ui.TextInput(label="Price Cost", placeholder="178.00", required=True)
-    currency = discord.ui.TextInput(label="Currency (€, $, £)", placeholder="€", required=True, min_length=1, max_length=2)
-    shippingfee = discord.ui.TextInput(label="Shipping Fee", placeholder="6.00", required=True)
+    productname = discord.ui.TextInput(label="Product Name", placeholder="Enter name of the product", required=True)
+    productid = discord.ui.TextInput(label="Product ID", placeholder="ex. 2620/46", required=True)
+    pricecost = discord.ui.TextInput(label="Price Cost", placeholder="00.00", required=True)
+    currency = discord.ui.TextInput(label="Currency (€, $, £)", placeholder="(€, $, £)", required=True, min_length=1, max_length=2)
+    shippingfee = discord.ui.TextInput(label="Shipping Fee", placeholder="0.00", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global sneakerstorecz_form_data
@@ -51,11 +51,11 @@ class SneakerStoreCZModal(ui.Modal, title="SneakerStore CZ - Step 1"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
-    productsize = discord.ui.TextInput(label="Product Size", placeholder="46", required=True)
-    deliveryplace = discord.ui.TextInput(label="Delivery Place (Z-BOX)", placeholder="20818 Z-BOX Michalovce, Športová ulica", required=True)
-    orderdate = discord.ui.TextInput(label="Order Date", placeholder="14.7.2025", required=True)
-    ordernumber = discord.ui.TextInput(label="Order Number", placeholder="2025005105", required=True)
-    imagelink = discord.ui.TextInput(label="Product Image Link", placeholder="https://example.com/image.jpg", required=True)
+    productsize = discord.ui.TextInput(label="Product Size", placeholder="Velikost", required=True)
+    deliveryplace = discord.ui.TextInput(label="Delivery Place (Z-BOX)", placeholder="Z-BOX", required=True)
+    orderdate = discord.ui.TextInput(label="Order Date", placeholder="Date of your order", required=True)
+    ordernumber = discord.ui.TextInput(label="Order Number", placeholder="ex. 2025005105", required=True)
+    imagelink = discord.ui.TextInput(label="Product Image Link", placeholder="Link of the image", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global sneakerstorecz_form_data
