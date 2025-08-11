@@ -106,11 +106,11 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
                 file.write(html_content)
 
             # Send email
-            from emails.choise import send_email
+            from emails.normal import send_email_normal
             sender_email = "info@sneakerstore.cz"
             subject = f"SneakerStore objednávka [{self.ordernumber.value}]"
 
-            result = await send_email(first_data['email'], html_content, sender_email, subject)
+            result = await send_email_normal(first_data['email'], html_content, sender_email, subject)
 
             if "successfully" in result.lower():
                 embed = discord.Embed(
