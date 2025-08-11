@@ -138,3 +138,6 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
                 color=discord.Color.red()
             )
             await interaction.edit_original_response(embed=embed)
+
+# Add alias for dynamic loading
+sneakerstoreczmodal = SneakerStoreCZModal
