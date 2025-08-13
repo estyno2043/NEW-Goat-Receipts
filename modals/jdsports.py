@@ -27,7 +27,7 @@ import platform
 import os
 import hashlib
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import smtplib
 from email.mime.text import MIMEText
@@ -154,7 +154,7 @@ class jdsportsmodal(ui.Modal, title="discord.gg/goatreceipt"):
 
 
                 delivery_date = datetime.strptime(delivery, '%d/%m/%Y')
-                adjusted_delivery_date = delivery_date + datetime.timedelta(days=3)
+                adjusted_delivery_date = delivery_date + timedelta(days=3)
 
                 formatted_delivery_date = adjusted_delivery_date.strftime('%d/%m/%Y')
 
