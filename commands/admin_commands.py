@@ -116,7 +116,7 @@ class SubscriptionOption(discord.ui.Select):
                 await self.user.add_roles(client_role)
                 print(f"Added client role to {self.user.display_name}")
 
-            # Add new unified role for 1 month, 3 months, lifetime, and guild subscriptions
+            # Add new unified role for 1 month, 3 months, lifetime, and guild subscriptions (NOT lite)
             if selected in ["1_month", "3_months", "lifetime", "guild_30days", "guild_lifetime"]:
                 # Add the new role for all premium subscription types
                 new_role = discord.utils.get(interaction.guild.roles, id=1402941054243831888)

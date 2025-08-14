@@ -1983,8 +1983,8 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                             await self.interaction.user.add_roles(client_role)
                             print(f"Added client role {client_role.name} to {self.interaction.user.display_name}")
 
-                        # Add new unified subscription role for 1 month, 3 months, lifetime, and lite
-                        if "1month" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "lifetime" in subscription_type.lower() or "lite" in subscription_type.lower():
+                        # Add new unified subscription role for 1 month, 3 months, and lifetime (NOT lite)
+                        if "1month" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "lifetime" in subscription_type.lower():
                             # Add the new unified subscription role (ID: 1402941054243831888)
                             new_role = discord.utils.get(guild.roles, id=1402941054243831888)
                             if new_role:
