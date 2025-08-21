@@ -20,8 +20,6 @@ from uuid import uuid4
 
 import requests  # gen random guid
 
-
-
 import sys
 import time
 import platform
@@ -35,35 +33,73 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-
 from bs4 import BeautifulSoup
 from pystyle import Colors
 
-
 r = Colors.red
 lg = Colors.light_gray
-
-
-
-
 
 def is_goat_link(link):
     goat_link_pattern = re.compile(r'^https?://(www\.)?goat\.com/.*$')
     return bool(goat_link_pattern.match(link))
 
-
-class goat(ui.Modal, title="discord.gg/goatreceipts"):
-
-    # Create alias for compatibility
-    Link = discord.ui.TextInput(label="Link", placeholder="Goat link", required=True)
-    currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
-    colorr = discord.ui.TextInput(label="Color", placeholder="Black", required=True)
-    sizee = discord.ui.TextInput(label="Size (If no size leave blank)", placeholder="US M", required=False)
-    price = discord.ui.TextInput(label="Price without Currency", placeholder="1693", required=True)
-
+class goat(ui.Modal, title="GOAT Receipt - Step 1"):
+    productname = discord.ui.TextInput(label="Product Name", placeholder="Air Jordan 1 Retro High OG", required=True)
+    productsize = discord.ui.TextInput(label="Product Size", placeholder="US 10.5", required=True)
+    sku = discord.ui.TextInput(label="SKU", placeholder="555088-134", required=True)
+    productprice = discord.ui.TextInput(label="Product Price (without currency)", placeholder="250.00", required=True)
+    shippingfee = discord.ui.TextInput(label="Shipping Fee (without currency)", placeholder="14.75", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        owner_id = interaction.user.id 
+        embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receipt.")
+        view = GoatSecondModal(
+            self.productname.value,
+            self.productsize.value, 
+            self.sku.value,
+            self.productprice.value,
+            self.shippingfee.value
+        )
+        await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, view=view, ephemeral=False)
+
+class GoatSecondModal(ui.View):
+    def __init__(self, productname, productsize, sku, productprice, shippingfee):
+        super().__init__(timeout=300)
+        self.productname = productname
+        self.productsize = productsize
+        self.sku = sku
+        self.productprice = productprice
+        self.shippingfee = shippingfee
+
+    @ui.button(label="Continue", style=discord.ButtonStyle.primary)
+    async def continue_button(self, interaction: discord.Interaction, button: ui.Button):
+        modal = GoatSecondModalForm(
+            self.productname,
+            self.productsize,
+            self.sku,
+            self.productprice,
+            self.shippingfee
+        )
+        await interaction.response.send_modal(modal)
+
+class GoatSecondModalForm(ui.Modal, title="GOAT Receipt - Step 2"):
+    def __init__(self, productname, productsize, sku, productprice, shippingfee):
+        super().__init__()
+        self.productname = productname
+        self.productsize = productsize
+        self.sku = sku
+        self.productprice = productprice
+        self.shippingfee = shippingfee
+
+        self.currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="$", required=True, min_length=1, max_length=2)
+        self.applepay_ending = discord.ui.TextInput(label="Apple Pay ending 4 digits (optional)", placeholder="7369", required=False, max_length=4)
+        self.imagelink = discord.ui.TextInput(label="Product Image Link", placeholder="https://cdn.discordapp.com/attachments/...", required=True)
+
+        self.add_item(self.currency)
+        self.add_item(self.applepay_ending)
+        self.add_item(self.imagelink)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        owner_id = interaction.user.id
 
         from utils.db_utils import get_user_details
         user_details = get_user_details(owner_id)
@@ -71,179 +107,65 @@ class goat(ui.Modal, title="discord.gg/goatreceipts"):
         if user_details:
             name, street, city, zipp, country, email = user_details
 
-            link = self.Link.value
-            currency = self.currency.value
-            colorr = self.colorr.value
-            sizee = self.sizee.value if self.sizee.value else ""
-
-
-            if not is_goat_link(link):
-                embed = discord.Embed(title="Error - Invalid Goat link", description="Please provide a valid Goat link.")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-
-
             try:
-
-
                 embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
-
 
                 with open("receipt/goat.html", "r", encoding="utf-8") as file:
                     html_content = file.read()
 
+                # Generate random 9-digit order number
+                random_order_number = str(random.randint(100000000, 999999999))
 
-                # Zyte API setup
-                url = link  # Link should be defined or passed into the class
-
-                # Try Zyte API first, with fallback to direct proxy request
-                og_image_url = "https://cdn.goat.com/web-platform/v1/style/images/goat_logo.svg"
-                product_name = "GOAT Product"
-                
+                # Calculate total (product price + shipping fee + tax 3.24)
                 try:
-                    # Zyte API request
-                    api_response = requests.post(
-                        "https://api.zyte.com/v1/extract",
-                        auth=("a9abed72c425496584d422cfdba283d2", ""),
-                        json={
-                            "url": url,
-                            "browserHtml": True,
-                            "product": True,
-                            "productOptions": {"extractFrom": "browserHtml"},
-                        },
-                        proxies={
-                            "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                            "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                        },
-                        verify=False,
-                        timeout=15
-                    )
+                    product_price_float = float(self.productprice)
+                    shipping_fee_float = float(self.shippingfee)
+                    tax = 3.24
+                    total_paid = product_price_float + shipping_fee_float + tax
+                    total_formatted = f"{total_paid:.2f}"
+                except ValueError:
+                    total_formatted = "0.00"
 
-                    # Check if API response is valid
-                    if api_response.status_code == 200:
-                        # Try to parse JSON response
-                        try:
-                            api_json = api_response.json()
-                            
-                            # Decode HTML data and parse it
-                            browser_html = api_json.get("browserHtml")
-                            if browser_html:
-                                soup = BeautifulSoup(browser_html, 'html.parser')
-                                print()
-                                print(f"[{Colors.green}START Scraping{lg}] GOAT -> {interaction.user.id} ({interaction.user})" + lg)
+                # Use provided Apple Pay ending or default
+                applepay_ending = self.applepay_ending.value if self.applepay_ending.value else "7369"
 
-                                # Check for additional product information in API response
-                                product_data = api_json.get("product")
-                                if product_data:
-                                    product_name = product_data.get("name", product_name)
-                                    main_image = product_data.get("mainImage")
-                                    if main_image and isinstance(main_image, dict):
-                                        og_image_url = main_image.get("url", og_image_url)
-
-                                print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
-                                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {og_image_url}" + lg)
-                            else:
-                                print(f"[{Colors.yellow}Warning{lg}] No browserHtml data received from Zyte API")
-                                raise Exception("No browserHtml data")
-                        except ValueError as e:
-                            print(f"[{Colors.yellow}Warning{lg}] Invalid JSON response from Zyte API: {str(e)}")
-                            raise Exception(f"Invalid JSON response: {str(e)}")
-                    else:
-                        print(f"[{Colors.yellow}Warning{lg}] Zyte API failed with status {api_response.status_code}, trying fallback")
-                        raise Exception(f"Zyte API failed with status code: {api_response.status_code}")
-                        
-                except Exception as zyte_error:
-                    print(f"[{Colors.yellow}Warning{lg}] Zyte API failed: {str(zyte_error)}")
-                    print(f"[{Colors.cyan}Info{lg}] Using fallback method with default values")
-                    
-                    # Fallback: try direct proxy request
-                    try:
-                        fallback_response = requests.get(
-                            url=url,
-                            proxies={
-                                "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                                "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                            },
-                            verify=False,
-                            timeout=10,
-                            headers={
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                            }
-                        )
-                        
-                        if fallback_response.status_code == 200:
-                            soup = BeautifulSoup(fallback_response.text, 'html.parser')
-                            print(f"[{Colors.green}START Scraping{lg}] GOAT (Fallback) -> {interaction.user.id} ({interaction.user})" + lg)
-                            
-                            # Try to extract basic product info
-                            title_tag = soup.find('title')
-                            if title_tag:
-                                product_name = title_tag.get_text().strip()
-                                
-                            # Try to find product image
-                            og_image = soup.find('meta', {'property': 'og:image'})
-                            if og_image and og_image.get('content'):
-                                og_image_url = og_image['content']
-                                
-                            print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
-                            print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {og_image_url}" + lg)
-                        else:
-                            print(f"[{Colors.yellow}Warning{lg}] Fallback request also failed with status {fallback_response.status_code}")
-                    except Exception as fallback_error:
-                        print(f"[{Colors.yellow}Warning{lg}] Fallback method failed: {str(fallback_error)}")
-                        print(f"[{Colors.cyan}Info{lg}] Using default values for receipt generation")
-
-
-
-                print(f"[{Colors.green}Scraping DONE{lg}] GOAT -> {interaction.user.id}" + lg)
-                print()
-
-
-
-                price = self.price.value
-
-
-
-                html_content = html_content.replace("{imageurl}", og_image_url)
-                html_content = html_content.replace("{pname}", product_name)
-                html_content = html_content.replace("{sizee}", sizee)
-                html_content = html_content.replace("{color}", colorr)
-                html_content = html_content.replace("{price}", price)
+                # Replace placeholders in HTML
+                html_content = html_content.replace("{randomnumbers}", random_order_number)
+                html_content = html_content.replace("{productname}", self.productname)
+                html_content = html_content.replace("{productsize}", self.productsize)
+                html_content = html_content.replace("{SKU}", self.sku)
+                html_content = html_content.replace("{currency}", self.currency.value)
+                html_content = html_content.replace("{productprice}", self.productprice)
+                html_content = html_content.replace("{shippingfee}", self.shippingfee)
+                html_content = html_content.replace("{totalpaid}", total_formatted)
+                html_content = html_content.replace("{applepayending}", applepay_ending)
+                html_content = html_content.replace("{imagelink}", self.imagelink.value)
                 html_content = html_content.replace("{name}", name)
                 html_content = html_content.replace("{street}", street)
                 html_content = html_content.replace("{city}", city)
                 html_content = html_content.replace("{zip}", zipp)
                 html_content = html_content.replace("{country}", country)
-                html_content = html_content.replace("{currency}", currency)
-
-
-
-
 
                 with open("receipt/updatedrecipies/updatedgoat.html", "w", encoding="utf-8") as file:
                     file.write(html_content)
 
-
-                sender_email = "GOAT <info@goat.com>"
-                subject = f"Your GOAT order #511637332"
+                sender_email_spoofed = "GOAT <noreply@e.goat.com>"
+                sender_email_normal = "GOAT <info@goat.com>"
+                subject = f"Your GOAT order #{random_order_number}"
 
                 from emails.choise import choiseView
-                owner_id = interaction.user.id
-
-
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-                view = choiseView(owner_id, html_content, sender_email, subject, product_name, og_image_url, link)
+                view = choiseView(owner_id, html_content, sender_email_normal, subject, self.productname, self.imagelink.value, sender_email_spoofed)
                 await interaction.edit_original_response(embed=embed, view=view)
+
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
                 await interaction.edit_original_response(embed=embed)
 
         else:
-            # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.edit_original_response(embed=embed)
 
 # Create a global variable to make the class accessible outside
 goatmodal = goat
