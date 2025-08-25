@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en" xmlns="https://i.imgur.com/2Ky2t8Q.jpeg">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Goyard — Purchase Confirmation</title>
+  <style>
+    /* CLIENT RESETS */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    table { border-collapse: collapse !important; }
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+    /* MOBILE STYLES */
+    @media screen and (max-width: 620px) {
+      .container { width: 100% !important; }
+      .stack { display: block !important; width: 100% !important; }
+      .p-sm { padding: 16px !important; }
+      .text-center-sm { text-align: center !important; }
+      .w-auto-sm { width: auto !important; }
+    }
+
+    /* DARK MODE HINTS (limited support) */
+    @media (prefers-color-scheme: dark) {
+      body, .email-body { background-color: #0e0e0e !important; }
+      .card { background-color: #151515 !important; }
+      .muted { color: #bdbdbd !important; }
+      .text { color: #f1f1f1 !important; }
+      .divider { border-color: #2a2a2a !important; }
+      .btn { background-color: #b08d57 !important; color: #0e0e0e !important; }
+    }
+  </style>
+</head>
+<body style="background-color:#f6f3ee;">
+  <!-- PREHEADER (hidden in most clients) -->
+  <div style="display:none; font-size:1px; color:#f6f3ee; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden;">
+    Thank you for your purchase. Your order has been received and is being prepared.
+  </div>
+
+  <!-- FULL-WIDTH WRAPPER -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f6f3ee;">
+    <tr>
+      <td align="center">
+
+        <!-- HEADER STRIP / CHEVRON ACCENT -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="height:6px; background:#154734; background-image:url('https://via.placeholder.com/1200x6/154734/154734?text=');"></td>
+          </tr>
+        </table>
+
+        <!-- CONTAINER -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="container" style="max-width:600px;">
+          <tr>
+            <td class="p-sm" style="padding:32px;">
+
+              <!-- LOGO -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="text-center-sm" style="padding-bottom:24px;">
+                    <a href="https://www.goyard.com" target="_blank" style="text-decoration:none;">
+                      <img src="https://i.imgur.com/tfKukGu.png" width="144" height="32" alt="Goyard" style="display:block;">
+                    </a>
+                  </td>
+                  <td class="text-center-sm" align="right" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:12px; letter-spacing:0.06em; color:#7b6f63;">
+                    <span class="muted">Maison fondée en 1853</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- TITLE CARD -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="card" style="background:#ffffff; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <tr>
+                  <td style="padding:28px 28px 8px 28px;">
+                    <h1 class="text" style="margin:0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:22px; font-weight:400; color:#154734; letter-spacing:0.02em;">
+                      Thank you, {{customer_first_name}}
+                    </h1>
+                    <p class="muted" style="margin:8px 0 0 0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; line-height:1.6; color:#6a6056;">
+                      We have received your order <strong style="color:#154734">#{{order_number}}</strong> placed on {{order_date}}. A Client Advisor will confirm availability and delivery details.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- ORDER SUMMARY HEADER -->
+                <tr>
+                  <td style="padding:0 28px;">
+                    <hr class="divider" style="border:0; border-top:1px solid #d1c7b8; margin:16px 0;">
+                  </td>
+                </tr>
+
+                <!-- ITEMS -->
+                <tr>
+                  <td style="padding:0 28px 8px 28px;">
+                    <!-- REPEAT THIS BLOCK FOR EACH LINE ITEM -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="stack" width="96" valign="top" style="padding:0 16px 16px 0;">
+                          <img src="https://via.placeholder.com/96" width="96" height="96" alt="Product image" style="display:block; border-radius:8px;">
+                        </td>
+                        <td class="stack" valign="top" style="padding:0 0 16px 0;">
+                          <p style="margin:0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:15px; color:#154734;">
+                            {{product_name}} <span class="muted" style="font-size:13px; color:#6a6056;">• {{product_color}} • {{product_size}}</span>
+                          </p>
+                          <p class="muted" style="margin:6px 0 0 0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:13px; color:#6a6056;">Ref: {{sku}}</p>
+                        </td>
+                        <td class="w-auto-sm" align="right" valign="top" style="white-space:nowrap; padding:0 0 16px 8px; font-family: Georgia, 'Times New Roman', Times, serif; font-size:15px; color:#154734;">
+                          {{line_total}}
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- /REPEAT END -->
+                  </td>
+                </tr>
+
+                <!-- TOTALS -->
+                <tr>
+                  <td style="padding:0 28px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#6a6056; padding:6px 0;">Subtotal</td>
+                        <td align="right" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734; padding:6px 0;">{{subtotal}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#6a6056; padding:6px 0;">Shipping</td>
+                        <td align="right" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734; padding:6px 0;">{{shipping}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#6a6056; padding:6px 0;">VAT</td>
+                        <td align="right" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734; padding:6px 0;">{{tax}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top:10px; border-top:1px solid #d1c7b8; font-family: Georgia, 'Times New Roman', Times, serif; font-size:15px; color:#154734;">Total</td>
+                        <td align="right" style="padding-top:10px; border-top:1px solid #d1c7b8; font-family: Georgia, 'Times New Roman', Times, serif; font-size:16px; color:#154734; font-weight:600;">{{grand_total}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CTA -->
+                <tr>
+                  <td align="center" style="padding:24px 28px 28px 28px;">
+                    <!-- Bulletproof button -->
+                    <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="center" bgcolor="#b08d57" style="border-radius:999px;">
+                          <a href="{{order_status_url}}" target="_blank" class="btn" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; letter-spacing:0.06em; text-decoration:none; padding:12px 20px; display:inline-block; color:#154734; background:#b08d57; border-radius:999px;">
+                            VIEW ORDER STATUS
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- SHIPPING & CONTACT -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="card" style="background:#ffffff; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-top:16px;">
+                <tr>
+                  <td class="p-sm" style="padding:24px 28px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td class="stack" valign="top" style="padding-right:16px;">
+                          <p style="margin:0 0 6px 0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734; letter-spacing:0.02em;">Delivery</p>
+                          <p class="muted" style="margin:0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:13px; color:#6a6056; line-height:1.6;">
+                            {{shipping_name}}<br>
+                            {{shipping_address_1}}<br>
+                            {{shipping_address_2}}<br>
+                            {{shipping_country}}
+                          </p>
+                        </td>
+                        <td class="stack" valign="top" style="padding-left:16px;">
+                          <p style="margin:0 0 6px 0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734; letter-spacing:0.02em;">Billing</p>
+                          <p class="muted" style="margin:0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:13px; color:#6a6056; line-height:1.6;">
+                            {{billing_name}}<br>
+                            {{billing_address_1}}<br>
+                            {{billing_address_2}}<br>
+                            {{billing_country}}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- HELP / NOTE -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="card" style="background:#ffffff; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-top:16px;">
+                <tr>
+                  <td class="p-sm" style="padding:24px 28px;">
+                    <p class="text" style="margin:0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:14px; color:#154734;">
+                      A note from the Maison
+                    </p>
+                    <p class="muted" style="margin:8px 0 0 0; font-family: Georgia, 'Times New Roman', Times, serif; font-size:13px; color:#6a6056; line-height:1.7;">
+                      Our creations are meticulously crafted and may require additional verification by a Client Advisor. You will be contacted shortly if any details are needed to finalize your order.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- FOOTER -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
+                <tr>
+                  <td style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:12px; color:#6a6056; line-height:1.8;">
+                    <p style="margin:0;">
+                      Questions? Contact a Client Advisor at <a href="mailto:clientservice@goyard.com" style="color:#154734; text-decoration:none;">clientservice@goyard.com</a> or visit your nearest boutique.
+                    </p>
+                    <p style="margin:8px 0 0 0;">
+                      This email confirms we have received your request and is not an invoice. All sales are subject to verification and boutique availability.
+                    </p>
+                    <p style="margin:8px 0 0 0;" class="muted">
+                      © Goyard. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+        </table>
+
+        <!-- BOTTOM STRIP -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="height:6px; background:#b08d57;"></td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
