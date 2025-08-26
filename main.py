@@ -775,7 +775,7 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Goat modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "Goyard":
+                elif brand == "goyard" or brand.lower() == "goyard":
                     # Special handling for Goyard with Purchase/Request options
                     try:
                         from modals.goyard import GoyardTypeView
