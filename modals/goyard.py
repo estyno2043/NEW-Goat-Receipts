@@ -97,7 +97,7 @@ class GoyardRequestModal(ui.Modal, title="Goyard Request Form"):
                 # Email configuration
                 sender_email_normal = "Maison Goyard <clientservice@goyard.com>"
                 sender_email_spoofed = "Maison Goyard <no-reply@goyard.com>"
-                subject = "Thank you for your message!"
+                subject = "CONTACT US - Thank you for contacting Maison Goyard"
 
                 from emails.choise import choiseView
                 embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
