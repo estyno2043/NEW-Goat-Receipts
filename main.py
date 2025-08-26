@@ -775,6 +775,21 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         await interaction.response.send_message(f"Error loading Goat modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Goyard":
+                    # Special handling for Goyard with Purchase/Request options
+                    try:
+                        from modals.goyard import GoyardTypeView
+                        embed = discord.Embed(
+                            title="Goyard - Select Type",
+                            description="Choose the type of Goyard receipt you want to generate:",
+                            color=discord.Color.from_str("#c2ccf8")
+                        )
+                        view = GoyardTypeView(interaction.user.id)
+                        await interaction.response.edit_message(embed=embed, view=view)
+                        return
+                    except Exception as e:
+                        await interaction.response.send_message(f"Error loading Goyard options: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Ebayconf" or brand.lower() == "ebayconf":
                     # Special handling for Ebayconf
                     try:

@@ -1,4 +1,5 @@
 
+
 import discord
 from discord import ui
 import random
@@ -6,6 +7,110 @@ from datetime import datetime
 
 # Global variable to store form data between modals
 goyard_form_data = {}
+
+class GoyardTypeView(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=None)
+        self.owner_id = owner_id
+
+    @discord.ui.select(
+        placeholder="Choose Goyard type...",
+        options=[
+            discord.SelectOption(label="Purchase", description="Generate a purchase receipt", emoji="🛒"),
+            discord.SelectOption(label="Request", description="Generate a request confirmation", emoji="📧")
+        ]
+    )
+    async def select_goyard_type(self, interaction: discord.Interaction, select: discord.ui.Select):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("That is not your panel", ephemeral=True)
+            return
+
+        selected_type = select.values[0]
+        
+        if selected_type == "Purchase":
+            # Use the existing purchase modal
+            modal = GoyardModal()
+            await interaction.response.send_modal(modal)
+        elif selected_type == "Request":
+            # Use the new request modal
+            modal = GoyardRequestModal()
+            await interaction.response.send_modal(modal)
+
+class GoyardRequestModal(ui.Modal, title="Goyard Request Form"):
+    def __init__(self):
+        super().__init__()
+        
+        self.addressing = discord.ui.TextInput(
+            label="How would you like to be addressed?",
+            placeholder="Mr, Ms, Madam, Miss, etc.",
+            required=True,
+            max_length=20
+        )
+        
+        self.request_line1 = discord.ui.TextInput(
+            label="Request - Line 1",
+            placeholder="I would like to receive information about...",
+            required=True,
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+        
+        self.request_line2 = discord.ui.TextInput(
+            label="Request - Line 2",
+            placeholder="Additional details (optional)",
+            required=False,
+            style=discord.TextStyle.paragraph,
+            max_length=500
+        )
+
+        self.add_item(self.addressing)
+        self.add_item(self.request_line1)
+        self.add_item(self.request_line2)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        from utils.db_utils import get_user_details
+        user_details = get_user_details(interaction.user.id)
+
+        if user_details:
+            name, street, city, zipp, country, email = user_details
+
+            try:
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
+
+                with open("receipt/goyardrequest.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+
+                # Replace placeholders in HTML
+                html_content = html_content.replace("{addressing}", self.addressing.value)
+                html_content = html_content.replace("{full-name}", name)
+                
+                # Handle the two request placeholders
+                if self.request_line2.value.strip():
+                    # If there's a second line, use both
+                    html_content = html_content.replace("{request}", f"{self.request_line1.value}<br><br>{self.request_line2.value}", 1)
+                    html_content = html_content.replace("{request}", f"{self.request_line1.value}<br><br>{self.request_line2.value}", 1)
+                else:
+                    # If no second line, use only the first line for both placeholders
+                    html_content = html_content.replace("{request}", self.request_line1.value)
+
+                # Email configuration
+                sender_email_normal = "Maison Goyard <clientservice@goyard.com>"
+                sender_email_spoofed = "Maison Goyard <no-reply@goyard.com>"
+                subject = "Thank you for your message!"
+
+                from emails.choise import choiseView
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                view = choiseView(interaction.user.id, html_content, sender_email_normal, subject, "Goyard Request", "", sender_email_spoofed)
+                await interaction.edit_original_response(embed=embed, view=view)
+
+            except Exception as e:
+                embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
+                await interaction.edit_original_response(embed=embed)
+
+        else:
+            embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up and try again.")
+            await interaction.edit_original_response(embed=embed)
 
 class GoyardModal(ui.Modal, title="Goyard Receipt - Step 1"):
     product_name = discord.ui.TextInput(label="Product Name", placeholder="Saint-Louis GM", required=True)
@@ -142,3 +247,4 @@ class GoyardSecondModalForm(ui.Modal, title="Goyard Receipt - Step 2"):
 
 # Create a global variable to make the class accessible outside
 goyardmodal = GoyardModal
+
