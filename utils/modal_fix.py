@@ -25,6 +25,31 @@ def fix_receipt_html(html_content, user_details, replacements=None):
         for placeholder, value in replacements.items():
             html_content = html_content.replace(placeholder, str(value))
     
+    # Fix image display issues
+    from utils.image_fix import fix_image_display_in_receipt
+    
+    # Try to extract product image URL from replacements
+    image_url = None
+    product_name = "Product"
+    
+    if replacements:
+        # Look for image-related keys
+        image_keys = ['productimage', 'imageurl', 'imagelink', 'productimageurl', 'image']
+        for key in image_keys:
+            if key in replacements and replacements[key]:
+                image_url = replacements[key]
+                break
+        
+        # Look for product name
+        name_keys = ['productname', 'product_name', 'name']
+        for key in name_keys:
+            if key in replacements and replacements[key]:
+                product_name = replacements[key]
+                break
+    
+    if image_url:
+        html_content = fix_image_display_in_receipt(html_content, image_url, product_name)
+    
     return html_content
 
 def standardize_modal_user_detail_handling(modal_class):

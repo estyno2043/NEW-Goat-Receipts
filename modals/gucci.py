@@ -124,7 +124,19 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             html_content = html_content.replace("{zip}", zipp)  # Add this for compatibility
             html_content = html_content.replace("{country}", country)
             html_content = html_content.replace("{productname}", productname)
+            
+            # Fix image display - ensure proper image tag formatting
+            import re
+            # Find and replace image tags that contain the productimage placeholder
+            img_pattern = r'<img[^>]*src="{productimage}"[^>]*>'
+            if re.search(img_pattern, html_content):
+                # Create a properly formatted image tag
+                image_tag = f'<img style="display:inline-block;width:160px" src="{productimage}" alt="{productname}" width="160" border="0" class="CToWUd" data-bit="iit">'
+                html_content = re.sub(img_pattern, image_tag, html_content)
+            
+            # Also handle direct replacement as fallback
             html_content = html_content.replace("{productimage}", productimage)
+            
             html_content = html_content.replace("{productsku}", productsku)
             html_content = html_content.replace("{productsize}", productsize)
             html_content = html_content.replace("{productprice}", f"{self.productcurrency.value}{productprice}")

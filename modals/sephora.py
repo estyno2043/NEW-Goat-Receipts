@@ -55,7 +55,7 @@ def is_sephora_link(link):
 
 
 class sephoranmodal(ui.Modal, title="discord.gg/goatreceipts"):
-    
+
     # Define the inputs first
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=1)
@@ -69,7 +69,7 @@ class sephoranmodal(ui.Modal, title="discord.gg/goatreceipts"):
         try:
             from utils.db_utils import get_user_details
             user_details = get_user_details(owner_id)
-            
+
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
@@ -156,15 +156,24 @@ class sephoramodal2(ui.Modal, title="Sephora Receipt"):
             html_content = html_content.replace("{productname}", pname or "Unknown Product")
             html_content = html_content.replace("{price}", price_formatted)
             html_content = html_content.replace("{currency}", currencyff)
-            html_content = html_content.replace("{imageurl}", image_url)
+            # html_content = html_content.replace("{imageurl}", image_url) # This line is removed to avoid duplicate image replacement
             html_content = html_content.replace("{street}", street)
             html_content = html_content.replace("{cityzip}", cityzip)
             html_content = html_content.replace("{country}", country)
             html_content = html_content.replace("{tax}", tax_formatted)
             html_content = html_content.replace("{total}", total_formatted)
 
+            # Fix image display - ensure proper image tag formatting
+            import re
+            # Find and replace image tags that contain the productimage placeholder
+            img_pattern = r'<img[^>]*src="{productimage}"[^>]*>'
+            if re.search(img_pattern, html_content):
+                # Create a properly formatted image tag
+                image_tag = f'<img src="{image_url}" alt="{pname}" style="max-width:150px;height:auto;" class="CToWUd" data-bit="iit">'
+                html_content = re.sub(img_pattern, image_tag, html_content)
 
-
+            # Also handle direct replacement as fallback
+            html_content = html_content.replace("{productimage}", image_url)
 
 
             with open("receipt/updatedrecipies/updatedsephora.html", "w", encoding="utf-8") as file:
