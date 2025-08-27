@@ -138,18 +138,30 @@ class sephoramodal2(ui.Modal, title="Sephora Receipt"):
             total = Priceff + taxx
             total = round(total, 2)
 
+            # Format numbers to always show 2 decimal places
+            price_formatted = f"{Priceff:.2f}"
+            tax_formatted = f"{taxx:.2f}"
+            total_formatted = f"{total:.2f}"
+
+            # Use a placeholder image if Discord CDN link is provided
+            # Discord CDN links often don't work in email clients
+            if "discord" in image.lower():
+                # Use a generic Sephora product image that works in emails
+                image_url = "https://via.placeholder.com/150x150/000000/FFFFFF?text=Product+Image"
+            else:
+                image_url = image
 
             html_content = html_content.replace("{name}", name)
             html_content = html_content.replace("{orderdate}", delivery)
             html_content = html_content.replace("{productname}", pname or "Unknown Product")
-            html_content = html_content.replace("{price}", str(Priceff))  # Ensure float is converted to string
+            html_content = html_content.replace("{price}", price_formatted)
             html_content = html_content.replace("{currency}", currencyff)
-            html_content = html_content.replace("{imageurl}", image or "")
+            html_content = html_content.replace("{imageurl}", image_url)
             html_content = html_content.replace("{street}", street)
             html_content = html_content.replace("{cityzip}", cityzip)
             html_content = html_content.replace("{country}", country)
-            html_content = html_content.replace("{tax}", str(taxx))  # Ensure float is converted to string
-            html_content = html_content.replace("{total}", str(total))  # Ensure float is converted to string
+            html_content = html_content.replace("{tax}", tax_formatted)
+            html_content = html_content.replace("{total}", total_formatted)
 
 
 
