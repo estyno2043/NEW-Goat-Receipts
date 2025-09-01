@@ -91,11 +91,11 @@ class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
                 html_content = html_content.replace("{{taxes_cost}}", first_data['producttaxescost'])
                 html_content = html_content.replace("{{currency}}", self.productcurrency.value)
                 html_content = html_content.replace("{{total}}", f"{total:.2f}")
-                html_content = html_content.replace("{{customer_name}}", name)
-                html_content = html_content.replace("{{customer_street}}", street)
-                html_content = html_content.replace("{{customer_city}}", city)
-                html_content = html_content.replace("{{customer_zip}}", zipp)
-                html_content = html_content.replace("{{customer_country}}", country)
+                html_content = html_content.replace("{name}", name)
+                html_content = html_content.replace("{street}", street)
+                html_content = html_content.replace("{city}", city)
+                html_content = html_content.replace("{zip}", zipp)
+                html_content = html_content.replace("{country}", country)
 
                 # Save updated HTML
                 import os
