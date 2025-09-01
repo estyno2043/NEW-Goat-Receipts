@@ -521,6 +521,8 @@ class BrandSelectDropdown(ui.Select):
                 brand_name = "The North Face"
             elif base_name == "nosauce":
                 brand_name = "No Sauce The Plug"
+            elif base_name == "6pm":
+                brand_name = "6PM"
             else:
                 brand_name = base_name.capitalize()
 
@@ -633,8 +635,8 @@ class BrandSelectDropdown(ui.Select):
                 "tnf": "tnfmodal",
                 "chewforever": "Chewforevermodal",
                 "corteiz": "crtzmodal",
-                "loropiana": "loromodal"
-                # Add other special cases as needed
+                "loropiana": "loromodal",
+                "6pm": "6pmmodal" # Add 6PM modal handling
             }
 
             if brand in special_cases:
@@ -846,6 +848,9 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
+                elif brand == "6PM":
+                    module_name = "modals.6pm"
+                    modal_class_name = "6pmmodal"
 
                 modal_module = importlib.import_module(module_name)
 
