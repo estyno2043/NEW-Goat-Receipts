@@ -40,7 +40,7 @@ class SixPMModal(ui.Modal, title="6PM Order - Step 1"):
         continue_button.callback = continue_callback
         view.add_item(continue_button)
 
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 
 
 class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
