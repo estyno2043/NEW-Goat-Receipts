@@ -636,7 +636,7 @@ class BrandSelectDropdown(ui.Select):
                 "chewforever": "Chewforevermodal",
                 "corteiz": "crtzmodal",
                 "loropiana": "loromodal",
-                "6pm": "6pmmodal" # Add 6PM modal handling
+                "6pm": "sixpmmodal" # Add 6PM modal handling
             }
 
             if brand in special_cases:
