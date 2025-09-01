@@ -850,7 +850,7 @@ class BrandSelectDropdown(ui.Select):
                     modal_class_name = "amazonukmodal"
                 elif brand == "6PM":
                     module_name = "modals.6pm"
-                    modal_class_name = "6pmmodal"
+                    modal_class_name = "sixpmmodal"
 
                 modal_module = importlib.import_module(module_name)
 
