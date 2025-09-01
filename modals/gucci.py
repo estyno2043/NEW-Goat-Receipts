@@ -67,7 +67,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
         )
         self.deliverydate = TextInput(
             label="Estimated Delivery Date",
-            placeholder="1/1/25",
+            placeholder="00/00/0000",
             required=True
         )
 
