@@ -65,9 +65,15 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             placeholder="Black, Red, etc.",
             required=True
         )
+        self.deliverydate = TextInput(
+            label="Estimated Delivery Date",
+            placeholder="1/1/25",
+            required=True
+        )
 
         self.add_item(self.productcurrency)
         self.add_item(self.productcolor)
+        self.add_item(self.deliverydate)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.send_message(content="Generating your Gucci receipt...", ephemeral=False)
@@ -142,6 +148,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             html_content = html_content.replace("{productprice}", f"{self.productcurrency.value}{productprice}")
             html_content = html_content.replace("{productcurrency}", self.productcurrency.value)
             html_content = html_content.replace("{productcolor}", self.productcolor.value)
+            html_content = html_content.replace("{deliverydate}", self.deliverydate.value)
 
             # Save the updated HTML
             with open("receipt/updatedrecipies/updatedgucci.html", "w", encoding="utf-8") as file:
