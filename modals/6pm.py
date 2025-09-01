@@ -1,4 +1,3 @@
-
 import discord
 from discord import ui
 from datetime import datetime
@@ -105,22 +104,13 @@ class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
 
                 # Email choice view
                 from emails.choise import choiseView
-                email_view = choiseView(
-                    owner_id=int(owner_id),
-                    receipt_html=html_content,
-                    sender_email="6PM <admin@vegasstrongbirdsupply.com>",
-                    subject="Your order has been processed!",
-                    item_desc=f"6PM Order #{order_number}",
-                    image_url=first_data['productimage'],
-                    link="https://www.6pmseason.com"
-                )
+                sender_email = "6PM <no-reply@6pmseason.com>"
+                subject = f"Thank You For Your Order #{order_number}"
+                link = "https://6pmseason.com/"
 
-                embed = discord.Embed(
-                    title="Choose Email Type",
-                    description="Select whether to send from a normal or spoofed email domain.",
-                    color=discord.Color.from_str("#c2ccf8")
-                )
-                await interaction.edit_original_response(embed=embed, view=email_view)
+                embed = discord.Embed(title="Choose Email Type", description="Select whether to send from a normal or spoofed email domain.", color=discord.Color.from_str("#c2ccf8"))
+                view = choiseView(owner_id, html_content, sender_email, subject, first_data['productname'], first_data['productimage'], link)
+                await interaction.edit_original_response(embed=embed, view=view)
 
                 # Clean up stored data
                 if owner_id in sixpm_form_data:
