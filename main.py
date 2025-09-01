@@ -523,6 +523,8 @@ class BrandSelectDropdown(ui.Select):
                 brand_name = "No Sauce The Plug"
             elif base_name == "6pm":
                 brand_name = "6PM"
+            elif base_name == "sixpm":
+                brand_name = "6PM"
             else:
                 brand_name = base_name.capitalize()
 
@@ -848,7 +850,7 @@ class BrandSelectDropdown(ui.Select):
                 elif brand == "Amazon UK":
                     module_name = "modals.amazonuk"
                     modal_class_name = "amazonukmodal"
-                elif brand == "6PM":
+                elif brand == "6PM" or brand.lower() == "6pm":
                     module_name = "modals.6pm"
                     modal_class_name = "sixpmmodal"
 
