@@ -2,6 +2,7 @@
 import discord
 from discord import ui
 from datetime import datetime
+import random
 
 # Global variable to store first form data
 sixpm_form_data = {}
@@ -73,26 +74,45 @@ class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
                 taxes_cost = float(first_data['producttaxescost'])
                 total = product_price + shipping_cost + taxes_cost
 
+                # Generate random order number
+                import random
+                order_number = f"{random.randint(1000000, 9999999)}-{random.randint(10000000, 99999999)}"
+
+                # Read and process HTML template
+                with open("receipt/6pm.html", "r", encoding="utf-8") as file:
+                    html_content = file.read()
+
+                # Replace all placeholders
+                html_content = html_content.replace("{{order_number}}", order_number)
+                html_content = html_content.replace("{{product_name}}", first_data['productname'])
+                html_content = html_content.replace("{{product_image}}", first_data['productimage'])
+                html_content = html_content.replace("{{product_price}}", first_data['productprice'])
+                html_content = html_content.replace("{{shipping_cost}}", first_data['productshippingcost'])
+                html_content = html_content.replace("{{taxes_cost}}", first_data['producttaxescost'])
+                html_content = html_content.replace("{{currency}}", self.productcurrency.value)
+                html_content = html_content.replace("{{total}}", f"{total:.2f}")
+                html_content = html_content.replace("{{customer_name}}", name)
+                html_content = html_content.replace("{{customer_street}}", street)
+                html_content = html_content.replace("{{customer_city}}", city)
+                html_content = html_content.replace("{{customer_zip}}", zipp)
+                html_content = html_content.replace("{{customer_country}}", country)
+
+                # Save updated HTML
+                import os
+                os.makedirs("receipt/updatedrecipies", exist_ok=True)
+                with open("receipt/updatedrecipies/updated6pm.html", "w", encoding="utf-8") as file:
+                    file.write(html_content)
+
                 # Email choice view
-                from emails.choise import EmailChoiceView
-                email_view = EmailChoiceView(
-                    brand="6pm",
-                    product_name=first_data['productname'],
-                    product_image=first_data['productimage'],
-                    product_price=first_data['productprice'],
-                    shipping_cost=first_data['productshippingcost'],
-                    taxes_cost=first_data['producttaxescost'],
-                    currency=self.productcurrency.value,
-                    total=f"{total:.2f}",
-                    customer_name=name,
-                    customer_email=email,
-                    customer_street=street,
-                    customer_city=city,
-                    customer_zip=zipp,
-                    customer_country=country,
-                    spoofed_sender="admin@vegasstrongbirdsupply.com",
-                    sender_name="6PM",
-                    subject="Your order has been processed!"
+                from emails.choise import choiseView
+                email_view = choiseView(
+                    owner_id=int(owner_id),
+                    receipt_html=html_content,
+                    sender_email="6PM <admin@vegasstrongbirdsupply.com>",
+                    subject="Your order has been processed!",
+                    item_desc=f"6PM Order #{order_number}",
+                    image_url=first_data['productimage'],
+                    link="https://www.6pmseason.com"
                 )
 
                 embed = discord.Embed(
