@@ -109,7 +109,7 @@ class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
                 link = "https://6pmseason.com/"
 
                 embed = discord.Embed(title="Choose Email Type", description="Select whether to send from a normal or spoofed email domain.", color=discord.Color.from_str("#c2ccf8"))
-                view = choiseView(owner_id, html_content, sender_email, subject, first_data['productname'], first_data['productimage'], link)
+                view = choiseView(interaction.user.id, html_content, sender_email, subject, first_data['productname'], first_data['productimage'], link)
                 await interaction.edit_original_response(embed=embed, view=view)
 
                 # Clean up stored data
