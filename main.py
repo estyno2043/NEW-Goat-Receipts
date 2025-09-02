@@ -1333,7 +1333,7 @@ async def on_message(message):
             image_channel_found = False
 
             # Special hardcoded configuration for main guild
-            if guild_id == main_guild_id and channel_id == 1350414860508463204:
+            if guild_id == main_guild_id and channel_id == 1412501270471770285:
                 image_channel_found = True
                 print(f"Using hardcoded main guild image channel config: {channel_id}")
             else:
