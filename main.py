@@ -2168,7 +2168,7 @@ async def redeem_command(interaction: discord.Interaction):
     # Send the public panel message
     embed = discord.Embed(
         title="Redeem License Key",
-        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1350413411455995904> and open ticket describing your issue!",
+        description="Click on the button `Redeem` then submit your **unique Key**. You should receive access automatically. Each key can only be used **once**. If there is issue with you key head over to <#1412500752294744215> and open ticket describing your issue!",
         color=discord.Color.green()
     )
 
