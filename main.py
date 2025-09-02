@@ -2233,7 +2233,7 @@ async def menu_command(interaction: discord.Interaction):
     from utils.license_manager import LicenseManager
 
     license_status = await LicenseManager.is_subscription_active(interaction.user.id)
-    
+
     if not license_status:
         # Check if it's a lite subscription that's exhausted
         from utils.mongodb_manager import mongo_manager

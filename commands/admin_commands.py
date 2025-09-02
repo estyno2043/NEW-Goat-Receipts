@@ -104,7 +104,7 @@ class SubscriptionOption(discord.ui.Select):
             await interaction.response.send_message("Failed to save license to database. Please try again.", ephemeral=True)
             return
 
-        # Try to add client role to the user
+        # Try to add roles to the user
         try:
             # Use the specific client role ID for manual access addition
             client_role_id = 1350410798899531778
@@ -116,13 +116,19 @@ class SubscriptionOption(discord.ui.Select):
                 await self.user.add_roles(client_role)
                 print(f"Added client role to {self.user.display_name}")
 
-            # Add new unified role for 1 month, 3 months, lifetime, and guild subscriptions (NOT lite)
-            if selected in ["1_month", "3_months", "lifetime", "guild_30days", "guild_lifetime"]:
-                # Add the new role for all premium subscription types
-                new_role = discord.utils.get(interaction.guild.roles, id=1402941054243831888)
-                if new_role:
-                    await self.user.add_roles(new_role)
-                    print(f"Added new subscription role to {self.user.display_name}")
+            # Add customer role to everyone who gets access
+            customer_role = discord.utils.get(interaction.guild.roles, id=1412498223842721903)
+            if customer_role:
+                await self.user.add_roles(customer_role)
+                print(f"Added customer role to {self.user.display_name}")
+
+            # Add subscription role for 1 month, 3 months, and guild subscriptions (NOT lite)
+            if selected in ["1_month", "3_months", "guild_30days", "guild_lifetime"]:
+                # Add the subscription role for premium subscription types
+                subscription_role = discord.utils.get(interaction.guild.roles, id=1412498358248935634)
+                if subscription_role:
+                    await self.user.add_roles(subscription_role)
+                    print(f"Added subscription role to {self.user.display_name}")
 
         except Exception as e:
             print(f"Error adding roles to user: {e}")
