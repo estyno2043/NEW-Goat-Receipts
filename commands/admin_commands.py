@@ -799,6 +799,235 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+class RoleAssignmentView(discord.ui.View):
+    def __init__(self, eligible_users, guild):
+        super().__init__(timeout=300)
+        self.eligible_users = eligible_users
+        self.guild = guild
+
+    @discord.ui.button(label="Assign Subscription Role", style=discord.ButtonStyle.green)
+    async def assign_roles(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user is bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 0))
+
+        if interaction.user.id != owner_id:
+            await interaction.response.send_message("Only the bot owner can use this button.", ephemeral=True)
+            return
+
+        # Disable the button to prevent multiple clicks
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+
+        # Get the subscription role
+        subscription_role = discord.utils.get(self.guild.roles, id=1412498358248935634)
+        if not subscription_role:
+            await interaction.followup.send("Subscription role not found in this server.", ephemeral=True)
+            return
+
+        assigned_count = 0
+        skipped_count = 0
+        error_count = 0
+        assigned_users = []
+        skipped_users = []
+
+        for user_info in self.eligible_users:
+            user_id = user_info['user_id']
+            try:
+                member = self.guild.get_member(int(user_id))
+                if member:
+                    # Check if user already has the role
+                    if subscription_role not in member.roles:
+                        await member.add_roles(subscription_role)
+                        assigned_count += 1
+                        assigned_users.append(member.display_name)
+                        print(f"Assigned subscription role to {member.display_name}")
+                    else:
+                        skipped_count += 1
+                        skipped_users.append(member.display_name)
+                        print(f"User {member.display_name} already has subscription role")
+                else:
+                    skipped_count += 1
+                    skipped_users.append(f"User {user_id} (not in server)")
+            except Exception as e:
+                error_count += 1
+                print(f"Error assigning role to user {user_id}: {e}")
+
+        # Create summary embed
+        summary_embed = discord.Embed(
+            title="Role Assignment Complete",
+            description=f"**Results:**\n• Assigned: {assigned_count} users\n• Skipped: {skipped_count} users\n• Errors: {error_count} users",
+            color=discord.Color.green()
+        )
+
+        if assigned_users:
+            assigned_list = "\n".join(assigned_users[:10])  # Show first 10
+            if len(assigned_users) > 10:
+                assigned_list += f"\n... and {len(assigned_users) - 10} more"
+            summary_embed.add_field(name="Assigned To", value=assigned_list, inline=False)
+
+        await interaction.followup.send(embed=summary_embed, ephemeral=True)
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+    async def cancel_assignment(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user is bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 0))
+
+        if interaction.user.id != owner_id:
+            await interaction.response.send_message("Only the bot owner can use this button.", ephemeral=True)
+            return
+
+        embed = discord.Embed(
+            title="Role Assignment Cancelled",
+            description="No roles were assigned.",
+            color=discord.Color.orange()
+        )
+        await interaction.response.edit_message(embed=embed, view=None)
+
+    async def info_command(self, interaction: discord.Interaction):
+        # Check if user is bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 0))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Get all users with premium subscription types
+        from utils.mongodb_manager import mongo_manager
+        
+        try:
+            db = mongo_manager.get_database()
+            if db is None:
+                await interaction.response.send_message("Database connection failed.", ephemeral=True)
+                return
+
+            # Define premium subscription types
+            premium_types = [
+                "1month", "1_month", "1 month",
+                "3month", "3_month", "3 months", "3month",
+                "guild_30days", "guild30", "guild 30 days",
+                "guild_lifetime", "guild lifetime",
+                "lifetime"
+            ]
+
+            # Query for users with premium subscriptions
+            eligible_users = []
+            
+            # Check main licenses collection
+            for license_doc in db.licenses.find():
+                user_id = license_doc.get("owner_id")
+                subscription_type = license_doc.get("subscription_type", "").lower()
+                key = license_doc.get("key", "").lower()
+                
+                # Check if user has premium subscription
+                is_premium = False
+                
+                # Check subscription type
+                if any(ptype in subscription_type for ptype in premium_types):
+                    is_premium = True
+                
+                # Check key for premium indicators
+                if any(ptype in key for ptype in ["1month", "3month", "lifetime", "guild"]):
+                    is_premium = True
+                
+                if is_premium:
+                    # Get user info
+                    try:
+                        user = interaction.client.get_user(int(user_id))
+                        if user:
+                            username = user.display_name
+                            is_in_server = interaction.guild.get_member(int(user_id)) is not None
+                        else:
+                            username = f"Unknown User ({user_id})"
+                            is_in_server = False
+                        
+                        eligible_users.append({
+                            'user_id': user_id,
+                            'username': username,
+                            'subscription_type': subscription_type,
+                            'key': license_doc.get("key", ""),
+                            'in_server': is_in_server
+                        })
+                    except Exception as e:
+                        print(f"Error processing user {user_id}: {e}")
+
+            # Sort by whether user is in server (in server first)
+            eligible_users.sort(key=lambda x: (not x['in_server'], x['username']))
+
+            if not eligible_users:
+                embed = discord.Embed(
+                    title="Premium Users Info",
+                    description="No users found with premium subscription types.",
+                    color=discord.Color.orange()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+
+            # Create embed with user list
+            embed = discord.Embed(
+                title="Premium Subscription Users",
+                description=f"Found {len(eligible_users)} users with premium subscriptions:",
+                color=discord.Color.blue()
+            )
+
+            # Build user list
+            in_server_users = []
+            not_in_server_users = []
+
+            for user_info in eligible_users:
+                user_id = user_info['user_id']
+                username = user_info['username']
+                subscription_type = user_info['subscription_type']
+                
+                user_line = f"<@{user_id}> ({username}) - `{subscription_type}`"
+                
+                if user_info['in_server']:
+                    in_server_users.append(user_line)
+                else:
+                    not_in_server_users.append(user_line)
+
+            # Add in-server users
+            if in_server_users:
+                in_server_text = "\n".join(in_server_users[:20])  # Limit to 20 to avoid embed limits
+                if len(in_server_users) > 20:
+                    in_server_text += f"\n... and {len(in_server_users) - 20} more in server"
+                embed.add_field(name=f"In Server ({len(in_server_users)})", value=in_server_text, inline=False)
+
+            # Add not-in-server users
+            if not_in_server_users:
+                not_in_server_text = "\n".join(not_in_server_users[:10])  # Limit to 10
+                if len(not_in_server_users) > 10:
+                    not_in_server_text += f"\n... and {len(not_in_server_users) - 10} more not in server"
+                embed.add_field(name=f"Not in Server ({len(not_in_server_users)})", value=not_in_server_text, inline=False)
+
+            # Create view with assignment button
+            view = RoleAssignmentView(eligible_users, interaction.guild)
+            
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+        except Exception as e:
+            print(f"Error in info command: {e}")
+            embed = discord.Embed(
+                title="Error",
+                description="An error occurred while fetching user information.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="info", description="Show all users with premium subscriptions and assign roles (Owner only)")
+    async def info(self, interaction: discord.Interaction):
+        await self.info_command(interaction)
+
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
 
