@@ -1184,7 +1184,7 @@ class CredentialsDropdownView(ui.View):
         # Create menu panel
         embed = discord.Embed(
             title="GOAT Menu",
-            description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
+            description=("Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
                         f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
                         "-# pick an option below to continue\n\n" +
                         "**Subscription Type**\n" +
@@ -1876,13 +1876,13 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Notification message for guild subscription
                 try:
-                    purchases_channel = interaction.client.get_channel(1402938227962417222)
+                    purchases_channel = interaction.client.get_channel(1412500928187203606)
                     if purchases_channel:
                         # Create guild subscription notification
                         guild_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your guild subscription has been updated. Check below\n"
-                                       f"-# Run command /configure_guild in <#1350413411455995904> to continue\n\n"
+                                       f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
                                        f"**Subscription Type**\n"
                                        f"`Guild`\n\n"
                                        f"**Consider leaving a review !**\n"
@@ -1953,7 +1953,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
 
                 # Send notification to Purchases channel
                 try:
-                    purchases_channel = interaction.client.get_channel(1402938227962417222)
+                    purchases_channel = interaction.client.get_channel(1412500928187203606)
                     if purchases_channel:
                         # Clean up subscription type display
                         display_type = subscription_type

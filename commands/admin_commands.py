@@ -143,7 +143,7 @@ class SubscriptionOption(discord.ui.Select):
 
         # Send purchase notification to Purchases channel (like key redemption)
         try:
-            purchases_channel = interaction.client.get_channel(1402938227962417222)
+            purchases_channel = interaction.client.get_channel(1412500928187203606)
             if purchases_channel:
                 # Create notification embed
                 notification_embed = discord.Embed(
@@ -392,7 +392,7 @@ class AdminPanelView(discord.ui.View):
 
             # Send notification to Purchases channel
             try:
-                purchases_channel = interaction.client.get_channel(1402938227962417222)
+                purchases_channel = interaction.client.get_channel(1412500928187203606)
                 if purchases_channel:
                     await purchases_channel.send(content=self.user.mention, embed=purchases_embed, view=purchases_view)
                     logging.info(f"Sent expiration notification to purchases channel for {self.user.name}")

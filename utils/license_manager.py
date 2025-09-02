@@ -205,7 +205,7 @@ class LicenseManager:
 
                             # Send notification to Purchases channel (always send)
                             try:
-                                purchases_channel = self.bot.get_channel(1402938227962417222)
+                                purchases_channel = self.bot.get_channel(1412500928187203606)
                                 if purchases_channel:
                                     mention_content = notification_member.mention if notification_member else f"<@{user_id}>"
                                     await purchases_channel.send(content=mention_content, embed=purchases_embed, view=purchases_view)
