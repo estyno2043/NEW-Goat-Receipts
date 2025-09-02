@@ -123,12 +123,12 @@ async def handle_access_granted_notification(notification):
                     embed = discord.Embed(
                         title="Thank you for purchasing",
                         description=f"{f'<@{user_id}>' if user else username}, your subscription has been updated. Check below\n"
-                                  f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
+                                  f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
                                   f"**Subscription Type**\n"
                                   f"`{access_duration} Day{'s' if access_duration != 1 else ''} (Invite Reward)`\n\n"
                                   f"**Server Access**\n"
                                   f"`{guild_name}`\n\n"
-                                  f"- Please consider leaving a review at <#1350413086074474558>",
+                                  f"- Please consider leaving a review at <#1412500966477139990>",
                         color=discord.Color.green()
                     )
 

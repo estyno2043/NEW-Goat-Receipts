@@ -149,10 +149,10 @@ class SubscriptionOption(discord.ui.Select):
                 notification_embed = discord.Embed(
                     title="Thank you for purchasing",
                     description=f"{self.user.mention}, your subscription has been updated. Check below\n"
-                              f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
+                              f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
                               f"**Subscription Type**\n"
                               f"`{subscription_type}`\n\n"
-                              f"- Please consider leaving a review at <#1350413086074474558>",
+                              f"- Please consider leaving a review at <#1412500966477139990>",
                     color=discord.Color.green()
                 )
 
