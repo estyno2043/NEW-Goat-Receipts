@@ -145,11 +145,16 @@ class SubscriptionOption(discord.ui.Select):
         try:
             purchases_channel = interaction.client.get_channel(1412500928187203606)
             if purchases_channel:
-                # Create notification embed
+                # Create notification embed based on subscription type
+                if selected in ["guild_30days", "guild_lifetime"]:
+                    command_text = "/configure_guild"
+                else:
+                    command_text = "/generate"
+
                 notification_embed = discord.Embed(
                     title="Thank you for purchasing",
                     description=f"{self.user.mention}, your subscription has been updated. Check below\n"
-                              f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
+                              f"-# Run command {command_text} in <#1412501183121068132> to continue\n\n"
                               f"**Subscription Type**\n"
                               f"`{subscription_type}`\n\n"
                               f"- Please consider leaving a review at <#1412500966477139990>",
