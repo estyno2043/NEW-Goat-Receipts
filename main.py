@@ -1631,7 +1631,7 @@ async def generate_command(interaction: discord.Interaction):
                 if receipt_count >= max_receipts:
                     embed = discord.Embed(
                         title="Lite Subscription Complete",
-                        description=f"You have used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
+                        description=f"You have used all **{max_receipts}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1412500966477139990>\n• If you experienced any issues, open a support ticket in <#1412500752294744215>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
                         color=discord.Color.orange()
                     )
                     view = discord.ui.View()

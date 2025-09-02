@@ -1,4 +1,3 @@
-
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -10,7 +9,7 @@ def format_sender_display_name(sender_email):
     if '<' in sender_email and '>' in sender_email:
         # Already properly formatted like "Brand Name <email@domain.com>"
         return sender_email
-    
+
     # Extract domain and create display name
     if '@' in sender_email:
         domain = sender_email.split('@')[1]
@@ -26,7 +25,7 @@ def format_sender_display_name(sender_email):
             # Capitalize first letter of domain for generic cases
             brand_name = domain.split('.')[0].capitalize()
             return f"{brand_name} <{sender_email}>"
-    
+
     return sender_email
 
 async def send_email_normal(recipient_email, html_content, sender_email, subject):
@@ -52,7 +51,7 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
 
         # Format sender email to show brand name properly
         formatted_sender = format_sender_display_name(sender_email)
-        
+
         # Create message
         message = MIMEMultipart()
         message['From'] = formatted_sender
@@ -61,7 +60,7 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
 
         # Add Reply-To header to improve deliverability
         message['Reply-To'] = gmail_user
-        
+
         # Set the Sender header to the actual Gmail account for authentication
         message['Sender'] = gmail_user
 
@@ -76,7 +75,7 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
         print("Connecting to Gmail SMTP server...")
         # Connect to Gmail with timeout parameters
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30)
-        
+
         print("Attempting login...")
         server.login(gmail_user, gmail_app_password)
         print("Login successful!")
@@ -91,7 +90,7 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
         try:
             from utils.mongodb_manager import mongo_manager
             license_doc = mongo_manager.get_license(recipient_email.split('@')[0] if '@' in recipient_email else None)
-            
+
             # Try to find user by checking if this is a receipt generation (look for user in calling context)
             import inspect
             frame = inspect.currentframe()
@@ -108,7 +107,7 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
                     elif 'interaction' in frame.f_locals and hasattr(frame.f_locals['interaction'], 'user'):
                         user_id = str(frame.f_locals['interaction'].user.id)
                         break
-                
+
                 if user_id:
                     license_doc = mongo_manager.get_license(user_id)
                     if license_doc and license_doc.get("subscription_type") == "lite":
@@ -116,19 +115,19 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
                         receipt_usage = mongo_manager.get_receipt_usage(user_id)
                         if receipt_usage:
                             print(f"Lite subscription: {receipt_usage['used']}/{receipt_usage['max']} receipts used")
-                            
+
                             # If user has used all receipts, send completion message
                             if receipt_usage['used'] >= receipt_usage['max']:
                                 try:
                                     import asyncio
                                     import discord
-                                    
+
                                     # Get bot instance from the current event loop
                                     def send_completion_dm():
                                         try:
                                             import discord
                                             from discord.ext import commands
-                                            
+
                                             # Find the bot instance in the current context
                                             loop = asyncio.get_event_loop()
                                             for task in asyncio.all_tasks(loop):
@@ -138,21 +137,21 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
                                                         while frame:
                                                             if 'bot' in frame.f_locals and hasattr(frame.f_locals['bot'], 'fetch_user'):
                                                                 bot = frame.f_locals['bot']
-                                                                
+
                                                                 async def send_dm():
                                                                     try:
                                                                         user = await bot.fetch_user(int(user_id))
                                                                         if user:
                                                                             embed = discord.Embed(
                                                                                 title="🎉 Lite Subscription Complete!",
-                                                                                description=f"You have successfully used all **{receipt_usage['max']}** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1350413086074474558>\n• If you experienced any issues, open a support ticket in <#1350417131644125226>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
+                                                                                description=f"You have successfully used all **7** receipts from your Lite subscription!\n\n**Thank you for using our service!**\n• Consider leaving a review in <#1412500966477139990>\n• If you experienced any issues, open a support ticket in <#1412500752294744215>\n\nUpgrade to unlimited receipts at https://goatreceipts.net",
                                                                                 color=discord.Color.green()
                                                                             )
                                                                             await user.send(embed=embed)
                                                                             print(f"Sent lite completion DM to user {user_id}")
                                                                     except Exception as e:
                                                                         print(f"Error sending lite completion DM: {e}")
-                                                                
+
                                                                 # Schedule the DM to be sent
                                                                 asyncio.create_task(send_dm())
                                                                 return
@@ -161,11 +160,11 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
                                                     continue
                                         except:
                                             pass
-                                    
+
                                     send_completion_dm()
                                 except Exception as dm_error:
                                     print(f"Could not send completion DM: {dm_error}")
-                
+
             finally:
                 del frame
         except Exception as e:
