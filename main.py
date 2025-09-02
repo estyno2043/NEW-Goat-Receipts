@@ -1405,15 +1405,7 @@ async def generate_command(interaction: discord.Interaction):
     # Check if this is a guild-specific or main guild request
     is_main_guild = (guild_id == main_guild_id)
 
-    # If in main guild, enforce channel restriction
-    if is_main_guild and interaction.channel_id != main_channel_id:
-        embed = discord.Embed(
-            title="Command Restricted",
-            description=f"This command can only be used in <#{main_channel_id}>",
-            color=discord.Color.red()
-        )
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
+    # Channel restriction removed - generate command can now be used anywhere
 
     # If in a guild server, check if the channel is allowed
     if not is_main_guild:
@@ -1441,16 +1433,7 @@ async def generate_command(interaction: discord.Interaction):
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
 
-            # Check if this is the right channel
-            allowed_channel_id = int(guild_config.get("generate_channel_id", 0))
-            if interaction.channel_id != allowed_channel_id:
-                embed = discord.Embed(
-                    title="Command Restricted",
-                    description=f"This command can only be used in <#{allowed_channel_id}>",
-                    color=discord.Color.red()
-                )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+            # Channel restriction removed - generate command can now be used anywhere in configured guilds
 
             # Get the guild configuration including client role
             client_role_id = guild_config.get("client_role_id")

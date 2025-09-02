@@ -133,7 +133,7 @@ async def check_channel_permission(interaction: discord.Interaction, command_nam
                 generate_channel_id = int(guild_config.get("generate_channel_id", 0))
                 
                 # Commands that should be restricted to generate channel in guild servers
-                restricted_commands = ["generate", "menu"]
+                restricted_commands = ["menu"]
                 
                 if command_name in restricted_commands:
                     if interaction.channel_id != generate_channel_id:
