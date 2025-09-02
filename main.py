@@ -103,10 +103,10 @@ async def handle_access_granted_notification(notification):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1340782147799089327")
+                main_guild_id = config.get("guild_id", "1412488621293961226")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1340782147799089327"
+            main_guild_id = "1412488621293961226"
 
         # Check if this is for the main guild
         is_main_guild = (str(guild_id) == main_guild_id)
@@ -577,10 +577,10 @@ class BrandSelectDropdown(ui.Select):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1340782147799089327")
+                main_guild_id = config.get("guild_id", "1412488621293961226")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1340782147799089327"
+            main_guild_id = "1412488621293961226"
 
         # Check if this is a guild-specific instance
         is_main_guild = (guild_id == main_guild_id)
@@ -1323,10 +1323,10 @@ async def on_message(message):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1340782147799089327")
+                main_guild_id = config.get("guild_id", "1412488621293961226")
         except Exception as e:
             print(f"Error loading config: {e}")
-            main_guild_id = "1340782147799089327"
+            main_guild_id = "1412488621293961226"
 
         # Check if this channel is configured as an image channel for this guild
         try:
@@ -1395,11 +1395,11 @@ async def generate_command(interaction: discord.Interaction):
     try:
         with open("config.json", "r") as f:
             config = json.load(f)
-            main_guild_id = config.get("guild_id", "1340782147799089327")
+            main_guild_id = config.get("guild_id", "1412488621293961226")
             main_channel_id = 1350413411455995904
     except Exception as e:
         print(f"Error loading config: {e}")
-        main_guild_id = "1340782147799089327"
+        main_guild_id = "1412488621293961226"
         main_channel_id = 1350413411455995904
 
     # Check if this is a guild-specific or main guild request
@@ -1574,6 +1574,7 @@ async def generate_command(interaction: discord.Interaction):
             return
 
         if not has_credentials or not has_email:
+            # Show menu panel for new users
             # Format subscription type for display
             display_type = subscription_type
             if subscription_type == "3day":

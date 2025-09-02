@@ -246,7 +246,7 @@ class GuildCommands(commands.Cog):
         try:
             with open("config.json", "r") as f:
                 config = json.load(f)
-                main_guild_id = config.get("guild_id", "1339298010169086072")
+                main_guild_id = config.get("guild_id", "1412488621293961226")
 
             # Get bot application info for invite link
             app_info = await self.bot.application_info()

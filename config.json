@@ -1,7 +1,10 @@
+
 {
-  "owner_id": "1339295766828552365",
-  "Client_ID": "1350410798899531778",
-"bot_token":"MTM3NTE1NDIxNTU1NDUxOTA0MA.GfhOZd.OVB2V0lcqnmPlzovUetB3bXuRPhc3_MgaIDbxk",
-  "guild_id": "1340782147799089327",
-    "gumroad_webhook_secret": ""
+  "owner_id": "1412486645953069076",
+  "Client_ID": "1412525219851145277",
+  "bot_token": "MTQxMjUyNTIxOTg1MTE0NTI3Nw.GfhOZd.OVB2V0lcqnmPlzovUetB3bXuRPhc3_MgaIDbxk",
+  "bot_secret": "AtIps-w_4lMIdbcnHjsKfZG56g9sib7E",
+  "guild_id": "1412488621293961226",
+  "customer_role_id": "1412498223842721903",
+  "gumroad_webhook_secret": ""
 }

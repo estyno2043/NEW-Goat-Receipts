@@ -40,7 +40,7 @@ def grant_access():
         # Check if this is the main guild or a configured guild
         with open("config.json", "r") as f:
             config = json.load(f)
-            main_guild_id = config.get("guild_id", "1339298010169086072")
+            main_guild_id = config.get("guild_id", "1412488621293961226")
 
         is_main_guild = (str(guild_id) == main_guild_id)
 
@@ -95,7 +95,7 @@ def grant_access():
             import asyncio
             import discord
             from utils.mongodb_manager import mongo_manager as db_manager
-            
+
             # Try to get bot instance and send notification
             def send_notification():
                 try:
@@ -112,18 +112,18 @@ def grant_access():
                         "source": source,
                         "timestamp": datetime.now().isoformat()
                     }
-                    
+
                     # Store in database for bot to process
                     db = db_manager.get_database()
                     if db:
                         db.notifications.insert_one(notification_data)
                         logging.info(f"Notification queued for user {user_id}")
-                    
+
                 except Exception as e:
                     logging.error(f"Error queuing notification: {e}")
-            
+
             send_notification()
-            
+
         except Exception as e:
             logging.warning(f"Could not send notification: {e}")
             # Don't fail the request if notification fails
@@ -161,7 +161,7 @@ def check_access(user_id):
         # Check if this is the main guild
         with open("config.json", "r") as f:
             config = json.load(f)
-            main_guild_id = config.get("guild_id", "1339298010169086072")
+            main_guild_id = config.get("guild_id", "1412488621293961226")
 
         is_main_guild = (str(guild_id) == main_guild_id)
 
