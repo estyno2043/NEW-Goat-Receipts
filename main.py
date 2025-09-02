@@ -1882,11 +1882,11 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                         guild_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your guild subscription has been updated. Check below\n"
-                                       f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
+                                       f"-# Run command **/configure_guild** in <#1412501183121068132> to continue\n\n"
                                        f"**Subscription Type**\n"
                                        f"`Guild`\n\n"
                                        f"**Consider leaving a review !**\n"
-                                       f"Please consider leaving a review at <#1350413086074474558>",
+                                       f"Please consider leaving a review at <#1412500966477139990>",
                             color=discord.Color.green()
                         )
 
@@ -1970,10 +1970,10 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                         notification_embed = discord.Embed(
                             title="Thank you for purchasing",
                             description=f"{interaction.user.mention}, your subscription has been updated. Check below\n"
-                                      f"-# Run command /generate in <#1350413411455995904> to continue\n\n"
+                                      f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
                                       f"**Subscription Type**\n"
                                       f"`{display_type}`\n\n"
-                                      f"- Please consider leaving a review at <#1350413086074474558>",
+                                      f"- Please consider leaving a review at <#1412500966477139990>",
                             color=discord.Color.green()
                         )
 
