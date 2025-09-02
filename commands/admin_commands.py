@@ -1026,6 +1026,20 @@ class RoleAssignmentView(discord.ui.View):
 
     @app_commands.command(name="info", description="Show all users with premium subscriptions and assign roles (Owner only)")
     async def info(self, interaction: discord.Interaction):
+        # Check if the command invoker is the bot owner
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = int(config.get("owner_id", 0))
+
+        if interaction.user.id != owner_id:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can use this command.",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
         await self.info_command(interaction)
 
 async def setup(bot):
