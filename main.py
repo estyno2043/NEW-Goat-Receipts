@@ -1973,7 +1973,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
             # Note: MongoDB operations are automatically committed
             logging.info(f"Successfully created/updated license for user {user_id}")
 
-            # Try to add client role and new unified subscription role to the user
+            # Try to add customer role and subscription roles to the user
             try:
                 with open("config.json", "r") as f:
                     import json
@@ -1989,13 +1989,19 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                             await self.interaction.user.add_roles(client_role)
                             print(f"Added client role {client_role.name} to {self.interaction.user.display_name}")
 
-                        # Add new unified subscription role for 1 month, 3 months, and lifetime (NOT lite)
-                        if "1month" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "lifetime" in subscription_type.lower():
-                            # Add the new unified subscription role (ID: 1402941054243831888)
-                            new_role = discord.utils.get(guild.roles, id=1402941054243831888)
-                            if new_role:
-                                await self.interaction.user.add_roles(new_role)
-                                print(f"Added new subscription role {new_role.name} to {self.interaction.user.display_name}")
+                        # Add customer role to everyone who redeems a key
+                        customer_role = discord.utils.get(guild.roles, id=1412498223842721903)
+                        if customer_role:
+                            await self.interaction.user.add_roles(customer_role)
+                            print(f"Added customer role to {self.interaction.user.display_name}")
+
+                        # Add subscription role for 1 month, 3 months, and guild subscriptions (NOT lite)
+                        if "1month" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "guild_lifetime" in subscription_type or "lifetime" in subscription_type.lower():
+                            # Add the subscription role for premium subscription types
+                            subscription_role = discord.utils.get(guild.roles, id=1412498358248935634)
+                            if subscription_role:
+                                await self.interaction.user.add_roles(subscription_role)
+                                print(f"Added subscription role to {self.interaction.user.display_name}")
             except Exception as e:
                 print(f"Error adding roles: {e}")
 
