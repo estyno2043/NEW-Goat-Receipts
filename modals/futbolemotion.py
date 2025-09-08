@@ -77,32 +77,20 @@ class futbolemotionmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
             # Format price with 2 decimals
             formatted_price = f"{productprice:.2f}"
+            price_parts = formatted_price.split('.')
+            price_whole = price_parts[0]
+            price_decimal = price_parts[1]
             
-            # Replace placeholders
-            html_content = html_content.replace("Gonçalo", name if name else "Customer")
-            html_content = html_content.replace("WWW 202500216175", ref_number)
-            
-            # Replace product details
-            html_content = re.sub(r'<img src="[^"]*" style="width:100%;font-family:&quot;Open Sans&quot;,Verdana,Arial" alt="[^"]*" class="CToWUd" data-bit="iit">', 
-                                 f'<img src="{imagelink}" style="width:100%;font-family:&quot;Open Sans&quot;,Verdana,Arial" alt="{productname}" class="CToWUd" data-bit="iit">', html_content)
-            
-            # Replace price
-            html_content = re.sub(r'<span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">159</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">.</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">99</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">&nbsp;€</span>', 
-                                 f'<span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">{int(productprice)}</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">.</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">{str(productprice).split(".")[1].ljust(2, "0")}</span><span style="font-family:&quot;Open Sans&quot;,Verdana,Arial">&nbsp;{currency}</span>', html_content)
-            
-            # Replace product name
-            html_content = re.sub(r'<b style="font-family:&quot;Open Sans&quot;,Verdana,Arial">Chuteira F50 Elite LL FG Core Black-Iron Met-Gold Met</b>', 
-                                 f'<b style="font-family:&quot;Open Sans&quot;,Verdana,Arial">{productname}</b>', html_content)
-            
-            # Replace size
-            html_content = re.sub(r'Tamanho: 6,5 UK', f'Tamanho: {productsize}', html_content)
-            
-            # Replace shipping currency
-            html_content = re.sub(r'<span>0</span><span>&nbsp;€</span>', f'<span>0</span><span>&nbsp;{currency}</span>', html_content)
-            
-            # Replace total price
-            html_content = re.sub(r'<span style="font-family:Arial,sans-serif">159.99</span><span style="font-family:Arial,sans-serif">&nbsp;€</span>', 
-                                 f'<span style="font-family:Arial,sans-serif">{formatted_price}</span><span style="font-family:Arial,sans-serif">&nbsp;{currency}</span>', html_content)
+            # Replace all placeholders
+            html_content = html_content.replace("{name}", name if name else "Customer")
+            html_content = html_content.replace("{ref_number}", ref_number)
+            html_content = html_content.replace("{imagelink}", imagelink)
+            html_content = html_content.replace("{productname}", productname)
+            html_content = html_content.replace("{price_whole}", price_whole)
+            html_content = html_content.replace("{price_decimal}", price_decimal)
+            html_content = html_content.replace("{currency}", currency)
+            html_content = html_content.replace("{productsize}", productsize)
+            html_content = html_content.replace("{total_price}", formatted_price)
 
             with open("receipt/updatedrecipies/updatedfutbolemotion.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
