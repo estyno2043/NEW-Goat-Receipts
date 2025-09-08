@@ -96,7 +96,7 @@ class futbolemotionmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 file.write(html_content)
 
             from emails.choise import choiseView
-            sender_email = "Fútbol Emotion <web@futbolemotion.com>"
+            sender_email = "Fútbol Emotion"
             subject = "Your Fútbol Emotion order has been shipped."
             link = "https://futbolemotion.com/"
 
