@@ -155,6 +155,14 @@
             </form>
         </div>
 
+        <div class="role-section">
+            <h2>🔧 Bot Diagnostics</h2>
+            <p>Check bot permissions and role hierarchy</p>
+            <form method="GET" action="/admin/diagnostics">
+                <button type="submit" class="btn">Run Diagnostics</button>
+            </form>
+        </div>
+
         {% if message %}
         <div class="role-section">
             <div class="{% if success %}success{% else %}error{% endif %}">
@@ -176,6 +184,51 @@
                     <h3>Current Roles:</h3>
                     {% for role in user_info.roles %}
                         <div>{{ role.name }} (ID: {{ role.id }})</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diagnostics_info %}
+        <div class="role-section">
+            <h2>🔧 Bot Diagnostics Results</h2>
+            
+            <div class="user-info">
+                <h3>Bot Information</h3>
+                <p><strong>Bot Name:</strong> {{ diagnostics_info.bot_name }}</p>
+                <p><strong>Guild:</strong> {{ diagnostics_info.guild_name }}</p>
+                
+                <h3>Bot Permissions</h3>
+                <p><strong>Administrator:</strong> <span class="{% if diagnostics_info.bot_permissions.administrator %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_permissions.administrator }}</span></p>
+                <p><strong>Manage Roles:</strong> <span class="{% if diagnostics_info.bot_permissions.manage_roles %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_permissions.manage_roles }}</span></p>
+                
+                <h3>Role Hierarchy Analysis</h3>
+                <p><strong>Bot's Highest Role:</strong> {{ diagnostics_info.bot_top_role.name }} (Position: {{ diagnostics_info.bot_top_role.position }})</p>
+                {% if diagnostics_info.target_role %}
+                <p><strong>Target Role:</strong> {{ diagnostics_info.target_role.name }} (Position: {{ diagnostics_info.target_role.position }})</p>
+                <p><strong>Can Assign Target Role:</strong> <span class="{% if diagnostics_info.can_assign_target_role %}success{% else %}error{% endif %}">{{ diagnostics_info.can_assign_target_role }}</span></p>
+                {% endif %}
+                
+                {% if not diagnostics_info.can_assign_target_role %}
+                <div class="error" style="margin-top: 15px; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;">
+                    <strong>⚠️ Role Hierarchy Issue:</strong><br>
+                    The bot cannot assign the target role because it's at the same level or higher than the bot's highest role. 
+                    To fix this, you need to move the bot's role ABOVE the target role in your Discord server's role settings.
+                </div>
+                {% endif %}
+                
+                <div class="current-roles">
+                    <h3>Bot's Current Roles:</h3>
+                    {% for role in diagnostics_info.bot_roles %}
+                        <div>{{ role.name }} (Position: {{ role.position }})</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="current-roles">
+                    <h3>Top Server Roles (Highest to Lowest):</h3>
+                    {% for role in diagnostics_info.highest_roles_in_server %}
+                        <div>{{ role.name }} (Position: {{ role.position }})</div>
                     {% endfor %}
                 </div>
             </div>

@@ -330,6 +330,23 @@ def admin_assign_role():
             return render_template('admin_dashboard.html', 
                                  message=f"{user.display_name} already has the role '{role.name}'", success=False)
         
+        # Check bot permissions and role hierarchy
+        bot_member = guild.get_member(bot_instance.user.id)
+        if not bot_member:
+            return render_template('admin_dashboard.html', 
+                                 message="Bot member not found in guild", success=False)
+        
+        # Check if bot has manage_roles permission
+        if not bot_member.guild_permissions.manage_roles:
+            return render_template('admin_dashboard.html', 
+                                 message="Bot doesn't have 'Manage Roles' permission", success=False)
+        
+        # Check role hierarchy - bot's highest role must be higher than the target role
+        bot_top_role = bot_member.top_role
+        if role.position >= bot_top_role.position:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Cannot assign role '{role.name}' (position {role.position}). Bot's highest role '{bot_top_role.name}' is at position {bot_top_role.position}. The role to assign must be lower in the hierarchy.", success=False)
+        
         # Assign the role using the bot's loop
         async def assign_role():
             try:
@@ -529,6 +546,67 @@ def admin_custom_assign():
         logging.error(f"Error in custom role assignment: {e}")
         return render_template('admin_dashboard.html', 
                              message=f"Error: {str(e)}", success=False)
+
+@app.route('/admin/diagnostics', methods=['GET'])
+def admin_diagnostics():
+    """Get bot diagnostics including permissions and role hierarchy"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        bot_member = guild.get_member(bot_instance.user.id)
+        if not bot_member:
+            return render_template('admin_dashboard.html', 
+                                 message="Bot member not found in guild", success=False)
+        
+        # Get target role info
+        target_role_id = 1412537344585633922
+        target_role = discord.utils.get(guild.roles, id=target_role_id)
+        
+        diagnostics_info = {
+            'bot_name': str(bot_instance.user),
+            'bot_id': bot_instance.user.id,
+            'guild_name': guild.name,
+            'guild_id': guild.id,
+            'bot_permissions': {
+                'administrator': bot_member.guild_permissions.administrator,
+                'manage_roles': bot_member.guild_permissions.manage_roles,
+                'manage_guild': bot_member.guild_permissions.manage_guild,
+            },
+            'bot_roles': [{'name': role.name, 'id': role.id, 'position': role.position} for role in bot_member.roles if role.name != '@everyone'],
+            'bot_top_role': {
+                'name': bot_member.top_role.name,
+                'id': bot_member.top_role.id,
+                'position': bot_member.top_role.position
+            },
+            'target_role': {
+                'name': target_role.name if target_role else 'Role not found',
+                'id': target_role_id,
+                'position': target_role.position if target_role else 'N/A'
+            } if target_role else None,
+            'can_assign_target_role': target_role and target_role.position < bot_member.top_role.position if target_role else False,
+            'highest_roles_in_server': [{'name': role.name, 'id': role.id, 'position': role.position} for role in sorted(guild.roles, key=lambda r: r.position, reverse=True)[:10] if role.name != '@everyone']
+        }
+        
+        return render_template('admin_dashboard.html', diagnostics_info=diagnostics_info, success=True)
+        
+    except Exception as e:
+        logging.error(f"Error getting diagnostics: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error getting diagnostics: {str(e)}", success=False)
 
 @app.route('/admin/user-info', methods=['GET'])
 def admin_user_info():
