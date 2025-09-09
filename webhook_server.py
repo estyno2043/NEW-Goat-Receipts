@@ -1,13 +1,25 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from datetime import datetime, timedelta
 import json
 import logging
+import os
+import asyncio
+import discord
 from utils.mongodb_manager import mongo_manager
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # For session management
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
+# Global bot instance variable
+bot_instance = None
+
+def set_bot_instance(bot):
+    """Set the bot instance for admin operations"""
+    global bot_instance
+    bot_instance = bot
 
 @app.route('/api/grant-access', methods=['POST'])
 def grant_access():
@@ -204,6 +216,289 @@ def check_access(user_id):
         logging.error(f"Error checking access: {str(e)}")
         return jsonify({'error': f'Failed to check access: {str(e)}'}), 500
 
+# Admin Dashboard Routes
+
+def require_admin_auth():
+    """Check if user is authenticated as admin"""
+    if 'user_id' not in session:
+        return False
+    
+    # Load owner ID from config
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            owner_id = config.get("owner_id", "1412486645953069076")
+        return str(session['user_id']) == owner_id
+    except:
+        return False
+
+@app.route('/admin', methods=['GET'])
+def admin_dashboard():
+    """Main admin dashboard"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    return render_template('admin_dashboard.html')
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """Admin login page"""
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                owner_id = config.get("owner_id", "1412486645953069076")
+            
+            if str(user_id) == owner_id:
+                session['user_id'] = user_id
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return render_template('login.html', error="Invalid User ID. Access denied.")
+        except Exception as e:
+            return render_template('login.html', error="Configuration error. Please try again.")
+    
+    return render_template('login.html')
+
+@app.route('/admin/logout', methods=['GET'])
+def admin_logout():
+    """Admin logout"""
+    session.pop('user_id', None)
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/assign-role', methods=['POST'])
+def admin_assign_role():
+    """Assign the specific role to the alt account"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        # Target user and role IDs
+        target_user_id = 1392897052924444845  # Your alt account
+        target_role_id = 1412537344585633922  # The role you want to assign
+        
+        # Get the guild and user
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        user = guild.get_member(target_user_id)
+        if not user:
+            return render_template('admin_dashboard.html', 
+                                 message=f"User with ID {target_user_id} not found in guild", success=False)
+        
+        role = discord.utils.get(guild.roles, id=target_role_id)
+        if not role:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Role with ID {target_role_id} not found", success=False)
+        
+        # Check if user already has the role
+        if role in user.roles:
+            return render_template('admin_dashboard.html', 
+                                 message=f"{user.display_name} already has the role '{role.name}'", success=False)
+        
+        # Assign the role (we need to run this in the bot's loop)
+        async def assign_role():
+            try:
+                await user.add_roles(role)
+                return True, f"Successfully assigned role '{role.name}' to {user.display_name}"
+            except Exception as e:
+                return False, f"Error assigning role: {str(e)}"
+        
+        # Run the async function
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success, message = loop.run_until_complete(assign_role())
+        loop.close()
+        
+        return render_template('admin_dashboard.html', message=message, success=success)
+        
+    except Exception as e:
+        logging.error(f"Error in role assignment: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error: {str(e)}", success=False)
+
+@app.route('/admin/remove-role', methods=['POST'])
+def admin_remove_role():
+    """Remove the specific role from the alt account"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        # Target user and role IDs
+        target_user_id = 1392897052924444845  # Your alt account
+        target_role_id = 1412537344585633922  # The role you want to remove
+        
+        # Get the guild and user
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        user = guild.get_member(target_user_id)
+        if not user:
+            return render_template('admin_dashboard.html', 
+                                 message=f"User with ID {target_user_id} not found in guild", success=False)
+        
+        role = discord.utils.get(guild.roles, id=target_role_id)
+        if not role:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Role with ID {target_role_id} not found", success=False)
+        
+        # Check if user has the role
+        if role not in user.roles:
+            return render_template('admin_dashboard.html', 
+                                 message=f"{user.display_name} doesn't have the role '{role.name}'", success=False)
+        
+        # Remove the role
+        async def remove_role():
+            try:
+                await user.remove_roles(role)
+                return True, f"Successfully removed role '{role.name}' from {user.display_name}"
+            except Exception as e:
+                return False, f"Error removing role: {str(e)}"
+        
+        # Run the async function
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success, message = loop.run_until_complete(remove_role())
+        loop.close()
+        
+        return render_template('admin_dashboard.html', message=message, success=success)
+        
+    except Exception as e:
+        logging.error(f"Error in role removal: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error: {str(e)}", success=False)
+
+@app.route('/admin/custom-assign', methods=['POST'])
+def admin_custom_assign():
+    """Assign custom role to custom user"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        user_id = int(request.form.get('user_id'))
+        role_id = int(request.form.get('role_id'))
+        
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        # Get the guild, user, and role
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        user = guild.get_member(user_id)
+        if not user:
+            return render_template('admin_dashboard.html', 
+                                 message=f"User with ID {user_id} not found in guild", success=False)
+        
+        role = discord.utils.get(guild.roles, id=role_id)
+        if not role:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Role with ID {role_id} not found", success=False)
+        
+        # Check if user already has the role
+        if role in user.roles:
+            return render_template('admin_dashboard.html', 
+                                 message=f"{user.display_name} already has the role '{role.name}'", success=False)
+        
+        # Assign the role
+        async def assign_role():
+            try:
+                await user.add_roles(role)
+                return True, f"Successfully assigned role '{role.name}' to {user.display_name}"
+            except Exception as e:
+                return False, f"Error assigning role: {str(e)}"
+        
+        # Run the async function
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success, message = loop.run_until_complete(assign_role())
+        loop.close()
+        
+        return render_template('admin_dashboard.html', message=message, success=success)
+        
+    except ValueError:
+        return render_template('admin_dashboard.html', 
+                             message="Invalid User ID or Role ID format", success=False)
+    except Exception as e:
+        logging.error(f"Error in custom role assignment: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error: {str(e)}", success=False)
+
+@app.route('/admin/user-info', methods=['GET'])
+def admin_user_info():
+    """Get user information"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        user_id = int(request.args.get('user_id'))
+        
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        # Get the guild and user
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        user = guild.get_member(user_id)
+        if not user:
+            return render_template('admin_dashboard.html', 
+                                 message=f"User with ID {user_id} not found in guild", success=False)
+        
+        # Prepare user info
+        user_info = {
+            'username': str(user),
+            'display_name': user.display_name,
+            'id': user.id,
+            'joined_at': user.joined_at.strftime('%Y-%m-%d %H:%M:%S') if user.joined_at else 'Unknown',
+            'roles': [{'name': role.name, 'id': role.id} for role in user.roles if role.name != '@everyone']
+        }
+        
+        return render_template('admin_dashboard.html', user_info=user_info, success=True)
+        
+    except ValueError:
+        return render_template('admin_dashboard.html', 
+                             message="Invalid User ID format", success=False)
+    except Exception as e:
+        logging.error(f"Error getting user info: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error: {str(e)}", success=False)
+
 @app.route('/', methods=['GET'])
 def root():
     return jsonify({
@@ -211,7 +506,8 @@ def root():
         'endpoints': {
             'health': '/api/health',
             'grant_access': '/api/grant-access (POST)',
-            'check_access': '/api/check-access/<user_id> (GET)'
+            'check_access': '/api/check-access/<user_id> (GET)',
+            'admin_dashboard': '/admin (GET)'
         }
     }), 200
 

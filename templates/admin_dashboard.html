@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOAT Bot Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .role-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .user-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .current-roles {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background-color: #28a745;
+        }
+        .status-offline {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 GOAT Bot Admin Dashboard</h1>
+        
+        <div class="role-section">
+            <h2>Bot Status</h2>
+            <div class="user-info">
+                <span class="status-indicator status-online"></span>
+                <strong>Bot is Online</strong> - Connected to Discord
+            </div>
+        </div>
+
+        <div class="role-section">
+            <h2>🎯 Quick Role Assignment</h2>
+            <p><strong>Target User:</strong> <code>1392897052924444845</code> (Your Alt Account)</p>
+            <p><strong>Target Role:</strong> <code>1412537344585633922</code></p>
+            
+            <form method="POST" action="/admin/assign-role" style="display: inline;">
+                <button type="submit" class="btn">Assign Role to Alt Account</button>
+            </form>
+            
+            <form method="POST" action="/admin/remove-role" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Remove Role from Alt Account</button>
+            </form>
+        </div>
+
+        <div class="role-section">
+            <h2>📝 Custom Role Assignment</h2>
+            <form method="POST" action="/admin/custom-assign">
+                <div class="form-group">
+                    <label for="user_id">User ID:</label>
+                    <input type="text" id="user_id" name="user_id" placeholder="1392897052924444845" required>
+                </div>
+                <div class="form-group">
+                    <label for="role_id">Role ID:</label>
+                    <input type="text" id="role_id" name="role_id" placeholder="1412537344585633922" required>
+                </div>
+                <button type="submit" class="btn">Assign Custom Role</button>
+            </form>
+        </div>
+
+        <div class="role-section">
+            <h2>🔍 User Information</h2>
+            <form method="GET" action="/admin/user-info">
+                <div class="form-group">
+                    <label for="lookup_user_id">User ID to Lookup:</label>
+                    <input type="text" id="lookup_user_id" name="user_id" placeholder="1392897052924444845" required>
+                </div>
+                <button type="submit" class="btn">Get User Info</button>
+            </form>
+        </div>
+
+        {% if message %}
+        <div class="role-section">
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                {{ message }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user_info %}
+        <div class="role-section">
+            <h2>User Information</h2>
+            <div class="user-info">
+                <p><strong>Username:</strong> {{ user_info.username }}</p>
+                <p><strong>Display Name:</strong> {{ user_info.display_name }}</p>
+                <p><strong>User ID:</strong> {{ user_info.id }}</p>
+                <p><strong>Joined Server:</strong> {{ user_info.joined_at }}</p>
+                
+                <div class="current-roles">
+                    <h3>Current Roles:</h3>
+                    {% for role in user_info.roles %}
+                        <div>{{ role.name }} (ID: {{ role.id }})</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
