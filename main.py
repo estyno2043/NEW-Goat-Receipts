@@ -1773,6 +1773,14 @@ async def on_ready():
     except Exception as e:
         print(f"Failed to sync commands: {e}")
 
+    # Connect bot instance to webhook server for admin dashboard
+    try:
+        from webhook_server import set_bot_instance
+        set_bot_instance(bot)
+        print("Bot instance connected to admin dashboard")
+    except Exception as e:
+        print(f"Failed to connect bot to admin dashboard: {e}")
+
     # Start the license checker background task
     try:
         from utils.license_manager import LicenseManager
