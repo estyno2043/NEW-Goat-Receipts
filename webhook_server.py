@@ -292,10 +292,33 @@ def admin_assign_role():
             return render_template('admin_dashboard.html', 
                                  message=f"Guild with ID {guild_id} not found", success=False)
         
+        # Try to get member from cache first, then try fetching
         user = guild.get_member(target_user_id)
         if not user:
-            return render_template('admin_dashboard.html', 
-                                 message=f"User with ID {target_user_id} not found in guild", success=False)
+            # If not in cache, create a task to fetch the user
+            def get_user_sync():
+                async def fetch_user():
+                    try:
+                        return await guild.fetch_member(target_user_id)
+                    except discord.NotFound:
+                        return None
+                    except Exception:
+                        return None
+                
+                try:
+                    if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(fetch_user(), bot_instance.loop)
+                        return future.result(timeout=5)
+                    else:
+                        return None
+                except:
+                    return None
+            
+            user = get_user_sync()
+            
+            if not user:
+                return render_template('admin_dashboard.html', 
+                                     message=f"User 'brazyfn_' (ID: {target_user_id}) not found in guild {guild.name}. Make sure they are in the server and the bot has permission to see them.", success=False)
         
         role = discord.utils.get(guild.roles, id=target_role_id)
         if not role:
@@ -307,7 +330,7 @@ def admin_assign_role():
             return render_template('admin_dashboard.html', 
                                  message=f"{user.display_name} already has the role '{role.name}'", success=False)
         
-        # Assign the role (we need to run this in the bot's loop)
+        # Assign the role using the bot's loop
         async def assign_role():
             try:
                 await user.add_roles(role)
@@ -315,11 +338,17 @@ def admin_assign_role():
             except Exception as e:
                 return False, f"Error assigning role: {str(e)}"
         
-        # Run the async function
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        success, message = loop.run_until_complete(assign_role())
-        loop.close()
+        # Run the async function in the bot's event loop
+        if bot_instance.loop.is_running():
+            # Create a future and run it in the bot's loop
+            future = asyncio.run_coroutine_threadsafe(assign_role(), bot_instance.loop)
+            success, message = future.result(timeout=10)
+        else:
+            # Fallback to new loop if bot loop isn't running
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            success, message = loop.run_until_complete(assign_role())
+            loop.close()
         
         return render_template('admin_dashboard.html', message=message, success=success)
         
@@ -353,10 +382,33 @@ def admin_remove_role():
             return render_template('admin_dashboard.html', 
                                  message=f"Guild with ID {guild_id} not found", success=False)
         
+        # Try to get member from cache first, then try fetching
         user = guild.get_member(target_user_id)
         if not user:
-            return render_template('admin_dashboard.html', 
-                                 message=f"User with ID {target_user_id} not found in guild", success=False)
+            # If not in cache, create a task to fetch the user
+            def get_user_sync():
+                async def fetch_user():
+                    try:
+                        return await guild.fetch_member(target_user_id)
+                    except discord.NotFound:
+                        return None
+                    except Exception:
+                        return None
+                
+                try:
+                    if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(fetch_user(), bot_instance.loop)
+                        return future.result(timeout=5)
+                    else:
+                        return None
+                except:
+                    return None
+            
+            user = get_user_sync()
+            
+            if not user:
+                return render_template('admin_dashboard.html', 
+                                     message=f"User 'brazyfn_' (ID: {target_user_id}) not found in guild {guild.name}. Make sure they are in the server and the bot has permission to see them.", success=False)
         
         role = discord.utils.get(guild.roles, id=target_role_id)
         if not role:
@@ -415,8 +467,30 @@ def admin_custom_assign():
         
         user = guild.get_member(user_id)
         if not user:
-            return render_template('admin_dashboard.html', 
-                                 message=f"User with ID {user_id} not found in guild", success=False)
+            # Try to fetch the member if not in cache
+            def get_user_sync():
+                async def fetch_user():
+                    try:
+                        return await guild.fetch_member(user_id)
+                    except discord.NotFound:
+                        return None
+                    except Exception:
+                        return None
+                
+                try:
+                    if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(fetch_user(), bot_instance.loop)
+                        return future.result(timeout=5)
+                    else:
+                        return None
+                except:
+                    return None
+            
+            user = get_user_sync()
+            
+            if not user:
+                return render_template('admin_dashboard.html', 
+                                     message=f"User with ID {user_id} not found in guild {guild.name}", success=False)
         
         role = discord.utils.get(guild.roles, id=role_id)
         if not role:
@@ -436,11 +510,15 @@ def admin_custom_assign():
             except Exception as e:
                 return False, f"Error assigning role: {str(e)}"
         
-        # Run the async function
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        success, message = loop.run_until_complete(assign_role())
-        loop.close()
+        # Run the async function in the bot's event loop
+        if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+            future = asyncio.run_coroutine_threadsafe(assign_role(), bot_instance.loop)
+            success, message = future.result(timeout=10)
+        else:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            success, message = loop.run_until_complete(assign_role())
+            loop.close()
         
         return render_template('admin_dashboard.html', message=message, success=success)
         
@@ -477,8 +555,30 @@ def admin_user_info():
         
         user = guild.get_member(user_id)
         if not user:
-            return render_template('admin_dashboard.html', 
-                                 message=f"User with ID {user_id} not found in guild", success=False)
+            # Try to fetch the member if not in cache
+            def get_user_sync():
+                async def fetch_user():
+                    try:
+                        return await guild.fetch_member(user_id)
+                    except discord.NotFound:
+                        return None
+                    except Exception:
+                        return None
+                
+                try:
+                    if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(fetch_user(), bot_instance.loop)
+                        return future.result(timeout=5)
+                    else:
+                        return None
+                except:
+                    return None
+            
+            user = get_user_sync()
+            
+            if not user:
+                return render_template('admin_dashboard.html', 
+                                     message=f"User with ID {user_id} not found in guild {guild.name}", success=False)
         
         # Prepare user info
         user_info = {
