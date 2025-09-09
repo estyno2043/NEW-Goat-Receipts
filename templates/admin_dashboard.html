@@ -145,6 +145,21 @@
         </div>
 
         <div class="role-section">
+            <h2>🗑️ Custom Role Removal</h2>
+            <form method="POST" action="/admin/custom-remove">
+                <div class="form-group">
+                    <label for="remove_user_id">User ID:</label>
+                    <input type="text" id="remove_user_id" name="user_id" placeholder="1392897052924444845" required>
+                </div>
+                <div class="form-group">
+                    <label for="remove_role_id">Role ID:</label>
+                    <input type="text" id="remove_role_id" name="role_id" placeholder="1412537344585633922" required>
+                </div>
+                <button type="submit" class="btn" style="background-color: #dc3545;">Remove Custom Role</button>
+            </form>
+        </div>
+
+        <div class="role-section">
             <h2>🔍 User Information</h2>
             <form method="GET" action="/admin/user-info">
                 <div class="form-group">

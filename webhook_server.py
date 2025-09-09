@@ -547,6 +547,90 @@ def admin_custom_assign():
         return render_template('admin_dashboard.html', 
                              message=f"Error: {str(e)}", success=False)
 
+@app.route('/admin/custom-remove', methods=['POST'])
+def admin_custom_remove_role():
+    """Remove a custom role from a user"""
+    if not require_admin_auth():
+        return redirect(url_for('admin_login'))
+    
+    if not bot_instance:
+        return render_template('admin_dashboard.html', message="Bot instance not available", success=False)
+    
+    try:
+        # Get form data
+        target_user_id = int(request.form.get('user_id'))
+        target_role_id = int(request.form.get('role_id'))
+        
+        # Load config
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        guild = bot_instance.get_guild(guild_id)
+        if not guild:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Guild with ID {guild_id} not found", success=False)
+        
+        # Get user
+        user = guild.get_member(target_user_id)
+        if not user:
+            return render_template('admin_dashboard.html', 
+                                 message=f"User with ID {target_user_id} not found in guild {guild.name}. Make sure they are in the server and the bot has permission to see them.", success=False)
+        
+        role = discord.utils.get(guild.roles, id=target_role_id)
+        if not role:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Role with ID {target_role_id} not found", success=False)
+        
+        # Check if user doesn't have the role
+        if role not in user.roles:
+            return render_template('admin_dashboard.html', 
+                                 message=f"{user.display_name} doesn't have the role '{role.name}'", success=False)
+        
+        # Check bot permissions and role hierarchy
+        bot_member = guild.get_member(bot_instance.user.id)
+        if not bot_member:
+            return render_template('admin_dashboard.html', 
+                                 message="Bot member not found in guild", success=False)
+        
+        # Check if bot has manage_roles permission
+        if not bot_member.guild_permissions.manage_roles:
+            return render_template('admin_dashboard.html', 
+                                 message="Bot doesn't have 'Manage Roles' permission", success=False)
+        
+        # Check role hierarchy - bot's highest role must be higher than the target role
+        bot_top_role = bot_member.top_role
+        if role.position >= bot_top_role.position:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Cannot remove role '{role.name}' (position {role.position}). Bot's highest role '{bot_top_role.name}' is at position {bot_top_role.position}. The role to remove must be lower in the hierarchy.", success=False)
+        
+        # Remove the role using the bot's loop
+        async def remove_role():
+            try:
+                await user.remove_roles(role, reason="Admin dashboard role removal")
+                return True, None
+            except Exception as e:
+                return False, str(e)
+        
+        # Execute the async function in the bot's event loop
+        future = asyncio.run_coroutine_threadsafe(remove_role(), bot_instance.loop)
+        success, error = future.result(timeout=10)
+        
+        if success:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Successfully removed role '{role.name}' from {user.display_name}!", success=True)
+        else:
+            return render_template('admin_dashboard.html', 
+                                 message=f"Error removing role: {error}", success=False)
+    
+    except ValueError:
+        return render_template('admin_dashboard.html', 
+                             message="Invalid User ID or Role ID. Please enter valid numbers.", success=False)
+    except Exception as e:
+        logging.error(f"Error in custom role removal: {e}")
+        return render_template('admin_dashboard.html', 
+                             message=f"Error: {str(e)}", success=False)
+
 @app.route('/admin/diagnostics', methods=['GET'])
 def admin_diagnostics():
     """Get bot diagnostics including permissions and role hierarchy"""
