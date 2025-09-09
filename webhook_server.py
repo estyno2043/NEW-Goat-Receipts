@@ -571,11 +571,38 @@ def admin_custom_remove_role():
             return render_template('admin_dashboard.html', 
                                  message=f"Guild with ID {guild_id} not found", success=False)
         
-        # Get user
+        # Get user with improved lookup (same method as other functions)
         user = guild.get_member(target_user_id)
         if not user:
-            return render_template('admin_dashboard.html', 
-                                 message=f"User with ID {target_user_id} not found in guild {guild.name}. Make sure they are in the server and the bot has permission to see them.", success=False)
+            # If not in cache, create a task to fetch the user
+            def get_user_sync():
+                async def fetch_user():
+                    try:
+                        return await guild.fetch_member(target_user_id)
+                    except discord.NotFound:
+                        return None
+                    except Exception:
+                        return None
+                
+                try:
+                    if hasattr(bot_instance, 'loop') and bot_instance.loop.is_running():
+                        future = asyncio.run_coroutine_threadsafe(fetch_user(), bot_instance.loop)
+                        return future.result(timeout=5)
+                    else:
+                        return None
+                except:
+                    return None
+            
+            user = get_user_sync()
+            
+            if not user:
+                # Get detailed debugging info
+                guild_member_count = guild.member_count
+                bot_can_see_members = len(guild.members)
+                guild_info = f"Guild: {guild.name} (ID: {guild.id}), Members cached: {bot_can_see_members}/{guild_member_count}"
+                
+                return render_template('admin_dashboard.html', 
+                                     message=f"User with ID {target_user_id} not found in {guild_info}. This could be due to: 1) User not in server, 2) Bot missing member intents, 3) User has blocked the bot. Try the diagnostics to check bot permissions.", success=False)
         
         role = discord.utils.get(guild.roles, id=target_role_id)
         if not role:
@@ -660,6 +687,21 @@ def admin_diagnostics():
         target_role_id = 1412537344585633922
         target_role = discord.utils.get(guild.roles, id=target_role_id)
         
+        # Check member visibility issues
+        guild_member_count = guild.member_count
+        bot_can_see_members = len(guild.members)
+        
+        # Test if bot can see the specific user
+        test_user_id = 1392897052924444845
+        test_user_cached = guild.get_member(test_user_id)
+        test_user_fetchable = None
+        try:
+            if bot_instance.loop.is_running():
+                future = asyncio.run_coroutine_threadsafe(guild.fetch_member(test_user_id), bot_instance.loop)
+                test_user_fetchable = future.result(timeout=5)
+        except:
+            test_user_fetchable = False
+        
         diagnostics_info = {
             'bot_name': str(bot_instance.user),
             'bot_id': bot_instance.user.id,
@@ -669,6 +711,18 @@ def admin_diagnostics():
                 'administrator': bot_member.guild_permissions.administrator,
                 'manage_roles': bot_member.guild_permissions.manage_roles,
                 'manage_guild': bot_member.guild_permissions.manage_guild,
+            },
+            'member_visibility': {
+                'total_members': guild_member_count,
+                'cached_members': bot_can_see_members,
+                'cache_percentage': round((bot_can_see_members / guild_member_count * 100), 1) if guild_member_count > 0 else 0,
+                'test_user_cached': test_user_cached is not None,
+                'test_user_fetchable': test_user_fetchable is not None and test_user_fetchable is not False,
+            },
+            'bot_intents': {
+                'guild_members': bot_instance.intents.members,
+                'message_content': bot_instance.intents.message_content,
+                'guilds': bot_instance.intents.guilds,
             },
             'bot_roles': [{'name': role.name, 'id': role.id, 'position': role.position} for role in bot_member.roles if role.name != '@everyone'],
             'bot_top_role': {

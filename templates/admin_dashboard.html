@@ -218,6 +218,32 @@
                 <p><strong>Administrator:</strong> <span class="{% if diagnostics_info.bot_permissions.administrator %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_permissions.administrator }}</span></p>
                 <p><strong>Manage Roles:</strong> <span class="{% if diagnostics_info.bot_permissions.manage_roles %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_permissions.manage_roles }}</span></p>
                 
+                <h3>Bot Intents (Discord API Permissions)</h3>
+                <p><strong>Guild Members Intent:</strong> <span class="{% if diagnostics_info.bot_intents.guild_members %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_intents.guild_members }}</span></p>
+                <p><strong>Guilds Intent:</strong> <span class="{% if diagnostics_info.bot_intents.guilds %}success{% else %}error{% endif %}">{{ diagnostics_info.bot_intents.guilds }}</span></p>
+                
+                <h3>Member Visibility Analysis</h3>
+                <p><strong>Total Server Members:</strong> {{ diagnostics_info.member_visibility.total_members }}</p>
+                <p><strong>Bot Can See:</strong> {{ diagnostics_info.member_visibility.cached_members }} ({{ diagnostics_info.member_visibility.cache_percentage }}%)</p>
+                <p><strong>Target User in Cache:</strong> <span class="{% if diagnostics_info.member_visibility.test_user_cached %}success{% else %}error{% endif %}">{{ diagnostics_info.member_visibility.test_user_cached }}</span></p>
+                <p><strong>Target User Fetchable:</strong> <span class="{% if diagnostics_info.member_visibility.test_user_fetchable %}success{% else %}error{% endif %}">{{ diagnostics_info.member_visibility.test_user_fetchable }}</span></p>
+                
+                {% if not diagnostics_info.bot_intents.guild_members %}
+                <div class="error" style="margin-top: 15px; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;">
+                    <strong>⚠️ Missing Member Intent:</strong><br>
+                    The bot is missing the "Guild Members Intent" which prevents it from seeing all server members. 
+                    This needs to be enabled in the Discord Developer Portal for your bot application.
+                </div>
+                {% endif %}
+                
+                {% if diagnostics_info.member_visibility.cache_percentage < 50 %}
+                <div class="error" style="margin-top: 15px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+                    <strong>🔍 Low Member Visibility:</strong><br>
+                    The bot can only see {{ diagnostics_info.member_visibility.cache_percentage }}% of server members. 
+                    This is usually due to missing "Guild Members Intent" or the member not being in the server.
+                </div>
+                {% endif %}
+                
                 <h3>Role Hierarchy Analysis</h3>
                 <p><strong>Bot's Highest Role:</strong> {{ diagnostics_info.bot_top_role.name }} (Position: {{ diagnostics_info.bot_top_role.position }})</p>
                 {% if diagnostics_info.target_role %}
