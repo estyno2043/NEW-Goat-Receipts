@@ -74,7 +74,6 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
     pprice = discord.ui.TextInput(label="Price without Currency", placeholder="180.00", required=True)
     pfee = discord.ui.TextInput(label="StockX Fee without Currency", placeholder="12.94", required=True)
     shipping = discord.ui.TextInput(label="Shipping Fees without Currency", placeholder="12.94", required=True)
-    date_range = discord.ui.TextInput(label="Order Date - Arrival Date", placeholder="22 January 2024 - 25 January 2024", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global condition1, currency1, status, product_name_value, sizee
@@ -83,18 +82,7 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             pprice = float(self.pprice.value)
             pfee1 = self.pfee.value
             shipping1 = self.shipping.value
-            date_range = self.date_range.value
             style_id = self.styleidd.value
-
-            # Parse the date range into separate dates
-            if ' - ' not in date_range:
-                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Order Date - Arrival Date'\nEx. `22 January 2024 - 25 January 2024`")
-                await interaction.response.edit_message(embed=embed)
-                return
-            
-            ordered_date, arrival_date = date_range.split(' - ', 1)
-            ordered_date = ordered_date.strip()
-            arrival_date = arrival_date.strip()
 
             embed = discord.Embed(title="Processing...", description="Please provide an image URL in the next step to complete your receipt.", color=0x1e1f22)
 
@@ -102,8 +90,6 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             self.pprice_value = pprice
             self.pfee_value = float(pfee1) if re.match(r'^\d+(\.\d{1,2})?$', pfee1) else 0
             self.shipping_value = float(shipping1) if re.match(r'^\d+(\.\d{1,2})?$', shipping1) else 0
-            self.ordered_date_value = ordered_date
-            self.arrival_date_value = arrival_date
             self.style_id_value = style_id
 
             # Validation
@@ -112,22 +98,14 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                 await interaction.response.edit_message(embed=embed)
                 return
 
-            date_pattern = re.compile(r'^\d{1,2}\s(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}$', re.IGNORECASE)
-            if not (date_pattern.match(ordered_date) and date_pattern.match(arrival_date)):
-                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Day Month Year' for both dates\nEx. `22 January 2024 - 25 January 2024`")
-                await interaction.response.edit_message(embed=embed)
-                return
-
             # Create a final step view for the image URL
             class FinalStepView(discord.ui.View):
-                def __init__(self, owner_id, price_value, pfee_value, shipping_value, ordered_date, arrival_date, style_id_value):
+                def __init__(self, owner_id, price_value, pfee_value, shipping_value, style_id_value):
                     super().__init__(timeout=300)
                     self.owner_id = owner_id
                     self.price_value = price_value
                     self.pfee_value = pfee_value
                     self.shipping_value = shipping_value
-                    self.ordered_date = ordered_date
-                    self.arrival_date = arrival_date
                     self.style_id = style_id_value
 
                 async def interaction_check(self, interaction):
@@ -136,15 +114,13 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                         return False
                     return True
 
-                @discord.ui.button(label="Add Image URL", style=discord.ButtonStyle.green)
+                @discord.ui.button(label="Add Image URL and Dates", style=discord.ButtonStyle.green)
                 async def continue_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                     # Create the third modal with values from second form
                     modal = stockxmodal3()
                     modal.price = self.price_value
                     modal.pfee = self.pfee_value
                     modal.shipping = self.shipping_value 
-                    modal.ordered_date = self.ordered_date
-                    modal.arrival_date = self.arrival_date
                     modal.style_id = self.style_id
                     await interaction.response.send_modal(modal)
 
@@ -161,8 +137,6 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                     pprice,
                     float(pfee1) if re.match(r'^\d+(\.\d{1,2})?$', pfee1) else 0,
                     float(shipping1) if re.match(r'^\d+(\.\d{1,2})?$', shipping1) else 0,
-                    ordered_date,
-                    arrival_date,
                     style_id
                 )
             )
@@ -172,18 +146,29 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             await interaction.response.edit_message(embed=embed, view=None)
 
 
-class stockxmodal3(ui.Modal, title="StockX Image"):
+class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
     image_url = discord.ui.TextInput(label="Image URL", placeholder="https://example.com/image.jpg", required=True)
+    ordered_date = discord.ui.TextInput(label="Order Date", placeholder="22 January 2024", required=True)
+    arrival_date = discord.ui.TextInput(label="Arrival Date", placeholder="25 January 2024", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global condition1, currency1, status, product_name_value, sizee
 
         try:
             image_url = self.image_url.value
+            ordered_date = self.ordered_date.value
+            arrival_date = self.arrival_date.value
 
             # Validate image URL
             if not image_url.startswith(('http://', 'https://')):
                 await interaction.response.send_message("Please enter a valid image URL starting with http:// or https://", ephemeral=True)
+                return
+            
+            # Validate dates
+            import re
+            date_pattern = re.compile(r'^\d{1,2}\s(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}$', re.IGNORECASE)
+            if not (date_pattern.match(ordered_date) and date_pattern.match(arrival_date)):
+                await interaction.response.send_message("Please use the format 'Day Month Year' for both dates\nEx. `22 January 2024`", ephemeral=True)
                 return
 
             embed = discord.Embed(title="Processing...", description="Generating your receipt and preparing email...", color=0x1e1f22)
@@ -221,8 +206,8 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
             pprice = getattr(self, 'price', 0)
             pfee = getattr(self, 'pfee', 0)
             shipping = getattr(self, 'shipping', 0)
-            ordered_date = getattr(self, 'ordered_date', "")
-            arrival_date = getattr(self, 'arrival_date', "")
+            # Dates are now collected from the current modal (stockxmodal3)
+            # ordered_date and arrival_date variables are already defined above
             style_id = getattr(self, 'style_id', "")
 
             total = pprice + pfee + shipping
