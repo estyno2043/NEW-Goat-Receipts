@@ -1,0 +1,603 @@
+<div id=":lv" class="a3s aiL "><table><tbody>
+<tr>
+<td align="center" bgcolor="#eae8e3" style="text-align:center" valign="top" width="640">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 auto;table-layout:fixed;max-width:100%" width="640">
+<tbody>
+<tr>
+<td align="center" style="border-collapse:collapse;padding:0px" valign="top" width="640">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse" width="640">
+<tbody>
+<tr>
+<td>
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="640">
+<tbody>
+<tr>
+<td align="center" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#a0a0a0;font-size:0px;margin:0px;line-height:0px" width="640">
+               Your order has been confirmed and will be sent to
+               <span>
+                StockX
+               </span>
+               for verification.
+               <br>
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+
+               ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌
+              </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td id="m_-1517218562351389523m_-3843892035346690819m_-2192598132928245313wrapper" width="100%">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:100%" width="100%">
+<tbody>
+<tr>
+<td bgcolor="#D4D1C7" width="100%">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse" width="100%">
+<tbody>
+<tr>
+<td style="line-height:0;font-size:0;display:block" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td align="center" colspan="2" style="min-height:250px" valign="top" width="640">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0;min-height:250px" width="640">
+<tbody>
+<tr>
+<td align="center" colspan="2" style="min-height:250px;background-image:url('https://ci3.googleusercontent.com/meips/ADKq_NbLPix_7dQKzWtP_csIwBa30Nbl-uIUN3mR8Kyd0-uqUHL3AiOpCAweKNDBml4n51scKaPS7Cu5DafeKzcs2jaoIMQ=s0-d-e1-ft#https://makeyourweb.co.uk/testing/overlay.png'),url({image_url});background-size:cover;background-position:center" valign="top" width="640">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0" width="640">
+<tbody>
+<tr>
+<td align="left" style="border-collapse:collapse;height:250px;padding:45px 15px 0 105px" valign="top">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DbpW7_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvO2xIbMs-2B-2BWOfw7zJ1-2FpcM6qX1r-2BC3sL9Zk9vtB-2B-2FcBfjsfman4pRts6qfTZG6WpuaeQOxOb4a0rdDaBIoH6o2sdxEtpzK59NDOtziXcnr3-2FduhEGiT2FICRp4CWDb-2BDePp7HlvdKgIkzbbqyzhs7FQ-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DbpW7_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvO2xIbMs-2B-2BWOfw7zJ1-2FpcM6qX1r-2BC3sL9Zk9vtB-2B-2FcBfjsfman4pRts6qfTZG6WpuaeQOxOb4a0rdDaBIoH6o2sdxEtpzK59NDOtziXcnr3-2FduhEGiT2FICRp4CWDb-2BDePp7HlvdKgIkzbbqyzhs7FQ-3D&amp;source=gmail&amp;ust=1757602755756000&amp;usg=AOvVaw2l1cmeZMGiasniUS7RsaUJ">
+<img alt="StockX" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NZGp9J44-oyrNIjN6U2_qOIHm0Uerk0_OKh_cBYALxEzS5L2Hug9rZFIL5R_av9nQze16oh6d7wYMv6bushtMRycHFcUH6ZzSI6HkZu7-ekS7lC9sWBAfHel0mrBE4EVa6llKzmNpc6A7hX3LDAxPwcbQ=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/logos/StockX_Vertical_Gray_Digital_RGB.png?w=26&amp;dpr=2" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="25" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" style="padding:40px 55px 40px 0px" valign="top" width="50%">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0">
+<tbody>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-decoration:none;text-align:left;padding-bottom:10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3D6KuQ_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvGc1bbRcXNYLSdyGE-2FhxbfDR6QOiVTUOGUu0LwR6Zky5j4dMajy5yyU8AltMZJD5jzfZ08phEYZZqwYzapqbjiSjHWMAX3zS4zDrV4Zrw9Nxi95CXAe1S9hf1Je6bpEOobrPK2H6ExmB-2B072gJMz2-2FI-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3D6KuQ_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvGc1bbRcXNYLSdyGE-2FhxbfDR6QOiVTUOGUu0LwR6Zky5j4dMajy5yyU8AltMZJD5jzfZ08phEYZZqwYzapqbjiSjHWMAX3zS4zDrV4Zrw9Nxi95CXAe1S9hf1Je6bpEOobrPK2H6ExmB-2B072gJMz2-2FI-3D&amp;source=gmail&amp;ust=1757602755756000&amp;usg=AOvVaw0uOzeG23W127vZR6PxouQN">
+<img alt="" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NahzBHBvX6_HnXG5DWuYVFVdBzREZTNRntbdpUX5VdQgk8xRlUMnl7en29YsSa0OcRlMByN6Q4SoRdWr725J0TfS6IycJmGb5l4pLlzh2QHvQiPEr2_KTiZNXOva2ZLoBdv77O1HK8OtwO-s6HDfYbwxKjyQ48YeAwcqj6YMm17Y4Q07NcTNa0Syv4olm7gxhHPDl6i45lBmuFsveAWdkH4Xn1sSs2bhifF2uUO6Rv9CGq-_B2GpVa74GS3OAV1pTqlcsRGKxqi2fXTQtJexTcuq_OZuR_fSWV9znV2VfdzS3L96zdbjb6dHWKkp4wX2FujY4GWbd0=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/transactional/buyer-icons/b051ordered-icon2.png?dpr=2&amp;w=100&amp;fill=solid&amp;fill-color=D4D1C7&amp;fit=fill&amp;border=1%2CD4D1C7&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=50%2C50%2C50%2C50" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="40" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:22px;color:#d4d1c7;text-decoration:none;text-align:left;line-height:26px;font-weight:400;padding-left:15px;padding-bottom:10px;vertical-align:middle">
+                                   Ordered
+                                  </td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-decoration:none;text-align:left;padding-bottom:10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DOl21_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvI83e5mZOJFrNmwf9YljR8yciiupKIyXFZnHwsSInwdJTq0jSF7H-2BrJneEWJ6KBgLVX7nzGxy-2BwI4niwCYYVlOg-2BXzhGbBTfyxYRsdEEFFO9CyQIrvVf5eWyedYP780mk5maqM634s6d7qob9-2BNODmE-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DOl21_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvI83e5mZOJFrNmwf9YljR8yciiupKIyXFZnHwsSInwdJTq0jSF7H-2BrJneEWJ6KBgLVX7nzGxy-2BwI4niwCYYVlOg-2BXzhGbBTfyxYRsdEEFFO9CyQIrvVf5eWyedYP780mk5maqM634s6d7qob9-2BNODmE-3D&amp;source=gmail&amp;ust=1757602755756000&amp;usg=AOvVaw0X0uoZsrzXtB5OTo24cinl">
+<img alt="" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NbUQVAuWAmNNatHCYSibsrQJTXSW6PTKjX6mprfn2X42B11FruhUgLfHmkjyy4_QMYPtNAX-7B2dvmNq_Y983UC--Ggq1kWCTNlulk5Fb0UokliD5ztVrwgA7D3atcolYAIpo_sYU4Jowx1GSGoUNbQMHhowr7Q2aipiBJL1IIVsESb-FNwY9aL-TPwFzoXJkDS6jP5RSwFIhMC4P0HcD7sSHaXOgcOjTu1ZEME7Hnsrzw5nwFsu4Jtw4hLwv35kL4C2qN8OF--Kqf9qtuHc9sV1GmKYtWQGul1sT94LD4uZzB7kQ-vGUcRbp3gVkq74Icp5YIELwin5zK1MPJF4w=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/transactional/buyer-icons/b052shippedToStockX-icon2.png?dpr=2&amp;w=100&amp;fill=solid&amp;fill-color=000000&amp;fit=fill&amp;border=1%2C000000&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=50%2C50%2C50%2C50" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="40" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="right" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:22px;color:#000000;text-decoration:none;text-align:left;line-height:26px;font-weight:400;padding-left:15px;padding-bottom:10px;vertical-align:middle">
+                                   Shipped to
+                                   <span>
+                                    StockX
+                                   </span>
+</td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-decoration:none;text-align:left;padding-bottom:10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DUA4l_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJS8ErLUSPOo8Z4biltnuOgN7HCJfl02K1JeAPXQ2lPU7cPsk8N1jGeCi0WJT8qSdlj-2F9bcLe13h1mB-2B4IIYhEwXVGdlPZz-2BiVcroz-2FSEPqF2TsB4Yis2Brm39OqeaQ8FpVwNOXIEG9U1M3SIQMtjbI-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DUA4l_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJS8ErLUSPOo8Z4biltnuOgN7HCJfl02K1JeAPXQ2lPU7cPsk8N1jGeCi0WJT8qSdlj-2F9bcLe13h1mB-2B4IIYhEwXVGdlPZz-2BiVcroz-2FSEPqF2TsB4Yis2Brm39OqeaQ8FpVwNOXIEG9U1M3SIQMtjbI-3D&amp;source=gmail&amp;ust=1757602755756000&amp;usg=AOvVaw2iCovOSqJNOxzVNq4pFjU2">
+<img alt="" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NZt8KUj3wIbKyqKoh_tK7vvSzIIe0JEqknfPATkZvolf7DwFFpaGr-V9BrPhc6bPGadloiqH_N3lgAQyuPcgPYpY6yAimNbemoH7ghz3qGdABKg2L-VgK6fYG5-bti4rUC3YhftgIFOAl5arwvsnCCqDdwPlo12VDDn9CtmnXLR-hxlvOwLq3qwy-3JiMNHl4WsVNO-ojx2UppoXx3VE0VByFOPAAAWG2nvJ1G-soMI5Ef3U9d-NH78dcRoCBjctF8nm-0JcxcoLs4CpAz-k_JAnaXHWpAw30XRIKXBiz3LnfX6-Nf-4e0gWS10U3HESmlgvu8EN1Kyxw=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/transactional/buyer-icons/ArrivedAtStockX_bid.png?dpr=2&amp;w=100&amp;fill=solid&amp;fill-color=000000&amp;fit=fill&amp;border=1%2C000000&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=50%2C50%2C50%2C50" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="40" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:22px;color:#000000;text-decoration:none;text-align:left;line-height:26px;font-weight:400;padding-left:15px;padding-bottom:10px;vertical-align:middle">
+                                   Arrived at
+                                   <span>
+                                    StockX
+                                   </span>
+</td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-decoration:none;text-align:left;padding-bottom:10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DiX4W_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvG-2Bx1o3V5jpPw8jjPbK2P4BXZo0Cg7HdU4Ekik9qD3i6MtiVphb1GPuDtOmhulp2pKT3p5TucXTh-2FiAyv9yAHivBrDqc8R7VdfwigOH2Y9xPh159Z3j-2FTyYfx4wxGDRsIarPKDzaxq88DpMRokgjBpE-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DiX4W_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvG-2Bx1o3V5jpPw8jjPbK2P4BXZo0Cg7HdU4Ekik9qD3i6MtiVphb1GPuDtOmhulp2pKT3p5TucXTh-2FiAyv9yAHivBrDqc8R7VdfwigOH2Y9xPh159Z3j-2FTyYfx4wxGDRsIarPKDzaxq88DpMRokgjBpE-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw3Z7XeMNgBB754NGEZXsG4_">
+<img alt="" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_Nb9zKJO2aRXcmAxetIk7mMIBxgcTXKxkjGXjAyaiq_hUHnV_BJPJL1BWNtkRqqVrs-lr1M5sYtlMvBoVpBQpjTjrPbwhsweduTM9hX9-Le3Hs6hXqX5sIYOIDc-iLAyJHlfA4XqOZuZtJDG_v0ogpil8OOFfcbmr6ebj7Od7pIy95a_cOdonIE1DbZtoZ9Heu2X8_q6PaDGobotW0AMObzVc4w5-JM-WL3pHtifKNkrMhkt-YrbZpH-9sK03AMZmhL2n8BpPDULFLIYTWZoUT1Nh9Pe1nzTMjhqzeFF89fgrmMjVphkfzKEZ6fzKYhgjLqfm_u2-MqYAA=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/transactional/buyer-icons/b053shippedToBuyer3.png?dpr=2&amp;w=100&amp;fill=solid&amp;fill-color=000000&amp;fit=fill&amp;border=1%2C000000&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=50%2C50%2C50%2C50" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="40" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:22px;color:#000000;text-decoration:none;text-align:left;line-height:26px;font-weight:400;padding-left:15px;vertical-align:middle;padding-bottom:10px">
+                                   Verified + Shipped
+                                  </td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;text-decoration:none;text-align:left;padding-bottom:10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DkUER_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvDl31NtIsrW172h-2B2GE7aa6ly7tU0C2jLkU4qROz9Ukax8ZEe1H7wKRlwXvz8mUWYMa-2Bqb5EZ2k0Dt1UnOs9QfpPYzeLOoqhJ9YDG-2BWbkrz3fafNZ72TcIn9N5XMrCCCzYY7B2ACgMHUSNnKkzuHrhQ-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DkUER_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvDl31NtIsrW172h-2B2GE7aa6ly7tU0C2jLkU4qROz9Ukax8ZEe1H7wKRlwXvz8mUWYMa-2Bqb5EZ2k0Dt1UnOs9QfpPYzeLOoqhJ9YDG-2BWbkrz3fafNZ72TcIn9N5XMrCCCzYY7B2ACgMHUSNnKkzuHrhQ-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw3fYdnO35-iOGvktdAAZFkM">
+<img alt="" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NYvN4v5BBc2RkmxwXPr9hhwyTinJmeu1s76bDiAz4vtxIoFeyfO1Ekt5Y3dHde23qRZTDci2fJh03FGP2cAlYiVogJWxZEGgY8wmhj8YnQCd9862EgNjWCu0V1QB700QgmURj12v3adhJu5h2WnFrxN0Zbncnv47db-x0xj9VZf-qXwcNGtbGrNNGyml6HqO9RQzEZjm1rx56IZnZiKgl3jTHKS1eUWT6vFjOrnlkdGhqBEDdzCVFAVX1Ma0_MfIZGmqE_zAusxOwe_5PgF1M8xaCN_S-s-ysN2HG1niE3CTQdaQ4DobCs00rdCjCezrXjpWp6_JqOHs3nV=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/transactional/buyer-icons/b054delivered-icon_v3.png?dpr=2&amp;w=100&amp;fill=solid&amp;fill-color=000000&amp;fit=fill&amp;border=1%2C000000&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=50%2C50%2C50%2C50" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="40" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:22px;color:#000000;text-decoration:none;text-align:left;line-height:26px;font-weight:400;padding-left:15px;vertical-align:middle;padding-bottom:10px">
+                                   Delivered
+                                  </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="center" bgcolor="#D4D1C7" valign="top" width="640">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0" width="640">
+<tbody>
+<tr>
+<td align="center" bgcolor="#D4D1C7" valign="top" width="320">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0" width="320">
+<tbody>
+<tr>
+<td align="left" height="100%" style="border-collapse:collapse;padding:45px 175px 45px 45px" valign="top">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DyjTr_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvCwTG5X-2B37bKzQ7U9Tz8WZwD6V2D8VYPlr0HTsCpzgOxsG5G8qr6owuG7DE-2BId1fCdgviiMovGZzG2DLY-2FxODrhvg-2FOlePyoSeJ5Q-2BJ723BWfVEjD6pEmUSOWgHIqtapIIpoZCgMPUCGJWsOMCZ1WbU-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DyjTr_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvCwTG5X-2B37bKzQ7U9Tz8WZwD6V2D8VYPlr0HTsCpzgOxsG5G8qr6owuG7DE-2BId1fCdgviiMovGZzG2DLY-2FxODrhvg-2FOlePyoSeJ5Q-2BJ723BWfVEjD6pEmUSOWgHIqtapIIpoZCgMPUCGJWsOMCZ1WbU-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw2BwGEwc6CLuQdAQsR1MYh3">
+<img alt="StockX" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NbSSA-Ofn6_kuWSyrTA2NKBcmlU-3Xmh1j7uoekPbL5VUTeAOBHTQRdOboK3rMxB5Idfq86_aML_5MVT97Y8YiTB856HnkyztGyXLNuqWYFo5G5_RJqPSFpZ79yUEC8ESWN6yAh-A=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/logos/X_Black_Digital_RGB.png?w=100&amp;dpr=2" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px" width="100" class="CToWUd" data-bit="iit">
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td align="center" bgcolor="#D4D1C7" valign="top" width="320">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0" width="320">
+<tbody>
+<tr>
+<td align="left" bgcolor="#D4D1C7" valign="top" width="320">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0">
+<tbody>
+<tr>
+<td align="center" id="m_-1517218562351389523m_-3843892035346690819m_-2192598132928245313subheaderTextPostPurchase" valign="top" width="320">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0">
+<tbody>
+<tr>
+<td align="left" style="font-family:'Book Antiqua','Palatino Linotype','Palatino LT STD',Georgia,serif;font-size:28px;color:#006340;text-decoration:none;text-align:left;line-height:32px;font-weight:500;padding:40px 40px 0 0">
+                                       Order Confirmation
+                                      </td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:16px;color:#000005;text-decoration:none;text-align:left;line-height:24px;font-weight:600">
+                                       Estimated Arrival:
+                                      </td>
+</tr>
+<tr>
+<td align="left" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:16px;color:#000005;text-decoration:none;text-align:left;line-height:24px;font-weight:400">
+                                       {ordered_date} - {arrival_date}
+                                      </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="center" colspan="2" height="auto" style="padding:0;background-color:#ffffff" width="640">
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="center">
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="left" style="border-collapse:collapse;margin:0;padding:15px" width="260">
+<a href="https://stockx.com" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://stockx.com&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw1oYaEe-Nd375mdfY-KZnOq">
+<img alt="Jordan 4 Retro SB" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_Nan1R620rWUVe-JwTpbUf2RBxPmGop8KqsRNc5-1SpRUV1sQQLT55vk1RNISvEL2dC6BVKcJxHVaAf5nsGRM2LnP7VUwraQxz4ZOwm6ygDRUr4tDG4basDrYQNi94lCLCOdIFcGrCFg-cEfIg7CFZ8QmxfeJcVJtc5jJwp_3QBj56d9qC8mAnrRwRGkTNbXuYTWh4DoJ5YPZd8BRDDvMN9RkxWEF_VwQa3n0YhWAD9g9jqbXMHsDNTLaO8UcEOrZ_yBGR03UxuuQUFpxpO1E4fb9cbzChLP-e4FFGOlG06COsFAhIFTh_Oa_9h6UkvLsF6hJIP8hAv3wjgdyfvjBbscC8yDY3iQ_EMMB_WyqUHLLwUG0JAPZX2Gi3e4MXnpAw=s0-d-e1-ft#https://images.stockx.com/images/Air-Jordan-4-Retro-SB-Navy-Product.jpg?fit=fill&amp;bg=FFFFFF&amp;w=700&amp;h=500&amp;fm=webp&amp;auto=compress&amp;q=90&amp;dpr=2&amp;trim=color&amp;updated_at=1740411181?fit=fill&amp;bg=FFFFFF&amp;w=700&amp;h=500&amp;fm=webp&amp;auto=compress&amp;q=90&amp;dpr=2&amp;trim=color&amp;updated_at=1608736403" style="display:block;border:none;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:22px;color:#006340;text-decoration:none;text-align:center;letter-spacing:1px" width="260" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td align="left" width="280">
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:24px;color:#006340;text-decoration:none;text-align:left;line-height:30px;padding:30px 15px 15px 15px;font-weight:500" width="280">
+<a href="https://stockx.com" style="color:#006340;text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://stockx.com&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw1oYaEe-Nd375mdfY-KZnOq">
+                                Jordan 4 Retro SB
+                               </a>
+</td>
+</tr>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:left;line-height:16px;font-weight:600;padding:0 0 0 15px" width="280">
+<ul style="list-style-type:none;margin:0;padding:5px 0 0 0">
+<li style="list-style-type:none;margin:0">
+                                 Style ID:&nbsp; DR5415-100
+                                </li>
+<li style="list-style-type:none;margin:0">
+                                 Size: EU 45
+                                </li>
+<li style="list-style-type:none;margin:0">
+                                 Condition:&nbsp;NEW,
+                                 <span>
+                                  StockX
+                                 </span>
+                                 Verified
+                                </li>
+<li style="list-style-type:none;margin:0">
+                                 Order number:&nbsp;90814973-09379643
+                                </li>
+</ul>
+</td>
+</tr>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#000000;text-decoration:none;text-align:left;font-weight:400;padding:15px 0 0 15px" width="280">
+<table align="left" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:left;line-height:16px;font-weight:600;min-width:200px" width="200">
+                                   Purchase Price:
+                                  </td>
+<td align="right" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:right;line-height:16px;font-weight:600">
+                                   €180.00
+                                  </td>
+</tr>
+</tbody>
+</table>
+<table align="left" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:left;line-height:16px;font-weight:600;min-width:200px" width="200">
+                                   Processing Fee:
+                                  </td>
+<td align="right" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:right;line-height:16px;font-weight:600">
+                                   €12.94
+                                  </td>
+</tr>
+</tbody>
+</table>
+<table align="left" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:left;line-height:16px;font-weight:600;min-width:200px" width="200">
+                                   Shipping:
+                                  </td>
+<td align="right" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:right;line-height:16px;font-weight:600">
+                                   €12.94
+                                  </td>
+</tr>
+</tbody>
+</table>
+<table align="left" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td colspan="2" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:0px;color:#ffffff;text-decoration:none;text-align:left;line-height:0px;padding:5px 0 0 0;border-bottom:0px solid #000000" width="240">
+</td>
+</tr>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:14px;text-decoration:none;text-align:left;line-height:18px;font-weight:600;display:inline-block;min-width:200px;text-transform:uppercase;color:#006340" width="200">
+                                   Total Payment
+                                  </td>
+<td align="right" style="text-align:right;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:14px;color:#006340;text-decoration:none;line-height:18px;font-weight:600">
+                                   €205.88*
+                                  </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="center" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:18px;color:#000000;text-decoration:none;text-align:center;line-height:16px;font-weight:normal;padding:15px 0 30px 15px" width="100%">
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="center" bgcolor="#000000" style="border-radius:2px;padding:8px 18px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DmO4v_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvLGqe1hEA5-2FXB3b1fcnm8ZKwaevYFKNr1ijhNhTnLYHiopAS5mv4fdWj9nO2wCPsgmcSTNpCONKfLEaBN8QUetCRFYRuh-2Fq0KzbxPgT6KAw2snkeIwRkbBcKfh9ZcyefkUPs-2FeDyFKBlMIhkNVSRTo0-3D" style="font-size:20px;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#ffffff;text-decoration:none;border-radius:2px;border:0;display:inline-block;line-height:35px;padding:0 10px;font-weight:500" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2FS7-2BMqhehldXWtLoAXBwyzzPya4y-2BwDsKpQ-2Fmbhq9oojGqo9Q61YUeuqY93yYXExOFUjrF3jLCQCZg9DKzOu0Lv0WR05IlKORCmOwObCFhNCLb0vrhrY650fSdArIIxQMLejsiZ90ZNFGkjBv-2BhnCQ-3DmO4v_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvLGqe1hEA5-2FXB3b1fcnm8ZKwaevYFKNr1ijhNhTnLYHiopAS5mv4fdWj9nO2wCPsgmcSTNpCONKfLEaBN8QUetCRFYRuh-2Fq0KzbxPgT6KAw2snkeIwRkbBcKfh9ZcyefkUPs-2FeDyFKBlMIhkNVSRTo0-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw3wHlT8EwZZMIPYrlXgc6gC">
+                                    View Order
+                                   </a>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="left" colspan="2">
+<table align="left" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="center" style="padding:0 0 15px 15px;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:13px;color:#000000;text-decoration:none;text-align:left;line-height:16px;font-weight:300;font-style:italic" width="100%">
+                               *All applicable duties and VAT are included in the total price of this item.
+                              </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td bgcolor="#D4D1C7" colspan="2" id="m_-1517218562351389523m_-3843892035346690819m_-2192598132928245313topcopy30" style="padding:45px 20px 45px 105px;line-height:0;font-size:0">
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="center" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:18px;color:#000005;text-decoration:none;text-align:left;line-height:24px;font-weight:400" width="100%">
+                       Congrats! Your latest
+                       <span>
+                        StockX
+                       </span>
+                       purchase is on the way. You can expect to receive it by 10/9/2025. To check your order’s status and delivery timing, visit
+                       <a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb3H6nZQIVXlpWbzGuj0CtSJiBvlGCPsnQDPH1TUc2-2FCjqaNHtrYm0hXM2hl0nXvV1w-2FpKvZgZWM14QCZ7Q5PKWKDPrb-2BXJgAHXdIqBWKOixAqRFzUJ3Hs8d925LIgkeCPuFOE6bIdEz92VHP1WErdjV-2BidXMvNq8cAp-2BnZOyznEGOAHiWVzpzNQ7GzHEQ-2B0b12aCCLhSVwTa1lmYX3cHARBRE83vx-2BNU94Eq0I-2B0HaYrZRZOskuMMLucSU4H47OK5Q-3D-3DcVD0_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJbNrjwl2L1lge3I1Tsizkd4vXNzhAo9k61bjyW-2FbmtiAHsoOXgO-2F3ELK-2BAg-2Fbo2Dt23t9d5i4NrKLytPmyHLaFqhGBpfSEUBUXn9aIwtny55khK9jQEgCohtZZ-2FLsLQY7SFjHXfxbpBr26Kzg-2F-2FYqU-3D" style="text-decoration:underline;color:#000000" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb3H6nZQIVXlpWbzGuj0CtSJiBvlGCPsnQDPH1TUc2-2FCjqaNHtrYm0hXM2hl0nXvV1w-2FpKvZgZWM14QCZ7Q5PKWKDPrb-2BXJgAHXdIqBWKOixAqRFzUJ3Hs8d925LIgkeCPuFOE6bIdEz92VHP1WErdjV-2BidXMvNq8cAp-2BnZOyznEGOAHiWVzpzNQ7GzHEQ-2B0b12aCCLhSVwTa1lmYX3cHARBRE83vx-2BNU94Eq0I-2B0HaYrZRZOskuMMLucSU4H47OK5Q-3D-3DcVD0_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJbNrjwl2L1lge3I1Tsizkd4vXNzhAo9k61bjyW-2FbmtiAHsoOXgO-2F3ELK-2BAg-2Fbo2Dt23t9d5i4NrKLytPmyHLaFqhGBpfSEUBUXn9aIwtny55khK9jQEgCohtZZ-2FLsLQY7SFjHXfxbpBr26Kzg-2F-2FYqU-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw2hNDpT7QqPhcIFlWmQOkXI">
+<span>
+                         stockx
+                        </span>
+                        .com/buying
+                       </a>
+                       .
+                      </td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="line-height:0;font-size:0" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td align="center" bgcolor="#D4D1C7" colspan="2" style="padding:30px 0" width="100%">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="display:block" width="100%">
+<tbody>
+<tr>
+<td align="center" colspan="2" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:18px;color:#000000;text-decoration:none;text-align:left;line-height:24px;font-weight:600;padding-top:0px;padding-left:105px;padding-right:105px" width="100%">
+                           Frequently Asked Questions
+                          </td>
+</tr>
+<tr>
+<td align="center" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:18px;color:#000000;text-decoration:none;text-align:left;line-height:24px;font-weight:normal;padding-top:5px;padding-left:105px;padding-right:105px" width="100%">
+<ul style="margin:0;margin-left:15px;padding:0;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#006340;font-size:15px;line-height:20px;font-weight:400" type="disc">
+<li style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#006340;font-size:15px;line-height:18px;font-weight:400">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7ukoAbjkuN3DEQ-2F8YecBFAR-2BtRkTqvnZJBc6SLv0rVLJfN9tiwOGpxRXJBAYq-2BD-2F126igKfXZkyGdGyKHYRvNLUvjBnxGQTVetxDgDxJHSN6yBnZ3wVYLylJqruBT4gYsb1BorAWRyIC1KVHSmxb3aVGlkrn5QqZHCGOTsf9YHRmsN0J90yl9GFQEEV5s-2FuYgc2YLLVTEF2r447wCWhW496H8h2Wwh-2FX1esjzeab2tD5-2FqTZobgOjgr4Lcs01LInB8SIhuOs3zna1H1iqGokPcg-2FrfcwbJQKYzW9ul87TjD04YN50SKI5PU-2FtJh-2F2QseOJw-3Djy9y_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvIRWhlfKdPSXkbkCW28clFs-2BPk2Zer8-2FjDFAnGV4Lmaih-2FU7P3IW0IqYv-2B7VnJvLSVHUkayBYr02e2CjR3SXr3BpswvK5E3OAvH1Kuw3C5szFxW7Zo-2FmKvwa-2FQP3EcQKIOhVsVqMSysOURfZP0JvNjs-3D" style="text-decoration:none;color:#006340" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7ukoAbjkuN3DEQ-2F8YecBFAR-2BtRkTqvnZJBc6SLv0rVLJfN9tiwOGpxRXJBAYq-2BD-2F126igKfXZkyGdGyKHYRvNLUvjBnxGQTVetxDgDxJHSN6yBnZ3wVYLylJqruBT4gYsb1BorAWRyIC1KVHSmxb3aVGlkrn5QqZHCGOTsf9YHRmsN0J90yl9GFQEEV5s-2FuYgc2YLLVTEF2r447wCWhW496H8h2Wwh-2FX1esjzeab2tD5-2FqTZobgOjgr4Lcs01LInB8SIhuOs3zna1H1iqGokPcg-2FrfcwbJQKYzW9ul87TjD04YN50SKI5PU-2FtJh-2F2QseOJw-3Djy9y_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvIRWhlfKdPSXkbkCW28clFs-2BPk2Zer8-2FjDFAnGV4Lmaih-2FU7P3IW0IqYv-2B7VnJvLSVHUkayBYr02e2CjR3SXr3BpswvK5E3OAvH1Kuw3C5szFxW7Zo-2FmKvwa-2FQP3EcQKIOhVsVqMSysOURfZP0JvNjs-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw2Za-PLQ5Lk6xJMhkdK_Qgt">
+                              When can I expect to receive my item?
+                             </a>
+</li>
+<li style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#006340;font-size:15px;line-height:18px;font-weight:400">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7uk5HKBYK1TCSnFmRM38-2BcgcddStNMjCDCDN501-2ByMaw5kciBWDWAGrwJTnTiVGbj0vghTGYaDPrgP-2FYH26JW6igllSVF-2F103I6M-2BX09vGaLaveEs7IpgaNA9CeDmRwpyqKDMx0JoNhp2bQT-2BYaiUHxHrztV4DbxYTFsXoc9akOU7NIC-2Fo1Ddd9YtrsKQaGad8ogELoexz8z2c9iwUHWM9lyQ4lifi9CcFNSRIEDN7aqnqM09YgYmEOOqnoCoypPOTRsg3LI6Q99CXjYblMTpMGxK5b2508ufTyf7bRPb4pC-2FA-3D-3D0ORv_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvK-2F4gHPvRV7Q3sRCtcmSCziZkvwdxWDOOt5W5OXuCUIL3-2FdpBtyEkBIaWCUypWadE7OaM5E-2Ft7axQRMPfArYk32aG5ct63-2FtlIhpwfIe7tH9ajIeJJd21-2BRK4orqJ73dUbD05TbDc4WiLLNX8dAq-2F0E-3D" style="text-decoration:none;color:#006340" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7uk5HKBYK1TCSnFmRM38-2BcgcddStNMjCDCDN501-2ByMaw5kciBWDWAGrwJTnTiVGbj0vghTGYaDPrgP-2FYH26JW6igllSVF-2F103I6M-2BX09vGaLaveEs7IpgaNA9CeDmRwpyqKDMx0JoNhp2bQT-2BYaiUHxHrztV4DbxYTFsXoc9akOU7NIC-2Fo1Ddd9YtrsKQaGad8ogELoexz8z2c9iwUHWM9lyQ4lifi9CcFNSRIEDN7aqnqM09YgYmEOOqnoCoypPOTRsg3LI6Q99CXjYblMTpMGxK5b2508ufTyf7bRPb4pC-2FA-3D-3D0ORv_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvK-2F4gHPvRV7Q3sRCtcmSCziZkvwdxWDOOt5W5OXuCUIL3-2FdpBtyEkBIaWCUypWadE7OaM5E-2Ft7axQRMPfArYk32aG5ct63-2FtlIhpwfIe7tH9ajIeJJd21-2BRK4orqJ73dUbD05TbDc4WiLLNX8dAq-2F0E-3D&amp;source=gmail&amp;ust=1757602755757000&amp;usg=AOvVaw0PZmtuWW2pkqBieDbXcshf">
+                              Can I cancel my Bid?
+                             </a>
+</li>
+<li style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#006340;font-size:15px;line-height:18px;font-weight:400">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7uk5HKBYK1TCSnFmRM38-2BcgciPnHAL5-2FvoesAJMa-2F96iFMmZJfVTMLYOWF9LUxVjv24aXzXwkKXwQfDXZKG97VTau06XtLwRphQwAvaqZLjqGqfp43fgXeAkBzuv6MvE8qWi9Bn8lOfmRDkoiamR-2BP8kjyDqpGaFoqEH8AGQa2cmNlrDWNuOGp8NNHKbqPVHiRxg4OI5QdPyhk4hX7-2B9ZaQ7KcLPsBZNWd32le3ugJlYpVyPbgTFFeY03BX-2BUGpWQP726o4KFYLdu3q-2B8P7TYbSt-2B29FoVTeA6R7a6JhdfCaK0DKnsVK4a2TAF-2FbO7dVU7ttRg-2FlxF34yWY9Ag11qzZSDBeVFFHjXJy-2Fu4sDbumgcg-3D-3D1Bay_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvNPGq-2FU4briacQZ1B7TvRYDaRDJGa4S5LPE3vFNWXEM4XlqYHVWqXV03CVGcZhaHVyeOyA5ZKVsfpTRH0NiOD18fXLYpO8xWjPL9JvN9JiF13JBvAKGHActkYxw0lb8nfQHeFgIctwl53LIRunLc53k-3D" style="text-decoration:none;color:#006340" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7uk5HKBYK1TCSnFmRM38-2BcgciPnHAL5-2FvoesAJMa-2F96iFMmZJfVTMLYOWF9LUxVjv24aXzXwkKXwQfDXZKG97VTau06XtLwRphQwAvaqZLjqGqfp43fgXeAkBzuv6MvE8qWi9Bn8lOfmRDkoiamR-2BP8kjyDqpGaFoqEH8AGQa2cmNlrDWNuOGp8NNHKbqPVHiRxg4OI5QdPyhk4hX7-2B9ZaQ7KcLPsBZNWd32le3ugJlYpVyPbgTFFeY03BX-2BUGpWQP726o4KFYLdu3q-2B8P7TYbSt-2B29FoVTeA6R7a6JhdfCaK0DKnsVK4a2TAF-2FbO7dVU7ttRg-2FlxF34yWY9Ag11qzZSDBeVFFHjXJy-2Fu4sDbumgcg-3D-3D1Bay_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvNPGq-2FU4briacQZ1B7TvRYDaRDJGa4S5LPE3vFNWXEM4XlqYHVWqXV03CVGcZhaHVyeOyA5ZKVsfpTRH0NiOD18fXLYpO8xWjPL9JvN9JiF13JBvAKGHActkYxw0lb8nfQHeFgIctwl53LIRunLc53k-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw2QGdlbo9JpJLl78rDB_fG4">
+                              Can I change my shipping address after my purchase Is confirmed?
+                             </a>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="left" bgcolor="#006340" style="padding:0" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="640">
+<tbody>
+<tr>
+<td align="left" style="padding:45px 30px 0px 0px">
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td align="center" style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:18px;color:#d4d1c7;text-decoration:none;text-align:left;line-height:24px;font-weight:normal;padding-left:105px;padding-bottom:45px">
+<ul style="margin:0;padding:0;font-family:Arial,Helvetica Neue,Helvetica,sans-serif;color:#d4d1c7;font-size:18px;line-height:24px;font-weight:600;display:inline-block;list-style-type:none" type="none">
+<li style="display:inline-block;padding:0 5px 0 0;margin:0!important">
+<a align="left" href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb2GLcuvqoQN0Di2SNEQY32ha9EfE-2BKV03jVZEIgSQw-2FegbfMwVLBQCRlcrT9UxTBzSJmNqRSMipmlOeqI7MzAMNtj9INLBnuHPXVg2ae-2ByMM6MlsoCxpVXw1mbowkXZWTw-3D-3DWsEm_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvO-2FQPOqRHC5PE0Jf-2B1duLFxwrKTUI7yVHDYHye0DRoV0GSBWoDol-2BqphqL4jjjTYhgghMe4mOPwLucgmjKcb7CPCbaQ3-2BvagixLCYMvyzLH6aCeNXgdIf1Awl2wrZYUHTEdWBKdd1ewt94xAjhuMVWc-3D" style="text-decoration:none;color:#d4d1c7" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb2GLcuvqoQN0Di2SNEQY32ha9EfE-2BKV03jVZEIgSQw-2FegbfMwVLBQCRlcrT9UxTBzSJmNqRSMipmlOeqI7MzAMNtj9INLBnuHPXVg2ae-2ByMM6MlsoCxpVXw1mbowkXZWTw-3D-3DWsEm_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvO-2FQPOqRHC5PE0Jf-2B1duLFxwrKTUI7yVHDYHye0DRoV0GSBWoDol-2BqphqL4jjjTYhgghMe4mOPwLucgmjKcb7CPCbaQ3-2BvagixLCYMvyzLH6aCeNXgdIf1Awl2wrZYUHTEdWBKdd1ewt94xAjhuMVWc-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw3oAEmgkcs83VT1lIZRkltG">
+                          Email Settings
+                         </a>
+</li>
+<li style="display:inline-block;border-left:#d4d1c7 1px solid;padding:0 10px">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7ukcblo93b-2BPW5F-2Fcb7sEBQh6WoKt2-2BiEBviXe-2BhUhKgUJm0YGXi8-2FQray-2BgHprlG0tKIscypPz5ejf6Po6IWxFaRkBwc3hGKc8o2vsSLJ1-2BZQ-3D-3DzVWX_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJr7ZjdXSETRzjaMZaNDBt-2Bw6lJskxsa5DaLlBIWU5U9Gyuo5zc5FPPqrJtqGKAcC6XjqLXuTS2OxdyQPhBJlrcv-2FmOol9JiisyaQ1dThIrmCsVO4HS-2F0CR4AnHYVGJGtqbubEQ4bPngSVI74BXtCkA-3D" rel="noopener noreferrer" style="text-decoration:none;color:#d4d1c7;margin:0" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2FbxauprzYozKAjaUUB-2FB-2B7ukcblo93b-2BPW5F-2Fcb7sEBQh6WoKt2-2BiEBviXe-2BhUhKgUJm0YGXi8-2FQray-2BgHprlG0tKIscypPz5ejf6Po6IWxFaRkBwc3hGKc8o2vsSLJ1-2BZQ-3D-3DzVWX_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvJr7ZjdXSETRzjaMZaNDBt-2Bw6lJskxsa5DaLlBIWU5U9Gyuo5zc5FPPqrJtqGKAcC6XjqLXuTS2OxdyQPhBJlrcv-2FmOol9JiisyaQ1dThIrmCsVO4HS-2F0CR4AnHYVGJGtqbubEQ4bPngSVI74BXtCkA-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw03QRycVgwA1SmXYbbxFhMf">
+                          Help
+                         </a>
+</li>
+<li style="display:inline-block;border-left:#d4d1c7 1px solid;padding-left:10px;margin:0">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb0wlvZCGseNuC-2BvJXrp9jQuf-2FDvneA5YDfjajzeVys7hGYNtKkTaPWX-2ByFtYuswYyW4xOPINIhhAYfJyvilgGHVWP3xK1Q4rcw8Chu0LWWM4lm8y-2F7U5oegXF4wPR3PLSg-3D-3DBawL_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvOpCdTmMC-2Bq-2Fcz-2FEtMka10PhOCvKdLZEGKhBJyxFBSuDxhi1iyEpiP1Nb1NmySQ93h-2BbxJ-2BBA43W0aeyLzBdJmrktdSVbu6MSnmnx-2BCQWxL2s-2FgkuYhQ6jx0kYxyLUIXWvW14GOvZEWz5XhjWnBIpL0-3D" style="text-decoration:none;color:#d4d1c7" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb0wlvZCGseNuC-2BvJXrp9jQuf-2FDvneA5YDfjajzeVys7hGYNtKkTaPWX-2ByFtYuswYyW4xOPINIhhAYfJyvilgGHVWP3xK1Q4rcw8Chu0LWWM4lm8y-2F7U5oegXF4wPR3PLSg-3D-3DBawL_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvOpCdTmMC-2Bq-2Fcz-2FEtMka10PhOCvKdLZEGKhBJyxFBSuDxhi1iyEpiP1Nb1NmySQ93h-2BbxJ-2BBA43W0aeyLzBdJmrktdSVbu6MSnmnx-2BCQWxL2s-2FgkuYhQ6jx0kYxyLUIXWvW14GOvZEWz5XhjWnBIpL0-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw29KXCLPPQqp0OcdZeCXuLp">
+                          Jobs
+                         </a>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td align="center" bgcolor="#eae8e3" style="border-collapse:collapse;padding:15px">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse" width="100%">
+<tbody>
+<tr>
+<td align="center" style="border-collapse:collapse">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DkD3D_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvEiv9yY9dKodZXD5gh34VfbYvaSXnuTcCnCZbszzC7V2QnQR2aqi0IQIWUwHq0IC9RB1IaFp5oZelZskWd7fU9rZvoCPj0dVEfdnUXQY-2FF0B9I6vVOEBR0kD-2Fr1W3JRR12GpM9Y0ILIeNL388kaLinA-3D" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb0H5t5ixb4CxbpmYtLyztqEgX623hbRfg8QmYEsPraDxzvq4vNls6sHP3dqs9C0KHz39elLtmIb8kq6pmih-2BwOtvz6g81WvY3TGmGx-2F2Yyjfy4YoEH0KGYZ2r4WAdnGYHA-3D-3DkD3D_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvEiv9yY9dKodZXD5gh34VfbYvaSXnuTcCnCZbszzC7V2QnQR2aqi0IQIWUwHq0IC9RB1IaFp5oZelZskWd7fU9rZvoCPj0dVEfdnUXQY-2FF0B9I6vVOEBR0kD-2Fr1W3JRR12GpM9Y0ILIeNL388kaLinA-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw0bZz-l1jhiE7KluGUJs6gd">
+<img alt="StockX" height="auto" src="https://ci3.googleusercontent.com/meips/ADKq_NbvkzuKsmZe3828s3byQsC3Z-DJ0IsLRC2lr7oToqpXtTW5S8nsNUwv-gvZoKQA4HP72nC9cyQxiE5gidU9rpmsTbq_MWtRwJXfowPZGJVzfjK1asPE0Svqy8b01Yp7QLpvI0rMQhs5zAJaOFxtxt92CXEb8H_DHjPs7cykeFG-sD_6L-vBAXmedyU5hPBO5bdBrw3p_j5OobaSUB19XjkkvX9kv3_s9VijzJGvddo4owWETI60-pLxKhLzlRecBzeDaZcTPERMvuaOijEXXltbo0TAWNh14OqtcVF9=s0-d-e1-ft#https://stockx-assets.imgix.net/emails/logos/X_Green_Digital_RGB.png?dpr=2&amp;w=55&amp;border=1%2Ceae8e3&amp;h=55&amp;fit=fill&amp;bg=eae8e3&amp;pad=10&amp;border-radius=50%2C50%2C50%2C50&amp;border-radius-inner=40%2C40%2C40%2C40" style="display:block;border:none;font-family:ProximaNova,Helvetica,Arial,sans-serif;color:#006340;text-transform:none;font-size:15px;letter-spacing:1px;line-height:25px;max-width:55px;font-weight:400" width="55" class="CToWUd" data-bit="iit">
+</a>
+</td>
+</tr>
+<tr>
+<td align="center" style="border-collapse:collapse;border:0;display:block;padding-bottom:15px">
+<table align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;border-collapse:collapse">
+<tbody>
+<tr>
+<td valign="bottom" width="30">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fbw6L5BVJoM4VcEsO6MiZzoBDZUuaxM4Wmd-2BqZWvukDTPu--b_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvM5KiGcaNLgr9IEYguOALdUzFWHpdNXDXIkNU-2Bh1hsVOzZWSaodR-2Bb7v2wmLsM2SWvTlXtUMn9ZUUxMPvd3idB96exWlKOBkH1mTMSSCo6ooS0-2FhlAHtY1Fgz9aWdeEokiDqyjoRqdKH3Q3r-2FoaI89M-3D" style="text-align:center" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fbw6L5BVJoM4VcEsO6MiZzoBDZUuaxM4Wmd-2BqZWvukDTPu--b_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvM5KiGcaNLgr9IEYguOALdUzFWHpdNXDXIkNU-2Bh1hsVOzZWSaodR-2Bb7v2wmLsM2SWvTlXtUMn9ZUUxMPvd3idB96exWlKOBkH1mTMSSCo6ooS0-2FhlAHtY1Fgz9aWdeEokiDqyjoRqdKH3Q3r-2FoaI89M-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw3a5Jg-kcbpmfD51AhOCW9P">
+<img alt="facebook" border="0" height="30" src="https://ci3.googleusercontent.com/meips/ADKq_NbiwylFnV_o_IOtfnR7zg5YHvwIcw3r3XfsdkvuZ23MmerFI14LMaU3Wwmnv-JzfBEK4Iuk_kNt1MXu592e0itSkiIFjyJOCnCtCkLXYSe5PLzzJBXi4aooC94TfXRCR-e1pIsvUtlsLamRgLZA-hXog5e2db21rS60QJQuzi3Yk02mswzGyw-E15gN8G7IhzTVB0BYTDG2WRdQx7Ql9CIiYH5WpJsrRUKefe8Q9GuTtB75AYvQkgRnc2nG8gjX5bNAyEiy6Ykn5janKg80mMgv2XT0=s0-d-e1-ft#https://volyra.xyz/cdn/stockxconfirmation.html_assets/ADKq_NZm4uFV2d_iRgATce-SXfs2toH0N6X0DyaK_q33IE9i8VVQ4kDCXIHH9O4ZzpvtE5IHOSxFFk6vkHAg0QGc5OKGYNymDot_Z7vBU-Vd7icUfc6-cq-As1A6=s0-d-e1-ft" style="display:inline-block" width="30" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td style="font-size:1px;line-height:1px;width:45px">
+</td>
+<td valign="middle" width="30">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb2KHJQw8LMb-2FR49z8oyC4mlv9ihWF3WyMAqjga4jN6q6UPX1_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvPA-2BSKQ-2Bgh10HlV1ExMqwv7j0R-2FQNBPpeyaCjpHiaz9rWqgRiIJvCQSUEfh8WyCM7mDsddyWPOtuyBsqa1cdADMmognoMqKyyzLQewIyMpualTF0uv6hwMJ9DOyz-2FwJiB0HQQ-2BgcVquE1dSF0SARXCA-3D" style="text-align:center" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb2KHJQw8LMb-2FR49z8oyC4mlv9ihWF3WyMAqjga4jN6q6UPX1_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvPA-2BSKQ-2Bgh10HlV1ExMqwv7j0R-2FQNBPpeyaCjpHiaz9rWqgRiIJvCQSUEfh8WyCM7mDsddyWPOtuyBsqa1cdADMmognoMqKyyzLQewIyMpualTF0uv6hwMJ9DOyz-2FwJiB0HQQ-2BgcVquE1dSF0SARXCA-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw0TETd3BGWQNEYX4SupEvda">
+<img alt="twitter" border="0" height="25" src="https://ci3.googleusercontent.com/meips/ADKq_NZ0lFiJFQwjUadzYJidLgaE_o7JMSOngOKV8atBGM9YiXuE73vfgk-3PtKS774_PJkbapKJnF10lmsVsvH_Kyqn5siJrCLJsa4l4d6T9DtmR8D85zEUea0qaZECWMU6fzTwVHF7ANzzzljfgb1C9w77SkATe6So8ko_ZHEpFpO0mlc0JQFx547M6p7njRYdD1DTDhQHJCEGqTFC1eq_BrhIbZtSiWeDYayOIQZBPCYhZzHq3ur8_fN4St6Rtq-yPSrUPGaeWUcIH8iVoONJeKV7wyA=s0-d-e1-ft#https://volyra.xyz/cdn/stockxconfirmation.html_assets/ADKq_NbwrI0NnJi2kUd_SPJlAha3MmCfbxb-nrUTxxaGlQrhbfoHMkhDFvPq9Fh4K7eLExLG1tgI7wnNAS9-wEeuVqTwJz7zUbNmbHCfGvz2SIkFx14qE2ZZl8c=s0-d-e1-ft" style="display:inline-block" width="30" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td style="font-size:1px;line-height:1px;width:45px">
+</td>
+<td valign="middle" width="30">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb44CYwS-2BQg9cnBMyv0hiWxNLSp4YxOr1AunmDar2oMy2A2DO_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvHCRlgg-2FYKSongGSGukbRj65Wxmp8R9cjN0tW2rsyWrCax1L51U6cxZKvTT-2Buoy31mfQh8W4XtS1A6q8YhQDcflQCTdJh-2FVl1hzoRY1AJ-2BlXVYb336LxTPtGLaJD5UHVGspIXNiWTn7KHbF0Lao1oKs-3D" style="text-align:center" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb44CYwS-2BQg9cnBMyv0hiWxNLSp4YxOr1AunmDar2oMy2A2DO_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvHCRlgg-2FYKSongGSGukbRj65Wxmp8R9cjN0tW2rsyWrCax1L51U6cxZKvTT-2Buoy31mfQh8W4XtS1A6q8YhQDcflQCTdJh-2FVl1hzoRY1AJ-2BlXVYb336LxTPtGLaJD5UHVGspIXNiWTn7KHbF0Lao1oKs-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw1SUx6VVuRK3wrb3Zb1-NWR">
+<img alt="instagram" border="0" height="30" src="https://ci3.googleusercontent.com/meips/ADKq_NYMkoxbogwt30m_BnLbto0jT0QNmmFJbcSoFvEH5SUePzOib9F1zrzSgKQ6n4-QWsvVWafe2DxL3IjPoNzTMp6J_9eE95-f9caU7iWCQVmX-SJKMCw5grmeTFkjXRHyFVt0b4KInWKRmoh2OKDSOjoaSa9baVAwPyc630QktxAUzIMwPIRv9Jq10L-d9OiUn1NC9Xm4DBjfZ-JwSO-v8BivHPixejEwfx01mzlZbXLh9Yb2Q7XnrnbvzdZIkznKnhnnUVBrkKp82JV0N-nLDEm2bgzVK-U=s0-d-e1-ft#https://volyra.xyz/cdn/stockxconfirmation.html_assets/ADKq_NYBUmt5mBgBFxTbuPO2Ypj-5zI29BRo2UoGRmSobHMd5Zy8aGWzY47CEmK8hDJkn31g-GG56qwtX5-6JVvpC8H9CQrP4g67K06BL_RJE-ZEVlbLZ4rPVBwUfA=s0-d-e1-ft" style="display:inline-block" width="30" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td style="font-size:1px;line-height:1px;width:45px">
+</td>
+<td valign="middle" width="30">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2Fe8EKuUZ5hkGgGlqvYXaRiSDsyYsprpykaEsBO9RJxH2IKY_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvF9qRS3Bb-2BItpW-2BPefGL1hx83nIpMAwOXBJ8-2B-2FMNBBtLwTUPXQcIYZhVanjo9uI8LJJ28C9PuUwumEjoDVamQmQfhrO4a-2FT-2B0qVa27poncBKj7KRZKxpgVCTbO9wVZUvmUtfHgBAbo7dDns4ZYZkUSo-3D" style="text-align:center" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2Fe8EKuUZ5hkGgGlqvYXaRiSDsyYsprpykaEsBO9RJxH2IKY_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvF9qRS3Bb-2BItpW-2BPefGL1hx83nIpMAwOXBJ8-2B-2FMNBBtLwTUPXQcIYZhVanjo9uI8LJJ28C9PuUwumEjoDVamQmQfhrO4a-2FT-2B0qVa27poncBKj7KRZKxpgVCTbO9wVZUvmUtfHgBAbo7dDns4ZYZkUSo-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw2k6adKd66j9foH2ZVRgRrH">
+<img alt="YouTube" border="0" height="21" src="https://ci3.googleusercontent.com/meips/ADKq_NZ_p6SgFqTtl2eVecpc6pFeo4TxSPqLgaGp4611Rl1B8rYpZo8NHGbVJuaqIf1S6RmBfYBby1RJ-2cG4kqAzJuZEv9EIKvwXUaE_WDkyKEt8TKYRuPLKKLjD7ammahI9XHQYkEV0rgeo_xa-daSnBXhmtjLJKtN28LsBsf26DGMBRGx_UcWxyGoliqYmJX6YIwQU4Mwh9qTAoJgCB0IovXtcOKxv0zv5zKR0FThXNG_NbpxULfnhwNYF4KwoiGdNUWNkB5F60h0_62KFZPjFqQ43C8=s0-d-e1-ft#https://volyra.xyz/cdn/stockxconfirmation.html_assets/ADKq_NbGh6ttc_pCFGP-z-tMovDzXhOzy9-rA37iHZw1CwfXnePMHUvNuPpSaPdFLjO0DW5N1xPRMgZ12GGJvEy97yQFWw-TxMEtGdRZj3PZkC2ySC3futb3Zp4=s0-d-e1-ft" style="display:inline-block" width="30" class="CToWUd" data-bit="iit">
+</a>
+</td>
+<td style="font-size:1px;line-height:1px;width:45px">
+</td>
+<td valign="middle" width="30">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb-2BGtGJcAS04ydLnD40CM3iOtwTCypu0PVq-2FAwJeOuClUpJmb_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvFRPkgDVQfW4rlhsMe6n3dSdTDqqSVu3cn-2F1MgXhJXRQl-2BAqGj-2FzCA-2BmlMaxiRBEOfZ-2BoCltIO1uhQhpLHkFZfuvrKAYHoHVD5zAAdT8sct3CDTaiA43ah5yYNZndRTcpqm-2Fuhefq282vItWLeKao5o-3D" style="text-align:center" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb-2BGtGJcAS04ydLnD40CM3iOtwTCypu0PVq-2FAwJeOuClUpJmb_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvFRPkgDVQfW4rlhsMe6n3dSdTDqqSVu3cn-2F1MgXhJXRQl-2BAqGj-2FzCA-2BmlMaxiRBEOfZ-2BoCltIO1uhQhpLHkFZfuvrKAYHoHVD5zAAdT8sct3CDTaiA43ah5yYNZndRTcpqm-2Fuhefq282vItWLeKao5o-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw1ol9HVYO6tOtrS8f2TOYxB">
+<img alt="YouTube" border="0" height="21" src="https://ci3.googleusercontent.com/meips/ADKq_NYHTb0sgL0mTsvEMhofsz7kQv-LfB6yfXi0D-W5ojshA9RsbY75NGsbv_m9knW-8ry0pcDUeSmL42goF9NaeR6NWMM-kSBnCe2oIzrO6h8BGJX6MWzNpk1NE2aVHTmf1ejWPHD1iqPxPWg-V6-toR6mwxVYXNDGq4pU_dh1awC0W4zZuGEHym6tNQkDrIe5LA5bk0rJ4Th58pdaPdEbluTUDAKDXBiFBBvJIgVIMSu0aunwoTk_dxIMae76mjoczkbDAhwHW9IYDcwG=s0-d-e1-ft#https://volyra.xyz/cdn/stockxconfirmation.html_assets/ADKq_NYAIY7rc9e8NSWAMaTAgvO6l0MKuVF_wEYhl1suw9p7Tp7OEJq2Y-FMSfgrM4ftaa0ZML-dZd2ewz5XgNlr-vQgmDXIdeLh1CoW9V-PzZioOZo=s0-d-e1-ft" style="display:inline-block" width="30" class="CToWUd" data-bit="iit">
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td style="padding:0 30px 30px 30px;text-align:center">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:10px;color:#006340;font-weight:400;text-decoration:none;text-align:center;line-height:12px;padding-top:10px" width="100%">
+                       ©2025
+                       <span>
+                        StockX
+                       </span>
+                       . All Rights Reserved.
+                      </td>
+</tr>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:10px;color:#006340;font-weight:400;text-decoration:none;text-align:center;line-height:12px;padding-top:5px" width="100%">
+                       The sender of this email is
+                       <span>
+                        StockX
+                       </span>
+                       located at 1046 Woodward Avenue, Detroit, MI 48226, USA
+                      </td>
+</tr>
+<tr>
+<td style="font-family:Arial,Helvetica Neue,Helvetica,sans-serif;font-size:10px;color:#006340;font-weight:400;text-decoration:none;text-align:center;line-height:12px;padding-top:5px" width="100%">
+<a href="https://link.tmail.stockx.com/ls/click?upn=JIQY7zBfXDLTJFCjYRV-2Fb2GLcuvqoQN0Di2SNEQY32ha9EfE-2BKV03jVZEIgSQw-2FegbfMwVLBQCRlcrT9UxTBzSJmNqRSMipmlOeqI7MzAMNtj9INLBnuHPXVg2ae-2ByMM6MlsoCxpVXw1mbowkXZWTw-3D-3DdPcm_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvD4zrGcSbW8vPU-2F1lx8kQ0nMUxPr85xt-2BmI11SjfR3xYuAvqnsaq16bT2V5-2BL8iMT8nyAgEzU3qJkAuLzXOIQ61D2L3eSrchmjURSmp18srl0eJ8ye8bbqRdm9dpmJGt4uNqF08U7ELjCSX2Ws3Jsq8-3D" style="text-decoration:none;color:#006340" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://link.tmail.stockx.com/ls/click?upn%3DJIQY7zBfXDLTJFCjYRV-2Fb2GLcuvqoQN0Di2SNEQY32ha9EfE-2BKV03jVZEIgSQw-2FegbfMwVLBQCRlcrT9UxTBzSJmNqRSMipmlOeqI7MzAMNtj9INLBnuHPXVg2ae-2ByMM6MlsoCxpVXw1mbowkXZWTw-3D-3DdPcm_YXpVYTV-2BKOip-2B7eUZ-2F2nxWXSldwhoQ-2FnBBIlcI3A1N-2BCnBmgfXIJsQNmCJHU-2BOAuj6E2Yoc8OmnFfntO7IQHknB7G-2B7Jpj5FUyyVT2Q3MAr3w1KXf5yRxvggSyfb93lhowEOlcMP7ZTK3UiUKNLwqACP7cCuLJ8hPR9uTSJTYLY5GHC1LgCyaiyOl6TzH-2FWg8WTjH4WFonSXMsGNh0IkQauWd5QV-2BaviLl5NkYn8Fnfic-2F0QcibqZR-2FzGpYXe5lVbSFjfCMOA1rskHRthrYfOIi30iLQSBFczqk6yVLW6G-2FVBnU91cN7zISPbewdemD1k9M12ZS1IhemdKb-2FNmqwt8eUI6t1aAaGRwDhivym5kYIpX45Z99kRM0o8eoQNQJirKAXx6GpVwniW6Jhzylhm1G54fa97Wk5IXDFMICVr30s4wzIo1Ym5bBaSr3kQOTAGbcele5kyGwU0XE8K6xLvD4zrGcSbW8vPU-2F1lx8kQ0nMUxPr85xt-2BmI11SjfR3xYuAvqnsaq16bT2V5-2BL8iMT8nyAgEzU3qJkAuLzXOIQ61D2L3eSrchmjURSmp18srl0eJ8ye8bbqRdm9dpmJGt4uNqF08U7ELjCSX2Ws3Jsq8-3D&amp;source=gmail&amp;ust=1757602755758000&amp;usg=AOvVaw1m-3Z7YibAMveXjRSoV1eM">
+                        Update email settings
+                       </a>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table></div>
