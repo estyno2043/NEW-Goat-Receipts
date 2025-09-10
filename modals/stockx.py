@@ -186,7 +186,7 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
 
             # Read the HTML template
             try:
-                with open("receipt/stockx.html", "r", encoding="utf-8") as file:
+                with open("receipt/stockx_new.html", "r", encoding="utf-8") as file:
                     html_content = file.read()
             except FileNotFoundError:
                 await interaction.response.edit_message(content="Error: StockX template file not found. Please contact an administrator.")
@@ -213,7 +213,8 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
             pprice = getattr(self, 'price', 0)
             pfee = getattr(self, 'pfee', 0)
             shipping = getattr(self, 'shipping', 0)
-            delivery_date = getattr(self, 'delivery_date', "")
+            ordered_date = getattr(self, 'ordered_date', "")
+            arrival_date = getattr(self, 'arrival_date', "")
             style_id = getattr(self, 'style_id', "")
 
             total = pprice + pfee + shipping
@@ -224,20 +225,51 @@ class stockxmodal3(ui.Modal, title="StockX Image"):
             pfee1 = f"{pfee}"
             shipping1 = f"{shipping}"
 
+            # Generate random order number in format 99999999-99999999
+            import random
+            order_number = f"{random.randint(10000000, 99999999):08d}-{random.randint(10000000, 99999999):08d}"
+            
+            # Set status-based display values
+            status_display_text = "Confirmation"
+            status_step_1 = "Ordered"
+            
+            if status.lower() == "confirmed":
+                status_display_text = "Confirmation"
+                status_step_1 = "Ordered"
+            elif status.lower() == "ordered":
+                status_display_text = "Confirmation"
+                status_step_1 = "Ordered"
+            elif status.lower() == "shipped":
+                status_display_text = "Shipped"
+                status_step_1 = "Shipped to StockX"
+            elif status.lower() == "arrived":
+                status_display_text = "Arrived"
+                status_step_1 = "Arrived at StockX"
+            elif status.lower() == "verified":
+                status_display_text = "Verified"
+                status_step_1 = "Verified + Shipped"
+            elif status.lower() == "delivered":
+                status_display_text = "Delivered"
+                status_step_1 = "Delivered"
+            
             # Replace placeholders in template
-            html_content = html_content.replace("{placeholder1}", condition1)
-            html_content = html_content.replace("{placeholder2}", currency1)
-            html_content = html_content.replace("{placeholder3}", pprice1)
-            html_content = html_content.replace("{placeholder4}", pfee1)
-            html_content = html_content.replace("{placeholder5}", shipping1)
-            html_content = html_content.replace("{placeholder6}", delivery_date)
-            html_content = html_content.replace("{placeholder7}", status) 
-            html_content = html_content.replace("{link_value_stockx}", link)
-            html_content = html_content.replace("{brimage}", image_url) 
-            html_content = html_content.replace("{pname}", product_name_value)
-            html_content = html_content.replace("{styleid}", style_id)
-            html_content = html_content.replace("{sizee}", sizee)
-            html_content = html_content.replace("{totalp}", str(total))
+            html_content = html_content.replace("{status}", status.lower())
+            html_content = html_content.replace("{status_display}", status_display_text)
+            html_content = html_content.replace("{status_step_1}", status_step_1)
+            html_content = html_content.replace("{image_url}", image_url)
+            html_content = html_content.replace("{shoe_image}", image_url)
+            html_content = html_content.replace("{product_name}", product_name_value)
+            html_content = html_content.replace("{style_id}", style_id)
+            html_content = html_content.replace("{size}", sizee)
+            html_content = html_content.replace("{condition}", condition1)
+            html_content = html_content.replace("{order_number}", order_number)
+            html_content = html_content.replace("{currency}", currency1)
+            html_content = html_content.replace("{purchase_price}", f"{pprice:.2f}")
+            html_content = html_content.replace("{processing_fee}", f"{pfee:.2f}")
+            html_content = html_content.replace("{shipping}", f"{shipping:.2f}")
+            html_content = html_content.replace("{total_payment}", f"{total:.2f}")
+            html_content = html_content.replace("{ordered_date}", ordered_date)
+            html_content = html_content.replace("{arrival_date}", arrival_date)
 
             try:
                 # Ensure directory exists
