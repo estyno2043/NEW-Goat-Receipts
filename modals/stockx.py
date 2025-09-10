@@ -74,8 +74,7 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
     pprice = discord.ui.TextInput(label="Price without Currency", placeholder="180.00", required=True)
     pfee = discord.ui.TextInput(label="StockX Fee without Currency", placeholder="12.94", required=True)
     shipping = discord.ui.TextInput(label="Shipping Fees without Currency", placeholder="12.94", required=True)
-    ordered_date = discord.ui.TextInput(label="Order Date", placeholder="22 January 2024", required=True)
-    arrival_date = discord.ui.TextInput(label="Arrival Date", placeholder="25 January 2024", required=True)
+    date_range = discord.ui.TextInput(label="Order Date - Arrival Date", placeholder="22 January 2024 - 25 January 2024", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global condition1, currency1, status, product_name_value, sizee
@@ -84,9 +83,18 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             pprice = float(self.pprice.value)
             pfee1 = self.pfee.value
             shipping1 = self.shipping.value
-            ordered_date = self.ordered_date.value
-            arrival_date = self.arrival_date.value
+            date_range = self.date_range.value
             style_id = self.styleidd.value
+
+            # Parse the date range into separate dates
+            if ' - ' not in date_range:
+                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Order Date - Arrival Date'\nEx. `22 January 2024 - 25 January 2024`")
+                await interaction.response.edit_message(embed=embed)
+                return
+            
+            ordered_date, arrival_date = date_range.split(' - ', 1)
+            ordered_date = ordered_date.strip()
+            arrival_date = arrival_date.strip()
 
             embed = discord.Embed(title="Processing...", description="Please provide an image URL in the next step to complete your receipt.", color=0x1e1f22)
 
@@ -106,7 +114,7 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
 
             date_pattern = re.compile(r'^\d{1,2}\s(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}$', re.IGNORECASE)
             if not (date_pattern.match(ordered_date) and date_pattern.match(arrival_date)):
-                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Day Month Year' for both dates\nEx. `24 January 2024`")
+                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Day Month Year' for both dates\nEx. `22 January 2024 - 25 January 2024`")
                 await interaction.response.edit_message(embed=embed)
                 return
 
