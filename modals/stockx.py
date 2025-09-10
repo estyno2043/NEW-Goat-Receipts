@@ -70,11 +70,12 @@ class stockxmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 class stockxmodal2(ui.Modal, title="StockX Receipt"):
-    styleidd = discord.ui.TextInput(label="Style ID", placeholder="AMOULW1029-001", required=False)
-    pprice = discord.ui.TextInput(label="Price without Currency", placeholder="1693", required=True)
+    styleidd = discord.ui.TextInput(label="Style ID", placeholder="DR5415-100", required=False)
+    pprice = discord.ui.TextInput(label="Price without Currency", placeholder="180.00", required=True)
     pfee = discord.ui.TextInput(label="StockX Fee without Currency", placeholder="12.94", required=True)
     shipping = discord.ui.TextInput(label="Shipping Fees without Currency", placeholder="12.94", required=True)
-    Delivereddate = discord.ui.TextInput(label="Delivery Date", placeholder="22 January 2024", required=True)
+    ordered_date = discord.ui.TextInput(label="Order Date", placeholder="22 January 2024", required=True)
+    arrival_date = discord.ui.TextInput(label="Arrival Date", placeholder="25 January 2024", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global condition1, currency1, status, product_name_value, sizee
@@ -83,7 +84,8 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             pprice = float(self.pprice.value)
             pfee1 = self.pfee.value
             shipping1 = self.shipping.value
-            dd = self.Delivereddate.value
+            ordered_date = self.ordered_date.value
+            arrival_date = self.arrival_date.value
             style_id = self.styleidd.value
 
             embed = discord.Embed(title="Processing...", description="Please provide an image URL in the next step to complete your receipt.", color=0x1e1f22)
@@ -92,7 +94,8 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             self.pprice_value = pprice
             self.pfee_value = float(pfee1) if re.match(r'^\d+(\.\d{1,2})?$', pfee1) else 0
             self.shipping_value = float(shipping1) if re.match(r'^\d+(\.\d{1,2})?$', shipping1) else 0
-            self.dd_value = dd
+            self.ordered_date_value = ordered_date
+            self.arrival_date_value = arrival_date
             self.style_id_value = style_id
 
             # Validation
@@ -102,20 +105,21 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                 return
 
             date_pattern = re.compile(r'^\d{1,2}\s(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}$', re.IGNORECASE)
-            if not date_pattern.match(dd):
-                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Day Month Year'\nEx. `24 January 2024`")
+            if not (date_pattern.match(ordered_date) and date_pattern.match(arrival_date)):
+                embed = discord.Embed(title="Error StockX - Invalid date format", description="Please use the format 'Day Month Year' for both dates\nEx. `24 January 2024`")
                 await interaction.response.edit_message(embed=embed)
                 return
 
             # Create a final step view for the image URL
             class FinalStepView(discord.ui.View):
-                def __init__(self, owner_id, price_value, pfee_value, shipping_value, delivery_date, style_id_value):
+                def __init__(self, owner_id, price_value, pfee_value, shipping_value, ordered_date, arrival_date, style_id_value):
                     super().__init__(timeout=300)
                     self.owner_id = owner_id
                     self.price_value = price_value
                     self.pfee_value = pfee_value
                     self.shipping_value = shipping_value
-                    self.delivery_date = delivery_date
+                    self.ordered_date = ordered_date
+                    self.arrival_date = arrival_date
                     self.style_id = style_id_value
 
                 async def interaction_check(self, interaction):
@@ -131,7 +135,8 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                     modal.price = self.price_value
                     modal.pfee = self.pfee_value
                     modal.shipping = self.shipping_value 
-                    modal.delivery_date = self.delivery_date
+                    modal.ordered_date = self.ordered_date
+                    modal.arrival_date = self.arrival_date
                     modal.style_id = self.style_id
                     await interaction.response.send_modal(modal)
 
@@ -148,7 +153,8 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
                     pprice,
                     float(pfee1) if re.match(r'^\d+(\.\d{1,2})?$', pfee1) else 0,
                     float(shipping1) if re.match(r'^\d+(\.\d{1,2})?$', shipping1) else 0,
-                    dd,
+                    ordered_date,
+                    arrival_date,
                     style_id
                 )
             )
