@@ -8,6 +8,26 @@ import json
 import logging
 import os
 
+def has_owner_permissions(interaction: discord.Interaction) -> bool:
+    """Check if user has owner permissions (owner ID or admin role)"""
+    # Load config to get owner ID
+    with open("config.json", "r") as f:
+        config = json.load(f)
+        owner_id = int(config.get("owner_id", 1339295766828552365))
+    
+    # Check if user is the owner
+    if interaction.user.id == owner_id:
+        return True
+    
+    # Check if user has the admin role (1412498272508973116)
+    admin_role_id = 1412498272508973116
+    if interaction.guild:
+        admin_role = discord.utils.get(interaction.guild.roles, id=admin_role_id)
+        if admin_role and admin_role in interaction.user.roles:
+            return True
+    
+    return False
+
 class SubscriptionOption(discord.ui.Select):
     def __init__(self, view, user):
         self.parent_view = view
@@ -447,17 +467,14 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
     @app_commands.command(name="limit", description="Apply 11-hour rate limit to a user (Owner only)")
     async def limit(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
+        # Check if the command invoker has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -498,15 +515,11 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(name="unlimit", description="Remove rate limit from a user (Owner only)")
     async def unlimit(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
+        # Check if the command invoker has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -543,15 +556,11 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(name="edit", description="Admin panel to edit user subscription and details")
     async def edit(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
+        # Check if the command invoker has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -641,15 +650,11 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(name="userinfo", description="Get comprehensive information for a user")
     async def userinfo(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
+        # Check if the command invoker has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -725,15 +730,11 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(name="endlite", description="End a user's lite subscription and send completion message (Owner only)")
     async def endlite(self, interaction: discord.Interaction, user: discord.Member):
-        # Check if the command invoker is the bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 1339295766828552365))
-
-        if interaction.user.id != owner_id:
+        # Check if the command invoker has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -807,13 +808,9 @@ class RoleAssignmentView(discord.ui.View):
 
     @discord.ui.button(label="Assign Subscription Role", style=discord.ButtonStyle.green)
     async def assign_roles(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user is bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 0))
-
-        if interaction.user.id != owner_id:
-            await interaction.response.send_message("Only the bot owner can use this button.", ephemeral=True)
+        # Check if user has owner permissions
+        if not has_owner_permissions(interaction):
+            await interaction.response.send_message("Only the bot owner or admin role can use this button.", ephemeral=True)
             return
 
         # Disable the button to prevent multiple clicks
@@ -871,13 +868,9 @@ class RoleAssignmentView(discord.ui.View):
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel_assignment(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Check if user is bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 0))
-
-        if interaction.user.id != owner_id:
-            await interaction.response.send_message("Only the bot owner can use this button.", ephemeral=True)
+        # Check if user has owner permissions
+        if not has_owner_permissions(interaction):
+            await interaction.response.send_message("Only the bot owner or admin role can use this button.", ephemeral=True)
             return
 
         embed = discord.Embed(
@@ -888,15 +881,11 @@ class RoleAssignmentView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=None)
 
     async def info_command(self, interaction: discord.Interaction):
-        # Check if user is bot owner
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            owner_id = int(config.get("owner_id", 0))
-
-        if interaction.user.id != owner_id:
+        # Check if user has owner permissions
+        if not has_owner_permissions(interaction):
             embed = discord.Embed(
                 title="Access Denied",
-                description="Only the bot owner can use this command.",
+                description="Only the bot owner or admin role can use this command.",
                 color=discord.Color.red()
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
