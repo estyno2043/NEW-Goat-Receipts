@@ -42,6 +42,27 @@ from utils.mongodb_manager import mongo_manager
 from utils.message_filter import MessageFilter
 message_filter = None
 
+def has_owner_permissions(interaction: discord.Interaction) -> bool:
+    """Check if user has owner permissions (owner ID or admin role)"""
+    # Load config to get owner ID
+    with open("config.json", "r") as f:
+        import json
+        config = json.load(f)
+        owner_id = int(config.get("owner_id", 1339295766828552365))
+    
+    # Check if user is the owner
+    if interaction.user.id == owner_id:
+        return True
+    
+    # Check if user has the admin role (1412498272508973116)
+    admin_role_id = 1412498272508973116
+    if interaction.guild:
+        admin_role = discord.utils.get(interaction.guild.roles, id=admin_role_id)
+        if admin_role and admin_role in interaction.user.roles:
+            return True
+    
+    return False
+
 # Background task to process notifications
 async def process_notifications():
     """Background task to process webhook notifications"""
@@ -2161,16 +2182,11 @@ class KeygenView(discord.ui.View):
 
 @bot.tree.command(name="redeem", description="Redeem a license key for access")
 async def redeem_command(interaction: discord.Interaction):
-    # Check if user is the bot owner
-    with open("config.json", "r") as f:
-        import json
-        config = json.load(f)
-        owner_id = config.get("owner_id", "0")
-
-    if str(interaction.user.id) != owner_id:
+    # Check if user has owner permissions
+    if not has_owner_permissions(interaction):
         embed = discord.Embed(
             title="Access Denied",
-            description="Only the bot owner can use this command.",
+            description="Only the bot owner or admin role can use this command.",
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -2191,14 +2207,14 @@ async def redeem_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="keygen", description="Generate license keys (Owner only)")
 async def keygen_command(interaction: discord.Interaction):
-    # Check if user is the bot owner
-    with open("config.json", "r") as f:
-        import json
-        config = json.load(f)
-        owner_id = config.get("owner_id", "0")
-
-    if str(interaction.user.id) != owner_id:
-        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+    # Check if user has owner permissions
+    if not has_owner_permissions(interaction):
+        embed = discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner or admin role can use this command.",
+            color=discord.Color.red()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     embed = discord.Embed(
