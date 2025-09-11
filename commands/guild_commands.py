@@ -300,95 +300,6 @@ class GuildCommands(commands.Cog):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="add_access", description="Add access for a user in your guild")
-    @app_commands.describe(
-        user="The user to grant access to",
-        days="Number of days for access (0 for lifetime)"
-    )
-    async def add_access(self, interaction: discord.Interaction, user: discord.Member, days: int):
-        # Check if user is a guild admin
-        is_admin = await self.is_guild_admin(interaction)
-
-        if not is_admin:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="You must have the admin role to use this command.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        # Get guild configuration
-        from utils.mongodb_manager import mongo_manager
-        guild_config = mongo_manager.get_guild_config(interaction.guild.id)
-
-        if not guild_config:
-            embed = discord.Embed(
-                title="Error",
-                description="This server has not been configured yet. Please use `/configure_guild` first.",
-                color=discord.Color.red()
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
-        generate_channel_id = guild_config.get("generate_channel_id")
-        client_role_id = guild_config.get("client_role_id")
-
-        # Calculate expiry date
-        if days == 0:
-            # Lifetime access
-            expiry_date = datetime.now() + timedelta(days=3650)  # ~10 years
-            access_type = "Lifetime"
-        else:
-            # Temporary access
-            expiry_date = datetime.now() + timedelta(days=days)
-            access_type = f"{days} Days"
-
-        # Add or update user access in MongoDB
-        expiry_str = expiry_date.strftime("%Y-%m-%d %H:%M:%S")
-
-        # Save server access record
-        mongo_manager.save_server_access(
-            interaction.guild.id,
-            user.id,
-            interaction.user.id,
-            access_type,
-            expiry_str
-        )
-
-        # Create guild-specific license for the user
-        license_data = {
-            "key": f"guild-access-{interaction.guild.id}-{user.id}",
-            "expiry": expiry_date.strftime('%d/%m/%Y %H:%M:%S'),
-            "subscription_type": access_type.lower().replace(" ", ""),
-            "redeemed": True,
-            "redeemed_at": datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
-            "granted_by": str(interaction.user.id)
-        }
-
-        mongo_manager.save_guild_user_license(interaction.guild.id, user.id, license_data)
-
-        # Try to add client role to the user
-        try:
-            client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
-            if client_role:
-                await user.add_roles(client_role)
-                print(f"Added client role {client_role_id} to user {user.id} in guild {interaction.guild.id}")
-            else:
-                print(f"Client role {client_role_id} not found in guild {interaction.guild.id}")
-        except Exception as e:
-            logging.error(f"Error adding client role: {e}")
-            print(f"Failed to add role {client_role_id} to user {user.id}: {e}")
-
-        # Send public notification
-        embed = discord.Embed(
-            title="Access Granted",
-            description=f"Successfully added `{access_type}` access to {user.mention}\n\n"
-                        f"» Go to <#{generate_channel_id}> and Run command `/generate`",
-            color=discord.Color.green()
-        )
-
-        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="timeleft", description="Check how much time a user has left in this guild")
     @app_commands.describe(user="The user to check time remaining for")
@@ -786,17 +697,6 @@ class BrandSelectMenu(ui.Select):
 
 async def setup(bot):
     await bot.add_cog(GuildCommands(bot))
-```
-This commit adds the Fútbol Emotion brand and its associated modal functionality, including handling its selection and receipt generation logic.import discord
-from discord import app_commands
-from discord.ext import commands
-from discord import ui
-import sqlite3
-import json
-import logging
-from datetime import datetime, timedelta
-import asyncio
-import random
 
 # Setup database for guild configuration
 def setup_guild_database():
