@@ -46,7 +46,7 @@ class SubscriptionOption(discord.ui.Select):
         super().__init__(placeholder="Select subscription duration...", options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user.id != self.parent_view.owner_id:
+        if not has_owner_permissions(interaction):
             await interaction.response.send_message("You cannot use this panel.", ephemeral=True)
             return
 
@@ -205,7 +205,7 @@ class AdminPanelView(discord.ui.View):
 
     @discord.ui.button(label="Information", style=discord.ButtonStyle.gray)
     async def handle_information(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
+        if not has_owner_permissions(interaction):
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
@@ -297,7 +297,7 @@ class AdminPanelView(discord.ui.View):
 
     @discord.ui.button(label="Add Access", style=discord.ButtonStyle.gray)
     async def handle_add_access(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
+        if not has_owner_permissions(interaction):
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
@@ -316,7 +316,7 @@ class AdminPanelView(discord.ui.View):
 
     @discord.ui.button(label="Remove Access", style=discord.ButtonStyle.gray)
     async def handle_remove_access(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
+        if not has_owner_permissions(interaction):
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
@@ -435,7 +435,7 @@ class AdminPanelView(discord.ui.View):
 
     @discord.ui.button(label="Remove Email", style=discord.ButtonStyle.gray)
     async def handle_remove_email(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
+        if not has_owner_permissions(interaction):
             await interaction.response.send_message("This is not your panel.", ephemeral=True)
             return
 
