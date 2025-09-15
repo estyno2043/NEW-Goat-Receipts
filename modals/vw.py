@@ -90,6 +90,8 @@ class vwmodal(ui.Modal, title="Vivienne Westwood - Step 1"):
 class vwmodal2(ui.Modal, title="Vivienne Westwood - Step 2"):
     currency = discord.ui.TextInput(label="Currency ($, €, £)", placeholder="€", required=True, min_length=1, max_length=2)
     shippingprice = discord.ui.TextInput(label="Shipping Price", placeholder="10.00", required=True)
+    productcolor = discord.ui.TextInput(label="Product Color", placeholder="Sage Green", required=True)
+    productsize = discord.ui.TextInput(label="Product Size", placeholder="S", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global productname, productprice, imagelink, orderdate, deliverydate
@@ -125,6 +127,8 @@ class vwmodal2(ui.Modal, title="Vivienne Westwood - Step 2"):
 
             currency = self.currency.value
             shippingprice = float(self.shippingprice.value)
+            productcolor = self.productcolor.value
+            productsize = self.productsize.value
             productprice_float = float(productprice)
 
             with open("receipt/vw.html", "r", encoding="utf-8") as file:
@@ -133,6 +137,8 @@ class vwmodal2(ui.Modal, title="Vivienne Westwood - Step 2"):
             print()
             print(f"[{Colors.green}START Processing{lg}] VIVIENNE WESTWOOD -> {interaction.user.id} ({interaction.user})" + lg)
             print(f"    [{Colors.cyan}Processing{lg}] Product Name: {productname}" + lg)
+            print(f"    [{Colors.cyan}Processing{lg}] Product Color: {productcolor}" + lg)
+            print(f"    [{Colors.cyan}Processing{lg}] Product Size: {productsize}" + lg)
             print(f"    [{Colors.cyan}Processing{lg}] Image URL: {imagelink}" + lg)
 
             print(f"[{Colors.green}Processing DONE{lg}] VIVIENNE WESTWOOD -> {interaction.user.id} ({interaction.user})" + lg)
@@ -165,6 +171,8 @@ class vwmodal2(ui.Modal, title="Vivienne Westwood - Step 2"):
             html_content = html_content.replace("{shipping}", str(shippingprice))
             html_content = html_content.replace("{total_price}", str(total_price))
             html_content = html_content.replace("{imagelink}", imagelink)
+            html_content = html_content.replace("{productcolor}", productcolor)
+            html_content = html_content.replace("{product_size}", productsize)
 
             with open("receipt/updatedrecipies/updatedvw.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
