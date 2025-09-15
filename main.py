@@ -2261,8 +2261,35 @@ async def menu_command(interaction: discord.Interaction):
 
     # Check if user has a valid license
     from utils.license_manager import LicenseManager
+    has_guild_access = False
+    guild_subscription_info = None
 
-    license_status = await LicenseManager.is_subscription_active(interaction.user.id)
+    # First check for guild-specific access if in a guild
+    if interaction.guild:
+        try:
+            from utils.guild_license_checker import GuildLicenseChecker
+            from utils.mongodb_manager import mongo_manager
+            
+            # Convert IDs to strings for MongoDB consistency
+            user_id_str = str(interaction.user.id)
+            guild_id_str = str(interaction.guild.id)
+            
+            guild_config = mongo_manager.get_guild_config(guild_id_str)
+            if guild_config:
+                has_guild_access, access_info = await GuildLicenseChecker.check_guild_access(
+                    user_id_str, guild_id_str, guild_config
+                )
+                
+                if has_guild_access:
+                    # Get guild subscription info for display
+                    guild_subscription_info = await GuildLicenseChecker.get_guild_subscription_info(
+                        user_id_str, guild_id_str
+                    )
+        except Exception as e:
+            print(f"Error checking guild access: {e}")
+
+    # Check regular license if no guild access
+    license_status = has_guild_access or await LicenseManager.is_subscription_active(interaction.user.id)
 
     if not license_status:
         # Check if it's a lite subscription that's exhausted
@@ -2292,22 +2319,58 @@ async def menu_command(interaction: discord.Interaction):
         return
 
     # Check if user has a subscription or create default one
-    subscription_type, end_date = get_subscription(user_id)
+    if guild_subscription_info:
+        # Use guild subscription info
+        subscription_type, end_date = guild_subscription_info
+        
+        # Format guild subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+        elif subscription_type == "1_day":
+            display_type = "1 Day"
+        elif subscription_type == "3_days":
+            display_type = "3 Days"
+        elif subscription_type == "14_days":
+            display_type = "14 Days"
+        elif subscription_type == "lifetime":
+            display_type = "Lifetime"
+    else:
+        # Use regular subscription info
+        subscription_type, end_date = get_subscription(user_id)
+        
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
 
-    # Format subscription type for display
-    display_type = subscription_type
-    if subscription_type == "3day":
-        display_type = "3 Days"
-    elif subscription_type == "14day":
-        display_type = "14 Days"
-    elif subscription_type == "1month":
-        display_type = "1 Month"
+    # Create menu panel with appropriate description
+    is_lifetime = subscription_type.lower() == "lifetime"
+    
+    if guild_subscription_info:
+        # Guild subscription description
+        if is_lifetime:
+            description_text = f"Hello <@{user_id}>, you have `Lifetime` guild access.\n"
+        else:
+            description_text = f"Hello <@{user_id}>, your guild access expires on `{end_date}`.\n"
+    else:
+        # Regular subscription description
+        if is_lifetime:
+            description_text = f"Hello <@{user_id}>, you have `Lifetime` subscription.\n"
+        else:
+            description_text = f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n"
 
-    # Create menu panel
     embed = discord.Embed(
         title="GOAT Menu",
-        description=(f"Hello <@{user_id}>, you have `Lifetime` subscription.\n" if subscription_type == "Lifetime" else
-                    f"Hello <@{user_id}>, you have until `{end_date}` before your subscription ends.\n") +
+        description=description_text +
                     "-# pick an option below to continue\n\n" +
                     "**Subscription Type**\n" +
                     f"`{display_type}`\n\n" +
