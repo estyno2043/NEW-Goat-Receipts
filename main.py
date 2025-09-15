@@ -546,8 +546,10 @@ class BrandSelectDropdown(ui.Select):
                 brand_name = "6PM"
             elif base_name == "sixpm":
                 brand_name = "6PM"
+            elif base_name == "vw":
+                brand_name = "Vivienne Westwood"
             else:
-                brand_name = base_name.capitalize()
+                brand_name = base_name.capitalize()</old_str>
 
             # Only add brand name if we haven't seen it before
             if brand_name not in seen_brand_names:
@@ -711,6 +713,17 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading The North Face modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading The North Face modal: {str(e)}", ephemeral=True)
                         return
+                elif brand == "Vivienne Westwood" or brand.lower() == "vivienne westwood":
+                    # Special handling for Vivienne Westwood
+                    try:
+                        from modals.vw import vwmodal
+                        modal = vwmodal()
+                        await interaction.response.send_modal(modal)
+                        return
+                    except Exception as e:
+                        print(f"Error loading Vivienne Westwood modal: {str(e)}")
+                        await interaction.response.send_message(f"Error loading Vivienne Westwood modal: {str(e)}", ephemeral=True)
+                        return
                 elif brand == "Xerjoff" or brand.lower() == "xerjoff":
                     # Special handling for Xerjoff - use the main modal
                     try:
@@ -721,7 +734,7 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         print(f"Error loading Xerjoff modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Xerjoff modal: {str(e)}", ephemeral=True)
-                        return
+                        return</old_str>
                 elif brand == "Zalandous" or brand.lower() == "zalandous":
                     # Ensure the modal is properly loaded
                     try:

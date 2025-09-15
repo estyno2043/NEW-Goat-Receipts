@@ -568,3 +568,18 @@ class NextstepSneakerStoreCZ(discord.ui.View):
             await interaction.response.send_modal(SneakerStoreCZModal2())
         else:
             await interaction.response.send_message("This is not your receipt generation session.", ephemeral=True)
+
+class NextstepVW(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=180)
+        self.owner_id = owner_id
+
+    @discord.ui.button(label='Next Step', style=discord.ButtonStyle.green, emoji='✅')
+    async def nextstep(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("This is not your panel", ephemeral=True)
+            return
+
+        from modals.vw import vwmodal2
+        modal = vwmodal2()
+        await interaction.response.send_modal(modal)
