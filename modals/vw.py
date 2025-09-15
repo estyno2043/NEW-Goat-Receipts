@@ -164,9 +164,7 @@ class vwmodal2(ui.Modal, title="Vivienne Westwood - Step 2"):
             html_content = html_content.replace("{shipping_price}", str(shippingprice))
             html_content = html_content.replace("{shipping}", str(shippingprice))
             html_content = html_content.replace("{total_price}", str(total_price))
-            
-            # Replace image URL in the receipt
-            html_content = html_content.replace('src="https://ci3.googleusercontent.com/meips/ADKq_NZbDqOfP1cq4LuF0HlBNigcpBMEPng7QUrJuw8ig6J5ATQMSUKS3A5P10TSgJvQT6j5QVm3PZ8un0KPpGQGdDTl-hGc0N8Uoy5BM6mHMxLO0e8QBn6Z1Y5YXjdERg4lBDEOP8fvfv8SP5niqdfa135nt-qLhQmbhu7J_nDxiwR8V6GscPJGuyxztMDm0YPuJjaIM-OUr4wUGykdUaOvvK8PZp3HxsOJqgxTFqnVtXMe6MVbYoLfsqrBF7w5Qbh8gF07SSW11YlI1hN933YBMBVfzeoCWV_Oi_fRq_XX_zCL8Q=s0-d-e1-ft#https://www.viviennewestwood.com/dw/image/v2/BJGV_PRD/on/demandware.static/-/Sites-viviennewestwood-master-catalog/default/dw50261692/images/3304000S-W019W-_BROWN_001_large.jpg?sw=570&amp;sh=758&amp;sm=fit&amp;q=80"', f'src="{imagelink}"')
+            html_content = html_content.replace("{imagelink}", imagelink)
 
             with open("receipt/updatedrecipies/updatedvw.html", "w", encoding="utf-8") as file:
                 file.write(html_content)
