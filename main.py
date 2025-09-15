@@ -549,7 +549,7 @@ class BrandSelectDropdown(ui.Select):
             elif base_name == "vw":
                 brand_name = "Vivienne Westwood"
             else:
-                brand_name = base_name.capitalize()</old_str>
+                brand_name = base_name.capitalize()
 
             # Only add brand name if we haven't seen it before
             if brand_name not in seen_brand_names:
@@ -734,7 +734,7 @@ class BrandSelectDropdown(ui.Select):
                     except Exception as e:
                         print(f"Error loading Xerjoff modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Xerjoff modal: {str(e)}", ephemeral=True)
-                        return</old_str>
+                        return
                 elif brand == "Zalandous" or brand.lower() == "zalandous":
                     # Ensure the modal is properly loaded
                     try:
