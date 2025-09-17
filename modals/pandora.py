@@ -132,31 +132,62 @@ class pandoramodal2(ui.Modal, title="Pandora Receipt"):
 
 
             url = link
-
-            response = requests.get(
-                url=url,
-                proxies={
-                    "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                    "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                },
-                verify= False
-            )
+            
+            # Try with proxy first
+            try:
+                response = requests.get(
+                    url=url,
+                    proxies={
+                        "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                        "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
+                    },
+                    verify=False,
+                    timeout=30,
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                )
+                print(f"[{Colors.cyan}Info{lg}] Using proxy for scraping" + lg)
+            except Exception as proxy_error:
+                print(f"[{Colors.red}Warning{lg}] Proxy failed: {proxy_error}, trying direct connection" + lg)
+                # Fallback to direct connection
+                response = requests.get(
+                    url=url,
+                    verify=False,
+                    timeout=30,
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                )
 
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 print()
                 print(f"[{Colors.green}START Scraping{lg}] Pandora -> {interaction.user.id} ({interaction.user})" + lg)
 
+                try:
+                    image_url = soup.find('meta', {'name': 'og:image'})['content']
+                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
+                except (TypeError, KeyError):
+                    # Fallback image if scraping fails
+                    image_url = "https://us.pandora.net/dw/image/v2/AAVX_PRD/on/demandware.static/-/Sites-pandora-master-catalog/default/dw39cb7d4f/productimages/singlepackshot/198421C01_RGB.jpg"
+                    print(f"    [{Colors.yellow}Warning{lg}] Could not scrape image, using fallback" + lg)
 
-                image_url = soup.find('meta', {'name': 'og:image'})['content']
-                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
-
-                productname = soup.find('meta', {'name': 'og:title'})['content']
-                print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {productname}" + lg)
-
+                try:
+                    productname = soup.find('meta', {'name': 'og:title'})['content']
+                    print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {productname}" + lg)
+                except (TypeError, KeyError):
+                    # Use a default product name if scraping fails
+                    productname = "Pandora Product"
+                    print(f"    [{Colors.yellow}Warning{lg}] Could not scrape product name, using fallback" + lg)
 
                 print(f"[{Colors.green}Scraping DONE{lg}] Pandora -> {interaction.user.id}" + lg)
                 print()
+            else:
+                # Use fallback values if request fails
+                image_url = "https://us.pandora.net/dw/image/v2/AAVX_PRD/on/demandware.static/-/Sites-pandora-master-catalog/default/dw39cb7d4f/productimages/singlepackshot/198421C01_RGB.jpg"
+                productname = "Pandora Product"
+                print(f"[{Colors.red}Error{lg}] Failed to scrape, using fallback values. Status code: {response.status_code}" + lg)
 
 
 
