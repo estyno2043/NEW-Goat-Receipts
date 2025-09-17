@@ -139,7 +139,7 @@ class pandoramodal2(ui.Modal, title="Pandora Receipt"):
                     "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                     "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
                 },
-                verify='zyte-ca.crt' 
+                verify= False
             )
 
             if response.status_code == 200:
