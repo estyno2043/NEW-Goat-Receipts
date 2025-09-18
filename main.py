@@ -581,7 +581,12 @@ class BrandSelectDropdown(ui.Select):
             if value in used_values:
                 value = f"{value}_{idx}"
             used_values.add(value)
-            options.append(discord.SelectOption(label=brand, value=value))
+            
+            # Special handling for unavailable brands
+            if brand.lower() == "farfetch":
+                options.append(discord.SelectOption(label=f"{brand} [Unavailable]", description="Currently unavailable", value=value))
+            else:
+                options.append(discord.SelectOption(label=brand, value=value))
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
         self.user_id = user_id  # Store the owner's user ID
@@ -643,6 +648,11 @@ class BrandSelectDropdown(ui.Select):
                 color=discord.Color.from_str("#c2ccf8")
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Check for unavailable brands first
+        if brand.lower() == "farfetch":
+            await interaction.response.send_message(f"The brand `{brand}` is currently unavailable.", ephemeral=True)
             return
 
         # Process brand selection and show appropriate modal
