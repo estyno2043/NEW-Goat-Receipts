@@ -140,6 +140,16 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 # Bestellnummer generieren
                 order_number = generate_order_number()
 
+                # Replace all placeholders in the HTML template
+                html_content = html_content.replace("{ordernumber}", order_number)
+                html_content = html_content.replace("{orderdate}", ordedate)
+                html_content = html_content.replace("{pname}", pname)
+                html_content = html_content.replace("{imageurl}", image_url)
+                html_content = html_content.replace("{color}", color)
+                html_content = html_content.replace("{size}", sizee)
+                html_content = html_content.replace("{currency}", currency)
+                html_content = html_content.replace("{price}", price)
+
                 # Replace user details
                 html_content = html_content.replace("{name}", name)
                 html_content = html_content.replace("John Brown", name)
