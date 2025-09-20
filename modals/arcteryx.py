@@ -61,7 +61,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
     async def on_submit(self, interaction: discord.Interaction):
-        owner_id = interaction.user.id 
+        owner_id = interaction.user.id
 
 
         from utils.db_utils import get_user_details
@@ -140,51 +140,34 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 # Bestellnummer generieren
                 order_number = generate_order_number()
 
-                # Replace all placeholders in the HTML template
-                html_content = html_content.replace("{ordernumber}", order_number)
-                html_content = html_content.replace("{orderdate}", ordedate)
-                html_content = html_content.replace("{pname}", pname)
-                html_content = html_content.replace("{imageurl}", image_url)
-                html_content = html_content.replace("{color}", color)
-                html_content = html_content.replace("{size}", sizee)
-                html_content = html_content.replace("{currency}", currency)
-                html_content = html_content.replace("{price}", price)
+                # Store data for next modal
+                from addons.nextsteps import store
+                if 'store' not in globals():
+                    store = {}
 
-                # Replace user details
-                html_content = html_content.replace("{name}", name)
-                html_content = html_content.replace("John Brown", name)
-                html_content = html_content.replace("{street}", street)
-                html_content = html_content.replace("651 Cedar Lane Los Angeles", street)
-                html_content = html_content.replace("{city}", city)
-                html_content = html_content.replace("Los Angeles", city)
-                html_content = html_content.replace("{zip}", zipp)
-                html_content = html_content.replace("78201", zipp)
-                html_content = html_content.replace("{country}", country)
+                store[owner_id] = {
+                    'link': link,
+                    'price': price,
+                    'currency': currency,
+                    'sizee': sizee,
+                    'ordedate': ordedate,
+                    'pname': pname,
+                    'image_url': image_url,
+                    'color': color,
+                    'order_number': order_number,
+                    'name': name,
+                    'street': street,
+                    'city': city,
+                    'zipp': zipp,
+                    'country': country,
+                    'email': email
+                }
 
-
-
-
-
-
-
-
-
-
-
-
-
-                with open("receipt/updatedrecipies/updatedarcteryx.html", "w", encoding="utf-8") as file:
-                    file.write(html_content)
-
-
-                sender_email = "Arc'teryx <noreply@arcteryx.org>"
-                subject = f"Your Arc’teryx Order Is On Its Way"
-                from emails.choise import choiseView
-
-
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
-                view = choiseView(owner_id, html_content, sender_email, subject, pname, image_url, link)
+                from addons.nextsteps import NextstepArcteryx
+                embed = discord.Embed(title="Continue to next step", description="Please continue to add shipping and tax information.", color=0x1e1f22)
+                view = NextstepArcteryx(owner_id)
                 await interaction.edit_original_response(embed=embed, view=view)
+
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
                 await interaction.edit_original_response(embed=embed)
@@ -193,3 +176,82 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
+    shipping = discord.ui.TextInput(label="Shipping Cost", placeholder="0.00", required=True)
+    tax = discord.ui.TextInput(label="Tax Cost (12.00%)", placeholder="14.76", required=True)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        owner_id = interaction.user.id
+
+        try:
+            from addons.nextsteps import store
+
+            if owner_id not in store:
+                await interaction.response.send_message("Session expired. Please start over.", ephemeral=True)
+                return
+
+            # Get stored data
+            data = store[owner_id]
+
+            # Get new inputs with proper decimal formatting
+            shipping = f"{float(self.shipping.value):.2f}"
+            tax = f"{float(self.tax.value):.2f}"
+            price = f"{float(data['price']):.2f}"
+
+            # Calculate total
+            total = float(price) + float(shipping) + float(tax)
+            total_formatted = f"{total:.2f}"
+
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
+
+            with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
+                html_content = file.read()
+
+            # Replace all placeholders in the HTML template
+            html_content = html_content.replace("{ordernumber}", data['order_number'])
+            html_content = html_content.replace("{orderdate}", data['ordedate'])
+            html_content = html_content.replace("{pname}", data['pname'])
+            html_content = html_content.replace("{imageurl}", data['image_url'])
+            html_content = html_content.replace("{color}", data['color'])
+            html_content = html_content.replace("{size}", data['sizee'])
+            html_content = html_content.replace("{currency}", data['currency'])
+            html_content = html_content.replace("{price}", price)
+            html_content = html_content.replace("{shipping}", shipping)
+            html_content = html_content.replace("{tax}", tax)
+            html_content = html_content.replace("{total}", total_formatted)
+
+            # Replace user details
+            html_content = html_content.replace("{name}", data['name'])
+            html_content = html_content.replace("John Brown", data['name'])
+            html_content = html_content.replace("{street}", data['street'])
+            html_content = html_content.replace("651 Cedar Lane Los Angeles", data['street'])
+            html_content = html_content.replace("{city}", data['city'])
+            html_content = html_content.replace("Los Angeles", data['city'])
+            html_content = html_content.replace("{zip}", data['zipp'])
+            html_content = html_content.replace("78201", data['zipp'])
+            html_content = html_content.replace("{country}", data['country'])
+
+            with open("receipt/updatedrecipies/updatedarcteryx.html", "w", encoding="utf-8") as file:
+                file.write(html_content)
+
+            sender_email = "Arc'teryx <noreply@arcteryx.org>"
+            subject = f"Your Arc'teryx Order Is On Its Way"
+            from emails.choise import choiseView
+
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            view = choiseView(owner_id, html_content, sender_email, subject, data['pname'], data['image_url'], data['link'])
+            await interaction.edit_original_response(embed=embed, view=view)
+
+            # Clean up stored data
+            if owner_id in store:
+                del store[owner_id]
+
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
+            await interaction.edit_original_response(embed=embed)
