@@ -148,8 +148,8 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
 
 class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
     image_url = discord.ui.TextInput(label="Image URL", placeholder="https://example.com/image.jpg", required=True)
-    ordered_date = discord.ui.TextInput(label="Order Date", placeholder="22 January 2024", required=True)
-    arrival_date = discord.ui.TextInput(label="Arrival Date", placeholder="25 January 2024", required=True)
+    ordered_date = discord.ui.TextInput(label="Order Date", placeholder="22/01/2024", required=True)
+    arrival_date = discord.ui.TextInput(label="Arrival Date", placeholder="25/01/2024", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
         global condition1, currency1, status, product_name_value, sizee
@@ -166,9 +166,9 @@ class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
             
             # Validate dates
             import re
-            date_pattern = re.compile(r'^\d{1,2}\s(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}$', re.IGNORECASE)
+            date_pattern = re.compile(r'^\d{2}/\d{2}/\d{4}$')
             if not (date_pattern.match(ordered_date) and date_pattern.match(arrival_date)):
-                await interaction.response.send_message("Please use the format 'Day Month Year' for both dates\nEx. `22 January 2024`", ephemeral=True)
+                await interaction.response.send_message("Please use the format 'DD/MM/YYYY' for both dates\nEx. `22/01/2024`", ephemeral=True)
                 return
 
             embed = discord.Embed(title="Processing...", description="Generating your receipt and preparing email...", color=0x1e1f22)
@@ -222,28 +222,56 @@ class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
             import random
             order_number = f"{random.randint(10000000, 99999999):08d}-{random.randint(10000000, 99999999):08d}"
             
-            # Set status-based display values
+            # Set status-based display values and tracking highlights
             status_display_text = "Confirmation"
             status_step_1 = "Ordered"
+            
+            # Define highlight colors for tracking icons
+            highlight_color = "D4D1C7"  # Light color for active step
+            inactive_color = "000000"    # Black color for inactive steps
+            
+            # Set default colors (all inactive)
+            step1_color = inactive_color
+            step2_color = inactive_color  
+            step3_color = inactive_color
+            step4_color = inactive_color
+            step5_color = inactive_color
             
             if status.lower() == "confirmed":
                 status_display_text = "Confirmation"
                 status_step_1 = "Ordered"
+                step1_color = highlight_color
             elif status.lower() == "ordered":
                 status_display_text = "Confirmation"
                 status_step_1 = "Ordered"
+                step1_color = highlight_color
             elif status.lower() == "shipped":
                 status_display_text = "Shipped"
-                status_step_1 = "Shipped to StockX"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
             elif status.lower() == "arrived":
                 status_display_text = "Arrived"
-                status_step_1 = "Arrived at StockX"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
             elif status.lower() == "verified":
                 status_display_text = "Verified"
-                status_step_1 = "Verified + Shipped"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
+                step4_color = highlight_color
             elif status.lower() == "delivered":
                 status_display_text = "Delivered"
-                status_step_1 = "Delivered"
+                status_step_1 = "Ordered"
+                # Highlight all steps including the final delivered step
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
+                step4_color = highlight_color
+                step5_color = highlight_color
             
             # Replace placeholders in template
             html_content = html_content.replace("{status}", status.lower())
@@ -263,6 +291,13 @@ class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
             html_content = html_content.replace("{total_payment}", f"{total:.2f}")
             html_content = html_content.replace("{ordered_date}", ordered_date)
             html_content = html_content.replace("{arrival_date}", arrival_date)
+            
+            # Replace tracking step colors
+            html_content = html_content.replace("{step1_color}", step1_color)
+            html_content = html_content.replace("{step2_color}", step2_color)
+            html_content = html_content.replace("{step3_color}", step3_color)
+            html_content = html_content.replace("{step4_color}", step4_color)
+            html_content = html_content.replace("{step5_color}", step5_color)
 
             try:
                 # Ensure directory exists
@@ -411,7 +446,7 @@ class ImageUrlModal(ui.Modal, title="StockX Image URL"):
                 await interaction.response.send_message("Error saving receipt. Please try again later.", ephemeral=True)
                 return
 
-            sender_email = "StockX <noreply@confirmation.com>"
+            sender_email = "StockX <noreply@stockx.com>"
             # Set subject emoji based on order status
             if status.lower() == "ordered":
                 subject = f"👍 Order Confirmed: {product_name_value}"
