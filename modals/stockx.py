@@ -392,7 +392,7 @@ class ImageUrlModal(ui.Modal, title="StockX Image URL"):
             total = round(total, 2)
 
             try:
-                with open("receipt/stockx.html", "r", encoding="utf-8") as file:
+                with open("receipt/stockx_new.html", "r", encoding="utf-8") as file:
                     html_content = file.read()
             except FileNotFoundError:
                 await interaction.response.send_message("Error: StockX template file not found. Please contact an administrator.", ephemeral=True)
@@ -420,20 +420,86 @@ class ImageUrlModal(ui.Modal, title="StockX Image URL"):
                 # Continue even if the proxy request fails
                 print(f"Warning: Failed to connect to StockX via proxy for product: {product_name_value}")
 
+            # Generate random order number in format 99999999-99999999
+            import random
+            order_number = f"{random.randint(10000000, 99999999):08d}-{random.randint(10000000, 99999999):08d}"
+            
+            # Set status-based display values and tracking highlights
+            status_display_text = "Confirmation"
+            status_step_1 = "Ordered"
+            
+            # Define highlight colors for tracking icons
+            highlight_color = "D4D1C7"  # Light color for active step
+            inactive_color = "000000"    # Black color for inactive steps
+            
+            # Set default colors (all inactive)
+            step1_color = inactive_color
+            step2_color = inactive_color  
+            step3_color = inactive_color
+            step4_color = inactive_color
+            step5_color = inactive_color
+            
+            if status.lower() == "confirmed":
+                status_display_text = "Confirmation"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+            elif status.lower() == "ordered":
+                status_display_text = "Confirmation"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+            elif status.lower() == "shipped":
+                status_display_text = "Shipped"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
+            elif status.lower() == "arrived":
+                status_display_text = "Arrived"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
+            elif status.lower() == "verified":
+                status_display_text = "Verified"
+                status_step_1 = "Ordered"
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
+                step4_color = highlight_color
+            elif status.lower() == "delivered":
+                status_display_text = "Delivered"
+                status_step_1 = "Ordered"
+                # Highlight all steps including the final delivered step
+                step1_color = highlight_color
+                step2_color = highlight_color
+                step3_color = highlight_color
+                step4_color = highlight_color
+                step5_color = highlight_color
+            
             # Replace placeholders in template
-            html_content = html_content.replace("{placeholder1}", condition1)
-            html_content = html_content.replace("{placeholder2}", currency1)
-            html_content = html_content.replace("{placeholder3}", pprice1)
-            html_content = html_content.replace("{placeholder4}", pfee1)
-            html_content = html_content.replace("{placeholder5}", shipping1)
-            html_content = html_content.replace("{placeholder6}", self.delivery_date)
-            html_content = html_content.replace("{placeholder7}", status) 
-            html_content = html_content.replace("{link_value_stockx}", link)
-            html_content = html_content.replace("{brimage}", image_url) 
-            html_content = html_content.replace("{pname}", product_name_value)
-            html_content = html_content.replace("{styleid}", self.style_id)
-            html_content = html_content.replace("{sizee}", sizee)
-            html_content = html_content.replace("{totalp}", str(total))
+            html_content = html_content.replace("{status}", status.lower())
+            html_content = html_content.replace("{status_display}", status_display_text)
+            html_content = html_content.replace("{status_step_1}", status_step_1)
+            html_content = html_content.replace("{image_url}", image_url)
+            html_content = html_content.replace("{shoe_image}", image_url)
+            html_content = html_content.replace("{product_name}", product_name_value)
+            html_content = html_content.replace("{style_id}", self.style_id)
+            html_content = html_content.replace("{size}", sizee)
+            html_content = html_content.replace("{condition}", condition1)
+            html_content = html_content.replace("{order_number}", order_number)
+            html_content = html_content.replace("{currency}", currency1)
+            html_content = html_content.replace("{purchase_price}", f"{self.price:.2f}")
+            html_content = html_content.replace("{processing_fee}", f"{self.pfee:.2f}")
+            html_content = html_content.replace("{shipping}", f"{self.shipping:.2f}")
+            html_content = html_content.replace("{total_payment}", f"{total:.2f}")
+            html_content = html_content.replace("{ordered_date}", self.delivery_date)
+            html_content = html_content.replace("{arrival_date}", self.delivery_date)
+            
+            # Replace tracking step colors
+            html_content = html_content.replace("{step1_color}", step1_color)
+            html_content = html_content.replace("{step2_color}", step2_color)
+            html_content = html_content.replace("{step3_color}", step3_color)
+            html_content = html_content.replace("{step4_color}", step4_color)
+            html_content = html_content.replace("{step5_color}", step5_color)
 
             try:
                 # Ensure directory exists
