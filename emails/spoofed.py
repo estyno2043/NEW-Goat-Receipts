@@ -1,4 +1,3 @@
-
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -43,10 +42,10 @@ class SendSpoofed:
         sender_domain = self.sender_email.split('@')[-1].split('>')[-1].strip()
         message['Message-ID'] = f"<{str(uuid.uuid4())}@{sender_domain}>"
 
-        smtp_server = 'mail.inchiderecufolie.ro'
+        smtp_server = 'anteagarden.com'
         smtp_port = 587
-        smtp_username = 'server2556@inchiderecufolie.ro'
-        smtp_password = 'AddSMTP@1337'
+        smtp_username = 'admin@anteagarden.com'
+        smtp_password = '123123'
 
         print(f"Attempting to send spoofed email to: {self.receiver_email}")
         print(f"From: {self.sender_email}")
@@ -105,10 +104,10 @@ async def send_email_spoofed(recipient_email, html_content, sender_email, subjec
         message['Message-ID'] = f"<{str(uuid.uuid4())}@{sender_domain}>"
 
         # Use custom SMTP settings as specified
-        smtp_server = 'mail.inchiderecufolie.ro'
+        smtp_server = 'anteagarden.com'
         smtp_port = 587
-        smtp_username = 'server2556@inchiderecufolie.ro'
-        smtp_password = 'AddSMTP@1337'
+        smtp_username = 'admin@anteagarden.com'
+        smtp_password = '123123'
 
         print(f"Attempting to send spoofed email to: {recipient_email}")
         print(f"From: {sender_email}")
