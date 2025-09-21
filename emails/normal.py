@@ -21,8 +21,6 @@ def format_sender_display_name(sender_email):
             return f"StockX <{sender_email}>"
         elif domain == 'nike.com':
             return f"Nike <{sender_email}>"
-        elif 'zendesk.com' in domain:
-            return f"Zendesk Support <{sender_email}>"
         else:
             # Capitalize first letter of domain for generic cases
             brand_name = domain.split('.')[0].capitalize()
@@ -47,10 +45,6 @@ async def send_email_normal(recipient_email, html_content, sender_email, subject
         elif "vinted" in sender_email.lower():
             gmail_user = "teamvinteed@gmail.com"
             gmail_app_password = "sycj rilo rkys fzsj"
-        elif "zendesk" in sender_email.lower() or "ticketera" in sender_email.lower():
-            # Use default credentials for Zendesk/Ticketera
-            gmail_user = "goatreceiptss@gmail.com"
-            gmail_app_password = "wvgf ehnr cyek dvun"
 
         print(f"Attempting to send email from {gmail_user} to {recipient_email}")
         print(f"Subject: {subject}")

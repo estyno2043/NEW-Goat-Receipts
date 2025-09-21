@@ -723,7 +723,6 @@ class BrandSelectMenu(ui.Select):
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-
             
             # Dynamically import and create modal based on brand selection
             modal_name = f"{brand}modal"
@@ -1167,7 +1166,6 @@ class BrandSelectMenu(ui.Select):
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-
             
             # Dynamically import and create modal based on brand selection
             modal_name = f"{brand}modal"

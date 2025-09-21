@@ -559,25 +559,17 @@ class BrandSelectDropdown(ui.Select):
         # Sort alphabetically
         available_brands.sort()
 
-        # Calculate total pages
-        total_pages = max(1, (len(available_brands) + 14) // 15)
-        
-        # Ensure page is within valid bounds
-        if page < 1:
-            self.page = 1
-        elif page > total_pages:
-            self.page = total_pages
-        
         # Show only 15 brands per page
-        start_idx = (self.page - 1) * 15
+        start_idx = (page - 1) * 15
         end_idx = min(start_idx + 15, len(available_brands))
-        
-        current_brands = available_brands[start_idx:end_idx]
 
-        # Ensure we have at least one option to prevent Discord API error
-        if not current_brands:
-            current_brands = available_brands[:15] if available_brands else ["Nike"]  # Fallback
+        # If page is out of bounds, reset to page 1
+        if start_idx >= len(available_brands):
             self.page = 1
+            start_idx = 0
+            end_idx = min(15, len(available_brands))
+
+        current_brands = available_brands[start_idx:end_idx]
 
         # Make sure values are unique by adding index if needed
         options = []
@@ -595,10 +587,6 @@ class BrandSelectDropdown(ui.Select):
                 options.append(discord.SelectOption(label=f"{brand} [Unavailable]", description="Currently unavailable", value=value))
             else:
                 options.append(discord.SelectOption(label=brand, value=value))
-
-        # Ensure we have at least one option
-        if not options:
-            options.append(discord.SelectOption(label="No brands available", description="No brands found", value="none"))
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
         self.user_id = user_id  # Store the owner's user ID
@@ -987,7 +975,7 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = max(1, (total_count + 14) // 15)  # Ensure at least 1 page
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
 
         if self.page > 1:
             self.page -= 1
@@ -999,12 +987,11 @@ class BrandSelectView(ui.View):
             # Create new embed and view
             embed = discord.Embed(
                 title=f"{username}'s Panel",
-                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages}",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages if max_pages > 0 else 1}",
                 color=discord.Color.from_str("#c2ccf8")
             )
 
             new_view = BrandSelectView(self.user_id, self.page)
-            new_view.message = self.message  # Preserve message reference
             await interaction.response.edit_message(embed=embed, view=new_view)
         else:
             await interaction.response.send_message("You're already on the first page!", ephemeral=True)
@@ -1015,10 +1002,10 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = max(1, (total_count + 14) // 15)  # Ensure at least 1 page
+        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
 
         # Only increment page if not at last page
-        if self.page < max_pages:
+        if self.page < max_pages or max_pages == 0:
             self.page += 1
 
             # Get user info
@@ -1028,12 +1015,11 @@ class BrandSelectView(ui.View):
             # Create new embed and view
             embed = discord.Embed(
                 title=f"{username}'s Panel",
-                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages}",
+                description=f"Choose the type of receipt from the dropdown menu below. `(Total: {total_brands})`\n-# Page {self.page}/{max_pages if max_pages > 0 else 1}",
                 color=discord.Color.from_str("#c2ccf8")
             )
 
             new_view = BrandSelectView(self.user_id, self.page)
-            new_view.message = self.message  # Preserve message reference
             await interaction.response.edit_message(embed=embed, view=new_view)
         else:
             await interaction.response.send_message("You're already on the last page!", ephemeral=True)
