@@ -396,6 +396,20 @@ class NextstepCernucci(discord.ui.View):
         from modals.cernucci import cernuccimodal2
         await interaction.response.send_modal(cernuccimodal2())
 
+class NextstepArcteryx(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=None)
+        self.owner_id = owner_id
+
+    @discord.ui.button(label="Next Step", style=discord.ButtonStyle.green)
+    async def next_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message(content="That is not your panel", ephemeral=True)
+            return
+
+        from modals.arcteryx import arcteryxmodal2
+        await interaction.response.send_modal(arcteryxmodal2())
+
 # Store for temporarily holding form data between steps
 store = {}
 
@@ -584,17 +598,3 @@ class NextstepVW(discord.ui.View):
         modal = vwmodal2()
         await interaction.response.send_modal(modal)
 
-class NextstepArcteryx(discord.ui.View):
-    def __init__(self, owner_id):
-        super().__init__(timeout=180)
-        self.owner_id = owner_id
-
-    @discord.ui.button(label='Next Step', style=discord.ButtonStyle.green, emoji='✅')
-    async def nextstep(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("This is not your panel", ephemeral=True)
-            return
-
-        from modals.arcteryx import arcteryxmodal2
-        modal = arcteryxmodal2()
-        await interaction.response.send_modal(modal)
