@@ -221,8 +221,8 @@ class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
             html_content = html_content.replace("{size}", data['sizee'])
             html_content = html_content.replace("{currency}", data['currency'])
             html_content = html_content.replace("{price}", price)
-            html_content = html_content.replace("{shipping}", shipping)
-            html_content = html_content.replace("{tax}", tax)
+            html_content = html_content.replace("{shipping_price}", shipping)
+            html_content = html_content.replace("{tax_price}", tax)
             html_content = html_content.replace("{total}", total_formatted)
 
             # Replace user details
