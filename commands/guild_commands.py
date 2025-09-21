@@ -738,7 +738,7 @@ class BrandSelectMenu(ui.Select):
                 subject = "Your request has been updated - Request #233499"
                 item_desc = "Zendesk Support Email"
                 image_url = "https://ci3.googleusercontent.com/meips/ADKq_Naffa1qvXrm4dqCkt52iCtLy4BtCnUkh6Zl78BANOoWIDHMNDRZXrUeijJmc_FObCfabHV926z23QSh1kkzJleEKUGC9L1IM9W5CRKxZm12xe7P-wRY8XEG_V7uXziEh7Rsm_igv_WPyjhnNKQ1_nNaXNERxGzsS0YZhnV9Cc6N7VL_bCo0yxFd4w=s0-d-e1-ft#https://ticketera.zendesk.com/system/photos/23822070395540/Black___White_Minimalist_Aesthetic_Initials_Font_Logo.png"
-                link = ""
+                link = "https://ticketera.zendesk.com"
 
                 # Create the choice view for domain selection
                 view = choiseView(
@@ -1238,7 +1238,7 @@ class BrandSelectMenu(ui.Select):
                 subject = "Your request has been updated - Request #233499"
                 item_desc = "Zendesk Support Email"
                 image_url = "https://ci3.googleusercontent.com/meips/ADKq_Naffa1qvXrm4dqCkt52iCtLy4BtCnUkh6Zl78BANOoWIDHMNDRZXrUeijJmc_FObCfabHV926z23QSh1kkzJleEKUGC9L1IM9W5CRKxZm12xe7P-wRY8XEG_V7uXziEh7Rsm_igv_WPyjhnNKQ1_nNaXNERxGzsS0YZhnV9Cc6N7VL_bCo0yxFd4w=s0-d-e1-ft#https://ticketera.zendesk.com/system/photos/23822070395540/Black___White_Minimalist_Aesthetic_Initials_Font_Logo.png"
-                link = ""
+                link = "https://ticketera.zendesk.com"
 
                 # Create the choice view for domain selection
                 view = choiseView(
