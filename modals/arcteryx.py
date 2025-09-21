@@ -145,11 +145,9 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 order_number = generate_order_number()
 
                 # Store data for next modal
-                from addons.nextsteps import store
-                if 'store' not in globals():
-                    store = {}
-
-                store[owner_id] = {
+                import addons.nextsteps as nextsteps
+                
+                nextsteps.store[owner_id] = {
                     'link': link,
                     'price': price,
                     'currency': currency,
@@ -190,14 +188,14 @@ class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
         owner_id = interaction.user.id
 
         try:
-            from addons.nextsteps import store
+            import addons.nextsteps as nextsteps
 
-            if owner_id not in store:
+            if owner_id not in nextsteps.store:
                 await interaction.response.send_message("Session expired. Please start over.", ephemeral=True)
                 return
 
             # Get stored data
-            data = store[owner_id]
+            data = nextsteps.store[owner_id]
 
             # Get new inputs with proper decimal formatting
             shipping = f"{float(self.shipping.value):.2f}"
@@ -250,8 +248,8 @@ class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
             await interaction.edit_original_response(embed=embed, view=view)
 
             # Clean up stored data
-            if owner_id in store:
-                del store[owner_id]
+            if owner_id in nextsteps.store:
+                del nextsteps.store[owner_id]
 
         except Exception as e:
             embed = discord.Embed(title="Error", description=f"An error occurred: {str(e)}")
