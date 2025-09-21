@@ -1998,6 +1998,8 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                             display_type = "14 Days"
                         elif subscription_type == "1month":
                             display_type = "1 Month"
+                        elif subscription_type == "1month_product":
+                            display_type = "1 Month (Product Key)"
                         elif subscription_type == "3month":
                             display_type = "3 Months"
 
@@ -2048,7 +2050,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                             print(f"Added customer role to {self.interaction.user.display_name}")
 
                         # Add subscription role for 1 month, 3 months, and guild subscriptions (NOT lite)
-                        if "1month" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "guild_lifetime" in subscription_type or "lifetime" in subscription_type.lower():
+                        if "1month" in subscription_type or "1month_product" in subscription_type or "3month" in subscription_type or "30day" in subscription_type or "guild_30days" in subscription_type or "guild_lifetime" in subscription_type or "lifetime" in subscription_type.lower():
                             # Add the subscription role for premium subscription types
                             subscription_role = discord.utils.get(guild.roles, id=1412498358248935634)
                             if subscription_role:

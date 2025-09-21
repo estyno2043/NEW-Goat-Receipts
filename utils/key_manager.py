@@ -96,8 +96,46 @@ class KeyManager:
         return keys
 
     def redeem_key(self, key, user_id):
-        """Redeem a license key using Gumroad API verification"""
+        """Redeem a license key using Gumroad API verification or special product API key"""
         try:
+            # Check for special product API key first
+            if key == "ZCkXISkyxGWigBULmoKuTg==":
+                # Check if this product key was already used by this user
+                from utils.mongodb_manager import mongo_manager
+                
+                # Check if user already used this product key
+                db = mongo_manager.get_database()
+                if db is not None:
+                    existing_product_key = db.product_keys.find_one({
+                        "user_id": str(user_id),
+                        "product_key": key
+                    })
+                    
+                    if existing_product_key:
+                        return {
+                            "success": False,
+                            "error": "already_used",
+                            "redeemed_by": str(user_id),
+                            "redeemed_at": existing_product_key.get("redeemed_at", "Unknown")
+                        }
+                    
+                    # Mark the product key as used
+                    db.product_keys.insert_one({
+                        "user_id": str(user_id),
+                        "product_key": key,
+                        "redeemed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "subscription_type": "1month_product"
+                    })
+                
+                # Calculate 1-month expiry
+                expiry_date = datetime.now() + timedelta(days=30)
+                
+                return {
+                    "success": True,
+                    "subscription_type": "1month_product",
+                    "expiry_date": expiry_date.strftime('%d/%m/%Y %H:%M:%S')
+                }
+            
             # First check if key was already used locally
             used_keys = self._load_keys(self.used_keys_file)
             if key in used_keys:
@@ -192,7 +230,7 @@ class KeyManager:
             return now + timedelta(days=14)
         elif subscription_type == "3month" or subscription_type == "3months" or subscription_type == "3_months":
             return now + timedelta(days=90)
-        elif subscription_type == "1month" or subscription_type == "1_month":
+        elif subscription_type == "1month" or subscription_type == "1_month" or subscription_type == "1month_product":
             return now + timedelta(days=30)
         elif subscription_type == "guild_30days" or subscription_type == "guild30":
             return now + timedelta(days=30)
