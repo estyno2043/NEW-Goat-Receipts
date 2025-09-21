@@ -49,18 +49,18 @@ def has_owner_permissions(interaction: discord.Interaction) -> bool:
         import json
         config = json.load(f)
         owner_id = int(config.get("owner_id", 1339295766828552365))
-    
+
     # Check if user is the owner
     if interaction.user.id == owner_id:
         return True
-    
+
     # Check if user has the admin role (1412498272508973116)
     admin_role_id = 1412498272508973116
     if interaction.guild:
         admin_role = discord.utils.get(interaction.guild.roles, id=admin_role_id)
         if admin_role and admin_role in interaction.user.roles:
             return True
-    
+
     return False
 
 # Background task to process notifications
@@ -560,23 +560,23 @@ class BrandSelectDropdown(ui.Select):
         available_brands.sort()
 
         # Calculate total pages
-        total_pages = max(1, (len(available_brands) + 14) // 15)
-        
+        total_pages = max(1, (len(available_brands) + 19) // 20)  # Updated for 20 brands per page
+
         # Ensure page is within valid bounds
         if page < 1:
             self.page = 1
         elif page > total_pages:
             self.page = total_pages
-        
-        # Show only 15 brands per page
-        start_idx = (self.page - 1) * 15
-        end_idx = min(start_idx + 15, len(available_brands))
-        
+
+        # Show only 20 brands per page
+        start_idx = (self.page - 1) * 20
+        end_idx = min(start_idx + 20, len(available_brands))
+
         current_brands = available_brands[start_idx:end_idx]
 
         # Ensure we have at least one option to prevent Discord API error
         if not current_brands:
-            current_brands = available_brands[:15] if available_brands else ["Nike"]  # Fallback
+            current_brands = available_brands[:20] if available_brands else ["Nike"]  # Fallback
             self.page = 1
 
         # Make sure values are unique by adding index if needed
@@ -589,7 +589,7 @@ class BrandSelectDropdown(ui.Select):
             if value in used_values:
                 value = f"{value}_{idx}"
             used_values.add(value)
-            
+
             # Special handling for unavailable brands
             if brand.lower() == "farfetch":
                 options.append(discord.SelectOption(label=f"{brand} [Unavailable]", description="Currently unavailable", value=value))
@@ -987,7 +987,7 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = max(1, (total_count + 14) // 15)  # Ensure at least 1 page
+        max_pages = max(1, (total_count + 19) // 20)  # Updated for 20 brands per page
 
         if self.page > 1:
             self.page -= 1
@@ -1015,7 +1015,7 @@ class BrandSelectView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = max(1, (total_count + 14) // 15)  # Ensure at least 1 page
+        max_pages = max(1, (total_count + 19) // 20)  # Updated for 20 brands per page
 
         # Only increment page if not at last page
         if self.page < max_pages:
@@ -1098,7 +1098,7 @@ class MenuView(ui.View):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+        max_pages = (total_count + 19) // 20  # Updated for 20 brands per page
 
         embed = discord.Embed(
             title=f"{username}'s Panel",
@@ -1656,7 +1656,7 @@ async def generate_command(interaction: discord.Interaction):
             import os
             modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
             total_count = len(modal_files)
-            max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+            max_pages = (total_count + 19) // 20  # Updated for 20 brands per page
 
             embed = discord.Embed(
                 title=f"{username}'s Panel",
@@ -1755,7 +1755,7 @@ async def generate_command(interaction: discord.Interaction):
         import os
         modal_files = [f for f in os.listdir('modals') if f.endswith('.py') and not f.startswith('__')]
         total_count = len(modal_files)
-        max_pages = (total_count + 14) // 15  # Ceiling division to get number of pages
+        max_pages = (total_count + 19) // 20  # Updated for 20 brands per page
 
         embed = discord.Embed(
             title=f"{username}'s Panel",
@@ -1934,8 +1934,7 @@ class RedeemKeyModal(ui.Modal, title="Redeem License Key"):
                                        f"-# Run command **/configure_guild** in <#1412501183121068132> to continue\n\n"
                                        f"**Subscription Type**\n"
                                        f"`Guild`\n\n"
-                                       f"**Consider leaving a review !**\n"
-                                       f"Please consider leaving a review at <#1412500966477139990>",
+                                       f"- Please consider leaving a review at <#1412500966477139990>",
                             color=discord.Color.green()
                         )
 
@@ -2308,17 +2307,17 @@ async def menu_command(interaction: discord.Interaction):
         try:
             from utils.guild_license_checker import GuildLicenseChecker
             from utils.mongodb_manager import mongo_manager
-            
+
             # Convert IDs to strings for MongoDB consistency
             user_id_str = str(interaction.user.id)
             guild_id_str = str(interaction.guild.id)
-            
+
             guild_config = mongo_manager.get_guild_config(guild_id_str)
             if guild_config:
                 has_guild_access, access_info = await GuildLicenseChecker.check_guild_access(
                     user_id_str, guild_id_str, guild_config
                 )
-                
+
                 if has_guild_access:
                     # Get guild subscription info for display
                     guild_subscription_info = await GuildLicenseChecker.get_guild_subscription_info(
@@ -2361,7 +2360,7 @@ async def menu_command(interaction: discord.Interaction):
     if guild_subscription_info:
         # Use guild subscription info
         subscription_type, end_date = guild_subscription_info
-        
+
         # Format guild subscription type for display
         display_type = subscription_type
         if subscription_type == "3day":
@@ -2381,7 +2380,7 @@ async def menu_command(interaction: discord.Interaction):
     else:
         # Use regular subscription info
         subscription_type, end_date = get_subscription(user_id)
-        
+
         # Format subscription type for display
         display_type = subscription_type
         if subscription_type == "3day":
@@ -2393,7 +2392,7 @@ async def menu_command(interaction: discord.Interaction):
 
     # Create menu panel with appropriate description
     is_lifetime = subscription_type.lower() == "lifetime"
-    
+
     if guild_subscription_info:
         # Guild subscription description
         if is_lifetime:
