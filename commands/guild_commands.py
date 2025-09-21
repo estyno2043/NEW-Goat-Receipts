@@ -660,12 +660,35 @@ class GuildCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # Create a select menu for brands
-        options = [
-            discord.SelectOption(label="Farfetch", emoji="🛍️", value="farfetch"),
-            discord.SelectOption(label="Flannels", emoji="🛍️", value="flannels"),
-            discord.SelectOption(label="Fútbol Emotion", emoji="⚽", value="futbolemotion"),
-        ]
+        # Dynamically create brand options from modals directory
+        brand_files = []
+        try:
+            import os
+            modals_dir = "modals"
+            for filename in os.listdir(modals_dir):
+                if filename.endswith('.py') and filename != '__init__.py' and filename != 'requirements.txt':
+                    brand_name = filename[:-3]  # Remove .py extension
+                    # Skip certain utility files
+                    if brand_name not in ['stockx', 'requirements']:
+                        brand_files.append(brand_name)
+        except Exception as e:
+            print(f"Error loading brands: {e}")
+            brand_files = ["farfetch", "flannels", "futbolemotion", "arcteryx"]  # fallback
+        
+        # Create select options from available brands
+        options = []
+        for brand in sorted(brand_files)[:25]:  # Discord limit of 25 options
+            # Capitalize brand names and add special handling for certain brands
+            if brand == "farfetch":
+                options.append(discord.SelectOption(label="Farfetch (Unavailable)", emoji="❌", value="farfetch"))
+            elif brand == "arcteryx":
+                options.append(discord.SelectOption(label="Arc'teryx", emoji="⛰️", value="arcteryx"))
+            elif brand == "futbolemotion":
+                options.append(discord.SelectOption(label="Fútbol Emotion", emoji="⚽", value="futbolemotion"))
+            else:
+                # Capitalize first letter for display
+                display_name = brand.capitalize()
+                options.append(discord.SelectOption(label=display_name, emoji="🛍️", value=brand))
 
         view = BrandSelectView(options)
         embed = discord.Embed(
@@ -690,15 +713,47 @@ class BrandSelectMenu(ui.Select):
     async def callback(self, interaction: discord.Interaction):
         brand = self.values[0]
 
-        if brand == "farfetch":
-            modal = farfetchmodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "flannels":
-            modal = flannelsmodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "futbolemotion":
-            modal = futbolemotionmodal()
-            await interaction.response.send_modal(modal)
+        try:
+            if brand == "farfetch":
+                # Farfetch is marked as unavailable
+                embed = discord.Embed(
+                    title="Brand Unavailable", 
+                    description="Farfetch is currently unavailable. Please choose a different brand.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            
+            # Dynamically import and create modal based on brand selection
+            modal_name = f"{brand}modal"
+            
+            # Import the modal from the corresponding brand module
+            try:
+                module = __import__(f'modals.{brand}', fromlist=[modal_name])
+                modal_class = getattr(module, modal_name)
+                modal = modal_class()
+                await interaction.response.send_modal(modal)
+            except ImportError as e:
+                embed = discord.Embed(
+                    title="Brand Module Not Found", 
+                    description=f"The {brand.capitalize()} brand module could not be loaded. Please contact an administrator.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            except AttributeError as e:
+                embed = discord.Embed(
+                    title="Brand Modal Not Found", 
+                    description=f"The {brand.capitalize()} modal class could not be found. Please contact an administrator.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(
+                title="Error", 
+                description=f"An error occurred while processing your selection: {str(e)}", 
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot):
@@ -1101,15 +1156,47 @@ class BrandSelectMenu(ui.Select):
     async def callback(self, interaction: discord.Interaction):
         brand = self.values[0]
 
-        if brand == "farfetch":
-            modal = farfetchmodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "flannels":
-            modal = flannelsmodal()
-            await interaction.response.send_modal(modal)
-        elif brand == "futbolemotion":
-            modal = futbolemotionmodal()
-            await interaction.response.send_modal(modal)
+        try:
+            if brand == "farfetch":
+                # Farfetch is marked as unavailable
+                embed = discord.Embed(
+                    title="Brand Unavailable", 
+                    description="Farfetch is currently unavailable. Please choose a different brand.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            
+            # Dynamically import and create modal based on brand selection
+            modal_name = f"{brand}modal"
+            
+            # Import the modal from the corresponding brand module
+            try:
+                module = __import__(f'modals.{brand}', fromlist=[modal_name])
+                modal_class = getattr(module, modal_name)
+                modal = modal_class()
+                await interaction.response.send_modal(modal)
+            except ImportError as e:
+                embed = discord.Embed(
+                    title="Brand Module Not Found", 
+                    description=f"The {brand.capitalize()} brand module could not be loaded. Please contact an administrator.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            except AttributeError as e:
+                embed = discord.Embed(
+                    title="Brand Modal Not Found", 
+                    description=f"The {brand.capitalize()} modal class could not be found. Please contact an administrator.", 
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(
+                title="Error", 
+                description=f"An error occurred while processing your selection: {str(e)}", 
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot):

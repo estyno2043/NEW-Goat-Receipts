@@ -113,17 +113,21 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                     print()
                     print(f"[{Colors.green}START Scraping{lg}] Arcteryx -> {interaction.user.id} ({interaction.user})" + lg)
 
-                    pname = soup.find('meta', {'property': 'og:title'})['content']
+                    # Safely extract product name
+                    pname_meta = soup.find('meta', {'property': 'og:title'})
+                    pname = pname_meta.get('content', 'Unknown Product') if pname_meta else 'Unknown Product'
                     print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {pname}" + lg)
 
-                    image_url = soup.find('meta', {'property': 'og:image'})['content']
+                    # Safely extract image URL
+                    image_meta = soup.find('meta', {'property': 'og:image'})
+                    image_url = image_meta.get('content', '') if image_meta else ''
                     print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {image_url}" + lg)
 
 
                     colorp = soup.find('span', class_='sc-93825a4d-1 jFqkUy qa--selected-option-colour')
                     if colorp:
                         color = colorp.text.strip()
-                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {color}" + lg)
+                        print(f"    [{Colors.cyan}Scraping{lg}] Color: {color}" + lg)
                     else:
                         color = "None"
 
@@ -176,9 +180,6 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
             # Handle case where no user details are found
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
