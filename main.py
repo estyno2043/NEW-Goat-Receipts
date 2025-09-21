@@ -576,17 +576,27 @@ class BrandSelectDropdown(ui.Select):
         used_values = set()
 
         for idx, brand in enumerate(current_brands):
-            value = brand.lower()
+            # Ensure value stays within Discord's 100-character limit (being conservative with 90)
+            value = brand.lower().replace(" ", "_")[:90]
             # If value already exists, make it unique by adding index
             if value in used_values:
-                value = f"{value}_{idx}"
+                value = f"{value}_{idx}"[:90]
             used_values.add(value)
             
             # Special handling for unavailable brands
             if brand.lower() == "farfetch":
-                options.append(discord.SelectOption(label=f"{brand} [Unavailable]", description="Currently unavailable", value=value))
+                # Ensure label stays within 40-character limit
+                label = f"{brand} [Unavailable]"
+                if len(label) > 40:
+                    # Truncate brand name to fit within limit
+                    max_brand_len = 40 - len(" [Unavailable]")
+                    truncated_brand = brand[:max_brand_len]
+                    label = f"{truncated_brand} [Unavailable]"
+                options.append(discord.SelectOption(label=label, description="Currently unavailable", value=value))
             else:
-                options.append(discord.SelectOption(label=brand, value=value))
+                # Ensure label stays within 40-character limit
+                label = brand[:40] if len(brand) > 40 else brand
+                options.append(discord.SelectOption(label=label, value=value))
 
         super().__init__(placeholder="Choose a brand...", min_values=1, max_values=1, options=options)
         self.user_id = user_id  # Store the owner's user ID
