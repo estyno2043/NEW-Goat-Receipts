@@ -54,7 +54,7 @@ def is_prada_link(link):
     return bool(prada_pattern.match(link))
 
 
-class Pradamodal(ui.Modal, title="discord.gg/goatreceipts"):
+class Pradamodal(ui.Modal, title="discord.gg/goatciepts"):
     Linkff = discord.ui.TextInput(label="Link", placeholder="Prada.com Link", required=True)
     Priceff = discord.ui.TextInput(label="Price without currency", placeholder="Ex. 790", required=True)
     currencyff = discord.ui.TextInput(label="Currency ($, £‚ €)", placeholder="€", required=True, min_length=1, max_length=2)
@@ -178,7 +178,7 @@ class Pradamodal(ui.Modal, title="discord.gg/goatreceipts"):
                     file.write(html_content)
 
 
-                sender_email = "Prada <client.service@prada.com>"
+                sender_email = "Prada <noreply@prada.com>"
                 subject = "Prada - Order acknowledgement - GBPR5247077561738"
                 from emails.choise import choiseView
                 owner_id = interaction.user.id
