@@ -49,7 +49,7 @@ class zendeskmodal(ui.Modal, title="Zendesk Support - Send Email"):
 
             # Customize email parameters based on form input
             sender_email = "G. Segarra (Support) <support@ticketera.zendesk.com>"
-            subject = f"Your request has been updated - Request #{ticket_num}"
+            subject = f"Solicitar información"
             item_desc = f"Zendesk Support Email - {issue_desc[:50]}{'...' if len(issue_desc) > 50 else ''}"
             image_url = "https://ci3.googleusercontent.com/meips/ADKq_Naffa1qvXrm4dqCkt52iCtLy4BtCnUkh6Zl78BANOoWIDHMNDRZXrUeijJmc_FObCfabHV926z23QSh1kkzJleEKUGC9L1IM9W5CRKxZm12xe7P-wRY8XEG_V7uXziEh7Rsm_igv_WPyjhnNKQ1_nNaXNERxGzsS0YZhnV9Cc6N7VL_bCo0yxFd4w=s0-d-e1-ft#https://ticketera.zendesk.com/system/photos/23822070395540/Black___White_Minimalist_Aesthetic_Initials_Font_Logo.png"
             link = ""
