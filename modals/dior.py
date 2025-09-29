@@ -124,6 +124,12 @@ class diormodal(ui.Modal, title="Dior Receipt"):
                 # Zyte API setup
                 url = link
 
+                # Initialize default values before making the request
+                product_name = "Dior Product"
+                img_src = "https://via.placeholder.com/300x300"
+                value = 0  # Default value
+                item_variant = "Default"  # Default variant
+
                 response = requests.get(
                     url=url,
                     proxies={
@@ -137,10 +143,6 @@ class diormodal(ui.Modal, title="Dior Receipt"):
                     soup = BeautifulSoup(response.text, 'html.parser')
                     print()
                     print(f"[{Colors.green}START Scraping{lg}] Dior -> {interaction.user.id} ({interaction.user})" + lg)
-
-                    # Initialize default values
-                    product_name = "Dior Product"
-                    img_src = "https://via.placeholder.com/300x300"
 
                     # Try to get product name
                     try:
@@ -159,10 +161,6 @@ class diormodal(ui.Modal, title="Dior Receipt"):
                         print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {img_src}" + lg)
                     except Exception as e:
                         print(f"    [{Colors.red}Error{lg}] Could not get image URL: {e}" + lg)
-
-
-                    value = 0  # Default value
-                    item_variant = "Default"  # Default variant
                     
                     match = re.search(r'var dataLayerWithUemail = (\[.*?\]);', response.text)
                     if match:
@@ -185,6 +183,12 @@ class diormodal(ui.Modal, title="Dior Receipt"):
 
                     print(f"[{Colors.green}Scraping DONE{lg}] Dior -> {interaction.user.id}" + lg)
                     print()
+                else:
+                    # Handle case when scraping fails
+                    print(f"[{Colors.red}Scraping FAILED{lg}] Dior -> Status Code: {response.status_code}" + lg)
+                    # Keep default values for product_name and img_src
+                    value = 0
+                    item_variant = "Default"
 
 
 
