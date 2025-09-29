@@ -667,8 +667,17 @@ class BrandSelectDropdown(ui.Select):
 
         # Process brand selection and show appropriate modal
         try:
+            # Module name mapping for brands with special file names
+            module_name_mapping = {
+                "louis_vuitton": "lv",
+                "the_north_face": "tnf", 
+                "vivienne_westwood": "vw",
+                "house_of_frasers": "houseoffrasers"
+            }
+
             # Import the appropriate modal module dynamically based on brand name
-            module_name = f"modals.{brand}"
+            actual_module_name = module_name_mapping.get(brand, brand)
+            module_name = f"modals.{actual_module_name}"
             modal_class_name = f"{brand}modal"
 
             # Special case handling for brands with different modal class naming patterns
@@ -681,7 +690,11 @@ class BrandSelectDropdown(ui.Select):
                 "chewforever": "Chewforevermodal",
                 "corteiz": "crtzmodal",
                 "loropiana": "loromodal",
-                "6pm": "sixpmmodal" # Add 6PM modal handling
+                "6pm": "sixpmmodal", # Add 6PM modal handling
+                "louis_vuitton": "lvmodal",
+                "the_north_face": "tnfmodal",
+                "vivienne_westwood": "vwmodal",
+                "house_of_frasers": "houseoffrasermodal"
             }
 
             if brand in special_cases:
@@ -692,7 +705,7 @@ class BrandSelectDropdown(ui.Select):
                 import importlib
 
                 # Handle special cases for brands with spaces in their names
-                if brand == "House of Frasers" or brand.lower() == "house of frasers":
+                if brand == "House of Frasers" or brand.lower() == "house of frasers" or brand.lower() == "house_of_frasers":
                     # Ensure the modal is properly loaded
                     try:
                         from modals.houseoffrasers import houseoffrasermodal
@@ -704,7 +717,7 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading House of Frasers modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading House of Frasers modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "Louis Vuitton" or brand.lower() == "louis vuitton":
+                elif brand == "Louis Vuitton" or brand.lower() == "louis vuitton" or brand.lower() == "louis_vuitton":
                     # Ensure the modal is properly loaded
                     try:
                         from modals.lv import lvmodal
@@ -721,7 +734,7 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading Louis Vuitton modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading Louis Vuitton modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "The North Face" or brand.lower() == "the north face":
+                elif brand == "The North Face" or brand.lower() == "the north face" or brand.lower() == "the_north_face":
                     # Ensure the modal is properly loaded
                     try:
                         from modals.tnf import tnfmodal
@@ -733,7 +746,7 @@ class BrandSelectDropdown(ui.Select):
                         print(f"Error loading The North Face modal: {str(e)}")
                         await interaction.response.send_message(f"Error loading The North Face modal: {str(e)}", ephemeral=True)
                         return
-                elif brand == "Vivienne Westwood" or brand.lower() == "vivienne westwood":
+                elif brand == "Vivienne Westwood" or brand.lower() == "vivienne westwood" or brand.lower() == "vivienne_westwood":
                     # Special handling for Vivienne Westwood
                     try:
                         from modals.vw import vwmodal
