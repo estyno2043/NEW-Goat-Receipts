@@ -138,12 +138,27 @@ class diormodal(ui.Modal, title="Dior Receipt"):
                     print()
                     print(f"[{Colors.green}START Scraping{lg}] Dior -> {interaction.user.id} ({interaction.user})" + lg)
 
+                    # Initialize default values
+                    product_name = "Dior Product"
+                    img_src = "https://via.placeholder.com/300x300"
 
-                    product_name = soup.find('meta', {'property': 'og:title'})['content']
-                    print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                    # Try to get product name
+                    try:
+                        product_name_tag = soup.find('meta', {'property': 'og:title'})
+                        if product_name_tag and product_name_tag.get('content'):
+                            product_name = product_name_tag['content']
+                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                    except Exception as e:
+                        print(f"    [{Colors.red}Error{lg}] Could not get product name: {e}" + lg)
 
-                    img_src = soup.find('meta', {'property': 'og:image'})['content']
-                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {img_src}" + lg)
+                    # Try to get image URL
+                    try:
+                        img_tag = soup.find('meta', {'property': 'og:image'})
+                        if img_tag and img_tag.get('content'):
+                            img_src = img_tag['content']
+                        print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {img_src}" + lg)
+                    except Exception as e:
+                        print(f"    [{Colors.red}Error{lg}] Could not get image URL: {e}" + lg)
 
 
                     value = 0  # Default value
