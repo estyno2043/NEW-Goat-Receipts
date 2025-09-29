@@ -57,12 +57,12 @@ class bapemodal(ui.Modal, title="discord.gg/goatreceipts"):
 
             if not is_bape_link(Linkff):
                 embed = discord.Embed(title="Error - Invalid Bape link", description="Please provide a valid Bape link.")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=False)
                 return
 
 
             embed = discord.Embed(title="You are almost done...", description="Complete the next modal to receive the receip.")
-            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepbape(owner_id), ephemeral=True)
+            await interaction.response.send_message(content=f"{interaction.user.mention}",embed=embed, view=Nextstepbape(owner_id), ephemeral=False)
 
         else:
             # Handle case where no user details are found
