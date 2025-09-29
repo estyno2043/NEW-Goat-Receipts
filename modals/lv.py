@@ -1,6 +1,6 @@
 import asyncio
 import json
-import queue
+import random
 import re
 import webbrowser
 import discord
@@ -106,3 +106,8 @@ class lvmodal(ui.Modal, title="Louis Vuitton Receipt Generator"):
         else:
             embed = discord.Embed(title="Error", description="No user details found. Please ensure your information is set up.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# Add aliases for different naming conventions
+Louis_vuitton = lvmodal
+louisvuitton = lvmodal
+LouisVuitton = lvmodal
