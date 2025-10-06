@@ -121,46 +121,27 @@ class diormodal(ui.Modal, title="Dior Receipt"):
                     html_content = file.read()
 
 
-                # Zyte API setup
+                # Use robust scraper for better success rate
+                from utils.robust_scraper import scraper
+                
                 url = link
+                
+                # Scrape product with robust fallback methods
+                product_name, img_src, scraped_data = scraper.scrape_product(url)
+                
+                # Initialize default values
+                value = scraped_data.get('price', 0)
+                item_variant = scraped_data.get('variant', 'Default')
+                
+                # Try to get additional data from page source if needed
+                response = scraper.fetch_with_proxy(url) or scraper.fetch_direct(url)
 
-                # Initialize default values before making the request
-                product_name = "Dior Product"
-                img_src = "https://via.placeholder.com/300x300"
-                value = 0  # Default value
-                item_variant = "Default"  # Default variant
-
-                response = requests.get(
-                    url=url,
-                    proxies={
-                        "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                        "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
-                    },
-                    verify=False  # Disable SSL verification to avoid certificate issues
-                )
-
-                if response.status_code == 200:
+                if response and response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     print()
                     print(f"[{Colors.green}START Scraping{lg}] Dior -> {interaction.user.id} ({interaction.user})" + lg)
-
-                    # Try to get product name
-                    try:
-                        product_name_tag = soup.find('meta', {'property': 'og:title'})
-                        if product_name_tag and product_name_tag.get('content'):
-                            product_name = product_name_tag['content']
-                        print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
-                    except Exception as e:
-                        print(f"    [{Colors.red}Error{lg}] Could not get product name: {e}" + lg)
-
-                    # Try to get image URL
-                    try:
-                        img_tag = soup.find('meta', {'property': 'og:image'})
-                        if img_tag and img_tag.get('content'):
-                            img_src = img_tag['content']
-                        print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {img_src}" + lg)
-                    except Exception as e:
-                        print(f"    [{Colors.red}Error{lg}] Could not get image URL: {e}" + lg)
+                    print(f"    [{Colors.cyan}Scraping{lg}] Product Name: {product_name}" + lg)
+                    print(f"    [{Colors.cyan}Scraping{lg}] Image URL: {img_src[:100]}..." + lg)
                     
                     match = re.search(r'var dataLayerWithUemail = (\[.*?\]);', response.text)
                     if match:
