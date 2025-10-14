@@ -299,9 +299,14 @@ def gumroad_webhook():
         # Check if the identifier is a Discord ID (all digits)
         is_discord_id = discord_identifier.isdigit()
         
+        logging.info(f"Bot instance available: {bot_instance is not None}")
+        logging.info(f"Discord identifier: {discord_identifier}, is_discord_id: {is_discord_id}")
+        
         if bot_instance:
             guild = bot_instance.get_guild(guild_id)
+            logging.info(f"Guild lookup for ID {guild_id}: {guild is not None}")
             if guild:
+                logging.info(f"Guild found: {guild.name} with {guild.member_count} members")
                 if is_discord_id:
                     # Direct ID lookup - fetch from Discord API for reliability
                     logging.info(f"Looking up user by Discord ID: {discord_identifier}")
@@ -366,6 +371,10 @@ def gumroad_webhook():
                             username_display = member.display_name
                             logging.info(f"Found user {username_display} (ID: {user_id}, username: {member.name}) in guild")
                             break
+            else:
+                logging.error(f"Guild {guild_id} not found - bot may not have access to this server")
+        else:
+            logging.error(f"Bot instance not available - webhook cannot look up Discord users")
         
         if not user_id:
             logging.error(f"Could not find user {discord_identifier} in guild {guild_id}")

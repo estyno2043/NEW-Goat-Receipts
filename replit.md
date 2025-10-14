@@ -54,6 +54,9 @@ Preferred communication style: Simple, everyday language.
     - Guild Subscription - 1 month → Guild access (30 days)
     - Receipt Editor Add-on → Roles-only product
   - **24/7 Availability**: Configured for VM deployment to run continuously even when Replit IDE is closed
+    - Both Discord bot and webhook server run in same process for shared bot instance access
+    - Production runner (run_production.py) uses threading to start both services
+    - Ensures webhook can look up Discord users and grant access automatically
   - **Editor Add-on Product**: Special roles-only product (goatreceipts.gumroad.com/l/rfbztg)
     - Assigns two specific roles: 1412498223842721903 and 1427636166126993418
     - No license/expiry tracking - purely for role management

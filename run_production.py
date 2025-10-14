@@ -1,32 +1,37 @@
 #!/usr/bin/env python3
 """
 Production runner that starts both Discord bot and webhook server
-This ensures both services run when deployed
+This ensures both services run when deployed in the same process
 """
 
 import os
 import sys
 import threading
-import subprocess
 import time
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Set production mode before importing
+os.environ['PRODUCTION_MODE'] = 'true'
+
 def run_webhook_server():
-    """Run the Flask webhook server"""
+    """Run the Flask webhook server in this process"""
     logging.info("Starting webhook server on port 5000...")
     try:
-        subprocess.run([sys.executable, "webhook_server.py"], check=True)
+        from webhook_server import app
+        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
     except Exception as e:
         logging.error(f"Webhook server crashed: {e}")
         sys.exit(1)
 
 def run_discord_bot():
-    """Run the Discord bot"""
+    """Run the Discord bot in this process"""
     logging.info("Starting Discord bot...")
     try:
-        subprocess.run([sys.executable, "main.py"], check=True)
+        # Import and run the bot in this process
+        import main
+        # main.py will handle its own bot.run() call
     except Exception as e:
         logging.error(f"Discord bot crashed: {e}")
         sys.exit(1)

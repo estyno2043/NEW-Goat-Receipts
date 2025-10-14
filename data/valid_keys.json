@@ -2036,5 +2036,11 @@
     "expiry_date": "12/01/2026 16:29:41",
     "source": "gumroad",
     "sale_id": "test_3month_789"
+  },
+  "TEST-KEY-789": {
+    "subscription_type": "lite",
+    "expiry_date": "13/11/2025 17:19:00",
+    "source": "gumroad",
+    "sale_id": "test789"
   }
 }
