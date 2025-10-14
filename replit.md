@@ -40,7 +40,12 @@ Preferred communication style: Simple, everyday language.
 ## External Integrations
 - **Webhook Server**: Flask-based webhook server for external API integrations
 - **Proxy Services**: Integration with Zyte proxy service for web scraping
-- **Gumroad Integration**: Webhook support for payment processing (configured but not fully implemented)
+- **Gumroad Integration**: Fully automated purchase system with webhook support
+  - Automatic user lookup by Discord username from custom fields
+  - Seamless access granting based on product purchase
+  - Automatic notifications to purchases channel and user DMs
+  - Role assignment (Customer, Client, Subscription roles)
+  - Product-to-subscription mapping for different tiers
 
 ## Architecture Patterns
 - **Modular Design**: Separate modules for different brands, commands, and utilities
