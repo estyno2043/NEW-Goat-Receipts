@@ -176,5 +176,13 @@
         "redeemed": true,
         "product_name": "Lite Subscription ",
         "gumroad_verified": true
+    },
+    "04664847-2F5045A8-B93B1ECC-B75A6D37": {
+        "subscription_type": "lite",
+        "redeemed_by": "1412486645953069076",
+        "redeemed_at": "2025-10-14 10:44:09",
+        "redeemed": true,
+        "product_name": "Lite Subscription ",
+        "gumroad_verified": true
     }
 }

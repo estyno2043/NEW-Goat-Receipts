@@ -176,14 +176,27 @@ def gumroad_webhook():
         price = data.get('price', '')
         email = data.get('email', '')
         sale_id = data.get('sale_id', '')
+        gumroad_license_key = data.get('license_key', '')  # Get Gumroad's license key
         
         # Get Discord username from custom field (Gumroad sends it with bracket notation)
-        discord_username = (
-            data.get('custom_fields[Discord Username]', '') or  # Gumroad format
-            data.get('Discord Username', '') or 
-            data.get('discord_username', '') or 
-            data.get('custom_fields', {}).get('Discord Username', '')
-        )
+        # Try multiple variations of the field name
+        discord_username = None
+        for key in data.keys():
+            # Look for any key containing "discord" and "username" (case-insensitive)
+            if 'discord' in key.lower() and 'username' in key.lower():
+                discord_username = data.get(key, '').strip()
+                if discord_username:
+                    logging.info(f"Found Discord username '{discord_username}' in field '{key}'")
+                    break
+        
+        # Fallback to standard field names
+        if not discord_username:
+            discord_username = (
+                data.get('custom_fields[Discord Username]', '') or
+                data.get('Discord Username', '') or 
+                data.get('discord_username', '') or 
+                data.get('custom_fields', {}).get('Discord Username', '')
+            )
         
         # If custom fields is a string, try to parse it
         if isinstance(data.get('custom_fields'), str):
@@ -280,6 +293,7 @@ def gumroad_webhook():
                     "price": price,
                     "timestamp": datetime.now().isoformat(),
                     "sale_id": sale_id,
+                    "license_key": gumroad_license_key,  # Include the license key for manual redemption
                     "processed": False
                 }
                 
@@ -290,32 +304,107 @@ def gumroad_webhook():
             
             return jsonify({'error': f'User {discord_username} not found in Discord server'}), 404
         
-        # Create license data
-        license_key = f"gumroad-{sale_id}-{user_id}"
-        license_data = {
-            "key": license_key,
-            "expiry": expiry_str,
-            "subscription_type": subscription_type,
-            "is_active": True,
-            "emailtf": "False",
-            "credentialstf": "False",
-            "source": "gumroad",
-            "purchase_email": email,
-            "product_name": product_name,
-            "sale_id": sale_id
-        }
-        
-        # Add receipt count for lite subscription
-        if subscription_type == "lite":
-            license_data["receipt_count"] = 0
-            license_data["max_receipts"] = 7
-        
-        # Save license to MongoDB
-        success = mongo_manager.create_or_update_license(user_id, license_data)
-        
-        if not success:
-            logging.error(f"Failed to create license for user {user_id}")
-            return jsonify({'error': 'Failed to create license'}), 500
+        # Automatically redeem the Gumroad license key
+        if gumroad_license_key:
+            logging.info(f"Attempting to auto-redeem Gumroad license key for user {user_id}: {gumroad_license_key}")
+            
+            try:
+                from utils.key_manager import KeyManager
+                key_manager = KeyManager()
+                
+                # First, we need to add the Gumroad key to our valid keys with the subscription info
+                import json as json_lib
+                
+                # Load valid keys
+                try:
+                    with open("data/valid_keys.json", "r") as f:
+                        valid_keys = json_lib.load(f)
+                except:
+                    valid_keys = {}
+                
+                # Add the Gumroad license key to valid keys
+                valid_keys[gumroad_license_key] = {
+                    "subscription_type": subscription_type,
+                    "expiry_date": expiry_str,
+                    "source": "gumroad",
+                    "sale_id": sale_id
+                }
+                
+                # Save updated valid keys
+                with open("data/valid_keys.json", "w") as f:
+                    json_lib.dump(valid_keys, f, indent=2)
+                
+                logging.info(f"Added Gumroad key {gumroad_license_key} to valid keys")
+                
+                # Now redeem it for the user
+                result = key_manager.redeem_key(gumroad_license_key, user_id)
+                
+                if result["success"]:
+                    logging.info(f"Successfully auto-redeemed Gumroad key for user {user_id}")
+                else:
+                    logging.error(f"Failed to auto-redeem key: {result.get('message')}")
+                    # Fall back to manual license creation if redemption fails
+                    raise Exception("Key redemption failed")
+                    
+            except Exception as redeem_error:
+                logging.error(f"Error during auto-redemption: {redeem_error}, falling back to manual license creation")
+                
+                # Fallback: Create license data manually
+                license_key = f"gumroad-{sale_id}-{user_id}"
+                license_data = {
+                    "key": license_key,
+                    "expiry": expiry_str,
+                    "subscription_type": subscription_type,
+                    "is_active": True,
+                    "emailtf": "False",
+                    "credentialstf": "False",
+                    "source": "gumroad",
+                    "purchase_email": email,
+                    "product_name": product_name,
+                    "sale_id": sale_id,
+                    "gumroad_license_key": gumroad_license_key
+                }
+                
+                # Add receipt count for lite subscription
+                if subscription_type == "lite":
+                    license_data["receipt_count"] = 0
+                    license_data["max_receipts"] = 7
+                
+                # Save license to MongoDB
+                success = mongo_manager.create_or_update_license(user_id, license_data)
+                
+                if not success:
+                    logging.error(f"Failed to create license for user {user_id}")
+                    return jsonify({'error': 'Failed to create license'}), 500
+        else:
+            logging.warning("No Gumroad license key found in webhook data, creating manual license")
+            
+            # Create license data manually (old method)
+            license_key = f"gumroad-{sale_id}-{user_id}"
+            license_data = {
+                "key": license_key,
+                "expiry": expiry_str,
+                "subscription_type": subscription_type,
+                "is_active": True,
+                "emailtf": "False",
+                "credentialstf": "False",
+                "source": "gumroad",
+                "purchase_email": email,
+                "product_name": product_name,
+                "sale_id": sale_id
+            }
+            
+            # Add receipt count for lite subscription
+            if subscription_type == "lite":
+                license_data["receipt_count"] = 0
+                license_data["max_receipts"] = 7
+            
+            # Save license to MongoDB
+            success = mongo_manager.create_or_update_license(user_id, license_data)
+            
+            if not success:
+                logging.error(f"Failed to create license for user {user_id}")
+                return jsonify({'error': 'Failed to create license'}), 500
         
         # Queue notification for bot to send
         notification_data = {

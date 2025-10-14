@@ -411,6 +411,7 @@ async def handle_gumroad_user_not_found_notification(notification):
         product_name = notification.get("product_name", "")
         price = notification.get("price", "")
         timestamp = notification.get("timestamp", "")
+        license_key = notification.get("license_key", "")
         
         # Format subscription type for display
         display_type = subscription_type
@@ -480,7 +481,15 @@ async def handle_gumroad_user_not_found_notification(notification):
                 value=f"{formatted_time}",
                 inline=False
             )
-            embed.set_footer(text="Please manually verify and grant access to the user")
+            if license_key:
+                embed.add_field(
+                    name="🔑 License Key",
+                    value=f"`{license_key}`",
+                    inline=False
+                )
+                embed.set_footer(text="Use /redeem or manually redeem this license key for the correct user")
+            else:
+                embed.set_footer(text="Please manually verify and grant access to the user")
             
             try:
                 await fallback_channel.send(embed=embed)
