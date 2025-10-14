@@ -220,42 +220,65 @@ def gumroad_webhook():
         
         logging.info(f"Processing purchase for Discord identifier: {discord_identifier}")
         
-        # Map product to subscription type and duration
+        # Map product to subscription type and duration using exact Gumroad product names
         subscription_mapping = {
-            '3 Days': {'type': '3day', 'days': 3},
-            '14 Days': {'type': '14day', 'days': 14},
-            '1 Month': {'type': '1month', 'days': 30},
-            '3 Months': {'type': '3month', 'days': 90},
-            'Lifetime': {'type': 'lifetime', 'days': 36500},  # 100 years
-            'Guild 30 Days': {'type': 'guild_30days', 'days': 30},
-            'Guild Lifetime': {'type': 'guild_lifetime', 'days': 36500},
-            'Lite': {'type': 'lite', 'days': 30},
-            'Editor Add-on': {'type': 'editor_addon', 'days': 0, 'roles_only': True}  # Special: roles only, no license
+            # Exact product name matches (from Gumroad)
+            'GOAT 1-month subscription': {'type': '1month', 'days': 30},
+            'Goat 3 Months Subscription': {'type': '3month', 'days': 90},
+            'Lite Subscription': {'type': 'lite', 'days': 30},
+            'Guild Subscription - 1 month': {'type': 'guild_30days', 'days': 30},
+            'Receipt Editor Add-on': {'type': 'editor_addon', 'days': 0, 'roles_only': True},
+            
+            # Legacy/fallback patterns
+            '3 day': {'type': '3day', 'days': 3},
+            '14 day': {'type': '14day', 'days': 14},
+            '1 month': {'type': '1month', 'days': 30},
+            '1-month': {'type': '1month', 'days': 30},
+            '3 month': {'type': '3month', 'days': 90},
+            'lifetime': {'type': 'lifetime', 'days': 36500},
+            'guild': {'type': 'guild_30days', 'days': 30},
+            'lite': {'type': 'lite', 'days': 30},
+            'editor': {'type': 'editor_addon', 'days': 0, 'roles_only': True}
         }
         
-        # Determine subscription type
+        # Determine subscription type - try exact match first, then partial match
         subscription_info = None
+        product_name_lower = product_name.lower()
+        
+        # First try exact match
         for product_key, info in subscription_mapping.items():
-            if product_key.lower() in product_name.lower():
+            if product_key.lower() == product_name_lower:
                 subscription_info = info
+                logging.info(f"Exact product match: '{product_name}' -> {info['type']}")
                 break
         
+        # Then try partial match
         if not subscription_info:
-            # Try to determine from price
+            for product_key, info in subscription_mapping.items():
+                if product_key.lower() in product_name_lower:
+                    subscription_info = info
+                    logging.info(f"Partial product match: '{product_name}' contains '{product_key}' -> {info['type']}")
+                    break
+        
+        # Last resort: use price to determine
+        if not subscription_info:
+            logging.warning(f"No product match for '{product_name}', using price-based detection")
             try:
                 price_val = float(price)
                 if price_val <= 5:
-                    subscription_info = subscription_mapping['3 Days']
+                    subscription_info = {'type': '3day', 'days': 3}
                 elif price_val <= 10:
-                    subscription_info = subscription_mapping['14 Days']
+                    subscription_info = {'type': '14day', 'days': 14}
                 elif price_val <= 20:
-                    subscription_info = subscription_mapping['1 Month']
+                    subscription_info = {'type': '1month', 'days': 30}
                 elif price_val <= 50:
-                    subscription_info = subscription_mapping['3 Months']
+                    subscription_info = {'type': '3month', 'days': 90}
                 else:
-                    subscription_info = subscription_mapping['Lifetime']
+                    subscription_info = {'type': 'lifetime', 'days': 36500}
+                logging.info(f"Price-based match: ${price} -> {subscription_info['type']}")
             except:
-                subscription_info = subscription_mapping['1 Month']  # Default
+                subscription_info = {'type': '1month', 'days': 30}  # Default
+                logging.warning(f"Failed to parse price, using default 1month")
         
         subscription_type = subscription_info['type']
         days = subscription_info['days']

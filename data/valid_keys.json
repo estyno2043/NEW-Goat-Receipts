@@ -2024,5 +2024,17 @@
     "expiry_date": "13/11/2025 16:20:39",
     "source": "gumroad",
     "sale_id": "id_success_123"
+  },
+  "TEST1MONTH-ABCD1234-EFGH5678": {
+    "subscription_type": "1month",
+    "expiry_date": "13/11/2025 16:29:09",
+    "source": "gumroad",
+    "sale_id": "test_1month_456"
+  },
+  "TEST3MONTH-ABCD9999-EFGH8888": {
+    "subscription_type": "3month",
+    "expiry_date": "12/01/2026 16:29:41",
+    "source": "gumroad",
+    "sale_id": "test_3month_789"
   }
 }

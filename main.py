@@ -97,17 +97,15 @@ async def process_notifications():
                             {"$set": {"processed": True, "failed": True, "error": str(e)}}
                         )
                 
-                # Also check gumroad_notifications collection for user-not-found notifications
+                # Also check gumroad_notifications collection for user-not-found notifications ONLY
+                # (Regular purchases go to notifications collection to avoid duplicates)
                 gumroad_notifications = list(db.gumroad_notifications.find({"processed": {"$ne": True}}).limit(10))
                 
                 for notification in gumroad_notifications:
                     try:
-                        if notification.get("type") == "gumroad_purchase":
-                            await handle_gumroad_purchase_notification(notification)
-                        elif notification.get("type") == "gumroad_user_not_found":
+                        # Only handle user-not-found in this collection to prevent duplicate processing
+                        if notification.get("type") == "gumroad_user_not_found":
                             await handle_gumroad_user_not_found_notification(notification)
-                        elif notification.get("type") == "gumroad_editor_addon":
-                            await handle_gumroad_editor_addon_notification(notification)
 
                         # Mark as processed
                         db.gumroad_notifications.update_one(

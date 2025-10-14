@@ -47,7 +47,12 @@ Preferred communication style: Simple, everyday language.
   - Seamless access granting based on product purchase
   - Automatic notifications to purchases channel and user DMs
   - Role assignment (Customer, Client, Subscription roles)
-  - Product-to-subscription mapping for different tiers
+  - Product-to-subscription mapping for different tiers with exact Gumroad product name matching
+    - GOAT 1-month subscription → 1 month access
+    - Goat 3 Months Subscription → 3 months access
+    - Lite Subscription → Lite (7 receipts, 30 days)
+    - Guild Subscription - 1 month → Guild access (30 days)
+    - Receipt Editor Add-on → Roles-only product
   - **24/7 Availability**: Configured for VM deployment to run continuously even when Replit IDE is closed
   - **Editor Add-on Product**: Special roles-only product (goatreceipts.gumroad.com/l/rfbztg)
     - Assigns two specific roles: 1412498223842721903 and 1427636166126993418
