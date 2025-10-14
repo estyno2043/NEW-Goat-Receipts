@@ -71,8 +71,8 @@ async def process_notifications():
     while not bot.is_closed():
         try:
             db = mongo_manager.get_database()
-            if db:
-                # Get pending notifications
+            if db is not None:
+                # Get pending notifications from regular notifications collection
                 notifications = list(db.notifications.find({"processed": {"$ne": True}}).limit(10))
 
                 for notification in notifications:
@@ -92,6 +92,30 @@ async def process_notifications():
                         logging.error(f"Error processing notification {notification.get('_id')}: {e}")
                         # Mark as failed
                         db.notifications.update_one(
+                            {"_id": notification["_id"]},
+                            {"$set": {"processed": True, "failed": True, "error": str(e)}}
+                        )
+                
+                # Also check gumroad_notifications collection for user-not-found notifications
+                gumroad_notifications = list(db.gumroad_notifications.find({"processed": {"$ne": True}}).limit(10))
+                
+                for notification in gumroad_notifications:
+                    try:
+                        if notification.get("type") == "gumroad_purchase":
+                            await handle_gumroad_purchase_notification(notification)
+                        elif notification.get("type") == "gumroad_user_not_found":
+                            await handle_gumroad_user_not_found_notification(notification)
+
+                        # Mark as processed
+                        db.gumroad_notifications.update_one(
+                            {"_id": notification["_id"]},
+                            {"$set": {"processed": True, "processed_at": datetime.utcnow()}}
+                        )
+
+                    except Exception as e:
+                        logging.error(f"Error processing gumroad notification {notification.get('_id')}: {e}")
+                        # Mark as failed
+                        db.gumroad_notifications.update_one(
                             {"_id": notification["_id"]},
                             {"$set": {"processed": True, "failed": True, "error": str(e)}}
                         )
@@ -378,38 +402,96 @@ async def handle_gumroad_purchase_notification(notification):
     except Exception as e:
         logging.error(f"Error in handle_gumroad_purchase_notification: {e}")
 
-# Start notification processor
-@bot.event
-async def on_ready():
-    global message_filter
-    print(f'{bot.user} has connected to Discord!')
-
-    # Initialize message filter
-    message_filter = MessageFilter(bot)
-    print("Message filter initialized")
-
-    # Load command extensions
+async def handle_gumroad_user_not_found_notification(notification):
+    """Handle Gumroad purchase when user is not found in Discord - send to fallback channel"""
     try:
-        # Load admin commands
-        await bot.load_extension("commands.admin_commands")
-        print("Loaded admin commands")
-
-        # Load guild commands
-        await bot.load_extension("commands.guild_commands")
-        print("Loaded guild commands")
+        discord_username = notification.get("discord_username", "Unknown")
+        email = notification.get("email", "Unknown")
+        subscription_type = notification.get("subscription_type", "Unknown")
+        product_name = notification.get("product_name", "")
+        price = notification.get("price", "")
+        timestamp = notification.get("timestamp", "")
+        
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+        elif subscription_type == "3month":
+            display_type = "3 Months"
+        elif subscription_type == "lifetime":
+            display_type = "Lifetime"
+        elif subscription_type == "lite":
+            display_type = "Lite (7 Receipts)"
+        elif "guild" in subscription_type:
+            if "lifetime" in subscription_type.lower():
+                display_type = "Guild (Lifetime)"
+            else:
+                display_type = "Guild (30 Days)"
+        
+        # Parse timestamp for better formatting
+        try:
+            from dateutil import parser
+            dt = parser.parse(timestamp)
+            formatted_time = dt.strftime("%B %d, %Y at %I:%M %p")
+        except:
+            formatted_time = timestamp
+        
+        # Get the fallback channel (1427592513299943535)
+        fallback_channel_id = 1427592513299943535
+        fallback_channel = bot.get_channel(fallback_channel_id)
+        
+        if fallback_channel:
+            embed = discord.Embed(
+                title="⚠️ User Not Found - Manual Action Required",
+                description=f"A purchase was completed but the Discord user could not be found in the server.",
+                color=discord.Color.orange()
+            )
+            embed.add_field(
+                name="Discord Username Entered",
+                value=f"`{discord_username}`",
+                inline=False
+            )
+            embed.add_field(
+                name="Purchase Email",
+                value=f"`{email}`",
+                inline=False
+            )
+            embed.add_field(
+                name="Subscription Type",
+                value=f"`{display_type}`",
+                inline=True
+            )
+            embed.add_field(
+                name="Product",
+                value=f"`{product_name}`" if product_name else "`Unknown`",
+                inline=True
+            )
+            embed.add_field(
+                name="Price",
+                value=f"`${price}`" if price else "`Unknown`",
+                inline=True
+            )
+            embed.add_field(
+                name="Purchase Time",
+                value=f"{formatted_time}",
+                inline=False
+            )
+            embed.set_footer(text="Please manually verify and grant access to the user")
+            
+            try:
+                await fallback_channel.send(embed=embed)
+                logging.info(f"Sent user-not-found notification to fallback channel for {discord_username}")
+            except Exception as send_error:
+                logging.error(f"Failed to send to fallback channel: {send_error}")
+        else:
+            logging.error(f"Fallback channel {fallback_channel_id} not found")
+            
     except Exception as e:
-        print(f"Failed to load commands: {e}")
-
-    # Sync commands
-    try:
-        synced = await bot.tree.sync()
-        print(f'Synced {len(synced)} command(s)')
-    except Exception as e:
-        print(f'Failed to sync commands: {e}')
-
-    # Start background tasks
-    bot.loop.create_task(process_notifications())
-    print("Notification processor started")
+        logging.error(f"Error in handle_gumroad_user_not_found_notification: {e}")
 
 # Setup MongoDB connection
 def setup_database():
@@ -2009,6 +2091,16 @@ async def on_ready():
         print("License checker background task started")
     except Exception as e:
         print(f"Failed to start license checker: {e}")
+    
+    # Start notification processor for Gumroad webhooks
+    try:
+        print("About to start notification processor...")
+        bot.loop.create_task(process_notifications())
+        print("Notification processor started")
+    except Exception as e:
+        print(f"ERROR starting notification processor: {e}")
+        import traceback
+        traceback.print_exc()
 
 # License key redemption form
 class RedeemKeyModal(ui.Modal, title="Redeem License Key"):

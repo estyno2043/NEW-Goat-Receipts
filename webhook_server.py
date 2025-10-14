@@ -260,6 +260,29 @@ def gumroad_webhook():
         
         if not user_id:
             logging.error(f"Could not find user {discord_username} in guild {guild_id}")
+            
+            # Queue a notification for user not found
+            try:
+                from utils.mongodb_manager import mongo_manager
+                db = mongo_manager.get_database()
+                
+                notification_data = {
+                    "type": "gumroad_user_not_found",
+                    "discord_username": discord_username,
+                    "email": email,
+                    "subscription_type": subscription_type,
+                    "product_name": product_name,
+                    "price": price,
+                    "timestamp": datetime.now().isoformat(),
+                    "sale_id": sale_id,
+                    "processed": False
+                }
+                
+                result = db.gumroad_notifications.insert_one(notification_data)
+                logging.info(f"Queued user-not-found notification for {discord_username}")
+            except Exception as e:
+                logging.error(f"Error queuing user-not-found notification: {e}")
+            
             return jsonify({'error': f'User {discord_username} not found in Discord server'}), 404
         
         # Create license data

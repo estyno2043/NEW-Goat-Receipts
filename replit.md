@@ -46,6 +46,16 @@ Preferred communication style: Simple, everyday language.
   - Automatic notifications to purchases channel and user DMs
   - Role assignment (Customer, Client, Subscription roles)
   - Product-to-subscription mapping for different tiers
+  - **Fallback Notification System**: When incorrect Discord username is entered during checkout
+    - Queues notification to MongoDB gumroad_notifications collection
+    - Background processor checks every 5 seconds for pending notifications
+    - Sends detailed embed to fallback channel (1427592513299943535) including:
+      - Username entered by customer
+      - Purchase email address
+      - Subscription type and duration
+      - Product name and price
+      - Purchase timestamp
+    - Enables manual verification and access granting by administrators
 
 ## Architecture Patterns
 - **Modular Design**: Separate modules for different brands, commands, and utilities
