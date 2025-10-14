@@ -47,7 +47,7 @@ lg = Colors.light_gray
 
 
 def is_dyson_link(link):
-    dyson_link_pattern = re.compile(r'^https?://(www\.)?dyson\.[a-z]{2,3}(/.*)?$')
+    dyson_link_pattern = re.compile(r'^https?://(www\.)?dyson\.[a-z\.]{2,10}(/.*)?$')
     return bool(dyson_link_pattern.match(link))
 
 
