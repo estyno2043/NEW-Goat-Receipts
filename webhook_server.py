@@ -225,7 +225,8 @@ def gumroad_webhook():
             'Lifetime': {'type': 'lifetime', 'days': 36500},  # 100 years
             'Guild 30 Days': {'type': 'guild_30days', 'days': 30},
             'Guild Lifetime': {'type': 'guild_lifetime', 'days': 36500},
-            'Lite': {'type': 'lite', 'days': 30}
+            'Lite': {'type': 'lite', 'days': 30},
+            'Editor Add-on': {'type': 'editor_addon', 'days': 0, 'roles_only': True}  # Special: roles only, no license
         }
         
         # Determine subscription type
@@ -317,7 +318,44 @@ def gumroad_webhook():
             
             return jsonify({'error': f'User {discord_username} not found in Discord server'}), 404
         
-        # Automatically redeem the Gumroad license key
+        # Check if this is a roles-only product (Editor Add-on)
+        is_roles_only = subscription_info.get('roles_only', False)
+        
+        if is_roles_only:
+            # Editor Add-on: assign roles only, no license
+            logging.info(f"Processing Editor Add-on purchase for user {user_id}")
+            
+            editor_roles = [1412498223842721903, 1427636166126993418]
+            
+            # Queue role assignment notification for bot to handle asynchronously
+            notification_data = {
+                "type": "gumroad_editor_addon",
+                "user_id": user_id,
+                "username": username_display,
+                "discord_username": discord_username,
+                "subscription_type": subscription_type,
+                "product_name": product_name,
+                "price": price,
+                "email": email,
+                "roles_to_assign": editor_roles,
+                "guild_id": guild_id,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            db = mongo_manager.get_database()
+            if db is not None:
+                db.notifications.insert_one(notification_data)
+                logging.info(f"Editor Add-on notification queued for user {user_id}")
+            
+            return jsonify({
+                'success': True,
+                'message': f'Editor Add-on roles will be assigned to {discord_username}',
+                'user_id': user_id,
+                'subscription_type': subscription_type,
+                'roles_to_assign': editor_roles
+            }), 200
+        
+        # Automatically redeem the Gumroad license key (for non-roles-only products)
         if gumroad_license_key:
             logging.info(f"Attempting to auto-redeem Gumroad license key for user {user_id}: {gumroad_license_key}")
             

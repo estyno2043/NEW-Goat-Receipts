@@ -46,6 +46,11 @@ Preferred communication style: Simple, everyday language.
   - Automatic notifications to purchases channel and user DMs
   - Role assignment (Customer, Client, Subscription roles)
   - Product-to-subscription mapping for different tiers
+  - **Editor Add-on Product**: Special roles-only product (goatreceipts.gumroad.com/l/rfbztg)
+    - Assigns two specific roles: 1412498223842721903 and 1427636166126993418
+    - No license/expiry tracking - purely for role management
+    - Sends purchase notifications to user DM and purchases channel
+    - Processed through dedicated notification handler
   - **Fallback Notification System**: When incorrect Discord username is entered during checkout
     - Queues notification to MongoDB gumroad_notifications collection
     - Background processor checks every 5 seconds for pending notifications

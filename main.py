@@ -80,6 +80,8 @@ async def process_notifications():
                             await handle_access_granted_notification(notification)
                         elif notification.get("type") == "gumroad_purchase":
                             await handle_gumroad_purchase_notification(notification)
+                        elif notification.get("type") == "gumroad_editor_addon":
+                            await handle_gumroad_editor_addon_notification(notification)
 
                         # Mark as processed
                         db.notifications.update_one(
@@ -104,6 +106,8 @@ async def process_notifications():
                             await handle_gumroad_purchase_notification(notification)
                         elif notification.get("type") == "gumroad_user_not_found":
                             await handle_gumroad_user_not_found_notification(notification)
+                        elif notification.get("type") == "gumroad_editor_addon":
+                            await handle_gumroad_editor_addon_notification(notification)
 
                         # Mark as processed
                         db.gumroad_notifications.update_one(
@@ -500,6 +504,114 @@ async def handle_gumroad_user_not_found_notification(notification):
             
     except Exception as e:
         logging.error(f"Error in handle_gumroad_user_not_found_notification: {e}")
+
+async def handle_gumroad_editor_addon_notification(notification):
+    """Handle Editor Add-on purchase - assign roles only"""
+    try:
+        user_id = notification.get("user_id")
+        username = notification.get("username", "Unknown User")
+        discord_username = notification.get("discord_username", username)
+        product_name = notification.get("product_name", "Editor Add-on")
+        price = notification.get("price", "")
+        email = notification.get("email", "")
+        roles_to_assign = notification.get("roles_to_assign", [])
+        guild_id = notification.get("guild_id")
+        
+        # Get guild and member
+        guild = bot.get_guild(int(guild_id)) if guild_id else None
+        member = guild.get_member(int(user_id)) if guild else None
+        
+        # Assign roles
+        assigned_roles = []
+        if member and guild:
+            try:
+                for role_id in roles_to_assign:
+                    role = discord.utils.get(guild.roles, id=role_id)
+                    if role and role not in member.roles:
+                        await member.add_roles(role)
+                        assigned_roles.append(role.name)
+                        logging.info(f"Assigned role {role.name} to {member.display_name}")
+                    elif role:
+                        logging.info(f"User already has role {role.name}")
+            except Exception as e:
+                logging.error(f"Error assigning roles to user {user_id}: {e}")
+        
+        # Send DM to user
+        user = bot.get_user(int(user_id))
+        if not user:
+            try:
+                user = await bot.fetch_user(int(user_id))
+            except:
+                logging.warning(f"Could not fetch user {user_id} for DM")
+        
+        if user:
+            try:
+                embed = discord.Embed(
+                    title="🎨 Editor Add-on Activated!",
+                    description=f"Thank you for purchasing the **{product_name}**!",
+                    color=discord.Color.purple()
+                )
+                embed.add_field(
+                    name="✅ Roles Assigned",
+                    value="\n".join([f"• {role}" for role in assigned_roles]) if assigned_roles else "• Roles assigned successfully",
+                    inline=False
+                )
+                embed.add_field(
+                    name="📧 Purchase Email",
+                    value=f"`{email}`",
+                    inline=False
+                )
+                embed.set_footer(text="Enjoy your Editor Add-on features! • GOAT Receipts")
+                
+                await user.send(embed=embed)
+                logging.info(f"Sent Editor Add-on DM to user {user_id}")
+            except discord.Forbidden:
+                logging.warning(f"Cannot send DM to user {user_id} (DMs disabled)")
+            except Exception as dm_error:
+                logging.error(f"Error sending DM to user {user_id}: {dm_error}")
+        
+        # Send to purchases channel
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            purchases_channel_id = int(config.get("purchases_channel_id", "1412508035031310396"))
+        
+        purchases_channel = bot.get_channel(purchases_channel_id)
+        if purchases_channel:
+            try:
+                embed = discord.Embed(
+                    title="🎨 New Editor Add-on Purchase",
+                    color=discord.Color.purple()
+                )
+                embed.add_field(
+                    name="User",
+                    value=f"<@{user_id}> (`{discord_username}`)",
+                    inline=True
+                )
+                embed.add_field(
+                    name="Product",
+                    value=f"`{product_name}`",
+                    inline=True
+                )
+                embed.add_field(
+                    name="Price",
+                    value=f"`${price}`" if price else "`N/A`",
+                    inline=True
+                )
+                if assigned_roles:
+                    embed.add_field(
+                        name="Roles Assigned",
+                        value="\n".join([f"• {role}" for role in assigned_roles]),
+                        inline=False
+                    )
+                embed.timestamp = datetime.utcnow()
+                
+                await purchases_channel.send(embed=embed)
+                logging.info(f"Sent Editor Add-on purchase notification to channel")
+            except Exception as channel_error:
+                logging.error(f"Error sending to purchases channel: {channel_error}")
+        
+    except Exception as e:
+        logging.error(f"Error in handle_gumroad_editor_addon_notification: {e}")
 
 # Setup MongoDB connection
 def setup_database():
