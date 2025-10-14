@@ -79,6 +79,8 @@ async def process_notifications():
                     try:
                         if notification.get("type") == "access_granted":
                             await handle_access_granted_notification(notification)
+                        elif notification.get("type") == "gumroad_purchase":
+                            await handle_gumroad_purchase_notification(notification)
 
                         # Mark as processed
                         db.notifications.update_one(
@@ -224,6 +226,157 @@ async def handle_access_granted_notification(notification):
 
     except Exception as e:
         logging.error(f"Error handling access granted notification: {e}")
+
+async def handle_gumroad_purchase_notification(notification):
+    """Handle Gumroad purchase notifications - send to purchases channel and DM user"""
+    try:
+        user_id = notification.get("user_id")
+        username = notification.get("username", "Unknown User")
+        discord_username = notification.get("discord_username", username)
+        subscription_type = notification.get("subscription_type", "1month")
+        expiry_date = notification.get("expiry_date", "Unknown")
+        product_name = notification.get("product_name", "")
+        price = notification.get("price", "")
+        
+        # Get user
+        user = bot.get_user(int(user_id))
+        if not user:
+            try:
+                user = await bot.fetch_user(int(user_id))
+            except:
+                user = None
+        
+        # Load config
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                main_guild_id = int(config.get("guild_id", "1412488621293961226"))
+                client_role_id = int(config.get("Client_ID", 0))
+        except:
+            main_guild_id = 1412488621293961226
+            client_role_id = 0
+        
+        # Get guild and member
+        guild = bot.get_guild(main_guild_id)
+        member = guild.get_member(int(user_id)) if guild else None
+        
+        # Format subscription type for display
+        display_type = subscription_type
+        if subscription_type == "3day":
+            display_type = "3 Days"
+        elif subscription_type == "14day":
+            display_type = "14 Days"
+        elif subscription_type == "1month":
+            display_type = "1 Month"
+        elif subscription_type == "3month":
+            display_type = "3 Months"
+        elif subscription_type == "lifetime":
+            display_type = "Lifetime"
+        elif subscription_type == "lite":
+            display_type = "Lite (7 Receipts)"
+        elif "guild" in subscription_type:
+            if "lifetime" in subscription_type.lower():
+                display_type = "Guild (Lifetime)"
+            else:
+                display_type = "Guild (30 Days)"
+        
+        is_guild_sub = "guild" in subscription_type.lower()
+        
+        # Send to purchases channel
+        try:
+            purchases_channel_id = 1412500928187203606  # Main purchases channel
+            purchases_channel = bot.get_channel(purchases_channel_id)
+            
+            if purchases_channel:
+                if is_guild_sub:
+                    # Guild subscription notification
+                    embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{f'<@{user_id}>' if user else username}, your guild subscription has been updated. Check below\n"
+                                   f"-# Run command **/configure_guild** in <#1412501183121068132> to continue\n\n"
+                                   f"**Subscription Type**\n"
+                                   f"`{display_type}`\n\n"
+                                   f"**Consider leaving a review !**\n"
+                                   f"Please consider leaving a review at <#1412500966477139990>",
+                        color=discord.Color.green()
+                    )
+                else:
+                    # Regular subscription notification
+                    embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{f'<@{user_id}>' if user else username}, your subscription has been updated. Check below\n"
+                                  f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
+                                  f"**Subscription Type**\n"
+                                  f"`{display_type}`\n\n"
+                                  f"- Please consider leaving a review at <#1412500966477139990>",
+                        color=discord.Color.green()
+                    )
+                
+                await purchases_channel.send(content=f"<@{user_id}>", embed=embed)
+                logging.info(f"Sent Gumroad purchase notification to purchases channel for user {user_id}")
+        except Exception as e:
+            logging.error(f"Error sending Gumroad notification to purchases channel: {e}")
+        
+        # Send DM to user
+        if user:
+            try:
+                if is_guild_sub:
+                    dm_embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{user.mention}, your guild subscription has been updated. Check below\n"
+                                   f"-# Run command **/configure_guild** in <#1412501183121068132> to continue\n\n"
+                                   f"**Subscription Type**\n"
+                                   f"`{display_type}`\n\n"
+                                   f"**Consider leaving a review !**\n"
+                                   f"Please consider leaving a review at <#1412500966477139990>",
+                        color=discord.Color.green()
+                    )
+                else:
+                    dm_embed = discord.Embed(
+                        title="Thank you for purchasing",
+                        description=f"{user.mention}, your subscription has been updated. Check below\n"
+                                  f"-# Run command /generate in <#1412501183121068132> to continue\n\n"
+                                  f"**Subscription Type**\n"
+                                  f"`{display_type}`\n\n"
+                                  f"- Please consider leaving a review at <#1412500966477139990>",
+                        color=discord.Color.green()
+                    )
+                
+                await user.send(embed=dm_embed)
+                logging.info(f"Sent Gumroad purchase DM to user {user_id}")
+            except discord.Forbidden:
+                logging.warning(f"Could not send DM to user {user_id} - DMs disabled")
+            except Exception as e:
+                logging.error(f"Error sending Gumroad DM to user {user_id}: {e}")
+        
+        # Add roles to user
+        if member and guild:
+            try:
+                # Add customer role to everyone
+                customer_role = discord.utils.get(guild.roles, id=1412498223842721903)
+                if customer_role and customer_role not in member.roles:
+                    await member.add_roles(customer_role)
+                    logging.info(f"Added customer role to {member.display_name}")
+                
+                # Add client role if available
+                if client_role_id > 0:
+                    client_role = discord.utils.get(guild.roles, id=client_role_id)
+                    if client_role and client_role not in member.roles:
+                        await member.add_roles(client_role)
+                        logging.info(f"Added client role to {member.display_name}")
+                
+                # Add subscription role for premium subscriptions (NOT lite)
+                if subscription_type != "lite":
+                    if any(tier in subscription_type for tier in ["1month", "3month", "lifetime", "guild"]):
+                        subscription_role = discord.utils.get(guild.roles, id=1412498358248935634)
+                        if subscription_role and subscription_role not in member.roles:
+                            await member.add_roles(subscription_role)
+                            logging.info(f"Added subscription role to {member.display_name}")
+            except Exception as e:
+                logging.error(f"Error adding roles to user {user_id}: {e}")
+        
+    except Exception as e:
+        logging.error(f"Error in handle_gumroad_purchase_notification: {e}")
 
 # Start notification processor
 @bot.event

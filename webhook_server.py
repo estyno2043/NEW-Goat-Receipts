@@ -157,6 +157,173 @@ def grant_access():
         logging.error(f"Error granting access: {str(e)}")
         return jsonify({'error': f'Failed to grant access: {str(e)}'}), 500
 
+@app.route('/webhook/gumroad', methods=['POST'])
+def gumroad_webhook():
+    """Handle Gumroad purchase webhooks for automatic access granting"""
+    try:
+        # Get the raw data
+        data = request.form.to_dict() if request.form else request.get_json()
+        
+        if not data:
+            logging.error("No data received from Gumroad webhook")
+            return jsonify({'error': 'No data provided'}), 400
+        
+        logging.info(f"Received Gumroad webhook: {data}")
+        
+        # Extract purchase information
+        product_name = data.get('product_name', '')
+        product_permalink = data.get('product_permalink', '')
+        price = data.get('price', '')
+        email = data.get('email', '')
+        sale_id = data.get('sale_id', '')
+        
+        # Get Discord username from custom field
+        discord_username = data.get('Discord Username', '') or data.get('discord_username', '') or data.get('custom_fields', {}).get('Discord Username', '')
+        
+        # If custom fields is a string, try to parse it
+        if isinstance(data.get('custom_fields'), str):
+            try:
+                import json as json_lib
+                custom_fields = json_lib.loads(data.get('custom_fields'))
+                discord_username = custom_fields.get('Discord Username', '')
+            except:
+                pass
+        
+        if not discord_username:
+            logging.error(f"No Discord username found in webhook data: {data}")
+            return jsonify({'error': 'Discord username not provided'}), 400
+        
+        logging.info(f"Processing purchase for Discord user: {discord_username}")
+        
+        # Map product to subscription type and duration
+        subscription_mapping = {
+            '3 Days': {'type': '3day', 'days': 3},
+            '14 Days': {'type': '14day', 'days': 14},
+            '1 Month': {'type': '1month', 'days': 30},
+            '3 Months': {'type': '3month', 'days': 90},
+            'Lifetime': {'type': 'lifetime', 'days': 36500},  # 100 years
+            'Guild 30 Days': {'type': 'guild_30days', 'days': 30},
+            'Guild Lifetime': {'type': 'guild_lifetime', 'days': 36500},
+            'Lite': {'type': 'lite', 'days': 30}
+        }
+        
+        # Determine subscription type
+        subscription_info = None
+        for product_key, info in subscription_mapping.items():
+            if product_key.lower() in product_name.lower():
+                subscription_info = info
+                break
+        
+        if not subscription_info:
+            # Try to determine from price
+            try:
+                price_val = float(price)
+                if price_val <= 5:
+                    subscription_info = subscription_mapping['3 Days']
+                elif price_val <= 10:
+                    subscription_info = subscription_mapping['14 Days']
+                elif price_val <= 20:
+                    subscription_info = subscription_mapping['1 Month']
+                elif price_val <= 50:
+                    subscription_info = subscription_mapping['3 Months']
+                else:
+                    subscription_info = subscription_mapping['Lifetime']
+            except:
+                subscription_info = subscription_mapping['1 Month']  # Default
+        
+        subscription_type = subscription_info['type']
+        days = subscription_info['days']
+        
+        # Calculate expiry
+        expiry_date = datetime.now() + timedelta(days=days)
+        expiry_str = expiry_date.strftime('%d/%m/%Y %H:%M:%S')
+        
+        # Load config to get guild ID
+        with open("config.json", "r") as f:
+            config = json.load(f)
+            guild_id = int(config.get("guild_id", "1412488621293961226"))
+        
+        # Find user in guild by username
+        user_id = None
+        username_display = discord_username
+        
+        if bot_instance:
+            guild = bot_instance.get_guild(guild_id)
+            if guild:
+                # Search for user by username (case-insensitive)
+                for member in guild.members:
+                    if member.name.lower() == discord_username.lower() or member.display_name.lower() == discord_username.lower():
+                        user_id = str(member.id)
+                        username_display = member.display_name
+                        logging.info(f"Found user {username_display} (ID: {user_id}) in guild")
+                        break
+        
+        if not user_id:
+            logging.error(f"Could not find user {discord_username} in guild {guild_id}")
+            return jsonify({'error': f'User {discord_username} not found in Discord server'}), 404
+        
+        # Create license data
+        license_key = f"gumroad-{sale_id}-{user_id}"
+        license_data = {
+            "key": license_key,
+            "expiry": expiry_str,
+            "subscription_type": subscription_type,
+            "is_active": True,
+            "emailtf": "False",
+            "credentialstf": "False",
+            "source": "gumroad",
+            "purchase_email": email,
+            "product_name": product_name,
+            "sale_id": sale_id
+        }
+        
+        # Add receipt count for lite subscription
+        if subscription_type == "lite":
+            license_data["receipt_count"] = 0
+            license_data["max_receipts"] = 7
+        
+        # Save license to MongoDB
+        success = mongo_manager.create_or_update_license(user_id, license_data)
+        
+        if not success:
+            logging.error(f"Failed to create license for user {user_id}")
+            return jsonify({'error': 'Failed to create license'}), 500
+        
+        # Queue notification for bot to send
+        notification_data = {
+            "type": "gumroad_purchase",
+            "user_id": user_id,
+            "username": username_display,
+            "discord_username": discord_username,
+            "subscription_type": subscription_type,
+            "expiry_date": expiry_str,
+            "product_name": product_name,
+            "price": price,
+            "email": email,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        db = mongo_manager.get_database()
+        if db:
+            db.notifications.insert_one(notification_data)
+            logging.info(f"Purchase notification queued for user {user_id}")
+        
+        logging.info(f"Successfully granted {subscription_type} access to user {user_id} via Gumroad")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Access granted to {discord_username}',
+            'user_id': user_id,
+            'subscription_type': subscription_type,
+            'expires': expiry_str
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error processing Gumroad webhook: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Failed to process webhook: {str(e)}'}), 500
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()}), 200
