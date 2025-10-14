@@ -1217,4 +1217,13 @@ def not_found(error):
     }), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Check if we're in production
+    import os
+    is_production = os.environ.get('REPL_SLUG') and os.environ.get('REPL_OWNER')
+    
+    if is_production:
+        # Production mode - no debug, no reloader
+        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    else:
+        # Development mode - debug enabled
+        app.run(host='0.0.0.0', port=5000, debug=True)

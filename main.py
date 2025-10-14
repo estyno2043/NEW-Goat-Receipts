@@ -2156,18 +2156,25 @@ if os.getenv('REPLIT_DEPLOYMENT'):
     thread.daemon = True
     thread.start()
 
-# Start webhook server for invite tracker integration
-def run_webhook_server():
-    try:
-        from webhook_server import app
-        app.run(host='0.0.0.0', port=5000, debug=False)
-    except Exception as e:
-        print(f"Failed to start webhook server: {e}")
+# Webhook server management - only start in development mode
+# In production, run_production.py handles both services to avoid port conflicts
+import os
+if not (os.environ.get('REPL_SLUG') and os.environ.get('REPL_OWNER')):
+    # Development mode - start webhook server here
+    def run_webhook_server():
+        try:
+            from webhook_server import app
+            app.run(host='0.0.0.0', port=5000, debug=False)
+        except Exception as e:
+            print(f"Failed to start webhook server: {e}")
 
-webhook_thread = threading.Thread(target=run_webhook_server)
-webhook_thread.daemon = True
-webhook_thread.start()
-print("Webhook server started on port 5000")
+    webhook_thread = threading.Thread(target=run_webhook_server)
+    webhook_thread.daemon = True
+    webhook_thread.start()
+    print("Webhook server started on port 5000 (development mode)")
+else:
+    # Production mode - webhook server managed by run_production.py
+    print("Running in production mode - webhook server managed by run_production.py")
 
 # Load command modules
 async def load_extensions():
