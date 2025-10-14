@@ -181,24 +181,28 @@ def gumroad_webhook():
         sale_id = data.get('sale_id', '')
         gumroad_license_key = data.get('license_key', '')  # Get Gumroad's license key
         
-        # Get Discord username from custom field (Gumroad sends it with bracket notation)
+        # Get Discord username or ID from custom field (Gumroad sends it with bracket notation)
         # Try multiple variations of the field name
-        discord_username = None
+        discord_identifier = None
         for key in data.keys():
-            # Look for any key containing "discord" and "username" (case-insensitive)
-            if 'discord' in key.lower() and 'username' in key.lower():
-                discord_username = data.get(key, '').strip()
-                if discord_username:
-                    logging.info(f"Found Discord username '{discord_username}' in field '{key}'")
+            # Look for any key containing "discord" (could be username or ID)
+            if 'discord' in key.lower():
+                discord_identifier = data.get(key, '').strip()
+                if discord_identifier:
+                    logging.info(f"Found Discord identifier '{discord_identifier}' in field '{key}'")
                     break
         
         # Fallback to standard field names
-        if not discord_username:
-            discord_username = (
+        if not discord_identifier:
+            discord_identifier = (
                 data.get('custom_fields[Discord Username]', '') or
+                data.get('custom_fields[Discord ID]', '') or
                 data.get('Discord Username', '') or 
-                data.get('discord_username', '') or 
-                data.get('custom_fields', {}).get('Discord Username', '')
+                data.get('Discord ID', '') or
+                data.get('discord_username', '') or
+                data.get('discord_id', '') or 
+                data.get('custom_fields', {}).get('Discord Username', '') or
+                data.get('custom_fields', {}).get('Discord ID', '')
             )
         
         # If custom fields is a string, try to parse it
@@ -206,15 +210,15 @@ def gumroad_webhook():
             try:
                 import json as json_lib
                 custom_fields = json_lib.loads(data.get('custom_fields'))
-                discord_username = discord_username or custom_fields.get('Discord Username', '')
+                discord_identifier = discord_identifier or custom_fields.get('Discord Username', '') or custom_fields.get('Discord ID', '')
             except:
                 pass
         
-        if not discord_username:
-            logging.error(f"No Discord username found in webhook data: {data}")
-            return jsonify({'error': 'Discord username not provided'}), 400
+        if not discord_identifier:
+            logging.error(f"No Discord username or ID found in webhook data: {data}")
+            return jsonify({'error': 'Discord username or ID not provided'}), 400
         
-        logging.info(f"Processing purchase for Discord user: {discord_username}")
+        logging.info(f"Processing purchase for Discord identifier: {discord_identifier}")
         
         # Map product to subscription type and duration
         subscription_mapping = {
@@ -265,34 +269,49 @@ def gumroad_webhook():
             config = json.load(f)
             guild_id = int(config.get("guild_id", "1412488621293961226"))
         
-        # Find user in guild by username
+        # Find user in guild by ID or username
         user_id = None
-        username_display = discord_username
+        username_display = discord_identifier
+        
+        # Check if the identifier is a Discord ID (all digits)
+        is_discord_id = discord_identifier.isdigit()
         
         if bot_instance:
             guild = bot_instance.get_guild(guild_id)
             if guild:
-                logging.info(f"Searching for user '{discord_username}' in guild with {len(guild.members)} members")
-                
-                # Search for user by username (case-insensitive)
-                # Check: member.name (username), member.display_name (server nickname), member.global_name (display name)
-                for member in guild.members:
-                    # Get all possible name variations
-                    member_username = member.name.lower() if member.name else ""
-                    member_display = member.display_name.lower() if member.display_name else ""
-                    member_global = member.global_name.lower() if hasattr(member, 'global_name') and member.global_name else ""
-                    search_name = discord_username.lower()
-                    
-                    if (member_username == search_name or 
-                        member_display == search_name or 
-                        member_global == search_name):
+                if is_discord_id:
+                    # Direct ID lookup - much faster and more reliable!
+                    logging.info(f"Looking up user by Discord ID: {discord_identifier}")
+                    member = guild.get_member(int(discord_identifier))
+                    if member:
                         user_id = str(member.id)
                         username_display = member.display_name
-                        logging.info(f"Found user {username_display} (ID: {user_id}, username: {member.name}) in guild")
-                        break
+                        logging.info(f"Found user {username_display} (ID: {user_id}) by direct ID lookup")
+                    else:
+                        logging.warning(f"User ID {discord_identifier} not found in guild")
+                else:
+                    # Username search (slower, less reliable)
+                    logging.info(f"Searching for user '{discord_identifier}' by username in guild with {len(guild.members)} members")
+                    
+                    # Search for user by username (case-insensitive)
+                    # Check: member.name (username), member.display_name (server nickname), member.global_name (display name)
+                    for member in guild.members:
+                        # Get all possible name variations
+                        member_username = member.name.lower() if member.name else ""
+                        member_display = member.display_name.lower() if member.display_name else ""
+                        member_global = member.global_name.lower() if hasattr(member, 'global_name') and member.global_name else ""
+                        search_name = discord_identifier.lower()
+                        
+                        if (member_username == search_name or 
+                            member_display == search_name or 
+                            member_global == search_name):
+                            user_id = str(member.id)
+                            username_display = member.display_name
+                            logging.info(f"Found user {username_display} (ID: {user_id}, username: {member.name}) in guild")
+                            break
         
         if not user_id:
-            logging.error(f"Could not find user {discord_username} in guild {guild_id}")
+            logging.error(f"Could not find user {discord_identifier} in guild {guild_id}")
             
             # Queue a notification for user not found
             try:
@@ -300,7 +319,7 @@ def gumroad_webhook():
                 
                 notification_data = {
                     "type": "gumroad_user_not_found",
-                    "discord_username": discord_username,
+                    "discord_username": discord_identifier,
                     "email": email,
                     "subscription_type": subscription_type,
                     "product_name": product_name,
@@ -312,11 +331,11 @@ def gumroad_webhook():
                 }
                 
                 result = db.gumroad_notifications.insert_one(notification_data)
-                logging.info(f"Queued user-not-found notification for {discord_username}")
+                logging.info(f"Queued user-not-found notification for {discord_identifier}")
             except Exception as e:
                 logging.error(f"Error queuing user-not-found notification: {e}")
             
-            return jsonify({'error': f'User {discord_username} not found in Discord server'}), 404
+            return jsonify({'error': f'User {discord_identifier} not found in Discord server'}), 404
         
         # Check if this is a roles-only product (Editor Add-on)
         is_roles_only = subscription_info.get('roles_only', False)
@@ -332,7 +351,7 @@ def gumroad_webhook():
                 "type": "gumroad_editor_addon",
                 "user_id": user_id,
                 "username": username_display,
-                "discord_username": discord_username,
+                "discord_username": discord_identifier,
                 "subscription_type": subscription_type,
                 "product_name": product_name,
                 "price": price,
@@ -349,7 +368,7 @@ def gumroad_webhook():
             
             return jsonify({
                 'success': True,
-                'message': f'Editor Add-on roles will be assigned to {discord_username}',
+                'message': f'Editor Add-on roles will be assigned to {discord_identifier}',
                 'user_id': user_id,
                 'subscription_type': subscription_type,
                 'roles_to_assign': editor_roles
@@ -462,7 +481,7 @@ def gumroad_webhook():
             "type": "gumroad_purchase",
             "user_id": user_id,
             "username": username_display,
-            "discord_username": discord_username,
+            "discord_username": discord_identifier,
             "subscription_type": subscription_type,
             "expiry_date": expiry_str,
             "product_name": product_name,
@@ -480,7 +499,7 @@ def gumroad_webhook():
         
         return jsonify({
             'success': True,
-            'message': f'Access granted to {discord_username}',
+            'message': f'Access granted to {discord_identifier}',
             'user_id': user_id,
             'subscription_type': subscription_type,
             'expires': expiry_str

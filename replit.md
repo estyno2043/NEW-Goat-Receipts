@@ -41,11 +41,14 @@ Preferred communication style: Simple, everyday language.
 - **Webhook Server**: Flask-based webhook server for external API integrations
 - **Proxy Services**: Integration with Zyte proxy service for web scraping
 - **Gumroad Integration**: Fully automated purchase system with webhook support
-  - Automatic user lookup by Discord username from custom fields
+  - **Flexible User Identification**: Supports both Discord ID (recommended) and username lookup
+    - Discord ID: Direct, instant, 100% reliable lookup (all numeric)
+    - Username: Searches by member.name, display_name, and global_name (case-insensitive)
   - Seamless access granting based on product purchase
   - Automatic notifications to purchases channel and user DMs
   - Role assignment (Customer, Client, Subscription roles)
   - Product-to-subscription mapping for different tiers
+  - **24/7 Availability**: Configured for VM deployment to run continuously even when Replit IDE is closed
   - **Editor Add-on Product**: Special roles-only product (goatreceipts.gumroad.com/l/rfbztg)
     - Assigns two specific roles: 1412498223842721903 and 1427636166126993418
     - No license/expiry tracking - purely for role management

@@ -2012,5 +2012,17 @@
     "expiry_date": "12/01/2026 11:05:18",
     "source": "gumroad",
     "sale_id": "QqWirlVW9wTzbC9OvgC4-g=="
+  },
+  "IDTEST9999-TEST1111-ABCD2222-EFGH3333": {
+    "subscription_type": "lite",
+    "expiry_date": "13/11/2025 16:19:22",
+    "source": "gumroad",
+    "sale_id": "id_test_999"
+  },
+  "IDSUCCESS-TEST1111-ABCD2222-EFGH3333": {
+    "subscription_type": "lite",
+    "expiry_date": "13/11/2025 16:20:39",
+    "source": "gumroad",
+    "sale_id": "id_success_123"
   }
 }
