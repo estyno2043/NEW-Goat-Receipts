@@ -69,6 +69,12 @@ Preferred communication style: Simple, everyday language.
       - Product name and price
       - Purchase timestamp
     - Enables manual verification and access granting by administrators
+  - **Improved Member Lookup**: Enhanced Discord member detection system (Oct 2025)
+    - Primary: Checks Discord member cache using guild.get_member() for fast lookups
+    - Fallback: Fetches directly from Discord API using guild.fetch_member() for reliability
+    - Handles async operations properly within Flask webhook sync context
+    - 10-second timeout for API fetches to prevent hanging requests
+    - Graceful error handling for NotFound and timeout exceptions
 
 ## Architecture Patterns
 - **Modular Design**: Separate modules for different brands, commands, and utilities

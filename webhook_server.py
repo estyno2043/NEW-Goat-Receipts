@@ -303,15 +303,49 @@ def gumroad_webhook():
             guild = bot_instance.get_guild(guild_id)
             if guild:
                 if is_discord_id:
-                    # Direct ID lookup - much faster and more reliable!
+                    # Direct ID lookup - fetch from Discord API for reliability
                     logging.info(f"Looking up user by Discord ID: {discord_identifier}")
-                    member = guild.get_member(int(discord_identifier))
-                    if member:
-                        user_id = str(member.id)
-                        username_display = member.display_name
-                        logging.info(f"Found user {username_display} (ID: {user_id}) by direct ID lookup")
-                    else:
-                        logging.warning(f"User ID {discord_identifier} not found in guild")
+                    try:
+                        # Try cache first (fast)
+                        member = guild.get_member(int(discord_identifier))
+                        
+                        # If not in cache, fetch from Discord (slower but reliable)
+                        if not member:
+                            logging.info(f"Member not in cache, fetching from Discord API...")
+                            # Use asyncio to run the async fetch in this sync context
+                            import asyncio
+                            
+                            # Get the bot's event loop if running, otherwise create temp loop
+                            try:
+                                loop = asyncio.get_event_loop()
+                                if loop.is_running():
+                                    # Bot loop is running, schedule the coroutine
+                                    future = asyncio.run_coroutine_threadsafe(
+                                        guild.fetch_member(int(discord_identifier)), 
+                                        loop
+                                    )
+                                    member = future.result(timeout=10)  # 10 second timeout
+                                else:
+                                    # No running loop, run directly
+                                    member = loop.run_until_complete(guild.fetch_member(int(discord_identifier)))
+                            except RuntimeError:
+                                # No event loop, create temporary one
+                                loop = asyncio.new_event_loop()
+                                try:
+                                    member = loop.run_until_complete(guild.fetch_member(int(discord_identifier)))
+                                finally:
+                                    loop.close()
+                        
+                        if member:
+                            user_id = str(member.id)
+                            username_display = member.display_name
+                            logging.info(f"Found user {username_display} (ID: {user_id}) by direct ID lookup")
+                        else:
+                            logging.warning(f"User ID {discord_identifier} not found in guild {guild_id}")
+                    except discord.NotFound:
+                        logging.warning(f"User ID {discord_identifier} is not a member of guild {guild_id}")
+                    except Exception as e:
+                        logging.error(f"Error fetching member {discord_identifier}: {e}")
                 else:
                     # Username search (slower, less reliable)
                     logging.info(f"Searching for user '{discord_identifier}' by username in guild with {len(guild.members)} members")
