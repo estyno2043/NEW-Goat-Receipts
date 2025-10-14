@@ -161,6 +161,9 @@ def grant_access():
 def gumroad_webhook():
     """Handle Gumroad purchase webhooks for automatic access granting"""
     try:
+        # Import mongo_manager at function start so it's available everywhere
+        from utils.mongodb_manager import mongo_manager
+        
         # Get the raw data
         data = request.form.to_dict() if request.form else request.get_json()
         
@@ -268,12 +271,23 @@ def gumroad_webhook():
         if bot_instance:
             guild = bot_instance.get_guild(guild_id)
             if guild:
+                logging.info(f"Searching for user '{discord_username}' in guild with {len(guild.members)} members")
+                
                 # Search for user by username (case-insensitive)
+                # Check: member.name (username), member.display_name (server nickname), member.global_name (display name)
                 for member in guild.members:
-                    if member.name.lower() == discord_username.lower() or member.display_name.lower() == discord_username.lower():
+                    # Get all possible name variations
+                    member_username = member.name.lower() if member.name else ""
+                    member_display = member.display_name.lower() if member.display_name else ""
+                    member_global = member.global_name.lower() if hasattr(member, 'global_name') and member.global_name else ""
+                    search_name = discord_username.lower()
+                    
+                    if (member_username == search_name or 
+                        member_display == search_name or 
+                        member_global == search_name):
                         user_id = str(member.id)
                         username_display = member.display_name
-                        logging.info(f"Found user {username_display} (ID: {user_id}) in guild")
+                        logging.info(f"Found user {username_display} (ID: {user_id}, username: {member.name}) in guild")
                         break
         
         if not user_id:
@@ -281,7 +295,6 @@ def gumroad_webhook():
             
             # Queue a notification for user not found
             try:
-                from utils.mongodb_manager import mongo_manager
                 db = mongo_manager.get_database()
                 
                 notification_data = {
@@ -421,7 +434,7 @@ def gumroad_webhook():
         }
         
         db = mongo_manager.get_database()
-        if db:
+        if db is not None:
             db.notifications.insert_one(notification_data)
             logging.info(f"Purchase notification queued for user {user_id}")
         

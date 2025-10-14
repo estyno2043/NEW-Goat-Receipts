@@ -19,11 +19,10 @@ load_dotenv()
 
 # Bot configuration
 intents = discord.Intents.default()
-# Try using privileged intents if enabled in the developer portal
-try:
-    intents.message_content = True
-except:
-    print("Warning: Message content intent not available. Some features may not work.")
+# Enable privileged intents (must be enabled in Discord Developer Portal)
+intents.message_content = True
+intents.members = True  # Required to see all guild members
+intents.presences = True  # Optional: for member status
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Initialize receipt processing utilities
