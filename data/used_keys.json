@@ -184,5 +184,13 @@
         "redeemed": true,
         "product_name": "Lite Subscription ",
         "gumroad_verified": true
+    },
+    "33E09EF7-D59248B8-8E3EE803-C2B308A8": {
+        "subscription_type": "3month",
+        "redeemed_by": "1412486645953069076",
+        "redeemed_at": "2025-10-14 11:05:20",
+        "redeemed": true,
+        "product_name": "Goat 3 Months Subscription",
+        "gumroad_verified": true
     }
 }

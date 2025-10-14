@@ -2006,5 +2006,11 @@
     "expiry_date": "13/11/2025 10:57:06",
     "source": "gumroad",
     "sale_id": "final_999"
+  },
+  "33E09EF7-D59248B8-8E3EE803-C2B308A8": {
+    "subscription_type": "3month",
+    "expiry_date": "12/01/2026 11:05:18",
+    "source": "gumroad",
+    "sale_id": "QqWirlVW9wTzbC9OvgC4-g=="
   }
 }
