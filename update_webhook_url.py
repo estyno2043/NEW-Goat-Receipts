@@ -104,16 +104,21 @@ if __name__ == "__main__":
     if not webhook_url:
         sys.exit(1)
     
-    # Get access token
-    print("\nTo update your webhook, you need your Gumroad access token.")
-    print("Get it from: https://app.gumroad.com/settings/advanced#application-form")
-    print()
-    
-    access_token = input("Enter your Gumroad access token: ").strip()
+    # Get access token from environment or prompt
+    access_token = os.environ.get('GUMROAD_ACCESS_TOKEN', '').strip()
     
     if not access_token:
-        print("❌ Access token is required!")
-        sys.exit(1)
+        print("\nTo update your webhook, you need your Gumroad access token.")
+        print("Get it from: https://app.gumroad.com/settings/advanced#application-form")
+        print()
+        
+        access_token = input("Enter your Gumroad access token: ").strip()
+        
+        if not access_token:
+            print("❌ Access token is required!")
+            sys.exit(1)
+    else:
+        print("\n✅ Using access token from environment variable")
     
     # Update the webhook
     success = update_webhook(access_token, webhook_url)
