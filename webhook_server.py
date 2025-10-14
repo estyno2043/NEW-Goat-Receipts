@@ -177,15 +177,20 @@ def gumroad_webhook():
         email = data.get('email', '')
         sale_id = data.get('sale_id', '')
         
-        # Get Discord username from custom field
-        discord_username = data.get('Discord Username', '') or data.get('discord_username', '') or data.get('custom_fields', {}).get('Discord Username', '')
+        # Get Discord username from custom field (Gumroad sends it with bracket notation)
+        discord_username = (
+            data.get('custom_fields[Discord Username]', '') or  # Gumroad format
+            data.get('Discord Username', '') or 
+            data.get('discord_username', '') or 
+            data.get('custom_fields', {}).get('Discord Username', '')
+        )
         
         # If custom fields is a string, try to parse it
         if isinstance(data.get('custom_fields'), str):
             try:
                 import json as json_lib
                 custom_fields = json_lib.loads(data.get('custom_fields'))
-                discord_username = custom_fields.get('Discord Username', '')
+                discord_username = discord_username or custom_fields.get('Discord Username', '')
             except:
                 pass
         
