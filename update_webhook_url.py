@@ -11,26 +11,10 @@ import os
 def get_webhook_url():
     """Get the appropriate webhook URL based on environment"""
     
-    # Check if we're in production (deployed)
-    repl_slug = os.environ.get('REPL_SLUG', '')
-    repl_owner = os.environ.get('REPL_OWNER', '')
-    
-    if repl_slug and repl_owner:
-        # Production URL format: https://<slug>-<owner>.replit.app
-        prod_url = f"https://{repl_slug}-{repl_owner.lower()}.replit.app/webhook/gumroad"
-        print(f"Using production URL: {prod_url}")
-        return prod_url
-    else:
-        # Development URL (get from environment)
-        dev_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
-        if dev_url:
-            webhook_url = f"https://{dev_url}/webhook/gumroad"
-            print(f"Using development URL: {webhook_url}")
-            return webhook_url
-        else:
-            print("ERROR: Could not determine webhook URL")
-            print("Please set REPLIT_DEV_DOMAIN environment variable or run in production")
-            return None
+    # Use the deployed production URL
+    prod_url = "https://new-goat-receipts-kuboestok.replit.app/webhook/gumroad"
+    print(f"Using deployed production URL: {prod_url}")
+    return prod_url
 
 def update_webhook(access_token, webhook_url):
     """Update Gumroad webhook URL"""
@@ -125,7 +109,7 @@ if __name__ == "__main__":
     
     if success:
         print("\n✅ Webhook URL updated successfully!")
-        print("The webhook will now work with your deployed app.")
+        print("The webhook will now work with your deployed app 24/7.")
     else:
         print("\n❌ Failed to update webhook URL")
         sys.exit(1)
