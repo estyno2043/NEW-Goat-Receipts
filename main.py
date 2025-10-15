@@ -2258,6 +2258,20 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
+        
+        # Log all file upload command IDs
+        if hasattr(bot, '_file_upload_commands'):
+            print("\n" + "="*80)
+            print("FILE UPLOAD COMMAND IDs")
+            print("="*80)
+            for i, (brand, display_name, cmd) in enumerate(bot._file_upload_commands, 1):
+                # Find the synced command to get its ID
+                synced_cmd = discord.utils.get(synced, name=brand)
+                if synced_cmd:
+                    print(f"{i:2d}. /{brand:<20} - {display_name:<25} - ID: {synced_cmd.id}")
+                else:
+                    print(f"{i:2d}. /{brand:<20} - {display_name:<25} - ID: Not found")
+            print("="*80 + "\n")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
 

@@ -406,6 +406,11 @@ def register_file_upload_commands(bot):
         
         # Register the command
         bot.tree.add_command(cmd)
+        
+        # Store command for ID logging after sync
+        if not hasattr(bot, '_file_upload_commands'):
+            bot._file_upload_commands = []
+        bot._file_upload_commands.append((brand, display_name, cmd))
     
     print(f"✅ Registered {len(brands)} file upload commands")
     return len(brands)
