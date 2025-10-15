@@ -67,16 +67,63 @@ class UniversalFileUploadModal(ui.Modal):
             
             name, street, city, zipp, country, email = user_details
             
-            # Get the uploaded image URL
-            image_url = get_uploaded_image(user_id, self.brand)
+            # Get the uploaded image path
+            image_path = get_uploaded_image(user_id, self.brand)
             
-            if not image_url:
+            if not image_path:
                 embed = discord.Embed(
                     title="Error",
-                    description="Image upload not found. Please try the command again.",
+                    description="Image upload not found or expired. Please upload again.",
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            
+            # Re-upload the local file to Discord for a persistent URL
+            # This ensures the email can display the image properly
+            import discord as discord_module
+            import os
+            
+            try:
+                # Get a channel to upload to (using interaction's guild or DM the bot owner)
+                storage_channel = None
+                
+                if interaction.guild:
+                    # Try to find a suitable channel in the guild
+                    for channel in interaction.guild.text_channels:
+                        if channel.permissions_for(interaction.guild.me).send_messages:
+                            storage_channel = channel
+                            break
+                
+                if not storage_channel:
+                    # Fallback: use the interaction channel
+                    storage_channel = interaction.channel
+                
+                if storage_channel:
+                    # Re-upload the file to Discord for permanent URL
+                    file = discord_module.File(image_path, filename=os.path.basename(image_path))
+                    storage_message = await storage_channel.send(
+                        content=f"📸 Receipt image for {interaction.user.mention}",
+                        file=file
+                    )
+                    
+                    if storage_message.attachments:
+                        image_url = storage_message.attachments[0].url
+                        print(f"✅ Uploaded image to Discord: {image_url}")
+                    else:
+                        raise Exception("Failed to get Discord URL after upload")
+                else:
+                    raise Exception("No suitable channel found for image upload")
+                
+            except Exception as e:
+                print(f"Error re-uploading image to Discord: {e}")
+                embed = discord.Embed(
+                    title="Error",
+                    description=f"Failed to prepare the image for email: {str(e)}",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                clear_uploaded_image(user_id, self.brand)
                 return
             
             # Send processing message

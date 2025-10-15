@@ -2803,9 +2803,28 @@ async def menu_command(interaction: discord.Interaction):
 
 # Register file upload commands for all brands
 try:
-    from commands.file_upload_commands import register_file_upload_commands
+    from commands.file_upload_commands import register_file_upload_commands, cleanup_expired_uploads
     command_count = register_file_upload_commands(bot)
     print(f"✅ Registered {command_count} file upload commands for brands")
+    
+    # Schedule periodic cleanup of expired uploads (every 30 minutes)
+    from discord.ext import tasks
+    
+    @tasks.loop(minutes=30)
+    async def cleanup_uploads_task():
+        """Periodic cleanup of expired image uploads"""
+        cleanup_expired_uploads()
+    
+    # Start the cleanup task when bot is ready
+    @bot.event
+    async def on_cleanup_ready():
+        if not cleanup_uploads_task.is_running():
+            cleanup_uploads_task.start()
+    
+    # Trigger on bot ready
+    bot.loop.create_task(on_cleanup_ready())
+    print("✅ Scheduled periodic cleanup of expired uploads")
+    
 except Exception as e:
     print(f"⚠️  Warning: Could not register file upload commands: {e}")
 
