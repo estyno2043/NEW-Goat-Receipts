@@ -158,7 +158,7 @@ def register_file_upload_commands(bot):
         display_name = brand_display_names.get(brand, brand.title())
         
         # Create command function with brand captured in closure
-        async def brand_command(interaction: discord.Interaction, product_image: discord.Attachment, brand_name=brand, display=display_name):
+        async def brand_command(interaction: discord.Interaction, product_image: discord.Attachment, brand_name: str = brand, display: str = display_name):
             """File upload command for a specific brand"""
             user_id = str(interaction.user.id)
             
