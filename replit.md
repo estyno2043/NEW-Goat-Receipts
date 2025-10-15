@@ -4,6 +4,17 @@ This is a Discord bot application that generates and sends fake receipts via ema
 
 The application serves as a receipt generator service where users can input product details, customize receipt templates, and receive professionally formatted receipts via email. It supports multiple brands including Apple, Amazon, Nike, Walmart, and many luxury brands.
 
+## Recent Updates (October 2025)
+
+### File Upload Feature
+- **80 Brand-Specific File Upload Commands**: Users can now upload product images directly via Discord slash commands (e.g., `/nike`, `/adidas`, `/apple`)
+- **Simplified User Experience**: Eliminated the need for manual image URL input in modals
+- **Local File Persistence**: Images are saved to `attached_assets/uploaded_images/` with unique filenames
+- **Automatic Cleanup**: Background task runs every 30 minutes to remove expired uploads (15-minute expiration)
+- **Guild-Agnostic Design**: Works in any Discord server where the bot is present
+- **Image Re-upload for Email**: Uploaded files are re-uploaded to Discord for persistent URLs used in email receipts
+- **Error Handling**: Users receive clear error messages if image upload or persistence fails
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
