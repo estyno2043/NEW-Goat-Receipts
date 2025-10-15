@@ -153,6 +153,16 @@ def register_file_upload_commands(bot):
         "zendesk": "Zendesk"
     }
     
+    # Module name mapping for brands with different file names
+    module_name_mapping = {
+        "chrono": "chrono24",
+        "corteiz": "crtz",
+        "tnf": "tnf",
+        "lv": "lv",
+        "houseoffrasers": "houseoffrasers",
+        "vw": "vw"
+    }
+    
     # Create a command for each brand
     for brand in brands:
         display_name = brand_display_names.get(brand, brand.title())
@@ -171,9 +181,6 @@ def register_file_upload_commands(bot):
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-            
-            # Defer response as download/re-upload might take time
-            await interaction.response.defer(ephemeral=False)
             
             try:
                 # Download the image to persist it locally (Discord attachment URLs expire)
@@ -212,64 +219,35 @@ def register_file_upload_commands(bot):
                 import traceback
                 traceback.print_exc()
                 
-                # DON'T fallback to expiring URL - notify user of failure
                 embed = discord.Embed(
                     title="Upload Failed",
                     description=f"Failed to save your image: {str(upload_error)}\n\nPlease try again or use the /generate command with an image link.",
                     color=discord.Color.red()
                 )
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 clear_uploaded_image(user_id, brand_name)
                 return
             
-            # Import the modal for this brand
+            # Import the modal for this brand and show it directly
             try:
-                # Dynamic import of the modal based on brand name
-                if brand_name == "chrono":
-                    modal_module_name = "chrono24"
-                elif brand_name == "corteiz":
-                    modal_module_name = "crtz"
-                elif brand_name == "futbolemotion":
-                    modal_module_name = "futbolemotion"
-                else:
-                    modal_module_name = brand_name
+                # Map brand name to module name
+                modal_module_name = module_name_mapping.get(brand_name, brand_name)
                 
-                # Import the file upload modal
-                from modals.file_upload import get_file_upload_modal
-                modal_class = get_file_upload_modal(brand_name)
+                # Import the existing brand modal (not the file upload modal)
+                module = __import__(f"modals.{modal_module_name}", fromlist=[""])
+                
+                # Get the modal class - try common naming patterns
+                modal_class = None
+                for attr_name in dir(module):
+                    if attr_name.lower().endswith("modal") and not attr_name.startswith("_"):
+                        attr = getattr(module, attr_name)
+                        if isinstance(attr, type) and issubclass(attr, discord.ui.Modal):
+                            modal_class = attr
+                            break
                 
                 if modal_class:
-                    # Show success message and send modal
-                    embed = discord.Embed(
-                        title="✅ Image Uploaded",
-                        description=f"Product image uploaded successfully for {display}.\nPlease fill out the form below to generate your receipt.",
-                        color=discord.Color.green()
-                    )
-                    await interaction.followup.send(embed=embed, ephemeral=True)
-                    
-                    # Show the modal (without image URL field)
-                    # Note: We need to use interaction.response since modals require it
-                    # Since we already deferred, we'll need to handle this differently
-                    # Actually, after defer we can't send a modal. Let me use a button instead.
-                    
-                    # Create a button to trigger the modal
-                    from discord import ui as discord_ui
-                    
-                    class OpenModalButton(discord_ui.View):
-                        def __init__(self):
-                            super().__init__(timeout=900)  # 15 minute timeout
-                        
-                        @discord_ui.button(label=f"Fill {display} Receipt Form", style=discord.ButtonStyle.primary)
-                        async def open_modal(self, button_interaction: discord.Interaction, button: discord_ui.Button):
-                            # Show the modal when button is clicked
-                            await button_interaction.response.send_modal(modal_class())
-                    
-                    view = OpenModalButton()
-                    await interaction.followup.send(
-                        content=f"Click the button below to fill out the {display} receipt details:",
-                        view=view,
-                        ephemeral=False
-                    )
+                    # Directly show the modal to the user (no image display, no message)
+                    await interaction.response.send_modal(modal_class())
                 else:
                     # Fallback: show error if modal not found
                     embed = discord.Embed(
@@ -277,17 +255,20 @@ def register_file_upload_commands(bot):
                         description=f"The modal for {display} is not available yet. Please use the regular /generate command.",
                         color=discord.Color.red()
                     )
-                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
                     clear_uploaded_image(user_id, brand_name)
                     
             except Exception as e:
                 print(f"Error loading modal for {brand_name}: {e}")
+                import traceback
+                traceback.print_exc()
                 embed = discord.Embed(
                     title="Error",
                     description=f"An error occurred loading the {display} form. Please try again or use the /generate command.",
                     color=discord.Color.red()
                 )
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+                clear_uploaded_image(user_id, brand_name)
         
         # Set command name and description
         brand_command.__name__ = f"{brand}_upload"
