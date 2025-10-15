@@ -36,10 +36,6 @@ author = "agent"
 task = "workflow.run"
 args = "Discord Bot"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
 [[workflows.workflow]]
 name = "Discord Bot"
 author = "agent"
@@ -52,21 +48,13 @@ task = "shell.exec"
 args = "python run_production.py"
 waitForPort = 5000
 
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload webhook_server:app"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 43295
+externalPort = 3000
 
 [agent]
 expertMode = true
