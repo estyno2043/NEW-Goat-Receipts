@@ -12,7 +12,15 @@ The application serves as a receipt generator service where users can input prod
 - **Local File Persistence**: Images are saved to `attached_assets/uploaded_images/` with unique filenames
 - **Automatic Cleanup**: Background task runs every 30 minutes to remove expired uploads (15-minute expiration)
 - **Guild-Agnostic Design**: Works in any Discord server where the bot is present
-- **Image Re-upload for Email**: Uploaded files are re-uploaded to Discord for persistent URLs used in email receipts
+- **Private Image Storage**: Uploaded files are re-uploaded to a private bot-only "receipt-image-storage" channel for persistent URLs
+  - Channel is created automatically with permission overwrites (users cannot view)
+  - Fallback to bot owner DM if channel creation fails
+  - Images NEVER displayed in public channels
+  - Discord CDN URLs remain valid from private storage
+- **Existing Modal Integration**: Upload commands directly invoke existing brand-specific modals (e.g., applemodal)
+  - Preserves original sender names, subjects, and placeholder replacement logic
+  - Image URL field becomes optional when image is uploaded
+  - Auto-detects and uses uploaded images without user intervention
 - **Error Handling**: Users receive clear error messages if image upload or persistence fails
 
 # User Preferences
