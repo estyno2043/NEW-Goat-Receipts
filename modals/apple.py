@@ -103,7 +103,7 @@ class applemodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 class applemodal2(ui.Modal, title="Apple Receipt"):
     Pname = discord.ui.TextInput(label="Product Name", placeholder="Apple Macbook Pro", required=True)
-    imgurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="https://cdn.discordapp.com/attachments/10869879156.....", required=True)
+    imgurl = discord.ui.TextInput(label="Image URL (Discord Image)", placeholder="Leave empty if uploaded via /apple command", required=False)
     Shipping = discord.ui.TextInput(label="Shipping without currency", placeholder="13.96", required=True)
     # Street = discord.ui.TextInput(label="Street", placeholder="Musterstraße 12", required=True)
     # Citywzip = discord.ui.TextInput(label="City with Zip", placeholder="Berlin 10115", required=True)
@@ -155,6 +155,41 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
 
             product_name = self.Pname.value
             image_url = self.imgurl.value
+            
+            # Check if image URL is empty and try to get uploaded image
+            if not image_url or image_url.strip() == "":
+                from commands.file_upload_commands import get_uploaded_image, clear_uploaded_image
+                
+                # Try to get uploaded image
+                local_image_path = get_uploaded_image(str(owner_id), "apple")
+                
+                if local_image_path:
+                    # Re-upload to Discord for permanent URL
+                    try:
+                        file_obj = discord.File(local_image_path, filename=os.path.basename(local_image_path))
+                        storage_channel = interaction.channel
+                        
+                        storage_message = await storage_channel.send(
+                            content=f"📸 Receipt image for {interaction.user.mention}",
+                            file=file_obj
+                        )
+                        
+                        if storage_message.attachments:
+                            image_url = storage_message.attachments[0].url
+                            print(f"✅ Using uploaded image: {image_url}")
+                            # Clear the uploaded image after using it
+                            clear_uploaded_image(str(owner_id), "apple")
+                        else:
+                            raise Exception("Failed to get Discord URL")
+                    except Exception as e:
+                        print(f"Error re-uploading image: {e}")
+                        embed = discord.Embed(title="Error", description="Failed to process the uploaded image. Please provide an image URL.")
+                        await interaction.edit_original_response(embed=embed)
+                        return
+                else:
+                    embed = discord.Embed(title="Error", description="No image URL provided and no uploaded image found. Please provide an image URL.")
+                    await interaction.edit_original_response(embed=embed)
+                    return
 
             print()
             print(f"[{Colors.green}START Scraping{lg}] APPLE -> {interaction.user.id} ({interaction.user})" + lg)

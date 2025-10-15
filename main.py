@@ -1018,6 +1018,43 @@ class BrandSelectDropdown(ui.Select):
             await interaction.response.send_message(f"The brand `{brand}` is currently unavailable.", ephemeral=True)
             return
 
+        # Guide user to use the direct /{brand} command for file upload
+        # Map brand display names to command names
+        command_mapping = {
+            "apple": "apple",
+            "nike": "nike",
+            "adidas": "adidas",
+            "amazon": "amazon",
+            "amazon uk": "amazonuk",
+            "louis vuitton": "lv",
+            "the north face": "tnf",
+            "supreme": "supreme",
+            "stockx": "stockx",
+            "goat": "goat",
+            "gucci": "gucci",
+            "balenciaga": "balenciaga",
+            "dior": "dior",
+            "prada": "prada",
+            "chanel": "chanel",
+            "burberry": "burberry",
+            "moncler": "moncler",
+            "arcteryx": "arcteryx",
+            "arc'teryx": "arcteryx"
+        }
+        
+        command_name = command_mapping.get(brand.lower(), brand.lower().replace(" ", "").replace("'", ""))
+        
+        # Show message guiding user to use the direct command
+        embed = discord.Embed(
+            title="✅ Store Selected",
+            description=f"You've selected **{brand}**{' - DONT SEND TO iCloud EMAIL!' if brand.lower() == 'apple' else ''} for receipt generation.\n\n"
+                       f"🖊️ Click here to start: </{command_name}:0>\n\n"
+                       f"*Upload your product image using the command above.*",
+            color=discord.Color.green()
+        )
+        await interaction.response.edit_message(embed=embed, view=None)
+        return
+
         # Process brand selection and show appropriate modal
         try:
             # Module name mapping for brands with special file names
