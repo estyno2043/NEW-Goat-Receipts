@@ -164,19 +164,59 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
                 local_image_path = get_uploaded_image(str(owner_id), "apple")
                 
                 if local_image_path:
-                    # Re-upload to Discord for permanent URL
+                    # Re-upload to Discord for permanent URL using a private method
                     try:
                         file_obj = discord.File(local_image_path, filename=os.path.basename(local_image_path))
-                        storage_channel = interaction.channel
                         
-                        storage_message = await storage_channel.send(
-                            content=f"📸 Receipt image for {interaction.user.mention}",
-                            file=file_obj
-                        )
+                        # Find or create a private storage channel (bot-only access)
+                        guild = interaction.guild
+                        storage_channel = None
+                        
+                        if guild:
+                            # Look for existing "receipt-image-storage" channel
+                            for channel in guild.text_channels:
+                                if channel.name == "receipt-image-storage":
+                                    storage_channel = channel
+                                    break
+                            
+                            # If not found, create a private storage channel
+                            if not storage_channel:
+                                try:
+                                    # Create a private channel with bot-only access
+                                    overwrites = {
+                                        guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                                        guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True)
+                                    }
+                                    storage_channel = await guild.create_text_channel(
+                                        "receipt-image-storage",
+                                        overwrites=overwrites,
+                                        topic="Private storage for receipt images - bot use only"
+                                    )
+                                    print(f"✅ Created private storage channel: {storage_channel.name}")
+                                except Exception as create_error:
+                                    print(f"Failed to create storage channel: {create_error}")
+                                    # Fallback to DM with bot owner
+                                    storage_channel = None
+                        
+                        # If no storage channel, send to bot owner DM as fallback
+                        if not storage_channel:
+                            bot_owner_id = 1412486645953069076  # From config
+                            bot_owner = await interaction.client.fetch_user(bot_owner_id)
+                            storage_message = await bot_owner.send(
+                                content=f"Receipt image upload for user {interaction.user.mention}",
+                                file=file_obj
+                            )
+                        else:
+                            # Send to private storage channel
+                            storage_message = await storage_channel.send(
+                                content=f"Receipt image for user {interaction.user.id}",
+                                file=file_obj
+                            )
                         
                         if storage_message.attachments:
                             image_url = storage_message.attachments[0].url
-                            print(f"✅ Using uploaded image: {image_url}")
+                            print(f"✅ Using uploaded image from private storage: {image_url}")
+                            
                             # Clear the uploaded image after using it
                             clear_uploaded_image(str(owner_id), "apple")
                         else:
