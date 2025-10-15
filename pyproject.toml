@@ -7,9 +7,13 @@ requires-python = ">=3.11"
 dependencies = [
     "bs4>=0.0.2",
     "discord-py",
+    "flask-sqlalchemy>=3.1.1",
     "flask>=3.1.1",
     "pymongo>=4.13.0",
     "pystyle>=2.9",
     "python-dotenv",
     "requests>=2.32.3",
+    "psycopg2-binary>=2.9.11",
+    "email-validator>=2.3.0",
+    "gunicorn>=23.0.0",
 ]
