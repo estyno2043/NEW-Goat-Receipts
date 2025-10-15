@@ -171,6 +171,127 @@ def register_file_upload_commands(bot):
         async def brand_command(interaction: discord.Interaction, product_image: discord.Attachment, brand_name: str = brand, display: str = display_name):
             """File upload command for a specific brand"""
             user_id = str(interaction.user.id)
+            guild_id = str(interaction.guild.id if interaction.guild else "0")
+            
+            # Check subscription/license before allowing access
+            try:
+                from utils.mongodb_manager import mongo_manager
+                from utils.license_manager import LicenseManager
+                import json
+                
+                # Load config to get main guild ID
+                try:
+                    with open("config.json", "r") as f:
+                        config = json.load(f)
+                        main_guild_id = config.get("guild_id", "1412488621293961226")
+                except Exception as e:
+                    print(f"Error loading config: {e}")
+                    main_guild_id = "1412488621293961226"
+                
+                # Check if this is a guild-specific or main guild request
+                is_main_guild = (guild_id == main_guild_id)
+                
+                if not is_main_guild:
+                    # Check guild configuration and access
+                    db = mongo_manager.get_database()
+                    if db is None:
+                        embed = discord.Embed(
+                            title="Database Error",
+                            description="Unable to connect to database. Please try again later.",
+                            color=discord.Color.red()
+                        )
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return
+                    
+                    guild_config = db.guild_configs.find_one({"guild_id": guild_id})
+                    
+                    if not guild_config:
+                        embed = discord.Embed(
+                            title="Server Not Configured",
+                            description="This server has not been configured to use GOAT Receipts. Please ask the server admin to use `/configure_guild`.",
+                            color=discord.Color.red()
+                        )
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return
+                    
+                    # Get the guild configuration including roles
+                    client_role_id = guild_config.get("client_role_id")
+                    admin_role_id = guild_config.get("admin_role_id")
+                    
+                    # Check if user has admin role
+                    has_admin_role = False
+                    if admin_role_id and interaction.guild:
+                        admin_role = discord.utils.get(interaction.guild.roles, id=int(admin_role_id))
+                        if admin_role and admin_role in interaction.user.roles:
+                            has_admin_role = True
+                    
+                    # Check if user has client role
+                    has_client_role = False
+                    if client_role_id and interaction.guild:
+                        client_role = discord.utils.get(interaction.guild.roles, id=int(client_role_id))
+                        if client_role and client_role in interaction.user.roles:
+                            has_client_role = True
+                    
+                    # Check database access using GuildLicenseChecker
+                    from utils.guild_license_checker import GuildLicenseChecker
+                    has_access, access_info = await GuildLicenseChecker.check_guild_access(user_id, guild_id, guild_config)
+                    
+                    # Grant access if user has admin or client role
+                    if not (has_admin_role or has_client_role or has_access):
+                        embed = discord.Embed(
+                            title="Access Denied",
+                            description="You don't have a valid subscription to use this command. Please purchase a subscription or contact a server admin.",
+                            color=discord.Color.red()
+                        )
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return
+                else:
+                    # In main guild, check license normally
+                    license_status = await LicenseManager.is_subscription_active(user_id)
+                    
+                    if not license_status:
+                        # Check if it's a lite subscription that's exhausted
+                        license_doc = mongo_manager.get_license(user_id)
+                        
+                        if license_doc and license_doc.get("subscription_type") == "lite":
+                            receipt_count = license_doc.get("receipt_count", 0)
+                            max_receipts = license_doc.get("max_receipts", 7)
+                            
+                            if receipt_count >= max_receipts:
+                                embed = discord.Embed(
+                                    title="Lite Subscription Limit Reached",
+                                    description=f"You've used all {max_receipts} receipts in your Lite subscription.\n\n"
+                                               f"Please upgrade to continue generating receipts.",
+                                    color=discord.Color.red()
+                                )
+                            else:
+                                embed = discord.Embed(
+                                    title="Subscription Expired",
+                                    description="Your subscription has expired. Please renew to continue using this command.",
+                                    color=discord.Color.red()
+                                )
+                        else:
+                            embed = discord.Embed(
+                                title="No Active Subscription",
+                                description="You need an active subscription to use this command.\n\n"
+                                           "Please purchase a subscription to get started.",
+                                color=discord.Color.red()
+                            )
+                        
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                        return
+                        
+            except Exception as check_error:
+                print(f"Error checking subscription for {brand_name}: {check_error}")
+                import traceback
+                traceback.print_exc()
+                embed = discord.Embed(
+                    title="Verification Error",
+                    description="There was an error verifying your subscription. Please try again or contact support.",
+                    color=discord.Color.red()
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
             
             # Validate that the attachment is an image
             if not product_image.content_type or not product_image.content_type.startswith('image/'):

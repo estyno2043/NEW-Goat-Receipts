@@ -1048,8 +1048,7 @@ class BrandSelectDropdown(ui.Select):
         embed = discord.Embed(
             title="✅ Store Selected",
             description=f"You've selected **{brand}**{' - DONT SEND TO iCloud EMAIL!' if brand.lower() == 'apple' else ''} for receipt generation.\n\n"
-                       f"🖊️ Click here to start: </{command_name}:0>\n\n"
-                       f"*Upload your product image using the command above.*",
+                       f"*Upload your product image using the command `/{command_name}`*",
             color=discord.Color.green()
         )
         await interaction.response.edit_message(embed=embed, view=None)
@@ -2037,7 +2036,7 @@ async def generate_command(interaction: discord.Interaction):
             )
 
             view = MenuView(user_id)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
             # Store message reference for proper timeout handling
             try:
@@ -2064,7 +2063,7 @@ async def generate_command(interaction: discord.Interaction):
             )
 
             view = BrandSelectView(user_id)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
             # Store message reference for proper timeout handling
             try:
