@@ -60,6 +60,10 @@ class LicenseManager:
                 key = license_doc.get("key", "")
 
                 try:
+                    # Skip if expiry is N/A or invalid
+                    if not expiry_str or expiry_str == 'N/A':
+                        continue
+                    
                     # Parse expiry date
                     expiry_date = datetime.strptime(expiry_str, '%d/%m/%Y %H:%M:%S')
 

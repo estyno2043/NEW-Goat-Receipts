@@ -59,6 +59,14 @@ Preferred communication style: Simple, everyday language.
 ## External Integrations
 - **Webhook Server**: Flask-based webhook server for external API integrations
 - **Proxy Services**: Integration with Zyte proxy service for web scraping
+- **Chrome Extension**: Browser extension for automated product scraping and receipt generation
+  - **Auto-Detection**: Detects 80+ supported brands from current webpage URL
+  - **Smart Scraping**: Automatically extracts product name, image, SKU, and price
+  - **Seamless Integration**: Connects to backend API for receipt generation and email delivery
+  - **Brand Support**: Amazon, Nike, Apple, StockX, GOAT, Supreme, Gucci, Balenciaga, and 70+ more
+  - **API Endpoint**: `/api/generate-receipt` receives extension requests with product/customer data
+  - **Settings Page**: Configurable API endpoint, authentication, and proxy settings
+  - **Location**: `chrome-extension/` directory with manifest, popup, content scripts, and config
 - **Gumroad Integration**: Fully automated purchase system with webhook support
   - **Flexible User Identification**: Supports both Discord ID (recommended) and username lookup
     - Discord ID: Direct, instant, 100% reliable lookup (all numeric)
@@ -116,6 +124,7 @@ Preferred communication style: Simple, everyday language.
 - **discord.py**: Discord bot framework and UI components
 - **pymongo**: MongoDB database driver
 - **flask**: Web server for webhook endpoints
+- **flask-cors**: CORS support for Chrome extension API
 - **requests**: HTTP client for web scraping and API calls
 - **beautifulsoup4**: HTML parsing for web scraping
 - **smtplib**: SMTP email sending functionality
