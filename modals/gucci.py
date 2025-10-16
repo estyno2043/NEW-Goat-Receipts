@@ -163,7 +163,7 @@ class guccimodal2(discord.ui.Modal, title="Gucci Receipt Generator (2/2)"):
             owner_id = interaction.user.id
             link = "https://gucci.com"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, productimage, link)
             await interaction.followup.send(embed=embed, view=view, ephemeral=False)
 

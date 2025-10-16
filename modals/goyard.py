@@ -75,7 +75,7 @@ class GoyardRequestModal(ui.Modal, title="Goyard Request Form"):
             name, street, city, zipp, country, email = user_details
 
             try:
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
                 with open("receipt/goyardrequest.html", "r", encoding="utf-8") as file:
@@ -100,7 +100,7 @@ class GoyardRequestModal(ui.Modal, title="Goyard Request Form"):
                 subject = "CONTACT US - Thank you for contacting Maison Goyard"
 
                 from emails.choise import choiseView
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(interaction.user.id, html_content, sender_email_normal, subject, "Goyard Request", "", sender_email_spoofed)
                 await interaction.edit_original_response(embed=embed, view=view)
 
@@ -174,7 +174,7 @@ class GoyardSecondModalForm(ui.Modal, title="Goyard Receipt - Step 2"):
             first_data = goyard_form_data[owner_id]
 
             try:
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.edit_message(content=f"{interaction.user.mention}", embed=embed, view=None)
 
                 with open("receipt/goyard.html", "r", encoding="utf-8") as file:
@@ -229,7 +229,7 @@ class GoyardSecondModalForm(ui.Modal, title="Goyard Receipt - Step 2"):
                 subject = "Purchase Confirmation"
 
                 from emails.choise import choiseView
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(interaction.user.id, html_content, sender_email_normal, subject, first_data['product_name'], self.imagelink.value, sender_email_spoofed)
                 await interaction.edit_original_response(embed=embed, view=view)
 

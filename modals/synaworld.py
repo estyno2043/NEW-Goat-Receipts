@@ -79,7 +79,7 @@ class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
         owner_id = interaction.user.id
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your receipt...", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your receipt...", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(embed=embed, ephemeral=False)
 
             # Store shipping cost and image link
@@ -149,7 +149,7 @@ class synaworldmodal2(ui.Modal, title="Synaworld Order - Step 2"):
             embed = discord.Embed(
                 title="Choose email provider",
                 description="Email is ready to send. Choose Spoofed or Normal domain.",
-                color=0x1e1f22
+                color=discord.Color.from_str("#826bc2")
             )
             view = choiseView(owner_id, html_content, sender_email, subject, productname, imageurl, link)
             await interaction.edit_original_response(embed=embed, view=view)

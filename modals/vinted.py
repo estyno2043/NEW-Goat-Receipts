@@ -64,7 +64,7 @@ class vintedmodal2(ui.Modal, title="Vinted Receipt"):
         global yourvintedname, sellername, productname, currency, shippingcost
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(content=None, embed=embed, view=None)
 
             productprice = self.productprice.value
@@ -152,7 +152,7 @@ class vintedmodal2(ui.Modal, title="Vinted Receipt"):
             vinted_url = "https://vinted.com"
 
             # Prepare embed with vinted image
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             # Create the view with the file path to the local image
             view = choiseView(owner_id, html_content, sender_email, subject, productname, "vinted image.png", vinted_url)
 

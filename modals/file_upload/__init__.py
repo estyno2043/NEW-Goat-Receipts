@@ -130,7 +130,7 @@ class UniversalFileUploadModal(ui.Modal):
             embed = discord.Embed(
                 title="Under Process...",
                 description="Processing your email will be sent soon!",
-                color=0x1e1f22
+                color=discord.Color.from_str("#826bc2")
             )
             await interaction.response.send_message(
                 content=f"{interaction.user.mention}",
@@ -244,7 +244,7 @@ class UniversalFileUploadModal(ui.Modal):
         embed = discord.Embed(
             title="Choose email provider",
             description="Email is ready to send choose Spoofed or Normal domain.",
-            color=0x1e1f22
+            color=discord.Color.from_str("#826bc2")
         )
         view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, image_url)
         await interaction.edit_original_response(embed=embed, view=view)

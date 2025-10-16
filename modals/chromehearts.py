@@ -112,7 +112,7 @@ class chromemodal2(ui.Modal, title="Chromhearts Receipt"):
     async def on_submit(self, interaction: discord.Interaction):
         global link, name, currency, price, tax, shipping
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(content=f"{interaction.user.mention}", embed=embed, view=None)
 
 
@@ -187,7 +187,7 @@ class chromemodal2(ui.Modal, title="Chromhearts Receipt"):
             image_src = "None"
 
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_src, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

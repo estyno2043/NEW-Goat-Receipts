@@ -57,7 +57,7 @@ class harrodsmodal2(ui.Modal, title="discord.gg/goatreceipt"):
         owner_id = interaction.user.id 
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(embed=embed, view=None)
 
             with open("receipt/harrods.html", "r", encoding="utf-8") as file:
@@ -134,7 +134,7 @@ class harrodsmodal2(ui.Modal, title="discord.gg/goatreceipt"):
             subject = "Thank you for your order"
             link = "https://harrods.com/"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, imagelink, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

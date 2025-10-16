@@ -113,7 +113,7 @@ class pandoramodal2(ui.Modal, title="Pandora Receipt"):
 
         try:
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(embed=embed, view=None)
 
             
@@ -237,7 +237,7 @@ class pandoramodal2(ui.Modal, title="Pandora Receipt"):
             subject = f"Your Pandora order #{order_number}"
 
                 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, image_url, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

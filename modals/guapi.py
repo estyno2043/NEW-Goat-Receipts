@@ -63,7 +63,7 @@ class guapimodal(ui.Modal, title="Guapi Order - Step 1"):
 
             # Scrape product information
             try:
-                embed = discord.Embed(title="Processing...", description="Scraping product details...Please wait !", color=0x1e1f22)
+                embed = discord.Embed(title="Processing...", description="Scraping product details...Please wait !", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.send_message(embed=embed, ephemeral=False)
 
                 # Configure proxies for scraping using Zyte API (as used in other modals)
@@ -201,7 +201,7 @@ class GuapiNextButton(discord.ui.View):
             link = "https://www.guapi.ch"
 
             # Create embed for email provider choice
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(interaction.user.id, html_content, sender_email, subject, data['product_name'], data['product_image'], link)
             await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
 

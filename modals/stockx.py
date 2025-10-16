@@ -84,7 +84,7 @@ class stockxmodal2(ui.Modal, title="StockX Receipt"):
             shipping1 = self.shipping.value
             style_id = self.styleidd.value
 
-            embed = discord.Embed(title="Processing...", description="Please provide an image URL in the next step to complete your receipt.", color=0x1e1f22)
+            embed = discord.Embed(title="Processing...", description="Please provide an image URL in the next step to complete your receipt.", color=discord.Color.from_str("#826bc2"))
 
             # Store the form data to use in the third form
             self.pprice_value = pprice
@@ -171,7 +171,7 @@ class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
                 await interaction.response.send_message("Please use the format 'DD/MM/YYYY' for both dates\nEx. `22/01/2024`", ephemeral=True)
                 return
 
-            embed = discord.Embed(title="Processing...", description="Generating your receipt and preparing email...", color=0x1e1f22)
+            embed = discord.Embed(title="Processing...", description="Generating your receipt and preparing email...", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(embed=embed, ephemeral=False)
 
             # Get the previously entered form values from stockxmodal2
@@ -335,7 +335,7 @@ class stockxmodal3(ui.Modal, title="StockX Image & Dates"):
                 name, street, city, zipp, country, email = user_details
 
             # Final step - email choice
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, product_name_value, image_url, link)
 
             try:
@@ -531,7 +531,7 @@ class ImageUrlModal(ui.Modal, title="StockX Image URL"):
             owner_id = interaction.user.id
 
             # Final step - email choice
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, product_name_value, image_url, link)
 
             try:

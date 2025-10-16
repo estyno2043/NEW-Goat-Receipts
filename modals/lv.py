@@ -60,7 +60,7 @@ class lvmodal(ui.Modal, title="Louis Vuitton Receipt Generator"):
             name, street, city, zipp, country, email = user_details
 
             try:
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
                 with open("receipt/lv.html", "r", encoding="utf-8") as file:
@@ -96,7 +96,7 @@ class lvmodal(ui.Modal, title="Louis Vuitton Receipt Generator"):
 
                 from emails.choise import choiseView
                 view = choiseView(owner_id, html_content, sender_email, subject, self.ProductName.value, self.imglink.value, self.Linklv.value)
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 await interaction.edit_original_response(embed=embed, view=view)
 
             except Exception as e:

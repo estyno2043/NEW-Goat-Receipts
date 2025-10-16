@@ -49,7 +49,7 @@ class argosmodal2(ui.Modal, title="Argos Receipt - Details"):
         owner_id = interaction.user.id 
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(content=None, embed=embed, view=None)
 
             with open("receipt/argos.html", "r", encoding="utf-8") as file:
@@ -128,7 +128,7 @@ class argosmodal2(ui.Modal, title="Argos Receipt - Details"):
             sender_email = "Argos <order-confirmation@argos.co.uk>"
             subject = "Your Argos order confirmation"
             
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, productimage, "https://www.argos.co.uk")
             await interaction.edit_original_response(embed=embed, view=view)
 

@@ -25,6 +25,9 @@ intents.members = True  # Required to see all guild members
 intents.presences = True  # Optional: for member status
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Global dictionary to store command IDs for creating command mentions
+command_ids = {}
+
 # Initialize receipt processing utilities
 try:
     from utils.receipt_processor import patched_open
@@ -1044,12 +1047,18 @@ class BrandSelectDropdown(ui.Select):
         
         command_name = command_mapping.get(brand.lower(), brand.lower().replace(" ", "").replace("'", ""))
         
+        # Get command ID for mention
+        global command_ids
+        command_mention = f"`/{command_name}`"  # Fallback if ID not found
+        if command_name in command_ids:
+            command_mention = f"</{command_name}:{command_ids[command_name]}>"
+        
         # Show message guiding user to use the direct command
         embed = discord.Embed(
             title="✅ Store Selected",
             description=f"You've selected **{brand}**{' - DONT SEND TO iCloud EMAIL!' if brand.lower() == 'apple' else ''} for receipt generation.\n\n"
-                       f"*Upload your product image using the command `/{command_name}`*",
-            color=discord.Color.green()
+                       f"*Upload your product image using the command {command_mention}*",
+            color=discord.Color.from_str("#826bc2")
         )
         await interaction.response.edit_message(embed=embed, view=None)
         return
@@ -2258,6 +2267,11 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
+        
+        # Store all command IDs in global dictionary
+        global command_ids
+        for cmd in synced:
+            command_ids[cmd.name] = cmd.id
         
         # Log all file upload command IDs
         if hasattr(bot, '_file_upload_commands'):

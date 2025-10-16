@@ -58,7 +58,7 @@ class SixPMSecondModal(ui.Modal, title="6PM Order - Step 2"):
 
             first_data = sixpm_form_data[owner_id]
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(embed=embed, view=None)
 
             from utils.db_utils import get_user_details

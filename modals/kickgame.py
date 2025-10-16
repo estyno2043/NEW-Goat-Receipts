@@ -227,7 +227,7 @@ class kickgamemodal2(discord.ui.Modal, title="Kick Game Receipt Generator (2/2)"
             owner_id = interaction.user.id
             link = "https://kickgame.co.uk"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, productimage, link, proxies={
         "http": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",
         "https": "http://a9abed72c425496584d422cfdba283d2:@api.zyte.com:8011/",

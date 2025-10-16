@@ -100,7 +100,7 @@ class adidasmodal2(ui.Modal, title="Adidas Receipt"):
             if user_details:
                 name, street, city, zipp, country, email = user_details
 
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.edit_message(embed=embed, view=None)
 
                 with open("receipt/adidas.html", "r", encoding="utf-8") as file:
@@ -169,7 +169,7 @@ class adidasmodal2(ui.Modal, title="Adidas Receipt"):
                 except Exception as proxy_error:
                     print(f"Proxy scraping failed for Adidas product {pname}: {str(proxy_error)}")
 
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(owner_id, html_content, sender_email, subject, pname, image_url, link)
                 await interaction.edit_original_response(embed=embed, view=view)
 

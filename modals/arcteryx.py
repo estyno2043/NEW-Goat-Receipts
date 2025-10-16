@@ -88,7 +88,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
             try:
 
 
-                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
@@ -166,7 +166,7 @@ class arcteryxmodal(ui.Modal, title="discord.gg/goatreceipts"):
                 }
 
                 from addons.nextsteps import NextstepArcteryx
-                embed = discord.Embed(title="Continue to next step", description="Please continue to add shipping and tax information.", color=0x1e1f22)
+                embed = discord.Embed(title="Continue to next step", description="Please continue to add shipping and tax information.", color=discord.Color.from_str("#826bc2"))
                 view = NextstepArcteryx(owner_id)
                 await interaction.edit_original_response(embed=embed, view=view)
 
@@ -206,7 +206,7 @@ class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
             total = float(price) + float(shipping) + float(tax)
             total_formatted = f"{total:.2f}"
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
             with open("receipt/arcteryx.html", "r", encoding="utf-8") as file:
@@ -243,7 +243,7 @@ class arcteryxmodal2(ui.Modal, title="Arc'teryx - Shipping & Tax"):
             subject = f"Your Arc'teryx Order Is On Its Way"
             from emails.choise import choiseView
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, data['pname'], data['image_url'], data['link'])
             await interaction.edit_original_response(embed=embed, view=view)
 

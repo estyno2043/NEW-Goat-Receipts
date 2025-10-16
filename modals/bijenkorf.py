@@ -103,7 +103,7 @@ class bijenkorfmodal2(ui.Modal, title="discord.gg/goatreceipt"):
         currency = self.currency.value
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=True)
 
             with open("receipt/bijenkorf.html", "r", encoding="utf-8") as file:
@@ -142,7 +142,7 @@ class bijenkorfmodal2(ui.Modal, title="discord.gg/goatreceipt"):
             from emails.choise import choiseView
             owner_id = interaction.user.id
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, imageurl, "https://www.debijenkorf.nl")
             await interaction.edit_original_response(embed=embed, view=view)
 

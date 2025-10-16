@@ -85,7 +85,7 @@ class burberrymodal(ui.Modal, title="discord.gg/goatreceipts"):
                     return
 
                 try:
-                    embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+                    embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
                     await interaction.response.send_message(embed=embed, ephemeral=False) # Send initial message
 
                     with open("receipt/burberry.html", "r", encoding="utf-8") as file:
@@ -169,7 +169,7 @@ class burberrymodal(ui.Modal, title="discord.gg/goatreceipts"):
                     subject = f"Thank you for your order"
                     from emails.choise import choiseView
 
-                    embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+                    embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                     view = choiseView(owner_id, html_content, sender_email, subject, productname, image_url, Link)
                     await interaction.edit_original_response(embed=embed, view=view) # Edit the original response
 

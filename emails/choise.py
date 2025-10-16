@@ -32,7 +32,7 @@ class choiseView(discord.ui.View):
         sending_embed = discord.Embed(
             title="**Sending...**",
             description="Please wait while we process your email...",
-            color=0x3498db
+            color=discord.Color.from_str("#826bc2")
         )
         # Validate image URL before setting it as thumbnail
         if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):
@@ -178,7 +178,7 @@ class choiseView(discord.ui.View):
         sending_embed = discord.Embed(
             title="**Sending...**",
             description="Please wait while we process your email...",
-            color=0x3498db
+            color=discord.Color.from_str("#826bc2")
         )
         # Validate image URL before setting it as thumbnail
         if self.image_url and isinstance(self.image_url, str) and (self.image_url.startswith('http://') or self.image_url.startswith('https://')):

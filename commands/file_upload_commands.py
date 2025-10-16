@@ -167,9 +167,11 @@ def register_file_upload_commands(bot):
     for brand in brands:
         display_name = brand_display_names.get(brand, brand.title())
         
-        # Create command function with brand captured in closure
-        async def brand_command(interaction: discord.Interaction, product_image: discord.Attachment, brand_name: str = brand, display: str = display_name):
+        # Create command function with brand captured via default parameters (fixes Python late binding)
+        async def brand_command(interaction: discord.Interaction, product_image: discord.Attachment, _brand: str = brand, _display: str = display_name):
             """File upload command for a specific brand"""
+            brand_name = _brand
+            display = _display
             user_id = str(interaction.user.id)
             guild_id = str(interaction.guild.id if interaction.guild else "0")
             

@@ -41,7 +41,7 @@ class houseofffrasersmodal2(ui.Modal, title="House of Fraser Receipt Generator (
         owner_id = interaction.user.id
 
         try:
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.edit_message(content=None, embed=embed, view=None)
 
             productcode = self.productcode.value

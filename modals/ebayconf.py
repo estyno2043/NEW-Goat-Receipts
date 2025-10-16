@@ -29,7 +29,7 @@ class EbayConfModal(ui.Modal, title="eBay Receipt - Step 1"):
         productsku = self.productsku.value
 
         # Instead of sending another modal, store data and respond with a message/button
-        embed = discord.Embed(title="Product Details", description="First part completed successfully!", color=0x1e1f22)
+        embed = discord.Embed(title="Product Details", description="First part completed successfully!", color=discord.Color.from_str("#826bc2"))
         embed.add_field(name="Product Name", value=productname, inline=False)
         embed.add_field(name="Price", value=f"{productcurrency}{productprice}", inline=True)
         embed.add_field(name="SKU", value=productsku, inline=True)
@@ -83,7 +83,7 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
 
             try:
                 # Process the HTML template
-                embed = discord.Embed(title="Processing...", description="Processing your receipt, please wait.", color=0x1e1f22)
+                embed = discord.Embed(title="Processing...", description="Processing your receipt, please wait.", color=discord.Color.from_str("#826bc2"))
                 await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed)
 
                 with open("receipt/ebayconf.html", "r", encoding="utf-8") as file:
@@ -139,7 +139,7 @@ class EbayConfSecondModal(ui.Modal, title="eBay Receipt - Step 2"):
 
                 from emails.choise import choiseView
 
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(owner_id, html_content, sender_email, subject, self.productname, self.productimagelink, link)
                 await interaction.edit_original_response(embed=embed, view=view)
 

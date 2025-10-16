@@ -142,7 +142,7 @@ class HermesSecondModal(ui.Modal, title="Hermes Order - Step 2"):
                 link = "https://www.hermes.com"
 
                 # Create embed for email provider choice
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(interaction.user.id, html_content, sender_email, subject, data['product_name'], image_url, link)
                 await interaction.followup.send(embed=embed, view=view, ephemeral=True) #Added ephemeral here
 

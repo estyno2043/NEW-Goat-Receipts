@@ -76,7 +76,7 @@ class chronomodal(ui.Modal, title="discord.gg/goatreceipts"):
         try:
 
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
 
@@ -110,7 +110,7 @@ class chronomodal(ui.Modal, title="discord.gg/goatreceipts"):
 
 
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, pname, imageurl, link)
             await interaction.edit_original_response(embed=embed, view=view, ephemeral=False)
         except Exception as e:

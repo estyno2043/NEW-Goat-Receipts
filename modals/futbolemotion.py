@@ -63,7 +63,7 @@ class futbolemotionmodal(ui.Modal, title="discord.gg/goatreceipts"):
             productsize = self.productsize.value
             imagelink = self.imagelink.value
 
-            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=0x1e1f22)
+            embed = discord.Embed(title="Under Process...", description="Processing your email will be sent soon!", color=discord.Color.from_str("#826bc2"))
             await interaction.response.send_message(content=f"{interaction.user.mention}", embed=embed, ephemeral=False)
 
             with open("receipt/Fútbol Emotion.html", "r", encoding="utf-8") as file:
@@ -100,7 +100,7 @@ class futbolemotionmodal(ui.Modal, title="discord.gg/goatreceipts"):
             subject = "Your Fútbol Emotion order has been shipped."
             link = "https://futbolemotion.com/"
 
-            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=0x1e1f22)
+            embed = discord.Embed(title="Choose email provider", description="Email is ready to send choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
             view = choiseView(owner_id, html_content, sender_email, subject, productname, imagelink, link)
             await interaction.edit_original_response(embed=embed, view=view)
 

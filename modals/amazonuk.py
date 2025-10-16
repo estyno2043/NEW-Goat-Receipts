@@ -78,7 +78,7 @@ class AmazonUKModal(ui.Modal, title="Amazon UK Order Generator"):
         embed = discord.Embed(
             title="Product Details Submitted",
             description="Please click the button below to enter the product image link",
-            color=0x1e1f22
+            color=discord.Color.from_str("#826bc2")
         )
 
         # Create a view with a button to open the second modal
@@ -186,7 +186,7 @@ class AmazonUKSecondModal(ui.Modal, title='Amazon UK Order - Part 2'):
                 # Send the generated receipt
                 from emails.choise import choiseView
 
-                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=0x1e1f22)
+                embed = discord.Embed(title="Choose email provider", description="Email is ready to send. Choose Spoofed or Normal domain.", color=discord.Color.from_str("#826bc2"))
                 view = choiseView(owner_id, html_content, sender_email, subject, productname, productimagelink, link)
                 await interaction.followup.send(embed=embed, view=view)
 
