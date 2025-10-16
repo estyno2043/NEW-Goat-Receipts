@@ -6,9 +6,13 @@ import os
 import asyncio
 import discord
 from utils.mongodb_manager import mongo_manager
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management
+
+# Enable CORS for Chrome extension
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1235,6 +1239,10 @@ def admin_user_info():
         return render_template('admin_dashboard.html', 
                              message=f"Error: {str(e)}", success=False)
 
+# Register Chrome Extension API blueprint
+from extension_api import extension_api
+app.register_blueprint(extension_api)
+
 @app.route('/', methods=['GET'])
 def root():
     return jsonify({
@@ -1243,7 +1251,9 @@ def root():
             'health': '/api/health',
             'grant_access': '/api/grant-access (POST)',
             'check_access': '/api/check-access/<user_id> (GET)',
-            'admin_dashboard': '/admin (GET)'
+            'admin_dashboard': '/admin (GET)',
+            'extension_receipt': '/api/generate-receipt (POST)',
+            'extension_status': '/api/extension-status (GET)'
         }
     }), 200
 

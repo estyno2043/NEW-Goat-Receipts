@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOAT Receipts Generator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="../icons/icon.png" alt="GOAT" class="brand-icon">
+      <div class="brand-info">
+        <h2 id="brandName">GOAT Receipts</h2>
+        <p id="brandUrl">goat.com</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+      <p>Detecting brand and scraping product info...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state" style="display: none;">
+      <p id="errorMessage">Brand not supported or couldn't scrape product data</p>
+      <button id="retryBtn" class="btn btn-secondary">Retry</button>
+    </div>
+
+    <!-- Receipt Form -->
+    <div id="receiptForm" class="receipt-form" style="display: none;">
+      <h3>RECEIPT DETAILS:</h3>
+      
+      <!-- Product Information (Auto-filled) -->
+      <div class="form-group">
+        <label for="productName">Item Name: <span class="auto-label">AUTO</span></label>
+        <input type="text" id="productName" class="form-control" placeholder="Product name will be auto-filled">
+      </div>
+
+      <div class="form-group">
+        <label for="productImage">Product Image URL: <span class="auto-label">AUTO</span></label>
+        <input type="url" id="productImage" class="form-control" placeholder="Image URL will be auto-filled">
+        <img id="productImagePreview" class="image-preview" style="display: none;">
+      </div>
+
+      <div class="form-group">
+        <label for="productSKU">Product SKU/Style:</label>
+        <input type="text" id="productSKU" class="form-control" placeholder="SKU (optional)">
+      </div>
+
+      <!-- User Information (Manual) -->
+      <div class="form-group">
+        <label for="fullName">Full Name: <span class="required">*</span></label>
+        <input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address: <span class="required">*</span></label>
+        <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
+      </div>
+
+      <!-- Order Details (Manual) -->
+      <div class="form-group">
+        <label for="orderNumber">Order Number:</label>
+        <input type="text" id="orderNumber" class="form-control" placeholder="123456789">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="productPrice">Price:</label>
+          <input type="text" id="productPrice" class="form-control" placeholder="99.99">
+        </div>
+        <div class="form-group">
+          <label for="currency">Currency:</label>
+          <select id="currency" class="form-control">
+            <option value="$">$ USD</option>
+            <option value="€">€ EUR</option>
+            <option value="£">£ GBP</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="deliveryDate">Delivery Date:</label>
+        <input type="date" id="deliveryDate" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="size">Size:</label>
+        <input type="text" id="size" class="form-control" placeholder="M, 10, etc.">
+      </div>
+
+      <div class="form-group">
+        <label for="color">Color:</label>
+        <input type="text" id="color" class="form-control" placeholder="Black, White, etc.">
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button id="generateBtn" class="btn btn-primary">
+          <span id="btnText">Generate Receipt</span>
+          <div id="btnSpinner" class="btn-spinner" style="display: none;"></div>
+        </button>
+      </div>
+
+      <!-- Success Message -->
+      <div id="successMessage" class="success-message" style="display: none;">
+        <p>✅ Receipt sent to your email!</p>
+      </div>
+    </div>
+
+    <!-- Configuration -->
+    <div class="config-footer">
+      <button id="settingsBtn" class="settings-btn">⚙️ Settings</button>
+    </div>
+  </div>
+
+  <script src="../config/brands.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
